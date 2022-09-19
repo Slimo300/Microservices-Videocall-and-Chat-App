@@ -1,0 +1,86 @@
+version: '3'
+
+services:
+  chatmysql:
+    image: mysql/mysql-server
+    container_name: chatmysql
+    hostname: db
+    user: root
+    networks:
+      - chatnet
+    ports:
+      - 3307:3306
+    volumes:
+      - chatmysqlvolume:/var/lib/mysql
+
+  chatredis:
+    image: redis
+    restart: always
+    hostname: tokendb
+    networks:
+      - chatnet
+    ports:
+      - 6379:6379
+    container_name: chatredis
+
+  chattokenservice:
+    depends_on:
+      - chatredis
+    build:
+      context: backend/tokenservice
+    container_name: chattokenservice
+    hostname: tokens
+    networks: 
+      - chatnet
+    ports:
+      - "9000:9000"
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REFRESH_SECRET=${REFRESH_SECRET}
+      - PUB_KEY_FILE=${PUB_KEY_FILE}
+      - PRIV_KEY_FILE=${PRIV_KEY_FILE}
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  chatbackend:
+    depends_on: 
+      - chatmysql
+    build:
+      context: backend/src
+    container_name: chatbackend
+    hostname: backend
+    networks:
+      - chatnet
+    ports:
+      - 8080:8080
+    environment:
+      - MYSQLUSERNAME=${MYSQLUSERNAME:-user}
+      - MYSQLPASSWORD=${MYSQLPASSWORD:?database password not set}
+      - MYSQLHOST=${MYSQLHOST:-db}
+      - MYSQLPORT=${MYSQLPORT:-3306}
+      - MYSQLDBNAME=${MYSQLDBNAME:-test}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - IMAGEBUCKETNAME=${IMAGEBUCKETNAME}
+    restart: always
+    deploy:
+      restart_policy:
+        condition: on-failure
+  chatfrontend:
+    build: frontend
+    container_name: chatfrontend
+    hostname: front
+    networks:
+      - chatnet
+    ports:
+      - 3000:3000
+
+volumes:
+  chatmysqlvolume:
+
+networks:
+  chatnet:
+    driver: bridge
