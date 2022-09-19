@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/Slimo300/MicrosevicesChatApp/backend/group-service/database"
-	"github.com/Slimo300/MicrosevicesChatApp/backend/group-service/models"
+	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/database"
+	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

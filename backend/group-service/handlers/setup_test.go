@@ -9,10 +9,10 @@ import (
 	"mime/multipart"
 	"net/textproto"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/auth"
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/database/mock"
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/handlers"
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/storage"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
 )
 
 func setupTestServerWithHub() handlers.Server {

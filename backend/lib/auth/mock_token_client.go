@@ -3,7 +3,7 @@ package auth
 import (
 	"crypto/rsa"
 
-	"github.com/Slimo300/MicrosevicesChatApp/backend/token-service/pb"
+	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/pb"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 )

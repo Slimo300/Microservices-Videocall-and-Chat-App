@@ -3,7 +3,7 @@ package ws
 import (
 	"net/http"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/communication"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/communication"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )

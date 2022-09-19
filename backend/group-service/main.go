@@ -10,12 +10,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Slimo300/ChatApp/backend/user-service/email"
-	"github.com/Slimo300/MicrosevicesChatApp/backend/group-service/auth"
-	"github.com/Slimo300/MicrosevicesChatApp/backend/group-service/database/orm"
-	"github.com/Slimo300/MicrosevicesChatApp/backend/group-service/handlers"
-	"github.com/Slimo300/MicrosevicesChatApp/backend/group-service/routes"
-	"github.com/Slimo300/MicrosevicesChatApp/backend/group-service/storage"
+	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/database/orm"
+	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/handlers"
+	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/routes"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
 	"github.com/gin-gonic/gin"
 )
 
@@ -31,7 +30,6 @@ func main() {
 		panic("Couldn't connect to grpc auth server")
 	}
 	server := handlers.NewServer(db, &storage, authService)
-	server.EmailService = email.NewMockEmailService()
 	routes.Setup(engine, server)
 	go server.RunHub()
 

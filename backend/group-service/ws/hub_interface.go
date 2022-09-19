@@ -1,6 +1,6 @@
 package ws
 
-import "github.com/Slimo300/MicroservicesChatApp/backend/group-service/communication"
+import "github.com/Slimo300/MicroservicesChatApp/backend/lib/communication"
 
 type HubInterface interface {
 	Run()

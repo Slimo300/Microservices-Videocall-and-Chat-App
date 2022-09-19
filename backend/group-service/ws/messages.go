@@ -1,8 +1,8 @@
 package ws
 
 import (
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/communication"
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/communication"
 	"github.com/google/uuid"
 )
 

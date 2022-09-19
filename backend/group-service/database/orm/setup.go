@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Slimo300/MicrosevicesChatApp/backend/group-service/models"
+	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )

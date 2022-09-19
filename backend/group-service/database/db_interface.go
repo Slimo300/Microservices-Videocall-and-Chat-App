@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/Slimo300/MicrosevicesChatApp/backend/group-service/models"
+	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
 	"github.com/google/uuid"
 )
 

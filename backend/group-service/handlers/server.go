@@ -5,11 +5,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Slimo300/MicrosevicesChatApp/backend/group-service/auth"
-	"github.com/Slimo300/MicrosevicesChatApp/backend/group-service/communication"
-	"github.com/Slimo300/MicrosevicesChatApp/backend/group-service/database"
-	"github.com/Slimo300/MicrosevicesChatApp/backend/group-service/storage"
-	"github.com/Slimo300/MicrosevicesChatApp/backend/group-service/ws"
+	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/database"
+	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/ws"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/communication"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 )

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Slimo300/MicrosevicesChatApp/backend/group-service/database"
+	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/database"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )

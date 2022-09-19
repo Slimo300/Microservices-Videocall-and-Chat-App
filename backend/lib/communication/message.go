@@ -3,7 +3,7 @@ package communication
 import (
 	"time"
 
-	"github.com/Slimo300/ChatApp/backend/group-service/models"
+	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )

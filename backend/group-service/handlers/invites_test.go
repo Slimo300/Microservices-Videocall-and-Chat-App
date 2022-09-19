@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Slimo300/MicrosevicesChatApp/backend/group-service/models"
+	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
