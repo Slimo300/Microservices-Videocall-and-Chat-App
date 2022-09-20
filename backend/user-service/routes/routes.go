@@ -10,7 +10,6 @@ func Setup(engine *gin.Engine, server *handlers.Server) {
 
 	engine.Use(CORSMiddleware())
 	engine.Use(limits.RequestSizeLimiter(server.MaxBodyBytes))
-	engine.Use(server.CheckDatabase())
 
 	api := engine.Group("/api")
 	api.POST("/register", server.RegisterUser)

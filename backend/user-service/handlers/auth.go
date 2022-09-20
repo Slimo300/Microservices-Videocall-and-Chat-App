@@ -3,8 +3,8 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/email"
+	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/thanhpk/randstr"
@@ -96,13 +96,13 @@ func (s *Server) SignIn(c *gin.Context) {
 		return
 	}
 
-	tokenPair, err := s.TokenService.NewPairFromUserID(user.ID)
+	tokenPair, err := s.AuthService.NewPairFromUserID(user.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
 	}
 
-	c.SetCookie("refreshToken", tokenPair.RefreshToken, 86400, "/", s.domain, false, true)
+	c.SetCookie("refreshToken", tokenPair.RefreshToken, 86400, "/", s.Domain, false, true)
 
 	c.JSON(http.StatusOK, gin.H{"accessToken": tokenPair.AccessToken})
 }
@@ -128,12 +128,12 @@ func (s *Server) SignOutUser(c *gin.Context) {
 		return
 	}
 
-	if err := s.TokenService.DeleteUserToken(refresh); err != nil {
+	if err := s.AuthService.DeleteUserToken(refresh); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
 	}
 
-	c.SetCookie("refreshToken", "", -1, "/", s.domain, false, true)
+	c.SetCookie("refreshToken", "", -1, "/", s.Domain, false, true)
 
 	c.JSON(http.StatusOK, gin.H{"message": "success"})
 }
@@ -164,7 +164,7 @@ func (s *Server) RefreshToken(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "No token provided"})
 		return
 	}
-	tokens, err := s.TokenService.NewPairFromRefresh(refresh)
+	tokens, err := s.AuthService.NewPairFromRefresh(refresh)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
@@ -177,7 +177,7 @@ func (s *Server) RefreshToken(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": tokens.Error})
 		return
 	}
-	c.SetCookie("refreshToken", tokens.RefreshToken, 86400, "/", s.domain, false, true)
+	c.SetCookie("refreshToken", tokens.RefreshToken, 86400, "/", s.Domain, false, true)
 
 	c.JSON(http.StatusOK, gin.H{"accessToken": tokens.AccessToken})
 }

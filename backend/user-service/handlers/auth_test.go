@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/auth"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/pb"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/email"
 	"github.com/gin-gonic/gin"
@@ -26,15 +26,19 @@ func TestRegister(t *testing.T) {
 		data               map[string]string
 		expectedStatusCode int
 		expectedResponse   interface{}
-		prepare            func(emailService *mock.Mock)
+		prepare            func(dbMock *mock.Mock, emailMock *mock.Mock)
 	}{
 		{
 			desc:               "registersuccess",
 			data:               map[string]string{"username": "johnny", "email": "johnny@net.pl", "password": "password"},
 			expectedStatusCode: http.StatusCreated,
 			expectedResponse:   gin.H{"message": "success"},
-			prepare: func(m *mock.Mock) {
-				m.On("SendVerificationEmail", mock.Anything).Return(nil)
+			prepare: func(dbMock *mock.Mock, emailMock *mock.Mock) {
+				emailMock.On("SendVerificationEmail", mock.Anything).Return(nil).Once()
+				// dbMock.On("IsUsernameInDatabase", "johnny").Return(false).Once()
+				// dbMock.On("IsEmailInDatabase", "johnny@net.pl").Return(false).Once()
+				// dbMock.On("RegisterUser", mock.Anything).Return(models.User{Email: "johnny@net.pl", UserName: "johnny", Pass: "password", Activated: false}, nil)
+				// dbMock.On("NewVerificationCode", mock.Anything, mock.Anything).Return(models.VerificationCode{UserID: })
 			},
 		},
 		{
@@ -95,13 +99,13 @@ func TestRegister(t *testing.T) {
 
 func TestSignIn(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	mockTokenClient := auth.NewMockAuthClient()
-	mockTokenClient.On("NewPairFromUserID", mock.Anything).Return(&pb.TokenPair{
+	mockAuthClient := auth.NewMockAuthClient()
+	mockAuthClient.On("NewPairFromUserID", mock.Anything).Return(&pb.TokenPair{
 		AccessToken:  "validAccessToken",
 		RefreshToken: "validRefreshToken",
 		Error:        "",
 	}, nil)
-	s := setupTestServerWithAuthClient(mockTokenClient)
+	s := setupTestServer().WithAuthClient(mockAuthClient)
 	testCases := []struct {
 		desc               string
 		data               map[string]string
@@ -154,7 +158,7 @@ func TestSignOut(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	mockAuthClient := auth.NewMockAuthClient()
 	mockAuthClient.On("DeleteUserToken", mock.Anything).Return(nil)
-	s := setupTestServerWithAuthClient(mockAuthClient)
+	s := setupTestServer().WithAuthClient(mockAuthClient)
 
 	testCases := []struct {
 		desc               string
@@ -208,8 +212,8 @@ func TestSignOut(t *testing.T) {
 func TestRefresh(t *testing.T) {
 
 	gin.SetMode(gin.TestMode)
-	mockTokenClient := auth.NewMockAuthClient()
-	s := setupTestServerWithAuthClient(mockTokenClient)
+	mockAuthClient := auth.NewMockAuthClient()
+	s := setupTestServer().WithAuthClient(mockAuthClient)
 
 	testCases := []struct {
 		desc               string
@@ -254,7 +258,7 @@ func TestRefresh(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			tC.prepare(&mockTokenClient.Mock)
+			tC.prepare(&mockAuthClient.Mock)
 
 			req := httptest.NewRequest(http.MethodPost, "/api/refresh", nil)
 			if tC.withCookie {

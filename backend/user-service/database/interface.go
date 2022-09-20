@@ -1,7 +1,7 @@
 package database
 
 import (
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
+	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/models"
 	"github.com/google/uuid"
 )
 
@@ -21,4 +21,7 @@ type DBlayer interface {
 	GetProfilePictureURL(userID uuid.UUID) (string, error)
 	SetProfilePicture(userID uuid.UUID, newURI string) error
 	DeleteProfilePicture(userID uuid.UUID) error
+
+	NewVerificationCode(userID uuid.UUID, code string) (models.VerificationCode, error)
+	VerifyCode(userID uuid.UUID, code string) error
 }

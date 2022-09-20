@@ -3,15 +3,8 @@ package mock
 import (
 	"time"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo"
 	"github.com/stretchr/testify/mock"
 )
-
-type TokenInfo struct {
-	Created    time.Time
-	Expiration time.Duration
-	Value      repo.TokenValue
-}
 
 type mockTokenRepository struct {
 	mock.Mock
