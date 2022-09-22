@@ -13,7 +13,7 @@ import (
 )
 
 type Server struct {
-	DB           database.DBlayer
+	DB           database.DBLayer
 	ImageStorage storage.StorageLayer
 	AuthService  auth.TokenClient
 	EmailService email.EmailService

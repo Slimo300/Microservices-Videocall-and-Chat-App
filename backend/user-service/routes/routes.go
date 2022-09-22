@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/handlers"
 	limits "github.com/gin-contrib/size"
 	"github.com/gin-gonic/gin"
@@ -16,7 +17,7 @@ func Setup(engine *gin.Engine, server *handlers.Server) {
 	api.POST("/login", server.SignIn)
 	api.POST("/refresh", server.RefreshToken)
 
-	apiAuth := api.Use(server.MustAuth())
+	apiAuth := api.Use(auth.MustAuth(server.AuthService))
 
 	apiAuth.DELETE("/delete-image", server.DeleteProfilePicture)
 	apiAuth.POST("/set-image", server.UpdateProfilePicture)

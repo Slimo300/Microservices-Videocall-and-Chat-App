@@ -19,8 +19,8 @@ type gRPCTokenAuthClient struct {
 	iteration string
 }
 
-func NewGRPCTokenAuthClient() (*gRPCTokenAuthClient, error) {
-	conn, err := grpc.Dial(":9000", grpc.WithInsecure())
+func NewGRPCTokenClient(port string) (*gRPCTokenAuthClient, error) {
+	conn, err := grpc.Dial(port, grpc.WithInsecure())
 	if err != nil {
 		return &gRPCTokenAuthClient{}, err
 	}

@@ -18,9 +18,9 @@ import (
 
 func setupTestServer() *handlers.Server {
 	return &handlers.Server{
-		DB:           database.NewMockUserRepository(),
+		DB:           new(database.DBLayerMock),
 		ImageStorage: storage.MockStorage{},
-		AuthService:  auth.NewMockAuthClient(),
+		AuthService:  auth.NewMockTokenClient(),
 		EmailService: email.NewMockEmailService(),
 		Domain:       "localhost",
 		MaxBodyBytes: 4194304,

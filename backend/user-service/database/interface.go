@@ -5,7 +5,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type DBlayer interface {
+type DBLayer interface {
 	IsEmailInDatabase(email string) bool
 	IsUsernameInDatabase(username string) bool
 
