@@ -25,7 +25,7 @@ func setupTestServerWithHub() handlers.Server {
 func setupTestServer() *handlers.Server {
 
 	mockDB := mock.NewMockDB()
-	mockAuthClient := auth.NewMockAuthClient()
+	mockAuthClient := auth.NewMockTokenClient()
 	s := handlers.NewServer(mockDB, storage.MockStorage{}, mockAuthClient)
 	return s
 }

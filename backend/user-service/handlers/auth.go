@@ -96,7 +96,7 @@ func (s *Server) SignIn(c *gin.Context) {
 		return
 	}
 
-	tokenPair, err := s.AuthService.NewPairFromUserID(user.ID)
+	tokenPair, err := s.TokenService.NewPairFromUserID(user.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
@@ -128,7 +128,7 @@ func (s *Server) SignOutUser(c *gin.Context) {
 		return
 	}
 
-	if err := s.AuthService.DeleteUserToken(refresh); err != nil {
+	if err := s.TokenService.DeleteUserToken(refresh); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
 	}
@@ -164,7 +164,7 @@ func (s *Server) RefreshToken(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "No token provided"})
 		return
 	}
-	tokens, err := s.AuthService.NewPairFromRefresh(refresh)
+	tokens, err := s.TokenService.NewPairFromRefresh(refresh)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return

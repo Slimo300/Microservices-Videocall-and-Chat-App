@@ -10,6 +10,10 @@ import (
 	"gorm.io/gorm"
 )
 
+func (m *MockDB) GetUserByUsername(username string) (models.User, error) {
+	return models.User{}, nil
+}
+
 func (m *MockDB) AddInvite(issID, targetID, groupID uuid.UUID) (models.Invite, error) {
 	invite := models.Invite{ID: uuid.New(), IssId: issID, TargetID: targetID, GroupID: groupID,
 		Status: database.INVITE_AWAITING, Created: time.Now(), Modified: time.Now()}

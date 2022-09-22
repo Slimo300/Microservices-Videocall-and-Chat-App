@@ -8,24 +8,7 @@ import (
 	"image/png"
 	"mime/multipart"
 	"net/textproto"
-
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
-	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/database"
-	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/email"
-	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/handlers"
 )
-
-func setupTestServer() *handlers.Server {
-	return &handlers.Server{
-		DB:           new(database.DBLayerMock),
-		ImageStorage: storage.MockStorage{},
-		AuthService:  auth.NewMockTokenClient(),
-		EmailService: email.NewMockEmailService(),
-		Domain:       "localhost",
-		MaxBodyBytes: 4194304,
-	}
-}
 
 func createImage() *image.RGBA {
 	width := 200

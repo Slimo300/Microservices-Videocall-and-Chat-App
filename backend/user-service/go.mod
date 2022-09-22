@@ -8,7 +8,6 @@ require (
 	github.com/Slimo300/MicroservicesChatApp/backend/token-service v0.0.0-20220919163237-9de3e238815c
 	github.com/gin-contrib/size v0.0.0-20220829131622-0fc0bc875336
 	github.com/gin-gonic/gin v1.8.1
-	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.0
 	github.com/k3a/html2text v1.0.8
 	github.com/stretchr/testify v1.8.0

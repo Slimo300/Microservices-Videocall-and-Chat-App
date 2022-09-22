@@ -15,6 +15,10 @@ func (db *Database) AddInvite(issID, targetID, groupID uuid.UUID) (invite models
 	return invite, db.Create(&invite).Error
 }
 
+func (db *Database) GetUserByUsername(username string) (user models.User, err error) {
+	return user, db.Where(models.User{UserName: username}).First(&user).Error
+}
+
 func (db *Database) AcceptInvite(invite models.Invite) (group models.Group, err error) {
 
 	if err = db.Transaction(func(tx *gorm.DB) error {

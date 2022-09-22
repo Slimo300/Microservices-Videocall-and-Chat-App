@@ -17,7 +17,7 @@ func Setup(engine *gin.Engine, server *handlers.Server) {
 	api.POST("/login", server.SignIn)
 	api.POST("/refresh", server.RefreshToken)
 
-	apiAuth := api.Use(auth.MustAuth(server.AuthService))
+	apiAuth := api.Use(auth.MustAuth(server.TokenService))
 
 	apiAuth.DELETE("/delete-image", server.DeleteProfilePicture)
 	apiAuth.POST("/set-image", server.UpdateProfilePicture)

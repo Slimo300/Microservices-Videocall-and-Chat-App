@@ -3,21 +3,35 @@ package handlers_test
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
 
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
+	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/database"
+	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/handlers"
+	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/models"
 	limits "github.com/gin-contrib/size"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/mock"
+	"gorm.io/gorm"
 )
 
 func TestChangePassword(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	s := setupTestServer()
 
-	badUserID := uuid.NewString()
+	DBMock := new(database.DBLayerMock)
+	DBMock.On("GetUserById", uuid.MustParse("c71b4a02-85fb-4092-9e98-051302728eaf")).Return(models.User{
+		ID:   uuid.MustParse("c71b4a02-85fb-4092-9e98-051302728eaf"),
+		Pass: "$2a$10$6BSuuiaPdRJJF2AygYAfnOGkrKLY2o0wDWbEpebn.9Rk0O95D3hW."}, nil)
+	DBMock.On("GetUserById", uuid.MustParse("5fc8ab07-cc10-40cc-a84e-9c850309b038")).Return(models.User{}, errors.New("No user with id: 5fc8ab07-cc10-40cc-a84e-9c850309b038"))
+	DBMock.On("SetPassword", uuid.MustParse("c71b4a02-85fb-4092-9e98-051302728eaf"), mock.AnythingOfType("string")).Return(nil)
+	s := handlers.Server{
+		DB: DBMock,
+	}
 
 	testCases := []struct {
 		desc               string
@@ -35,28 +49,28 @@ func TestChangePassword(t *testing.T) {
 		},
 		{
 			desc:               "changePasswordPassTooShort",
-			userID:             "1c4dccaf-a341-4920-9003-f24e0412f8e0",
+			userID:             "c71b4a02-85fb-4092-9e98-051302728eaf",
 			data:               map[string]interface{}{"oldPassword": "test", "newPassword": "test1"},
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "Password must be at least 6 characters long"},
 		},
 		{
 			desc:               "changePasswordNoUser",
-			userID:             badUserID,
+			userID:             "5fc8ab07-cc10-40cc-a84e-9c850309b038",
 			data:               map[string]interface{}{"oldPassword": "test", "newPassword": "test12"},
 			expectedStatusCode: http.StatusBadRequest,
-			expectedResponse:   gin.H{"err": "No user with id: " + badUserID},
+			expectedResponse:   gin.H{"err": "No user with id: 5fc8ab07-cc10-40cc-a84e-9c850309b038"},
 		},
 		{
 			desc:               "changePasswordPassDontMatch",
-			userID:             "1c4dccaf-a341-4920-9003-f24e0412f8e0",
+			userID:             "c71b4a02-85fb-4092-9e98-051302728eaf",
 			data:               map[string]interface{}{"oldPassword": "test1", "newPassword": "test12"},
 			expectedStatusCode: http.StatusForbidden,
 			expectedResponse:   gin.H{"err": "Wrong password"},
 		},
 		{
 			desc:               "changePasswordSuccess",
-			userID:             "1c4dccaf-a341-4920-9003-f24e0412f8e0",
+			userID:             "c71b4a02-85fb-4092-9e98-051302728eaf",
 			data:               map[string]interface{}{"oldPassword": "test", "newPassword": "test12"},
 			expectedStatusCode: http.StatusOK,
 			expectedResponse:   gin.H{"message": "password changed"},
@@ -94,9 +108,17 @@ func TestChangePassword(t *testing.T) {
 
 func TestDeleteProfilePicture(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	s := setupTestServer()
 
-	badUserID := uuid.NewString()
+	DBMock := new(database.DBLayerMock)
+	DBMock.On("GetProfilePictureURL", uuid.MustParse("0ef41409-24b0-43e6-80a3-cf31a4b1a684")).Return("", nil)
+	DBMock.On("GetProfilePictureURL", uuid.MustParse("f586fa1a-af84-4a2e-9fc6-1a4ada270fe4")).Return("", gorm.ErrRecordNotFound)
+	DBMock.On("GetProfilePictureURL", uuid.MustParse("1c4dccaf-a341-4920-9003-f24e0412f8e0")).Return("url", nil)
+	DBMock.On("SetProfilePicture", uuid.MustParse("1c4dccaf-a341-4920-9003-f24e0412f8e0"), mock.AnythingOfType("string")).Return(nil)
+
+	s := handlers.Server{
+		DB:           DBMock,
+		ImageStorage: new(storage.MockStorage),
+	}
 
 	testCases := []struct {
 		desc               string
@@ -106,7 +128,7 @@ func TestDeleteProfilePicture(t *testing.T) {
 	}{
 		{
 			desc:               "DeleteProfilePicturePInvalidID",
-			userID:             "1c4dccaf-a341-4920-9003-f4e0412f8e0",
+			userID:             "1c4dccaf-a341-4920-9003-f4e12f8e0",
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "invalid ID"},
 		},
@@ -118,7 +140,7 @@ func TestDeleteProfilePicture(t *testing.T) {
 		},
 		{
 			desc:               "DeleteProfilePictureNoUser",
-			userID:             badUserID,
+			userID:             "f586fa1a-af84-4a2e-9fc6-1a4ada270fe4",
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "User not found"},
 		},
@@ -160,7 +182,14 @@ func TestDeleteProfilePicture(t *testing.T) {
 
 func TestSetProfilePicture(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	s := setupTestServer()
+
+	DBMock := new(database.DBLayerMock)
+	DBMock.On("GetProfilePictureURL", uuid.MustParse("1c4dccaf-a341-4920-9003-f24e0412f8e0")).Return("someUrl", nil)
+
+	s := handlers.Server{
+		DB:           DBMock,
+		ImageStorage: new(storage.MockStorage),
+	}
 
 	testCases := []struct {
 		desc               string

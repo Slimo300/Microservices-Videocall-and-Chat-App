@@ -9,6 +9,7 @@ import (
 )
 
 type DBlayer interface {
+	GetUserByUsername(username string) (models.User, error)
 	GetUserGroups(id uuid.UUID) ([]models.Group, error)
 
 	GetMemberByID(memberID uuid.UUID) (models.Member, error)

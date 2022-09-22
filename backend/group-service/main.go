@@ -25,7 +25,7 @@ func main() {
 		log.Fatal(err)
 	}
 	storage := storage.Setup()
-	authService, err := auth.NewGRPCTokenAuthClient()
+	authService, err := auth.NewGRPCTokenClient(":9000")
 	if err != nil {
 		panic("Couldn't connect to grpc auth server")
 	}

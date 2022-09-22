@@ -130,6 +130,7 @@ func (s *Server) DeleteProfilePicture(c *gin.Context) {
 	userUID, err := uuid.Parse(userID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
+		return
 	}
 
 	url, err := s.DB.GetProfilePictureURL(userUID)
