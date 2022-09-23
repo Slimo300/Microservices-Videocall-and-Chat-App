@@ -139,7 +139,7 @@ func (s *Server) SignOutUser(c *gin.Context) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-// GetUserById method
+// GetUser method
 func (s *Server) GetUser(c *gin.Context) {
 	userID := c.GetString("userID")
 	uid, err := uuid.Parse(userID)

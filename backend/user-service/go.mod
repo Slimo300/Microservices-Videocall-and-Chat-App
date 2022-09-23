@@ -3,7 +3,7 @@ module github.com/Slimo300/MicroservicesChatApp/backend/user-service
 go 1.17
 
 require (
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20220919163237-9de3e238815c
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20220922175638-2da4112ec1f1
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20220919163237-9de3e238815c
 	github.com/Slimo300/MicroservicesChatApp/backend/token-service v0.0.0-20220919163237-9de3e238815c
 	github.com/gin-contrib/size v0.0.0-20220829131622-0fc0bc875336
@@ -27,6 +27,7 @@ require (
 	github.com/go-playground/validator/v10 v10.10.0 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/goccy/go-json v0.9.7 // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
