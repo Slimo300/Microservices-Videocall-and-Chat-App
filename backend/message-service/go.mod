@@ -3,9 +3,7 @@ module github.com/Slimo300/MicroservicesChatApp/backend/message-service
 go 1.17
 
 require (
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20220922175638-2da4112ec1f1
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/communication v0.0.0-20220923202143-bf73097ec3ce
-	github.com/Slimo300/MicroservicesChatApp/backend/user-service v0.0.0-20220923202143-bf73097ec3ce
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221023102533-e971c17b1a5f
 	github.com/gin-gonic/gin v1.8.1
 	github.com/google/uuid v1.3.0
 	github.com/stretchr/testify v1.8.0
@@ -14,7 +12,6 @@ require (
 )
 
 require (
-	github.com/Slimo300/MicroservicesChatApp/backend/group-service v0.0.0-20220919160255-8cb9d9a1744d // indirect
 	github.com/Slimo300/MicroservicesChatApp/backend/token-service v0.0.0-20220919163237-9de3e238815c // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
@@ -25,7 +22,6 @@ require (
 	github.com/goccy/go-json v0.9.7 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect

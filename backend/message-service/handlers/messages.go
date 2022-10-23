@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/communication"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -53,7 +52,5 @@ func (s *Server) GetGroupMessages(c *gin.Context) {
 		return
 	}
 
-	lightMessages := communication.ShortenMessages(messages)
-
-	c.JSON(http.StatusOK, lightMessages)
+	c.JSON(http.StatusOK, messages)
 }
