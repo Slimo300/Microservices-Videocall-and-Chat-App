@@ -3,7 +3,7 @@ package auth
 import (
 	"crypto/rsa"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/pb"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 )
@@ -20,6 +20,7 @@ func (m MockTokenClient) NewPairFromUserID(userID uuid.UUID) (*pb.TokenPair, err
 	ret := m.Called(userID)
 	return ret.Get(0).(*pb.TokenPair), ret.Error(1)
 }
+
 func (m MockTokenClient) NewPairFromRefresh(refresh string) (*pb.TokenPair, error) {
 	ret := m.Called(refresh)
 	return ret.Get(0).(*pb.TokenPair), ret.Error(1)

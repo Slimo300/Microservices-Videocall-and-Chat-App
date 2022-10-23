@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/pb"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
 	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo"
 	"github.com/golang-jwt/jwt"
 )

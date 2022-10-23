@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/pb"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"

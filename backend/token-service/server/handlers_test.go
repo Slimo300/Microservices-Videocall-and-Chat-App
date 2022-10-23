@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/pb"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
 	repolayer "github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo"
 	mockrepo "github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo/mock"
 	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/server"

@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/pb"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
 	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo/redis"
 	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/server"
 	"github.com/golang-jwt/jwt"

@@ -25,13 +25,9 @@ import (
 
 func TestRegister(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	s := handlers.Server{
-		DB: new(database.DBLayerMock),
-	}
 
 	mockEmailService := email.NewMockEmailService()
 	mockEmailService.On("SendVerificationEmail", mock.Anything).Return(nil)
-	s.EmailService = mockEmailService
 
 	mockDB := new(database.DBLayerMock)
 	mockDB.On("IsUsernameInDatabase", "johnny").Return(true)
@@ -40,7 +36,11 @@ func TestRegister(t *testing.T) {
 	mockDB.On("IsEmailInDatabase", "johnny1@net.com").Return(false)
 	mockDB.On("RegisterUser", mock.Anything).Return(models.User{ID: uuid.New(), Email: "johnny@net.pl", UserName: "johnny", Pass: "password", Activated: false}, nil)
 	mockDB.On("NewVerificationCode", mock.Anything, mock.Anything).Return(models.VerificationCode{UserID: uuid.New(), ActivationCode: randstr.String(10)}, nil)
-	s.DB = mockDB
+
+	s := handlers.Server{
+		DB:           mockDB,
+		EmailService: mockEmailService,
+	}
 
 	testCases := []struct {
 		desc               string
@@ -125,10 +125,12 @@ func TestSignIn(t *testing.T) {
 	DBMock.On("GetUserByEmail", "mal.zein@email.com").Return(models.User{ID: uuid.MustParse("c5904224-deec-4275-83bd-56e4cdeba1ae"), Pass: "$2a$10$6BSuuiaPdRJJF2AygYAfnOGkrKLY2o0wDWbEpebn.9Rk0O95D3hW."}, nil)
 	DBMock.On("GetUserByEmail", "mal1.zein@email.com").Return(models.User{}, gorm.ErrRecordNotFound)
 	DBMock.On("SignInUser", uuid.MustParse("c5904224-deec-4275-83bd-56e4cdeba1ae")).Return(nil)
+
 	s := handlers.Server{
 		DB:           DBMock,
 		TokenService: TokenClientMock,
 	}
+
 	testCases := []struct {
 		desc               string
 		data               map[string]string
