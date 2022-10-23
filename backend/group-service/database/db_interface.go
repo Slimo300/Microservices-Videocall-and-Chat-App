@@ -2,7 +2,6 @@ package database
 
 import (
 	"errors"
-	"time"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
 	"github.com/google/uuid"
@@ -14,9 +13,6 @@ type DBlayer interface {
 
 	GetMemberByID(memberID uuid.UUID) (models.Member, error)
 	GetUserGroupMember(userID, groupID uuid.UUID) (models.Member, error)
-
-	GetGroupMessages(grouID uuid.UUID, offset, num int) ([]models.Message, error)
-	AddMessage(memberID uuid.UUID, text string, when time.Time) error
 
 	CreateGroup(userID uuid.UUID, name, desc string) (models.Group, error)
 	DeleteUserFromGroup(memberID uuid.UUID) (models.Member, error)
@@ -38,9 +34,6 @@ type DBlayer interface {
 	IsUserInvited(userID, groupID uuid.UUID) bool
 
 	GetInviteByID(inviteID uuid.UUID) (models.Invite, error)
-
-	// NewVerificationCode(userID uuid.UUID, code string) (models.VerificationCode, error)
-	// VerifyCode(userID uuid.UUID, code string) error
 }
 
 const INVITE_AWAITING = 1

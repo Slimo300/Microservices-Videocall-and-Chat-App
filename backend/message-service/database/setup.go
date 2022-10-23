@@ -1,10 +1,10 @@
-package orm
+package database
 
 import (
 	"fmt"
 	"os"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
+	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -23,7 +23,7 @@ func Setup() (*Database, error) {
 		return nil, err
 	}
 
-	db.AutoMigrate(&models.User{}, &models.Group{}, &models.Member{}, &models.Invite{})
+	db.AutoMigrate(&models.User{}, models.VerificationCode{})
 
 	return &Database{DB: db}, nil
 }
@@ -37,7 +37,7 @@ func SetupDevelopment() (*Database, error) {
 		return nil, err
 	}
 
-	db.AutoMigrate(&models.User{}, &models.Group{}, &models.Member{}, &models.Invite{})
+	db.AutoMigrate(&models.User{}, models.VerificationCode{})
 
 	return &Database{DB: db}, nil
 }

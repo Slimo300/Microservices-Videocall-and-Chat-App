@@ -3,7 +3,7 @@ package communication
 import (
 	"time"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
+	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/models"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
@@ -34,9 +34,9 @@ func (m *Message) SetTime() {
 func ShortenMessages(messages []models.Message) (shortMessages []Message) {
 	for _, msg := range messages {
 		shortMessages = append(shortMessages, Message{
-			Group:   msg.Member.GroupID,
+			Group:   msg.GroupID,
 			Member:  msg.MemberID,
-			Nick:    msg.Member.Nick,
+			Nick:    msg.Nick,
 			Message: msg.Text,
 			When:    msg.Posted.Format(TIME_FORMAT),
 		})

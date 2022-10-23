@@ -35,18 +35,6 @@ func (Group) TableName() string {
 	return "groups"
 }
 
-type Message struct {
-	ID       uuid.UUID `gorm:"primaryKey"`
-	Posted   time.Time `gorm:"column:posted" json:"posted"`
-	Text     string    `gorm:"column:text" json:"text"`
-	MemberID uuid.UUID `gorm:"column:id_member;size:191" json:"member_id"`
-	Member   Member    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-}
-
-func (Message) TableName() string {
-	return "messages"
-}
-
 type Member struct {
 	ID       uuid.UUID `gorm:"primaryKey"`
 	GroupID  uuid.UUID `gorm:"column:group_id;uniqueIndex:idx_first;size:191" json:"group_id"`

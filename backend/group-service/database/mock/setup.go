@@ -7,11 +7,10 @@ import (
 )
 
 type MockDB struct {
-	Users    []models.User
-	Groups   []models.Group
-	Members  []models.Member
-	Messages []models.Message
-	Invites  []models.Invite
+	Users   []models.User
+	Groups  []models.Group
+	Members []models.Member
+	Invites []models.Invite
 }
 
 func NewMockDB() *MockDB {
@@ -128,33 +127,6 @@ func NewMockDB() *MockDB {
 		}
 	]`
 
-	MESSAGES := `[
-		{
-			"ID": 1,
-			"posted": "2019-01-13T22:00:45Z",
-			"text": "elo",
-			"member_id": "e4372b71-30ca-42e1-8c1e-7df6d033fd3f"
-		},
-		{
-			"ID": 2,
-			"posted": "2019-01-15T22:00:45Z",
-			"text": "siema",
-			"member_id": "b38aaff8-6733-4a1d-8eaf-fc10e656d02b"
-		}, 
-		{
-			"ID": 3,
-			"posted": "2019-01-16T22:00:45Z",
-			"text": "elo elo",
-			"member_id": "e4372b71-30ca-42e1-8c1e-7df6d033fd3f"
-		},
-		{
-			"ID": 4,
-			"posted": "2019-01-17T22:00:45Z",
-			"text": "siema siema",
-			"member_id": "b38aaff8-6733-4a1d-8eaf-fc10e656d02b"
-		}
-	]`
-
 	INVITES := `[
 		{
 			"ID": "0916b355-323c-45fd-b79e-4160eaac1320",
@@ -181,12 +153,9 @@ func NewMockDB() *MockDB {
 	var members []models.Member
 	json.Unmarshal([]byte(MEMBERS), &members)
 
-	var messages []models.Message
-	json.Unmarshal([]byte(MESSAGES), &messages)
-
 	var invites []models.Invite
 	json.Unmarshal([]byte(INVITES), &invites)
 
 	// add data
-	return &MockDB{Users: users, Groups: groups, Members: members, Messages: messages, Invites: invites}
+	return &MockDB{Users: users, Groups: groups, Members: members, Invites: invites}
 }

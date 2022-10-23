@@ -13,18 +13,7 @@ func Setup(engine *gin.Engine, server *handlers.Server) {
 	api := engine.Group("/api")
 	api.Use(server.CheckDatabase())
 	api.Use(limits.RequestSizeLimiter(server.MaxBodyBytes))
-
-	// api.POST("/register", server.RegisterUser)
-	// api.POST("/login", server.SignIn)
-	// api.POST("/refresh", server.RefreshToken)
-
 	apiAuth := api.Use(server.MustAuth())
-
-	// apiAuth.DELETE("/delete-image", server.DeleteProfilePicture)
-	// apiAuth.POST("/set-image", server.UpdateProfilePicture)
-	// apiAuth.PUT("/change-password", server.ChangePassword)
-	// apiAuth.POST("/signout", server.SignOutUser)
-	// apiAuth.GET("/user", server.GetUser)
 
 	apiAuth.GET("/group", server.GetUserGroups)
 	apiAuth.POST("/group", server.CreateGroup)
@@ -34,8 +23,6 @@ func Setup(engine *gin.Engine, server *handlers.Server) {
 
 	apiAuth.DELETE("/member/:memberID", server.DeleteUserFromGroup)
 	apiAuth.PUT("/member/:memberID", server.GrantPriv)
-
-	apiAuth.GET("/group/:groupID/messages", server.GetGroupMessages)
 
 	apiAuth.GET("/invites", server.GetUserInvites)
 	apiAuth.POST("/invites", server.SendGroupInvite)
