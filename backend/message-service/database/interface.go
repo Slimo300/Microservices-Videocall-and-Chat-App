@@ -9,7 +9,7 @@ import (
 
 type DBLayer interface {
 	GetGroupMessages(grouID uuid.UUID, offset, num int) ([]models.Message, error)
-	AddMessage(memberID uuid.UUID, text string, when time.Time) error
+	AddMessage(memberID uuid.UUID, nick string, text string, when time.Time) error
 	IsUserInGroup(userID, groupID uuid.UUID) bool
 	//DeleteMessage
 }

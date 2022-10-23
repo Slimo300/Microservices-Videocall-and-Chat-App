@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (db *Database) NewMessage(memberID uuid.UUID, nick string, text string, when time.Time) error {
+func (db *Database) AddMessage(memberID uuid.UUID, nick string, text string, when time.Time) error {
 	message := models.Message{
 		ID:       uuid.New(),
 		Text:     text,
