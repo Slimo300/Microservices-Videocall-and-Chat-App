@@ -3,7 +3,7 @@ module github.com/Slimo300/MicroservicesChatApp/backend/message-service
 go 1.17
 
 require (
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221023102533-e971c17b1a5f
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221023112143-439f946ac566
 	github.com/gin-gonic/gin v1.8.1
 	github.com/google/uuid v1.3.0
 	github.com/stretchr/testify v1.8.0
@@ -12,7 +12,7 @@ require (
 )
 
 require (
-	github.com/Slimo300/MicroservicesChatApp/backend/token-service v0.0.0-20220919163237-9de3e238815c // indirect
+	github.com/Slimo300/MicroservicesChatApp/backend/token-service v0.0.0-20220919160255-8cb9d9a1744d // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect

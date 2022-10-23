@@ -3,7 +3,7 @@ module github.com/Slimo300/MicroservicesChatApp/backend/user-service
 go 1.17
 
 require (
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20220922175638-2da4112ec1f1
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221023112143-439f946ac566
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20220919163237-9de3e238815c
 	github.com/Slimo300/MicroservicesChatApp/backend/token-service v0.0.0-20220919163237-9de3e238815c
 	github.com/gin-contrib/size v0.0.0-20220829131622-0fc0bc875336

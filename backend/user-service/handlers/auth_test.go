@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
-	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/pb"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/database"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/email"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/handlers"
