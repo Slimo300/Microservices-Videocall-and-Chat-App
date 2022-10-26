@@ -2,13 +2,12 @@ package handlers_test
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
-	"time"
 
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
 	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/database/mock"
 	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/handlers"
 	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/models"
@@ -19,29 +18,16 @@ import (
 func TestGetGroupMessages(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	groupUID := uuid.MustParse("61fbd273-b941-471c-983a-0a3cd2c74747")
-	group := []byte("61fbd273-b941-471c-983a-0a3cd2c74747")
-	user1 := []byte("1c4dccaf-a341-4920-9003-f24e0412f8e0")
-	user2 := []byte("634240cf-1219-4be2-adfa-90ab6b47899b")
-	message1 := uuid.MustParse("f6008d3c-965e-46e6-8ec9-ad7d4da02e93")
-	message2 := uuid.MustParse("c108dbe0-b6d2-4cb1-8a61-f5b03875d41e")
-	message3 := uuid.MustParse("54bc782e-6140-4558-82a5-c2d2460d6325")
-	message4 := uuid.MustParse("34787baa-91f6-4a83-b4fc-e56d0d37e4f6")
-	member1 := uuid.MustParse("e4372b71-30ca-42e1-8c1e-7df6d033fd3f")
-	member2 := uuid.MustParse("b38aaff8-6733-4a1d-8eaf-fc10e656d02b")
-	posted1, _ := time.Parse("2006-02-01 15:04:05", "2019-13-01 22:00:45")
-	posted2, _ := time.Parse("2006-02-01 15:04:05", "2019-15-01 22:00:45")
-	posted3, _ := time.Parse("2006-02-01 15:04:05", "2019-16-01 22:00:45")
-	posted4, _ := time.Parse("2006-02-01 15:04:05", "2019-17-01 22:00:45")
+	group := uuid.MustParse("61fbd273-b941-471c-983a-0a3cd2c74747")
+	user1 := uuid.MustParse("1c4dccaf-a341-4920-9003-f24e0412f8e0")
+	user2 := uuid.MustParse("634240cf-1219-4be2-adfa-90ab6b47899b")
 
 	mockDB := new(mock.MockMessageDB)
-	mockDB.On("IsUserInGroup", user1, group).Return(true, nil)
-	mockDB.On("IsUserInGroup", user2, group).Return(false, nil)
-	mockDB.On("IsUserInGroup", user1, []byte("0")).Return(false, errors.New("invalid group ID"))
-	mockDB.On("GetGroupMessages", group, 0, 4).Return([]models.Message{{ID: message1, GroupID: groupUID, UserID: member1, Text: "elo", Nick: "Mal", Posted: posted1},
-		{ID: message2, GroupID: groupUID, UserID: member2, Text: "siema", Nick: "River", Posted: posted2},
-		{ID: message3, GroupID: groupUID, UserID: member1, Text: "elo elo", Nick: "Mal", Posted: posted3},
-		{ID: message4, GroupID: groupUID, UserID: member2, Text: "siema siema", Nick: "River", Posted: posted4}}, nil)
+	mockDB.On("GetGroupMessages", user1, group, 0, 4).Return([]models.Message{{Text: "elo", Nick: "Mal"},
+		{Text: "siema", Nick: "River"},
+		{Text: "elo elo", Nick: "Mal"},
+		{Text: "siema siema", Nick: "River"}}, nil)
+	mockDB.On("GetGroupMessages", user2, group, 0, 4).Return([]models.Message{}, apperrors.NewForbidden("User cannot request from this group"))
 
 	s := handlers.Server{
 		DB: mockDB,
@@ -49,49 +35,49 @@ func TestGetGroupMessages(t *testing.T) {
 
 	testCases := []struct {
 		desc               string
-		userID             []byte
+		userID             string
 		returnVal          bool
-		groupID            []byte
+		groupID            string
 		expectedStatusCode int
 		expectedResponse   interface{}
 	}{
 		{
 			desc:               "getmessagessuccess",
-			userID:             user1,
+			userID:             "1c4dccaf-a341-4920-9003-f24e0412f8e0",
 			returnVal:          true,
 			expectedStatusCode: http.StatusOK,
-			groupID:            group,
-			expectedResponse: []models.Message{{ID: message1, GroupID: groupUID, UserID: member1, Text: "elo", Nick: "Mal", Posted: posted1},
-				{ID: message2, GroupID: groupUID, UserID: member2, Text: "siema", Nick: "River", Posted: posted2},
-				{ID: message3, GroupID: groupUID, UserID: member1, Text: "elo elo", Nick: "Mal", Posted: posted3},
-				{ID: message4, GroupID: groupUID, UserID: member2, Text: "siema siema", Nick: "River", Posted: posted4}},
+			groupID:            "61fbd273-b941-471c-983a-0a3cd2c74747",
+			expectedResponse: []models.Message{{Text: "elo", Nick: "Mal"},
+				{Text: "siema", Nick: "River"},
+				{Text: "elo elo", Nick: "Mal"},
+				{Text: "siema siema", Nick: "River"}},
 		},
 		{
 			desc:               "getmessagesforbidden",
-			userID:             user2,
+			userID:             "634240cf-1219-4be2-adfa-90ab6b47899b",
 			returnVal:          false,
-			groupID:            group,
+			groupID:            "61fbd273-b941-471c-983a-0a3cd2c74747",
 			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": "User cannot request from this group"},
+			expectedResponse:   gin.H{"err": "Forbidden action. Reason: User cannot request from this group"},
 		},
 		{
 			desc:               "getmessagesnogroup",
-			userID:             user1,
+			userID:             "1c4dccaf-a341-4920-9003-f24e0412f8e0",
 			returnVal:          false,
-			groupID:            []byte("0"),
+			groupID:            "0",
 			expectedStatusCode: http.StatusBadRequest,
-			expectedResponse:   gin.H{"err": "invalid group ID"},
+			expectedResponse:   gin.H{"err": "invalid UUID length: 1"},
 		},
 	}
 
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			req, _ := http.NewRequest("GET", "/api/group/"+string(tC.groupID)+"/messages?num=4&offset=0", nil)
+			req, _ := http.NewRequest("GET", "/api/group/"+tC.groupID+"/messages?num=4&offset=0", nil)
 
 			w := httptest.NewRecorder()
 			_, engine := gin.CreateTestContext(w)
 			engine.Use(func(c *gin.Context) {
-				c.Set("userID", string(tC.userID))
+				c.Set("userID", tC.userID)
 			})
 
 			engine.Handle(http.MethodGet, "/api/group/:groupID/messages", s.GetGroupMessages)

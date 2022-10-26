@@ -32,7 +32,7 @@ func (s *Server) GetGroupMessages(c *gin.Context) {
 		return
 	}
 
-	messages, err := s.DB.GetGroupMessages(groupID, userID, offset, num)
+	messages, err := s.DB.GetGroupMessages(userID, groupID, offset, num)
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return

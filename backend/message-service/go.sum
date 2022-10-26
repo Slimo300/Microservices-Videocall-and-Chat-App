@@ -1,6 +1,8 @@
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20221026125546-5088dd724701 h1:9aTUgV2oXrw1krIWjTjyDm+fxa4Iz8Ukjw5eSHPrUug=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20221026125546-5088dd724701/go.mod h1:q9OtDpE6rBQ3/+nPuSSyl0mmQk2pmg7Gz2bqIdzZbdk=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221023112143-439f946ac566 h1:UXtCk33b0aXEztrOFavu0M0noFosUnKOOaXI9nvoA8U=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221023112143-439f946ac566/go.mod h1:/ZUS3oqYDckgC/Bjvtgn29/gVJLR0aWY80QDre20zHs=
 github.com/Slimo300/MicroservicesChatApp/backend/token-service v0.0.0-20220919160255-8cb9d9a1744d h1:BIOtU8/cPsPrKMinkEtGteQX0pUZPfMM8I0rUlWNpSo=

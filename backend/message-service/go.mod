@@ -3,6 +3,7 @@ module github.com/Slimo300/MicroservicesChatApp/backend/message-service
 go 1.17
 
 require (
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20221026125546-5088dd724701
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221023112143-439f946ac566
 	github.com/gin-gonic/gin v1.8.1
 	github.com/google/uuid v1.3.0
