@@ -4,47 +4,37 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
 func (s *Server) GetGroupMessages(c *gin.Context) {
-	userID := c.GetString("userID")
-	userUID, err := uuid.Parse(userID)
+	userID, err := uuid.Parse(c.GetString("userID"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+		return
+	}
+	groupID, err := uuid.Parse(c.Param("groupID"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
 	}
 
-	groupID := c.Param("groupID")
-	groupUID, err := uuid.Parse(groupID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid group ID"})
-		return
-	}
-
-	num := c.Query("num")
-	numInt, err := strconv.Atoi(num)
-	if err != nil || numInt <= 0 {
+	num, err := strconv.Atoi(c.Query("num"))
+	if err != nil || num <= 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "number of messages is not a valid number"})
 		return
 	}
-
-	offset := c.Query("offset")
-	offsetInt, err := strconv.Atoi(offset)
-	if err != nil || offsetInt < 0 {
+	offset, err := strconv.Atoi(c.Query("offset"))
+	if err != nil || offset < 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "offset is not a valid number"})
 		return
 	}
 
-	if !s.DB.IsUserInGroup(userUID, groupUID) {
-		c.JSON(http.StatusForbidden, gin.H{"err": "User cannot request from this group"})
-		return
-	}
-
-	messages, err := s.DB.GetGroupMessages(groupUID, offsetInt, numInt)
+	messages, err := s.DB.GetGroupMessages(groupID, userID, offset, num)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
+		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
 	if len(messages) == 0 {
@@ -53,4 +43,24 @@ func (s *Server) GetGroupMessages(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, messages)
+}
+
+func (s *Server) DeleteMessageForEveryone(c *gin.Context) {
+	userID, err := uuid.Parse(c.GetString("userID"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+		return
+	}
+	messageID, err := uuid.Parse(c.Param("messageID"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+		return
+	}
+
+	msg, err := s.DB.DeleteMessageForEveryone(messageID, userID)
+	if err != nil {
+		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, msg)
 }

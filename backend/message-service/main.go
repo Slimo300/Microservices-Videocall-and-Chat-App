@@ -10,16 +10,17 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
-	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/database"
+	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/database/orm"
 	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/handlers"
 	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/routes"
+
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	engine := gin.Default()
-	db, err := database.Setup()
+	db, err := orm.SetupDevelopment()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -27,7 +28,10 @@ func main() {
 	if err != nil {
 		panic("Couldn't connect to grpc auth server")
 	}
-	server := &handlers.Server{DB: db, TokenService: tokenService}
+	server := &handlers.Server{
+		DB:           db,
+		TokenService: tokenService,
+	}
 	routes.Setup(engine, server)
 
 	srv := &http.Server{

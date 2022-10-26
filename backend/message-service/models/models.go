@@ -8,11 +8,12 @@ import (
 
 type Message struct {
 	ID       uuid.UUID `gorm:"primaryKey"`
-	Posted   time.Time `gorm:"column:posted" json:"posted"`
-	Text     string    `gorm:"column:text" json:"text"`
-	GroupID  uuid.UUID `gorm:"column:id_group;size:191" json:"groupID"`
-	MemberID uuid.UUID `gorm:"column:id_member;size:191" json:"memberID"`
-	Nick     string    `gorm:"column:nick" json:"nick"`
+	Posted   time.Time
+	Text     string
+	UserID   uuid.UUID
+	GroupID  uuid.UUID
+	Nick     string
+	Deleters []Membership `gorm:"foreignKey:MembershipID;constraint:OnDelete:CASCADE"`
 }
 
 func (Message) TableName() string {
@@ -20,9 +21,11 @@ func (Message) TableName() string {
 }
 
 type Membership struct {
-	UserID  uuid.UUID `gorm:"primaryKey;size:191"`
-	GroupID uuid.UUID `gorm:"primaryKey;size:191"`
-	Deleted bool      `gorm:"column:deleted" json:"deleted"`
+	MembershipID     uuid.UUID `gorm:"primaryKey"`
+	UserID           uuid.UUID `gorm:"uniqueIndex:idx_first;size:191"`
+	GroupID          uuid.UUID `gorm:"uniqueIndex:idx_first;size:191"`
+	Creator          bool
+	DeletingMessages bool
 }
 
 func (Membership) TableName() string {

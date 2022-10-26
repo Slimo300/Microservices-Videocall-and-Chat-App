@@ -8,8 +8,8 @@ import (
 )
 
 type DBLayer interface {
-	GetGroupMessages(grouID uuid.UUID, offset, num int) ([]models.Message, error)
-	AddMessage(memberID uuid.UUID, nick string, text string, when time.Time) error
-	IsUserInGroup(userID, groupID uuid.UUID) bool
-	//DeleteMessage
+	GetGroupMessages(userID, groupID uuid.UUID, offset, num int) ([]models.Message, error)
+	AddMessage(userID, groupID uuid.UUID, nick string, text string, when time.Time) error
+	DeleteMessageForYourself(userID, messageID uuid.UUID) (models.Message, error)
+	DeleteMessageForEveryone(userID, messageID uuid.UUID) (models.Message, error)
 }
