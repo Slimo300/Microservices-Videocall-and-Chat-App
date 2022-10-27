@@ -38,11 +38,11 @@ type Config struct {
 	RefreshDuration       time.Duration `mapstructure:"REFRESH_DURATION"`
 }
 
-func LoadConfig(path string) (config Config, err error) {
+func LoadConfig(path string, configName, conigType string) (config Config, err error) {
 	vp := viper.New()
 	vp.AddConfigPath(path)
-	vp.SetConfigType("env")
-	vp.SetConfigName("app")
+	vp.SetConfigType(conigType)
+	vp.SetConfigName(configName)
 
 	err = vp.ReadInConfig()
 	if err != nil {
