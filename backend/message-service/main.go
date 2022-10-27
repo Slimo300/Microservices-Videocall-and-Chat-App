@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"log"
 	"net/http"
 	"os"
@@ -15,16 +14,24 @@ import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/routes"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	engine := gin.Default()
-	db, err := orm.SetupDevelopment()
+
+	config, err := configuration.LoadConfig(os.Getenv("CHAT_CONFIG"))
 	if err != nil {
 		log.Fatal(err)
 	}
-	tokenService, err := auth.NewGRPCTokenClient(":9000")
+
+	db, err := orm.Setup(config.MessageService.DBAddress)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tokenService, err := auth.NewGRPCTokenClient(config.TokenService.GRPCPort)
 	if err != nil {
 		panic("Couldn't connect to grpc auth server")
 	}
@@ -34,27 +41,37 @@ func main() {
 	}
 	routes.Setup(engine, server)
 
-	srv := &http.Server{
-		Addr:    ":8080",
+	httpServer := &http.Server{
 		Handler: engine,
+		Addr:    config.MessageService.HTTPPort,
+	}
+	httpsServer := &http.Server{
+		Handler: engine,
+		Addr:    config.MessageService.HTTPSPort,
 	}
 
+	errChan := make(chan error)
+
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && errors.Is(err, http.ErrServerClosed) {
-			log.Fatalf("Server failed: %v\n", err)
-		}
+		errChan <- httpsServer.ListenAndServeTLS(config.Certificate, config.PrivKeyFile)
 	}()
+	go func() { errChan <- httpServer.ListenAndServe() }()
 
 	quit := make(chan os.Signal)
-
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatalf("Server forced to shutdown: %v\n", err)
+	select {
+	case <-quit:
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := httpServer.Shutdown(ctx); err != nil {
+			log.Fatalf("Server forced to shutdown: %v\n", err)
+		}
+		if err := httpsServer.Shutdown(ctx); err != nil {
+			log.Fatalf("Server forced to shutdown: %v\n", err)
+		}
+	case err := <-errChan:
+		log.Fatal(err)
 	}
 
 }

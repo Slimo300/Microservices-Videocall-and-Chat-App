@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
 	"os"
-	"time"
+	"os/signal"
+	"syscall"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration"
@@ -18,35 +18,49 @@ import (
 
 func main() {
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 9000))
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-
-	config, err := configuration.LoadConfig(os.Getenv("CHAT_CONFIG"), "app", "env")
+	config, err := configuration.LoadConfig(os.Getenv("CHAT_CONFIG"))
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Print(config)
 
-	priv, err := ioutil.ReadFile(os.Getenv("PRIV_KEY_FILE"))
+	lis, err := net.Listen("tcp", config.TokenService.GRPCPort)
 	if err != nil {
-		log.Fatal("could not read private key pem file: %w", err)
+		log.Fatalf("Error when listening on TCP port: %v", err)
+	}
+
+	priv, err := ioutil.ReadFile(config.TokenService.AccessTokenPrivateKey)
+	if err != nil {
+		log.Fatalf("could not read private key pem file: %v", err)
 	}
 	privKey, err := jwt.ParseRSAPrivateKeyFromPEM(priv)
 	if err != nil {
-		log.Fatal("could not parse private key: %w", err)
+		log.Fatalf("could not parse private key: %v", err)
 	}
 
-	repo := redis.NewRedisTokenRepository("localhost", "6379", "")
+	repo := redis.NewRedisTokenRepository(config.TokenService.RedisAddress, config.TokenService.RedisPass)
 
-	s := server.NewTokenService(repo, os.Getenv("REFRESH_SECRET"), *privKey, 24*time.Hour, 20*time.Second)
+	s := server.NewTokenService(repo,
+		config.TokenService.RefreshTokenSecret,
+		*privKey,
+		config.TokenService.RefreshDuration,
+		config.TokenService.AccessDuration,
+	)
 
 	grpcServer := grpc.NewServer()
 
 	pb.RegisterTokenServiceServer(grpcServer, s)
 
-	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %s", err)
+	errChan := make(chan error)
+	quit := make(chan os.Signal)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() { errChan <- grpcServer.Serve(lis) }()
+
+	select {
+	case <-quit:
+		grpcServer.GracefulStop()
+	case err := <-errChan:
+		log.Fatalf("GRPC Server error: %v", err)
 	}
+
 }

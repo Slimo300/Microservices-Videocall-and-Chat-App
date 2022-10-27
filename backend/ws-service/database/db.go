@@ -2,7 +2,6 @@ package database
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/models"
 	"github.com/google/uuid"
@@ -14,9 +13,8 @@ type Database struct {
 	*gorm.DB
 }
 
-func Setup() (*Database, error) {
-	db, err := gorm.Open(mysql.Open(fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", os.Getenv("MYSQLUSERNAME"),
-		os.Getenv("MYSQLPASSWORD"), os.Getenv("MYSQLHOST"), "3306", os.Getenv("MYSQLDBNAME"))), &gorm.Config{
+func Setup(address string) (*Database, error) {
+	db, err := gorm.Open(mysql.Open(fmt.Sprintf("%s?parseTime=true", address)), &gorm.Config{
 		SkipDefaultTransaction: true,
 	})
 	if err != nil {
