@@ -44,11 +44,11 @@ func LoadConfig(path string) (config Config, err error) {
 	vp.SetConfigType("env")
 	vp.SetConfigName("")
 
-	err = viper.ReadInConfig()
+	err = vp.ReadInConfig()
 	if err != nil {
 		return
 	}
 
-	err = viper.Unmarshal(&config)
+	err = vp.Unmarshal(&config)
 	return
 }
