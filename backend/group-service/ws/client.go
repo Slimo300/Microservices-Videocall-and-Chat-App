@@ -14,6 +14,7 @@ type client struct {
 	groups []uuid.UUID
 }
 
+// read reads messages received by socket
 func (c *client) read() {
 	defer c.socket.Close()
 	for {
@@ -26,6 +27,7 @@ func (c *client) read() {
 	}
 }
 
+// write sends messages from server to clients
 func (c *client) write() {
 	defer c.socket.Close()
 	for msg := range c.send {

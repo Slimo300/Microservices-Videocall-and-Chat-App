@@ -1,6 +1,6 @@
 module github.com/Slimo300/MicroservicesChatApp/backend/token-service
 
-go 1.17
+go 1.19
 
 require (
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221023121239-80937781a93a
@@ -8,7 +8,7 @@ require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.0
 	github.com/stretchr/testify v1.8.0
-	google.golang.org/grpc v1.49.0
+	google.golang.org/grpc v1.50.1
 )
 
 require (

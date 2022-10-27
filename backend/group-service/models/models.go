@@ -36,17 +36,18 @@ func (Group) TableName() string {
 }
 
 type Member struct {
-	ID       uuid.UUID `gorm:"primaryKey"`
-	GroupID  uuid.UUID `gorm:"column:group_id;uniqueIndex:idx_first;size:191" json:"group_id"`
-	UserID   uuid.UUID `gorm:"column:user_id;uniqueIndex:idx_first;size:191" json:"user_id"`
-	User     User      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	Group    Group     `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
-	Nick     string    `gorm:"column:nick" json:"nick"`
-	Adding   bool      `gorm:"column:adding" json:"adding"`
-	Deleting bool      `gorm:"column:deleting" json:"deleting"`
-	Setting  bool      `gorm:"column:setting" json:"setting" `
-	Creator  bool      `gorm:"column:creator" json:"creator"`
-	Deleted  bool      `gorm:"column:deleted" json:"deleted"`
+	ID               uuid.UUID `gorm:"primaryKey"`
+	GroupID          uuid.UUID `gorm:"column:group_id;uniqueIndex:idx_first;size:191" json:"group_id"`
+	UserID           uuid.UUID `gorm:"column:user_id;uniqueIndex:idx_first;size:191" json:"user_id"`
+	User             User      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Group            Group     `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	Nick             string    `gorm:"column:nick" json:"nick"`
+	Adding           bool      `gorm:"column:adding" json:"adding"`
+	DeletingMembers  bool      `gorm:"column:deleting_members" json:"deletingMembers"`
+	DeletingMessages bool      `gorm:"column:deleting_messages" json:"deletingMessages"`
+	Setting          bool      `gorm:"column:setting" json:"setting"`
+	Creator          bool      `gorm:"column:creator" json:"creator"`
+	Deleted          bool      `gorm:"column:deleted" json:"deleted"`
 }
 
 func (Member) TableName() string {

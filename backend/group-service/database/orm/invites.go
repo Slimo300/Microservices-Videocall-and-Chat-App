@@ -61,7 +61,7 @@ func (db *Database) createOrRestoreMember(userID, groupID uuid.UUID) error {
 		return err
 	}
 
-	member := models.Member{ID: uuid.New(), GroupID: groupID, UserID: userID, Nick: user.UserName, Adding: false, Deleting: false, Setting: false, Creator: false, Deleted: false}
+	member := models.Member{ID: uuid.New(), GroupID: groupID, UserID: userID, Nick: user.UserName, Adding: false, DeletingMembers: false, Setting: false, Creator: false, Deleted: false}
 	if err := db.Create(&member).Error; err != nil {
 		return err
 	}

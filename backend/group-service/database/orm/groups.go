@@ -43,7 +43,7 @@ func (db *Database) CreateGroup(userID uuid.UUID, name, desc string) (models.Gro
 		if creation.Error != nil {
 			return creation.Error
 		}
-		member := models.Member{ID: uuid.New(), UserID: userID, GroupID: group.ID, Adding: true, Deleting: true, Setting: true, Creator: true, Nick: creator.UserName}
+		member := models.Member{ID: uuid.New(), UserID: userID, GroupID: group.ID, Adding: true, DeletingMembers: true, Setting: true, Creator: true, Nick: creator.UserName}
 		m_create := tx.Create(&member)
 		if m_create.Error != nil {
 			return m_create.Error

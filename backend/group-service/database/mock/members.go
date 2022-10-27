@@ -33,7 +33,7 @@ func (m *MockDB) GrantPriv(memberID uuid.UUID, adding, deleting, setting bool) e
 	for _, member := range m.Members {
 		if member.ID == memberID {
 			member.Adding = adding
-			member.Deleting = deleting
+			member.DeletingMembers = deleting
 			member.Setting = setting
 			return nil
 		}

@@ -77,7 +77,7 @@ func (s *Server) DeleteUserFromGroup(c *gin.Context) {
 	}
 
 	issuerMember, err := s.DB.GetUserGroupMember(userUID, memberToBeDeleted.GroupID)
-	if err != nil || (!issuerMember.Deleting && issuerMember.ID != memberToBeDeleted.ID) {
+	if err != nil || (!issuerMember.DeletingMembers && issuerMember.ID != memberToBeDeleted.ID) {
 		c.JSON(http.StatusForbidden, gin.H{"err": "no rights to delete"})
 		return
 	}

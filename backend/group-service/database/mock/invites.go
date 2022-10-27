@@ -75,15 +75,15 @@ func (mock *MockDB) createOrRestoreMember(userID, groupID uuid.UUID) error {
 	for _, user := range mock.Users {
 		if user.ID == userID {
 			mock.Members = append(mock.Members, models.Member{
-				ID:       uuid.New(),
-				UserID:   userID,
-				GroupID:  groupID,
-				Nick:     user.UserName,
-				Adding:   false,
-				Deleting: false,
-				Setting:  false,
-				Creator:  false,
-				Deleted:  false,
+				ID:              uuid.New(),
+				UserID:          userID,
+				GroupID:         groupID,
+				Nick:            user.UserName,
+				Adding:          false,
+				DeletingMembers: false,
+				Setting:         false,
+				Creator:         false,
+				Deleted:         false,
 			})
 			return nil
 		}

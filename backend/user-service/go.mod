@@ -1,11 +1,10 @@
 module github.com/Slimo300/MicroservicesChatApp/backend/user-service
 
-go 1.17
+go 1.19
 
 require (
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221023112143-439f946ac566
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221026134330-f9c023747ea9
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20220919163237-9de3e238815c
-	github.com/Slimo300/MicroservicesChatApp/backend/token-service v0.0.0-20220919163237-9de3e238815c
 	github.com/gin-contrib/size v0.0.0-20220829131622-0fc0bc875336
 	github.com/gin-gonic/gin v1.8.1
 	github.com/google/uuid v1.3.0
@@ -29,6 +28,7 @@ require (
 	github.com/goccy/go-json v0.9.7 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect

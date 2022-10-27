@@ -14,7 +14,7 @@ func (db *Database) DeleteUserFromGroup(memberID uuid.UUID) (member models.Membe
 }
 
 func (db *Database) GrantPriv(memberID uuid.UUID, adding, deleting, setting bool) error {
-	return db.First(&models.Member{}, memberID).Updates(models.Member{Adding: adding, Deleting: deleting, Setting: setting}).Error
+	return db.First(&models.Member{}, memberID).Updates(models.Member{Adding: adding, DeletingMembers: deleting, Setting: setting}).Error
 }
 
 func (db *Database) GetUserGroupMember(userID, groupID uuid.UUID) (member models.Member, err error) {

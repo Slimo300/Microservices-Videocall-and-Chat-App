@@ -1,6 +1,6 @@
 module github.com/Slimo300/MicroservicesChatApp/backend/message-service
 
-go 1.17
+go 1.19
 
 require (
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20221026125546-5088dd724701
