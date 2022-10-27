@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration"
 	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo/redis"
 	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/server"
 	"github.com/golang-jwt/jwt"
@@ -21,6 +22,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
+
+	config, err := configuration.LoadConfig(os.Getenv("CHAT_CONFIG"), "app", "env")
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Print(config)
 
 	priv, err := ioutil.ReadFile(os.Getenv("PRIV_KEY_FILE"))
 	if err != nil {

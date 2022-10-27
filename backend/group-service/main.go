@@ -31,7 +31,6 @@ func main() {
 	}
 	server := handlers.NewServer(db, &storage, authService)
 	routes.Setup(engine, server)
-	go server.RunHub()
 
 	srv := &http.Server{
 		Addr:    ":8080",

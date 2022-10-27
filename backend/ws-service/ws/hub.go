@@ -20,7 +20,7 @@ var upgrader = &websocket.Upgrader{
 		return true
 	}}
 
-type Hub struct {
+type WSHub struct {
 	actionServerChan  <-chan *communication.Action
 	messageServerChan chan<- *communication.Message
 	forward           chan *communication.Message
@@ -29,8 +29,8 @@ type Hub struct {
 	clients           map[*client]bool
 }
 
-func NewHub(messageChan chan<- *communication.Message, actionChan <-chan *communication.Action) *Hub {
-	return &Hub{
+func NewHub(messageChan chan<- *communication.Message, actionChan <-chan *communication.Action) *WSHub {
+	return &WSHub{
 		actionServerChan:  actionChan,
 		messageServerChan: messageChan,
 		forward:           make(chan *communication.Message),
@@ -40,7 +40,7 @@ func NewHub(messageChan chan<- *communication.Message, actionChan <-chan *commun
 	}
 }
 
-func (h *Hub) Run() {
+func (h *WSHub) Run() {
 	for {
 		select {
 		case client := <-h.join:
@@ -75,14 +75,14 @@ func (h *Hub) Run() {
 	}
 }
 
-func (h *Hub) Join(c *client) {
+func (h *WSHub) Join(c *client) {
 	h.join <- c
 }
 
-func (h *Hub) Leave(c *client) {
+func (h *WSHub) Leave(c *client) {
 	h.leave <- c
 }
-func (h *Hub) Forward(msg *communication.Message) {
+func (h *WSHub) Forward(msg *communication.Message) {
 	h.forward <- msg
 }
 

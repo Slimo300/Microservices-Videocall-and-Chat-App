@@ -3,10 +3,8 @@ package handlers
 import (
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/database"
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/ws"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/communication"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
@@ -17,7 +15,6 @@ import (
 type Server struct {
 	DB           database.DBlayer
 	Storage      storage.StorageLayer
-	Hub          ws.HubInterface
 	TokenService auth.TokenClient
 	actionChan   chan<- *communication.Action
 	messageChan  <-chan *communication.Message
@@ -36,42 +33,6 @@ func NewServer(db database.DBlayer, storage storage.StorageLayer, auth auth.Toke
 		messageChan:  messageChan,
 		MaxBodyBytes: 4194304,
 		TokenService: auth,
-		Hub:          ws.NewHub(messageChan, actionChan),
-	}
-}
-
-func NewServerWithMockHub(db database.DBlayer, storage storage.StorageLayer) *Server {
-	actionChan := make(chan *communication.Action)
-	messageChan := make(chan *communication.Message)
-	return &Server{
-		DB:           db,
-		Storage:      storage,
-		domain:       "localhost",
-		actionChan:   actionChan,
-		messageChan:  messageChan,
-		MaxBodyBytes: 4194304,
-		Hub:          ws.NewMockHub(actionChan),
-	}
-}
-
-func (s *Server) RunHub() {
-	go s.ListenToHub()
-	s.Hub.Run()
-}
-
-func (s *Server) ListenToHub() {
-	var msg *communication.Message
-	for {
-		select {
-		case msg = <-s.messageChan:
-			when, err := time.Parse(communication.TIME_FORMAT, msg.When)
-			if err != nil {
-				panic(err.Error())
-			}
-			if err := s.DB.AddMessage(msg.Member, msg.Message, when); err != nil {
-				panic("Panicked while adding message")
-			}
-		}
 	}
 }
 

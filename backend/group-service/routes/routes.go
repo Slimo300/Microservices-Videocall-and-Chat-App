@@ -27,10 +27,6 @@ func Setup(engine *gin.Engine, server *handlers.Server) {
 	apiAuth.GET("/invites", server.GetUserInvites)
 	apiAuth.POST("/invites", server.SendGroupInvite)
 	apiAuth.PUT("/invites/:inviteID", server.RespondGroupInvite)
-
-	ws := engine.Group("/ws")
-	ws.Use(server.AuthWS())
-	ws.GET("", server.ServeWebSocket)
 }
 
 func CORSMiddleware() gin.HandlerFunc {

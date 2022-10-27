@@ -82,7 +82,7 @@ func TestGetUserGroups(t *testing.T) {
 
 func TestDeleteGroup(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	s := setupTestServerWithHub()
+	s := setupTestServer()
 
 	testCases := []struct {
 		desc               string
@@ -147,7 +147,7 @@ func TestDeleteGroup(t *testing.T) {
 
 func TestCreateGroup(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	s := setupTestServerWithHub()
+	s := setupTestServer()
 
 	testCases := []struct {
 		desc               string

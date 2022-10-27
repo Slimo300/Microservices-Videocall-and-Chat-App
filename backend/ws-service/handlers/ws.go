@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/ws"
+	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/ws"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
@@ -23,13 +23,7 @@ func (s *Server) ServeWebSocket(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
 	}
-	var grInt []uuid.UUID
-	for _, group := range groups {
-		grInt = append(grInt, group.ID)
-	}
-
-	ws.ServeWebSocket(c.Writer, c.Request, s.Hub, grInt, userUID)
-
+	ws.ServeWebSocket(c.Writer, c.Request, s.Hub, groups, userUID)
 }
 
 func (s *Server) AuthWS() gin.HandlerFunc {

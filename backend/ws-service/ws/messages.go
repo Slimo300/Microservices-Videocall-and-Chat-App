@@ -7,7 +7,7 @@ import (
 )
 
 // Group created updates user groups list to which he listens
-func (h *Hub) GroupCreated(userID, groupID uuid.UUID) {
+func (h *WSHub) GroupCreated(userID, groupID uuid.UUID) {
 	for client := range h.clients {
 		if client.id == userID {
 			client.groups = append(client.groups, groupID)
@@ -16,7 +16,7 @@ func (h *Hub) GroupCreated(userID, groupID uuid.UUID) {
 }
 
 // Deletes group from every user that is subscribed to it and sends information via websocket to user
-func (h *Hub) GroupDeleted(groupID uuid.UUID) {
+func (h *WSHub) GroupDeleted(groupID uuid.UUID) {
 	for client := range h.clients {
 		for i, group := range client.groups {
 			if group == groupID {
@@ -28,7 +28,7 @@ func (h *Hub) GroupDeleted(groupID uuid.UUID) {
 }
 
 // Adds subscription to member groups and sends info to other members in group
-func (h *Hub) MemberAdded(member models.Member) {
+func (h *WSHub) MemberAdded(member models.Member) {
 	for client := range h.clients {
 		if client.id == member.UserID {
 			client.groups = append(client.groups, member.GroupID)
@@ -43,7 +43,7 @@ func (h *Hub) MemberAdded(member models.Member) {
 }
 
 // Deletes member subscription and sends info about it to other members in group
-func (h *Hub) MemberDeleted(member models.Member) {
+func (h *WSHub) MemberDeleted(member models.Member) {
 	for client := range h.clients {
 		for i, group := range client.groups {
 			// if user is a member of group
@@ -60,7 +60,7 @@ func (h *Hub) MemberDeleted(member models.Member) {
 }
 
 // Sends invite to specified user
-func (h *Hub) SendGroupInvite(invite models.Invite) {
+func (h *WSHub) SendGroupInvite(invite models.Invite) {
 	for client := range h.clients {
 		if client.id == invite.TargetID {
 			client.send <- &communication.Action{Action: "SEND_INVITE", Invite: invite}

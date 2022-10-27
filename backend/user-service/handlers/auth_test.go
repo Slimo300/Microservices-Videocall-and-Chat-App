@@ -12,7 +12,7 @@ import (
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
-	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/database"
+	mockdb "github.com/Slimo300/MicroservicesChatApp/backend/user-service/database/mock"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/email"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/handlers"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/models"
@@ -29,7 +29,7 @@ func TestRegister(t *testing.T) {
 	mockEmailService := email.NewMockEmailService()
 	mockEmailService.On("SendVerificationEmail", mock.Anything).Return(nil)
 
-	mockDB := new(database.DBLayerMock)
+	mockDB := new(mockdb.DBLayerMock)
 	mockDB.On("IsUsernameInDatabase", "johnny").Return(true)
 	mockDB.On("IsUsernameInDatabase", "johnny1").Return(false)
 	mockDB.On("IsEmailInDatabase", "johnny@net.com").Return(true)
@@ -121,7 +121,7 @@ func TestSignIn(t *testing.T) {
 		Error:        "",
 	}, nil)
 
-	DBMock := new(database.DBLayerMock)
+	DBMock := new(mockdb.DBLayerMock)
 	DBMock.On("GetUserByEmail", "mal.zein@email.com").Return(models.User{ID: uuid.MustParse("c5904224-deec-4275-83bd-56e4cdeba1ae"), Pass: "$2a$10$6BSuuiaPdRJJF2AygYAfnOGkrKLY2o0wDWbEpebn.9Rk0O95D3hW."}, nil)
 	DBMock.On("GetUserByEmail", "mal1.zein@email.com").Return(models.User{}, gorm.ErrRecordNotFound)
 	DBMock.On("SignInUser", uuid.MustParse("c5904224-deec-4275-83bd-56e4cdeba1ae")).Return(nil)
@@ -185,7 +185,7 @@ func TestSignOut(t *testing.T) {
 	TokenClientMock := auth.NewMockTokenClient()
 	TokenClientMock.On("DeleteUserToken", mock.Anything).Return(nil)
 
-	DBMock := new(database.DBLayerMock)
+	DBMock := new(mockdb.DBLayerMock)
 	DBMock.On("SignOutUser", uuid.MustParse("1c4dccaf-a341-4920-9003-f24e0412f8e0")).Return(nil)
 	DBMock.On("SignOutUser", uuid.MustParse("2f8fd072-29d4-470a-9359-b3b0e056bf65")).Return(errors.New("No user with id: 2f8fd072-29d4-470a-9359-b3b0e056bf65"))
 
@@ -248,7 +248,7 @@ func TestRefresh(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	TokenClientMock := auth.NewMockTokenClient()
 	s := handlers.Server{
-		DB:           new(database.DBLayerMock),
+		DB:           new(mockdb.DBLayerMock),
 		TokenService: TokenClientMock,
 	}
 

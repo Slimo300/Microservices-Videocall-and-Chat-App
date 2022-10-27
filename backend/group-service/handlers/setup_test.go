@@ -15,13 +15,6 @@ import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
 )
 
-func setupTestServerWithHub() handlers.Server {
-	mockDB := mock.NewMockDB()
-	s := handlers.NewServerWithMockHub(mockDB, storage.MockStorage{})
-	go s.RunHub()
-	return *s
-}
-
 func setupTestServer() *handlers.Server {
 
 	mockDB := mock.NewMockDB()

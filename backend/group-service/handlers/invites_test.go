@@ -16,7 +16,7 @@ import (
 
 func TestSendGroupInvite(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	s := setupTestServerWithHub()
+	s := setupTestServer()
 
 	testCases := []struct {
 		desc               string
