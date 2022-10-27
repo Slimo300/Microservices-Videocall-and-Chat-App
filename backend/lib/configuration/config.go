@@ -42,7 +42,7 @@ func LoadConfig(path string) (config Config, err error) {
 	vp := viper.New()
 	vp.AddConfigPath(path)
 	vp.SetConfigType("env")
-	vp.SetConfigName("")
+	vp.SetConfigName("app")
 
 	err = vp.ReadInConfig()
 	if err != nil {
