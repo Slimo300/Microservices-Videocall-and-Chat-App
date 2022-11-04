@@ -16,7 +16,7 @@ type DBlayer interface {
 
 	CreateGroup(userID uuid.UUID, name, desc string) (models.Group, error)
 	DeleteUserFromGroup(memberID uuid.UUID) (models.Member, error)
-	GrantPriv(memberID uuid.UUID, adding, deleting, setting bool) error
+	GrantPriv(memberID uuid.UUID, adding, deletingMembers, setting, deletingMessages bool) error
 
 	DeleteGroup(groupID uuid.UUID) (models.Group, error)
 

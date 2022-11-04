@@ -23,9 +23,10 @@ func (s *Server) GrantPriv(c *gin.Context) {
 	}
 
 	load := struct {
-		Adding   *bool `json:"adding" binding:"required"`
-		Deleting *bool `json:"deleting" binding:"required"`
-		Setting  *bool `json:"setting" binding:"required"`
+		Adding           *bool `json:"adding" binding:"required"`
+		DeletingMessages *bool `json:"deleting" binding:"required"`
+		DeletingMembers  *bool `json:"deletingMembers" binding:"required"`
+		Setting          *bool `json:"setting" binding:"required"`
 	}{}
 	if err := c.ShouldBindJSON(&load); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "bad request, all 3 fields must be present"})
@@ -48,7 +49,7 @@ func (s *Server) GrantPriv(c *gin.Context) {
 		c.JSON(http.StatusForbidden, gin.H{"err": "creator can't be modified"})
 	}
 
-	if err := s.DB.GrantPriv(memberUID, *load.Adding, *load.Deleting, *load.Setting); err != nil {
+	if err := s.DB.GrantPriv(memberUID, *load.Adding, *load.DeletingMembers, *load.Setting, *load.DeletingMessages); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
 	}

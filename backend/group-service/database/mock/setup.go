@@ -142,11 +142,6 @@ func NewMockDB() *MockDB {
 	var users []models.User
 	json.Unmarshal([]byte(USERS), &users)
 
-	// for security reasons json encoding omits password field so it has to be assigned manually
-	for i := range users {
-		users[i].Pass = "$2a$10$6BSuuiaPdRJJF2AygYAfnOGkrKLY2o0wDWbEpebn.9Rk0O95D3hW."
-	}
-
 	var groups []models.Group
 	json.Unmarshal([]byte(GROUPS), &groups)
 

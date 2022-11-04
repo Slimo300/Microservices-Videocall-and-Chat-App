@@ -13,8 +13,8 @@ func (db *Database) DeleteUserFromGroup(memberID uuid.UUID) (member models.Membe
 	return member, db.First(&member, memberID).Update("deleted", true).Error
 }
 
-func (db *Database) GrantPriv(memberID uuid.UUID, adding, deleting, setting bool) error {
-	return db.First(&models.Member{}, memberID).Updates(models.Member{Adding: adding, DeletingMembers: deleting, Setting: setting}).Error
+func (db *Database) GrantPriv(memberID uuid.UUID, adding, deletingMembers, setting, deletingMessages bool) error {
+	return db.First(&models.Member{}, memberID).Updates(models.Member{Adding: adding, DeletingMembers: deletingMembers, Setting: setting, DeletingMessages: deletingMessages}).Error
 }
 
 func (db *Database) GetUserGroupMember(userID, groupID uuid.UUID) (member models.Member, err error) {

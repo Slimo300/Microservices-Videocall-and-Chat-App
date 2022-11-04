@@ -29,12 +29,13 @@ func (m *MockDB) GetMemberByID(memberID uuid.UUID) (models.Member, error) {
 	return models.Member{}, gorm.ErrRecordNotFound
 }
 
-func (m *MockDB) GrantPriv(memberID uuid.UUID, adding, deleting, setting bool) error {
+func (m *MockDB) GrantPriv(memberID uuid.UUID, adding, deletingMembers, setting, deletingMessages bool) error {
 	for _, member := range m.Members {
 		if member.ID == memberID {
 			member.Adding = adding
-			member.DeletingMembers = deleting
+			member.DeletingMembers = deletingMembers
 			member.Setting = setting
+			member.DeletingMessages = deletingMessages
 			return nil
 		}
 	}
