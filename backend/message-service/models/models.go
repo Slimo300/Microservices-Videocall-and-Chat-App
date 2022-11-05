@@ -13,7 +13,7 @@ type Message struct {
 	UserID   uuid.UUID
 	GroupID  uuid.UUID
 	Nick     string
-	Deleters []Membership `gorm:"foreignKey:MembershipID;constraint:OnDelete:CASCADE"`
+	Deleters []Membership `gorm:"many2many:users_who_deleted"`
 }
 
 func (Message) TableName() string {
