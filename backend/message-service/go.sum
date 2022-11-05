@@ -40,6 +40,8 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/Slimo300/MicroservicesChatApp v0.1.0 h1:9Znzgdfo3CImhUjCrf3xf1nN8ohcdeI9xg+4l2AnNi0=
 github.com/Slimo300/MicroservicesChatApp v0.1.0/go.mod h1:04kB+uFqDjBJqnzRD5lI5rtHcw1nPc248GHJjo0jJJM=
+github.com/Slimo300/MicroservicesChatApp v0.2.0 h1:ltzEbPp6nu253DGAuE2oclvCDkOVYv8v6wvnV2qpZHE=
+github.com/Slimo300/MicroservicesChatApp v0.2.0/go.mod h1:04kB+uFqDjBJqnzRD5lI5rtHcw1nPc248GHJjo0jJJM=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20221026125546-5088dd724701 h1:9aTUgV2oXrw1krIWjTjyDm+fxa4Iz8Ukjw5eSHPrUug=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20221026125546-5088dd724701/go.mod h1:q9OtDpE6rBQ3/+nPuSSyl0mmQk2pmg7Gz2bqIdzZbdk=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221026134330-f9c023747ea9 h1:4P3+F5Y8DBksPNutvm+BcosVeb+6dnun6Uh/Se8NaRw=

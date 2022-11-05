@@ -13,7 +13,7 @@ require (
 )
 
 require (
-	github.com/Slimo300/MicroservicesChatApp v0.1.0 // indirect
+	github.com/Slimo300/MicroservicesChatApp v0.2.0 // indirect
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221027132905-d89618260ad0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
