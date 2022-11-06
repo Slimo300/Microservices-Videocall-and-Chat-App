@@ -11,5 +11,5 @@ type MemberUpdatedEvent struct {
 }
 
 func (MemberUpdatedEvent) EventName() string {
-	return "member.updated"
+	return "groups.memberupdated"
 }

@@ -10,5 +10,5 @@ type MemberCreatedEvent struct {
 }
 
 func (MemberCreatedEvent) EventName() string {
-	return "member.created"
+	return "groups.membercreated"
 }

@@ -1,16 +1,25 @@
 package kafka
 
 import (
+	"encoding/json"
+	"fmt"
+
 	"github.com/Shopify/sarama"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
 )
 
 type kafkaEventListener struct {
-	consumer   sarama.Consumer
-	partitions []int32
+	consumer sarama.Consumer
+	mapper   msgqueue.DynamicEventMapper
+	topics   []KafkaTopic
 }
 
-func NewKafkaEventListener(client sarama.Client, partitions []int32) (msgqueue.EventListener, error) {
+type KafkaTopic struct {
+	Name       string
+	Partitions []int32
+}
+
+func NewKafkaEventListener(client sarama.Client, mapper msgqueue.DynamicEventMapper, topics ...KafkaTopic) (msgqueue.EventListener, error) {
 
 	consumer, err := sarama.NewConsumerFromClient(client)
 	if err != nil {
@@ -18,8 +27,9 @@ func NewKafkaEventListener(client sarama.Client, partitions []int32) (msgqueue.E
 	}
 
 	return &kafkaEventListener{
-		consumer:   consumer,
-		partitions: partitions,
+		consumer: consumer,
+		mapper:   mapper,
+		topics:   topics,
 	}, nil
 
 }
@@ -30,12 +40,48 @@ func (k *kafkaEventListener) Listen(events ...string) (<-chan msgqueue.Event, <-
 	results := make(chan msgqueue.Event)
 	errors := make(chan error)
 
-	partitions := k.partitions
-	if len(partitions) == 0 {
-		partitions, err = k.consumer.Partitions("")
-		if err != nil {
-			return nil, nil, err
+	for _, topic := range k.topics {
+
+		// When partitions is an empty slice the listener will listen on all of partitions
+		partitions := topic.Partitions
+		if len(partitions) == 0 {
+			partitions, err = k.consumer.Partitions(topic.Name)
+			if err != nil {
+				return nil, nil, err
+			}
 		}
+
+		for _, partition := range partitions {
+
+			con, err := k.consumer.ConsumePartition(topic.Name, partition, 0)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			go func() {
+				for msg := range con.Messages() {
+					body := kafkaMessage{}
+					err := json.Unmarshal(msg.Value, &body)
+					if err != nil {
+						errors <- fmt.Errorf("Could not unmarshal message: %s", err.Error())
+						continue
+					}
+					evt, err := k.mapper.MapEvent(body.EventName, body.Payload)
+					if err != nil {
+						errors <- fmt.Errorf("Error when mapping events: %s", err.Error())
+						continue
+					}
+					results <- evt
+				}
+			}()
+
+			go func() {
+				for err := range con.Errors() {
+					errors <- err
+				}
+			}()
+		}
+
 	}
 
 	return results, errors, err

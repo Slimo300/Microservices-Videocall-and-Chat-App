@@ -2,6 +2,7 @@ package kafka
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/Shopify/sarama"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
@@ -17,7 +18,6 @@ type kafkaMessage struct {
 }
 
 func NewKafkaEventEmiter(client sarama.Client) (msgqueue.EventEmitter, error) {
-
 	producer, err := sarama.NewSyncProducerFromClient(client)
 	if err != nil {
 		return nil, err
@@ -37,8 +37,10 @@ func (k *kafkaEventEmiter) Emit(event msgqueue.Event) error {
 		return err
 	}
 
+	topic := strings.Split(event.EventName(), ".")[0]
+
 	_, _, err = k.producer.SendMessage(&sarama.ProducerMessage{
-		Topic: event.EventName(),
+		Topic: topic,
 		Value: sarama.ByteEncoder(jsonBody),
 	})
 	return err

@@ -16,5 +16,5 @@ type MessageSentEvent struct {
 }
 
 func (MessageSentEvent) EventName() string {
-	return "message.created"
+	return "messages.created"
 }

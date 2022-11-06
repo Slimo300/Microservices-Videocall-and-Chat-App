@@ -9,5 +9,5 @@ type UserRegisteredEvent struct {
 }
 
 func (UserRegisteredEvent) EventName() string {
-	return "user.created"
+	return "users.created"
 }

@@ -7,5 +7,5 @@ type MemberDeletedEvent struct {
 }
 
 func (MemberDeletedEvent) EventName() string {
-	return "member.deleted"
+	return "groups.memberdeleted"
 }

@@ -8,5 +8,5 @@ type MessageDeletedEvent struct {
 }
 
 func (MessageDeletedEvent) EventName() string {
-	return "message.deleted"
+	return "messages.deleted"
 }
