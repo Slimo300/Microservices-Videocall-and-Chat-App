@@ -3,6 +3,7 @@ package orm
 import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/events"
 	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/models"
+	"github.com/google/uuid"
 )
 
 func (db *Database) NewMember(event events.MemberCreatedEvent) error {
@@ -21,4 +22,19 @@ func (db *Database) ModifyMember(event events.MemberUpdatedEvent) error {
 
 func (db *Database) DeleteMember(event events.MemberDeletedEvent) error {
 	return db.Delete(&models.Membership{MembershipID: event.ID}).Error
+}
+
+func (db *Database) AddMessage(event events.MessageSentEvent) error {
+	return db.Create(models.Message{
+		ID:      uuid.New(),
+		GroupID: event.GroupID,
+		UserID:  event.UserID,
+		Text:    event.Text,
+		Nick:    event.Nick,
+		Posted:  event.Posted,
+	}).Error
+}
+
+func (db *Database) DeleteGroupMembers(event events.GroupDeletedEvent) error {
+	return db.Where(models.Membership{GroupID: event.ID}).Delete(&models.Membership{}).Error
 }

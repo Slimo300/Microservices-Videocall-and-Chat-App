@@ -1,29 +1,11 @@
 package orm
 
 import (
-	"time"
-
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
 	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
-
-func (db *Database) AddMessage(userID, groupID uuid.UUID, nick string, text string, when time.Time) error {
-	message := models.Message{
-		ID:      uuid.New(),
-		UserID:  userID,
-		GroupID: groupID,
-		Text:    text,
-		Posted:  when,
-		Nick:    nick,
-	}
-	if err := db.Create(&message).Error; err != nil {
-		return err
-	}
-
-	return nil
-}
 
 func (db *Database) GetGroupMessages(userID, groupID uuid.UUID, offset, num int) (messages []models.Message, err error) {
 	var membership models.Membership

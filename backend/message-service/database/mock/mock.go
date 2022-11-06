@@ -8,8 +8,6 @@ import (
 
 	models "github.com/Slimo300/MicroservicesChatApp/backend/message-service/models"
 
-	time "time"
-
 	uuid "github.com/google/uuid"
 )
 
@@ -18,13 +16,27 @@ type MockMessageDB struct {
 	mock.Mock
 }
 
-// AddMessage provides a mock function with given fields: userID, groupID, nick, text, when
-func (_m *MockMessageDB) AddMessage(userID uuid.UUID, groupID uuid.UUID, nick string, text string, when time.Time) error {
-	ret := _m.Called(userID, groupID, nick, text, when)
+// AddMessage provides a mock function with given fields: event
+func (_m *MockMessageDB) AddMessage(event events.MessageSentEvent) error {
+	ret := _m.Called(event)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(uuid.UUID, uuid.UUID, string, string, time.Time) error); ok {
-		r0 = rf(userID, groupID, nick, text, when)
+	if rf, ok := ret.Get(0).(func(events.MessageSentEvent) error); ok {
+		r0 = rf(event)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// DeleteGroupMembers provides a mock function with given fields: event
+func (_m *MockMessageDB) DeleteGroupMembers(event events.GroupDeletedEvent) error {
+	ret := _m.Called(event)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(events.GroupDeletedEvent) error); ok {
+		r0 = rf(event)
 	} else {
 		r0 = ret.Error(0)
 	}

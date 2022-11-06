@@ -17,6 +17,14 @@ func (s *Server) RunListener(eventNames ...string) {
 		select {
 		case evt := <-received:
 			switch e := evt.(type) {
+			case *events.MessageSentEvent:
+				if err := s.DB.AddMessage(*e); err != nil {
+					log.Printf("Error when adding message: %s\n", err.Error())
+				}
+			case *events.GroupDeletedEvent:
+				if err := s.DB.DeleteGroupMembers(*e); err != nil {
+					log.Printf("Error when deleting group members: %s\n", err.Error())
+				}
 			case *events.MemberCreatedEvent:
 				if err := s.DB.NewMember(*e); err != nil {
 					log.Printf("Error when creating member from message: %s\n", err.Error())
