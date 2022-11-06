@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/events"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/email"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/models"
 	"github.com/gin-gonic/gin"
@@ -45,7 +46,7 @@ func (s *Server) RegisterUser(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
 	}
-	user := models.User{Email: load.Email, UserName: load.UserName, Pass: load.Pass, Activated: false}
+	user := models.User{Email: load.Email, UserName: load.UserName, Pass: load.Pass, Activated: false, Picture: uuid.NewString()}
 	user, err = s.DB.RegisterUser(user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
@@ -67,10 +68,16 @@ func (s *Server) RegisterUser(c *gin.Context) {
 		return
 	}
 
+	s.Emitter.Emit(events.UserRegisteredEvent{
+		ID:         user.ID,
+		Username:   user.UserName,
+		PictureURL: user.Picture,
+	})
+
 	c.JSON(http.StatusCreated, gin.H{"message": "success"})
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////////////////////////
 // SignIn method
 func (s *Server) SignIn(c *gin.Context) {
 	load := struct {
@@ -107,7 +114,7 @@ func (s *Server) SignIn(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"accessToken": tokenPair.AccessToken})
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////////////////////
 // SignOutUser method
 func (s *Server) SignOutUser(c *gin.Context) {
 	userID := c.GetString("userID")
@@ -138,7 +145,7 @@ func (s *Server) SignOutUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "success"})
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////////////////////
 // GetUser method
 func (s *Server) GetUser(c *gin.Context) {
 	userID := c.GetString("userID")

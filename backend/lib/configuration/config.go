@@ -18,6 +18,9 @@ type Config struct {
 
 	Certificate string `mapstructure:"cert"`
 	PrivKeyFile string `mapstructure:"privKey"`
+
+	BrokerType       string   `mapstructure:"brokerType"`
+	BrokersAddresses []string `mapstructure:"brokerAddresses"`
 }
 
 type Service struct {

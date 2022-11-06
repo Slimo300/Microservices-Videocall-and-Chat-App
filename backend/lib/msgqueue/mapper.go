@@ -12,8 +12,8 @@ type DynamicEventMapper struct {
 	typeMap map[string]reflect.Type
 }
 
-func NewDynamicEventMapper() DynamicEventMapper {
-	return DynamicEventMapper{
+func NewDynamicEventMapper() *DynamicEventMapper {
+	return &DynamicEventMapper{
 		typeMap: make(map[string]reflect.Type),
 	}
 }
@@ -29,6 +29,15 @@ func (m *DynamicEventMapper) RegisterEventType(eventType reflect.Type) error {
 	}
 
 	m.typeMap[newEvent.EventName()] = eventType
+	return nil
+}
+
+func (m *DynamicEventMapper) RegisterTypes(eventTypes ...reflect.Type) error {
+	for _, typ := range eventTypes {
+		if err := m.RegisterEventType(typ); err != nil {
+			return fmt.Errorf("Error when registering type %s: %s", typ.Name(), err.Error())
+		}
+	}
 	return nil
 }
 

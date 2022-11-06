@@ -10,7 +10,7 @@ import (
 
 type kafkaEventListener struct {
 	consumer sarama.Consumer
-	mapper   msgqueue.DynamicEventMapper
+	mapper   msgqueue.Mapper
 	topics   []KafkaTopic
 }
 
@@ -19,7 +19,7 @@ type KafkaTopic struct {
 	Partitions []int32
 }
 
-func NewKafkaEventListener(client sarama.Client, mapper msgqueue.DynamicEventMapper, topics ...KafkaTopic) (msgqueue.EventListener, error) {
+func NewKafkaEventListener(client sarama.Client, mapper msgqueue.Mapper, topics ...KafkaTopic) (msgqueue.EventListener, error) {
 
 	consumer, err := sarama.NewConsumerFromClient(client)
 	if err != nil {

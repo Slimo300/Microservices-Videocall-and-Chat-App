@@ -11,3 +11,7 @@ type EventEmitter interface {
 type EventListener interface {
 	Listen(eventNames ...string) (<-chan Event, <-chan error, error)
 }
+
+type Mapper interface {
+	MapEvent(eventName string, eventPayload interface{}) (Event, error)
+}
