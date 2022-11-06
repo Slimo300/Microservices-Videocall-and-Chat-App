@@ -86,7 +86,7 @@ func (h *WSHub) Forward(msg *communication.Message) {
 	h.forward <- msg
 }
 
-func ServeWebSocket(w http.ResponseWriter, req *http.Request, h HubInterface, groups []uuid.UUID, id_user uuid.UUID) {
+func ServeWebSocket(w http.ResponseWriter, req *http.Request, h Hub, groups []uuid.UUID, id_user uuid.UUID) {
 
 	socket, err := upgrader.Upgrade(w, req, nil)
 	if err != nil {

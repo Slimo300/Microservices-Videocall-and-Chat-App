@@ -2,6 +2,7 @@ package orm
 
 import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/events"
 	"github.com/google/uuid"
 )
 
@@ -28,4 +29,12 @@ func (db *Database) IsUserInGroup(userID, groupID uuid.UUID) bool {
 		return false
 	}
 	return true
+}
+
+func (db *Database) NewUser(event events.UserRegisteredEvent) error {
+	return db.Create(&models.User{
+		ID:       event.ID,
+		UserName: event.Username,
+		Picture:  event.PictureURL,
+	}).Error
 }

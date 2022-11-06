@@ -1,9 +1,10 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/communication"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/events"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -89,7 +90,9 @@ func (s *Server) DeleteUserFromGroup(c *gin.Context) {
 		return
 	}
 
-	s.actionChan <- &communication.Action{Action: "DELETE_MEMBER", Member: member}
+	if err := s.Emitter.Emit(events.MemberDeletedEvent{ID: member.ID}); err != nil {
+		log.Printf("Emitter failed: %s", err.Error())
+	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "ok"})
 }

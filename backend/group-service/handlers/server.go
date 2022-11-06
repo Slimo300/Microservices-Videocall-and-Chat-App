@@ -6,7 +6,7 @@ import (
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/database"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/communication"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -16,21 +16,17 @@ type Server struct {
 	DB           database.DBlayer
 	Storage      storage.StorageLayer
 	TokenService auth.TokenClient
-	actionChan   chan<- *communication.Action
-	messageChan  <-chan *communication.Message
 	domain       string
 	MaxBodyBytes int64
+	Emitter      msgqueue.EventEmitter
+	Listener     msgqueue.EventListener
 }
 
 func NewServer(db database.DBlayer, storage storage.StorageLayer, auth auth.TokenClient) *Server {
-	actionChan := make(chan *communication.Action)
-	messageChan := make(chan *communication.Message)
 	return &Server{
 		DB:           db,
 		Storage:      storage,
 		domain:       "localhost",
-		actionChan:   actionChan,
-		messageChan:  messageChan,
 		MaxBodyBytes: 4194304,
 		TokenService: auth,
 	}

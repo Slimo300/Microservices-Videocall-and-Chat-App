@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/events"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -50,4 +51,14 @@ func (m *MockDB) IsUserInGroup(userID, groupID uuid.UUID) bool {
 		}
 	}
 	return false
+}
+
+func (m *MockDB) NewUser(event events.UserRegisteredEvent) error {
+	user := models.User{
+		ID:       event.ID,
+		UserName: event.Username,
+		Picture:  event.PictureURL,
+	}
+	m.Users = append(m.Users, user)
+	return nil
 }

@@ -12,7 +12,7 @@ import (
 
 type Server struct {
 	DB           database.DBLayer
-	Hub          ws.HubInterface
+	Hub          ws.Hub
 	TokenService auth.TokenClient
 	actionChan   chan<- *communication.Action
 	messageChan  <-chan *communication.Message

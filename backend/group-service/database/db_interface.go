@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/events"
 	"github.com/google/uuid"
 )
 
@@ -34,6 +35,8 @@ type DBlayer interface {
 	IsUserInvited(userID, groupID uuid.UUID) bool
 
 	GetInviteByID(inviteID uuid.UUID) (models.Invite, error)
+
+	NewUser(event events.UserRegisteredEvent) error
 }
 
 const INVITE_AWAITING = 1

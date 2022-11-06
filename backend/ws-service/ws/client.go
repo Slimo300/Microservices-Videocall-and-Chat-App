@@ -10,7 +10,7 @@ type client struct {
 	id     uuid.UUID
 	socket *websocket.Conn
 	send   chan communication.Sender
-	hub    HubInterface
+	hub    Hub
 	groups []uuid.UUID
 }
 

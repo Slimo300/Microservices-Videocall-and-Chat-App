@@ -1,10 +1,11 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/communication"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/events"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -58,7 +59,14 @@ func (s *Server) CreateGroup(c *gin.Context) {
 		return
 	}
 
-	s.actionChan <- &communication.Action{Group: group.ID, User: userUID, Action: "CREATE_GROUP"}
+	if err := s.Emitter.Emit(events.MemberCreatedEvent{
+		ID:      group.Members[0].ID,
+		GroupID: group.ID,
+		UserID:  userUID,
+		Creator: true,
+	}); err != nil {
+		log.Printf("Emitter failed: %s", err.Error())
+	}
 
 	c.JSON(http.StatusCreated, group)
 }
@@ -93,7 +101,11 @@ func (s *Server) DeleteGroup(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 	}
 
-	s.actionChan <- &communication.Action{Group: group.ID, Action: "DELETE_GROUP"}
+	if err := s.Emitter.Emit(events.GroupDeletedEvent{
+		ID: group.ID,
+	}); err != nil {
+		log.Printf("Emitter failed: %s", err.Error())
+	}
 	c.JSON(http.StatusOK, gin.H{"message": "ok"})
 
 }

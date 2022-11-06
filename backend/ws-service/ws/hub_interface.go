@@ -2,7 +2,7 @@ package ws
 
 import "github.com/Slimo300/MicroservicesChatApp/backend/lib/communication"
 
-type HubInterface interface {
+type Hub interface {
 	Run()
 	Join(*client)
 	Leave(*client)
