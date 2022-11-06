@@ -5,6 +5,8 @@ go 1.19
 require (
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20221026125546-5088dd724701
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221026134330-f9c023747ea9
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221027132905-d89618260ad0
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221105122837-f2ee4f594d1f
 	github.com/gin-gonic/gin v1.8.1
 	github.com/google/uuid v1.3.0
 	github.com/stretchr/testify v1.8.1
@@ -13,8 +15,6 @@ require (
 )
 
 require (
-	github.com/Slimo300/MicroservicesChatApp v0.2.0 // indirect
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221027132905-d89618260ad0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect

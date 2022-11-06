@@ -67,7 +67,6 @@ func (db *Database) DeleteMessageForYourself(userID, messageID uuid.UUID) (model
 	}
 
 	return message, nil
-
 }
 
 func (db *Database) DeleteMessageForEveryone(userID, messageID uuid.UUID) (models.Message, error) {
