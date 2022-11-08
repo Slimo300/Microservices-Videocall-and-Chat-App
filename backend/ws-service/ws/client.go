@@ -1,7 +1,6 @@
 package ws
 
 import (
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/communication"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
@@ -9,7 +8,7 @@ import (
 type client struct {
 	id     uuid.UUID
 	socket *websocket.Conn
-	send   chan communication.Sender
+	send   chan Sender
 	hub    Hub
 	groups []uuid.UUID
 }
@@ -19,7 +18,7 @@ func (c *client) read() {
 	defer c.socket.Close()
 	for {
 		// socket can read only communication message
-		var msg communication.Message
+		var msg Message
 		if err := c.socket.ReadJSON(&msg); err != nil {
 			return
 		}

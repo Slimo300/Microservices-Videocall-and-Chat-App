@@ -6,14 +6,19 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"reflect"
 	"syscall"
 	"time"
 
+	"github.com/Shopify/sarama"
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/database/orm"
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/handlers"
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/routes"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/kafka"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
 	"github.com/gin-gonic/gin"
 )
@@ -35,8 +40,38 @@ func main() {
 	if err != nil {
 		panic("Couldn't connect to grpc auth server")
 	}
-	server := handlers.NewServer(db, &storage, authService)
-	routes.Setup(engine, server)
+
+	conf := sarama.NewConfig()
+	client, err := sarama.NewClient(config.BrokersAddresses, conf)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	emitter, err := kafka.NewKafkaEventEmiter(client)
+	if err != nil {
+		log.Fatal(err)
+	}
+	mapper := msgqueue.NewDynamicEventMapper()
+	if err := mapper.RegisterTypes(
+		reflect.TypeOf(events.UserRegisteredEvent{}),
+	); err != nil {
+		log.Fatal(err)
+	}
+	listener, err := kafka.NewKafkaEventListener(client, mapper, kafka.KafkaTopic{Name: "users"})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	server := handlers.Server{
+		DB:           db,
+		Storage:      &storage,
+		TokenService: authService,
+		Emitter:      emitter,
+		Listener:     listener,
+	}
+	routes.Setup(engine, &server)
+
+	go server.RunListener()
 
 	httpServer := &http.Server{
 		Handler: engine,

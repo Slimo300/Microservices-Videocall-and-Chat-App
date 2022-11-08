@@ -4,7 +4,6 @@ go 1.19
 
 require (
 	github.com/Shopify/sarama v1.37.2
-	github.com/google/uuid v1.3.0
 	github.com/mitchellh/mapstructure v1.5.0
 )
 

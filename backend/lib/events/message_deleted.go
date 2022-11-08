@@ -1,6 +1,8 @@
 package events
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+)
 
 type MessageDeletedEvent struct {
 	ID      uuid.UUID `json:"id"`

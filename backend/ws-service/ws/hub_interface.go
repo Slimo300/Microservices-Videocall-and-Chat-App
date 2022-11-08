@@ -1,29 +1,16 @@
 package ws
 
-import "github.com/Slimo300/MicroservicesChatApp/backend/lib/communication"
+import (
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
+)
 
 type Hub interface {
 	Run()
 	Join(*client)
 	Leave(*client)
-	Forward(*communication.Message)
-}
+	Forward(*Message)
 
-type MockHub struct {
-	actionChan <-chan *communication.Action
-}
-
-func (m *MockHub) Run() {
-	for {
-		<-m.actionChan
-	}
-}
-func (m *MockHub) Join(c *client)                     {}
-func (m *MockHub) Leave(c *client)                    {}
-func (m *MockHub) Forward(msg *communication.Message) {}
-
-func NewMockHub(actionChan <-chan *communication.Action) *MockHub {
-	return &MockHub{
-		actionChan: actionChan,
-	}
+	GroupDeleted(event events.GroupDeletedEvent)
+	MemberAdded(event events.MemberCreatedEvent)
+	MemberDeleted(event events.MemberDeletedEvent)
 }

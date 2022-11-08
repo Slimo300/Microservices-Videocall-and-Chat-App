@@ -3,7 +3,7 @@ package handlers
 import (
 	"log"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/events"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 )
 
 func (s *Server) RunListener(eventNames ...string) {

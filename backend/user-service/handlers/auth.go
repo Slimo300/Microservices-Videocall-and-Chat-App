@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/events"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/email"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/models"
 	"github.com/gin-gonic/gin"

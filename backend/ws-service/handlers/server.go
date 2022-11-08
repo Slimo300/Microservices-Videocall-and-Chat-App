@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/communication"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
 	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/database"
 	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/ws"
 )
@@ -14,8 +14,10 @@ type Server struct {
 	DB           database.DBLayer
 	Hub          ws.Hub
 	TokenService auth.TokenClient
-	actionChan   chan<- *communication.Action
-	messageChan  <-chan *communication.Message
+	Emitter      msgqueue.EventEmitter
+	Listener     msgqueue.EventListener
+	ActionChan   chan<- msgqueue.Event
+	MessageChan  <-chan *ws.Message
 }
 
 func (s *Server) RunHub() {
@@ -24,16 +26,21 @@ func (s *Server) RunHub() {
 }
 
 func (s *Server) ListenToHub() {
-	var msg *communication.Message
+	var msg *ws.Message
 	for {
 		select {
-		case msg = <-s.messageChan:
-			when, err := time.Parse(communication.TIME_FORMAT, msg.When)
+		case msg = <-s.MessageChan:
+			when, err := time.Parse(ws.TIME_FORMAT, msg.When)
 			if err != nil {
 				panic(err.Error())
 			}
-			fmt.Print(when)
-			// send message to kafka/rabbit
+			s.Emitter.Emit(events.MessageSentEvent{
+				GroupID: msg.Group,
+				UserID:  msg.User,
+				Nick:    msg.Nick,
+				Posted:  when,
+				Text:    msg.Message,
+			})
 		}
 	}
 }

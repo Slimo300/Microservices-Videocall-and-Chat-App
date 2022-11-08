@@ -6,14 +6,20 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"reflect"
 	"syscall"
 	"time"
 
+	"github.com/Shopify/sarama"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/kafka"
 	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/database"
 	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/handlers"
 	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/routes"
+	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/ws"
 	"github.com/gin-gonic/gin"
 )
 
@@ -33,8 +39,44 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error when connecting to token service: %v", err)
 	}
-	server := &handlers.Server{DB: db, TokenService: tokenService}
+
+	conf := sarama.NewConfig()
+	client, err := sarama.NewClient(config.BrokersAddresses, conf)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	emitter, err := kafka.NewKafkaEventEmiter(client)
+	if err != nil {
+		log.Fatal(err)
+	}
+	mapper := msgqueue.NewDynamicEventMapper()
+	if err := mapper.RegisterTypes(
+		reflect.TypeOf(events.GroupDeletedEvent{}),
+		reflect.TypeOf(events.MemberCreatedEvent{}),
+		reflect.TypeOf(events.MemberDeletedEvent{}),
+		reflect.TypeOf(events.MemberUpdatedEvent{}), // TODO
+		reflect.TypeOf(events.MessageSentEvent{}),   // TODO
+	); err != nil {
+		log.Fatal(err)
+	}
+	listener, err := kafka.NewKafkaEventListener(client, mapper, kafka.KafkaTopic{Name: "messages"}, kafka.KafkaTopic{Name: "groups"})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	messageChan := make(chan *ws.Message)
+	server := &handlers.Server{
+		DB:           db,
+		TokenService: tokenService,
+		Emitter:      emitter,
+		Listener:     listener,
+		Hub:          ws.NewHub(messageChan),
+		MessageChan:  messageChan,
+	}
 	routes.Setup(engine, server)
+
+	go server.RunListener()
 
 	httpServer := &http.Server{
 		Handler: engine,

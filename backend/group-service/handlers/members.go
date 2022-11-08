@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/events"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )

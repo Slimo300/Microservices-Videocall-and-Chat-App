@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/events"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 	"github.com/google/uuid"
 )
 

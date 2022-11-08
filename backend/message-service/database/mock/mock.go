@@ -3,7 +3,7 @@
 package mock
 
 import (
-	events "github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/events"
+	events "github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 	mock "github.com/stretchr/testify/mock"
 
 	models "github.com/Slimo300/MicroservicesChatApp/backend/message-service/models"
