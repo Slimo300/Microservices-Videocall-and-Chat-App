@@ -16,7 +16,6 @@ type Server struct {
 	TokenService auth.TokenClient
 	Emitter      msgqueue.EventEmitter
 	Listener     msgqueue.EventListener
-	ActionChan   chan<- msgqueue.Event
 	MessageChan  <-chan *ws.Message
 }
 

@@ -13,4 +13,7 @@ type Hub interface {
 	GroupDeleted(event events.GroupDeletedEvent)
 	MemberAdded(event events.MemberCreatedEvent)
 	MemberDeleted(event events.MemberDeletedEvent)
+	MemberUpdated(event events.MemberUpdatedEvent)
+	MessageDeleted(event events.MessageDeletedEvent)
+	InviteSent(event events.InviteSentEvent)
 }

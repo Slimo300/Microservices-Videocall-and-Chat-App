@@ -32,11 +32,12 @@ func (s *Server) RunListener(eventNames ...string) {
 					log.Printf("Listener DeleteMember error: %s", err.Error())
 				}
 				s.Hub.MemberDeleted(*e)
-			// TODO
-			// case *events.MemberUpdatedEvent:
-			// 	s.ActionChan <- e
-			// case *events.MessageDeletedEvent:
-			// 	s.ActionChan <- e
+			case *events.MemberUpdatedEvent:
+				s.Hub.MemberUpdated(*e)
+			case *events.InviteSentEvent:
+				s.Hub.InviteSent(*e)
+			case *events.MessageDeletedEvent:
+				s.Hub.MessageDeleted(*e)
 			default:
 				log.Println("Unsupported event type")
 			}

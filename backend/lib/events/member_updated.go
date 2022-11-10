@@ -6,10 +6,12 @@ import (
 
 type MemberUpdatedEvent struct {
 	ID               uuid.UUID `json:"id"`
-	DeletingMessages *bool     `json:"deletingMessages" binding:"required"`
-	DeletingMembers  *bool     `json:"deletingMembers" binding:"required"`
-	Adding           *bool     `json:"adding" binding:"required"`
-	Setting          *bool     `json:"setting" binding:"required"`
+	GroupID          uuid.UUID `json:"groupID"`
+	UserID           uuid.UUID `json:"userID"`
+	DeletingMessages bool      `json:"deletingMessages,omitempty"`
+	DeletingMembers  bool      `json:"deletingMembers,omitempty"`
+	Adding           bool      `json:"adding,omitempty"`
+	Setting          bool      `json:"setting,omitempty"`
 }
 
 func (MemberUpdatedEvent) EventName() string {

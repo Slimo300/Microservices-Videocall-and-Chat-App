@@ -4,15 +4,6 @@ import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 )
 
-// Group created updates user groups list to which he listens
-// func (h *WSHub) GroupCreated(userID, groupID uuid.UUID) {
-// 	for client := range h.clients {
-// 		if client.id == userID {
-// 			client.groups = append(client.groups, groupID)
-// 		}
-// 	}
-// }
-
 // Deletes group from every user that is subscribed to it and sends information via websocket to user
 func (h *WSHub) GroupDeleted(event events.GroupDeletedEvent) {
 	for client := range h.clients {
@@ -59,11 +50,33 @@ func (h *WSHub) MemberDeleted(event events.MemberDeletedEvent) {
 	}
 }
 
+func (h *WSHub) MemberUpdated(event events.MemberUpdatedEvent) {
+	for client := range h.clients {
+		for _, group := range client.groups {
+			if group == event.GroupID {
+				if client.id == event.UserID {
+					client.send <- &Action{ActionType: "UPDATE_MEMBER", Payload: event}
+				}
+			}
+		}
+	}
+}
+
 // Sends invite to specified user
-// func (h *WSHub) SendGroupInvite(invite models.Invite) {
-// 	for client := range h.clients {
-// 		if client.id == invite.TargetID {
-// 			client.send <- &communication.Action{Action: "SEND_INVITE", Invite: invite}
-// 		}
-// 	}
-// }
+func (h *WSHub) InviteSent(event events.InviteSentEvent) {
+	for client := range h.clients {
+		if client.id == event.TargetID {
+			client.send <- &Action{ActionType: "SEND_INVITE", Payload: event}
+		}
+	}
+}
+
+func (h *WSHub) MessageDeleted(event events.MessageDeletedEvent) {
+	for client := range h.clients {
+		for _, group := range client.groups {
+			if group == event.GroupID {
+				client.send <- &Action{ActionType: "DELETE_MESSAGE", Payload: event}
+			}
+		}
+	}
+}
