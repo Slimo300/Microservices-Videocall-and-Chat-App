@@ -58,20 +58,20 @@ func (_m *MockMessageDB) DeleteMember(event events.MemberDeletedEvent) error {
 	return r0
 }
 
-// DeleteMessageForEveryone provides a mock function with given fields: userID, messageID
-func (_m *MockMessageDB) DeleteMessageForEveryone(userID uuid.UUID, messageID uuid.UUID) (models.Message, error) {
-	ret := _m.Called(userID, messageID)
+// DeleteMessageForEveryone provides a mock function with given fields: userID, messageID, groupID
+func (_m *MockMessageDB) DeleteMessageForEveryone(userID uuid.UUID, messageID uuid.UUID, groupID uuid.UUID) (models.Message, error) {
+	ret := _m.Called(userID, messageID, groupID)
 
 	var r0 models.Message
-	if rf, ok := ret.Get(0).(func(uuid.UUID, uuid.UUID) models.Message); ok {
-		r0 = rf(userID, messageID)
+	if rf, ok := ret.Get(0).(func(uuid.UUID, uuid.UUID, uuid.UUID) models.Message); ok {
+		r0 = rf(userID, messageID, groupID)
 	} else {
 		r0 = ret.Get(0).(models.Message)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID, uuid.UUID) error); ok {
-		r1 = rf(userID, messageID)
+	if rf, ok := ret.Get(1).(func(uuid.UUID, uuid.UUID, uuid.UUID) error); ok {
+		r1 = rf(userID, messageID, groupID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -79,20 +79,20 @@ func (_m *MockMessageDB) DeleteMessageForEveryone(userID uuid.UUID, messageID uu
 	return r0, r1
 }
 
-// DeleteMessageForYourself provides a mock function with given fields: userID, messageID
-func (_m *MockMessageDB) DeleteMessageForYourself(userID uuid.UUID, messageID uuid.UUID) (models.Message, error) {
-	ret := _m.Called(userID, messageID)
+// DeleteMessageForYourself provides a mock function with given fields: userID, messageID, groupID
+func (_m *MockMessageDB) DeleteMessageForYourself(userID uuid.UUID, messageID uuid.UUID, groupID uuid.UUID) (models.Message, error) {
+	ret := _m.Called(userID, messageID, groupID)
 
 	var r0 models.Message
-	if rf, ok := ret.Get(0).(func(uuid.UUID, uuid.UUID) models.Message); ok {
-		r0 = rf(userID, messageID)
+	if rf, ok := ret.Get(0).(func(uuid.UUID, uuid.UUID, uuid.UUID) models.Message); ok {
+		r0 = rf(userID, messageID, groupID)
 	} else {
 		r0 = ret.Get(0).(models.Message)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID, uuid.UUID) error); ok {
-		r1 = rf(userID, messageID)
+	if rf, ok := ret.Get(1).(func(uuid.UUID, uuid.UUID, uuid.UUID) error); ok {
+		r1 = rf(userID, messageID, groupID)
 	} else {
 		r1 = ret.Error(1)
 	}

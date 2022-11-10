@@ -47,8 +47,12 @@ github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221026134330-
 github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221026134330-f9c023747ea9/go.mod h1:5PeJJ5MZZAQG8fl8iHK8WG78DX88X6gYJ9QtMpIcSDA=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221027132905-d89618260ad0 h1:TjYP1ZHYyU0FhbjIvnBb4hUDjc9Ol7L/GPrg99uklPo=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221027132905-d89618260ad0/go.mod h1:IvcbN/b3kXy51jDW1TzgqmYBsFnG3kGwOLaUfyP8MNs=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221108142600-bf5c2129edde h1:tk9vrh6upNTgUd0BOk8miWZgXg6/AoAOKSg0Ic5Mh+o=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221108142600-bf5c2129edde/go.mod h1:GPFcoQIeRHM/6yxyVfbs/Wyysdf3PcnEZmuHiHp3OFg=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221105122837-f2ee4f594d1f h1:cJ3tXWm6jhLR2G+2PIaiH/SSinSmm157VP44s0yaHeE=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221105122837-f2ee4f594d1f/go.mod h1:VwZVuFvjhcnye0VyGM2DgSKvrRqQzDOe0rWCa/XRHdw=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221110083435-25a25538067c h1:6OKu1FZNlvCqP4WoRgWgSBmPCs6hVSupTe3UIilmFUQ=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221110083435-25a25538067c/go.mod h1:0qiLqa8VASHnhJ5nrgLnvS6FuR64sHh1wq4iO3emehU=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=
 github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e/go.mod h1:nSuG5e5PlCu98SY8svDHJxuZscDgtXS6KTTbou5AhLI=

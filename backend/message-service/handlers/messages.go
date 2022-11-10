@@ -49,16 +49,21 @@ func (s *Server) GetGroupMessages(c *gin.Context) {
 func (s *Server) DeleteMessageForEveryone(c *gin.Context) {
 	userID, err := uuid.Parse(c.GetString("userID"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid user ID"})
+		return
+	}
+	groupID, err := uuid.Parse(c.Param("groupID"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid group ID"})
 		return
 	}
 	messageID, err := uuid.Parse(c.Param("messageID"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid message ID"})
 		return
 	}
 
-	msg, err := s.DB.DeleteMessageForEveryone(messageID, userID)
+	msg, err := s.DB.DeleteMessageForEveryone(userID, messageID, groupID)
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
@@ -73,4 +78,32 @@ func (s *Server) DeleteMessageForEveryone(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, msg)
+}
+
+func (s *Server) DeleteMessageForYourself(c *gin.Context) {
+	userID, err := uuid.Parse(c.GetString("userID"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid user ID"})
+		return
+	}
+	groupID, err := uuid.Parse((c.Param("groupID")))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid group ID"})
+		return
+	}
+
+	messageID, err := uuid.Parse(c.Param("messageID"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid message ID"})
+		return
+	}
+
+	msg, err := s.DB.DeleteMessageForYourself(userID, messageID, groupID)
+	if err != nil {
+		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, msg)
+
 }

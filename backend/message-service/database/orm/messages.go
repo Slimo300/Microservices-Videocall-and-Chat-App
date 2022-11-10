@@ -26,21 +26,24 @@ func (db *Database) GetGroupMessages(userID, groupID uuid.UUID, offset, num int)
 	return messages, nil
 }
 
-func (db *Database) DeleteMessageForYourself(userID, messageID uuid.UUID) (models.Message, error) {
-	var message models.Message
-	if err := db.First(&message, messageID).Error; err != nil {
-		return models.Message{}, apperrors.NewNotFound("message", messageID.String())
+func (db *Database) DeleteMessageForYourself(userID, messageID, groupID uuid.UUID) (models.Message, error) {
+	// We first check if user is a member of group so we don't send him information that he has no right to see
+	var membership models.Membership
+	if err := db.Where(models.Membership{UserID: userID, GroupID: groupID}).First(&membership).Error; err != nil {
+		return models.Message{}, apperrors.NewForbidden("User not in group")
 	}
 
-	var membership models.Membership
-	if err := db.Where(models.Membership{UserID: userID, GroupID: message.GroupID}).First(&membership).Error; err != nil {
-		return models.Message{}, apperrors.NewForbidden("User not in group")
+	// Here we find our message and if it belongs to a group user passed. Making user pass extra argument
+	// groupID allows us to check if request sender is aware of message affiliations
+	var message models.Message
+	if err := db.First(&message, messageID).Error; err != nil || message.GroupID != groupID {
+		return models.Message{}, apperrors.NewNotFound("message", messageID.String())
 	}
 
 	// checking if user haven't already deleted this message
 	if err := db.Model(&message).Where(models.Membership{UserID: userID}).Association("Deleters").DB.First(&models.Membership{}).Error; err != gorm.ErrRecordNotFound {
 		if err == nil {
-			return models.Message{}, apperrors.NewForbidden("User already blacklisted this message")
+			return models.Message{}, apperrors.NewConflict("deleted", userID.String())
 		}
 		return models.Message{}, apperrors.NewInternal()
 	}
@@ -51,14 +54,14 @@ func (db *Database) DeleteMessageForYourself(userID, messageID uuid.UUID) (model
 	return message, nil
 }
 
-func (db *Database) DeleteMessageForEveryone(userID, messageID uuid.UUID) (models.Message, error) {
+func (db *Database) DeleteMessageForEveryone(userID, messageID, groupID uuid.UUID) (models.Message, error) {
+	var membership models.Membership
+	if err := db.Where(models.Membership{UserID: userID, GroupID: groupID}).First(&membership).Error; err != nil {
+		return models.Message{}, apperrors.NewForbidden("User not in group")
+	}
 	var message models.Message
 	if err := db.First(&message, messageID).Error; err != nil {
 		return models.Message{}, apperrors.NewNotFound("message", messageID.String())
-	}
-	var membership models.Membership
-	if err := db.Where(models.Membership{UserID: userID, GroupID: message.GroupID}).First(&membership).Error; err != nil {
-		return models.Message{}, apperrors.NewForbidden(err.Error())
 	}
 	if !membership.Creator && !membership.DeletingMessages && message.UserID != userID {
 		return models.Message{}, apperrors.NewForbidden("User has no right to delete message")

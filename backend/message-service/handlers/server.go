@@ -12,3 +12,12 @@ type Server struct {
 	Emitter      msgqueue.EventEmitter
 	Listener     msgqueue.EventListener
 }
+
+func NewServer(db database.DBLayer, auth auth.TokenClient, emitter msgqueue.EventEmitter, listener msgqueue.EventListener) *Server {
+	return &Server{
+		DB:           db,
+		TokenService: auth,
+		Emitter:      emitter,
+		Listener:     listener,
+	}
+}
