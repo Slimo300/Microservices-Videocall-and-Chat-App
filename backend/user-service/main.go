@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -25,11 +26,15 @@ func main() {
 		log.Fatalf("Error when loading configuration: %v", err)
 	}
 
-	db, err := orm.Setup(config.UserService.DBAddress)
+	db, err := orm.Setup(config.UserService.DBAddress, orm.WithConfig(orm.DBConfig{
+		VerificationCodeDuration: 24 * time.Hour,
+		ResetCodeDuration:        10 * time.Minute,
+	}))
 	if err != nil {
 		log.Fatalf("Error when connecting to database: %v", err)
 	}
-	tokenService, err := auth.NewGRPCTokenClient(config.TokenService.GRPCPort)
+
+	tokenService, err := auth.NewGRPCTokenClient(fmt.Sprintf(":%s", config.TokenService.GRPCPort))
 	if err != nil {
 		log.Fatalf("Error when connecting to token service: %v", err)
 	}
@@ -41,11 +46,11 @@ func main() {
 
 	httpServer := &http.Server{
 		Handler: engine,
-		Addr:    config.UserService.HTTPPort,
+		Addr:    fmt.Sprintf(":%s", config.UserService.HTTPPort),
 	}
 	httpsServer := &http.Server{
 		Handler: engine,
-		Addr:    config.UserService.HTTPSPort,
+		Addr:    fmt.Sprintf(":%s", config.UserService.HTTPSPort),
 	}
 
 	errChan := make(chan error)

@@ -34,7 +34,7 @@ func TestRegister(t *testing.T) {
 	mockDB.On("IsUsernameInDatabase", "johnny1").Return(false)
 	mockDB.On("IsEmailInDatabase", "johnny@net.com").Return(true)
 	mockDB.On("IsEmailInDatabase", "johnny1@net.com").Return(false)
-	mockDB.On("RegisterUser", mock.Anything).Return(models.User{ID: uuid.New(), Email: "johnny@net.pl", UserName: "johnny", Pass: "password", Activated: false}, nil)
+	mockDB.On("RegisterUser", mock.Anything).Return(models.User{ID: uuid.New(), Email: "johnny@net.pl", UserName: "johnny", Pass: "password", Verified: false}, nil)
 	mockDB.On("NewVerificationCode", mock.Anything, mock.Anything).Return(models.VerificationCode{UserID: uuid.New(), ActivationCode: randstr.String(10)}, nil)
 
 	s := handlers.Server{

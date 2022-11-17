@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////////////////////////
 // ChangePassword
 func (s *Server) ChangePassword(c *gin.Context) {
 	userID := c.GetString("userID")
@@ -18,37 +18,25 @@ func (s *Server) ChangePassword(c *gin.Context) {
 		return
 	}
 
-	load := struct {
-		NewPassword string `json:"newPassword"`
-		OldPassword string `json:"oldPassword"`
+	payload := struct {
+		NewPassword       string `json:"newPassword"`
+		RepeatNewPassword string `json:"repeatPassword"`
+		OldPassword       string `json:"oldPassword"`
 	}{}
-	if err := c.ShouldBindJSON(&load); err != nil {
+	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
 	}
-	if !isPasswordValid(load.NewPassword) {
+	if !isPasswordValid(payload.NewPassword) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "Password must be at least 6 characters long"})
 		return
 	}
-
-	user, err := s.DB.GetUserById(userUID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+	if payload.NewPassword != payload.RepeatNewPassword {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "Passwords don't match"})
 		return
 	}
 
-	if !checkPassword(user.Pass, load.OldPassword) {
-		c.JSON(http.StatusForbidden, gin.H{"err": "Wrong password"})
-		return
-	}
-
-	hash, err := hashPassword(load.NewPassword)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
-		return
-	}
-
-	if err := s.DB.SetPassword(user.ID, hash); err != nil {
+	if err := s.DB.ChangePassword(userUID, payload.OldPassword, payload.NewPassword); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
 	}
@@ -90,33 +78,21 @@ func (s *Server) UpdateProfilePicture(c *gin.Context) {
 		return
 	}
 
-	pictureURL, err := s.DB.GetProfilePictureURL(userUID)
-	if err != nil {
-		c.JSON(http.StatusForbidden, gin.H{"err": err.Error()})
-		return
-	}
-	wasEmpty := false
-	if pictureURL == "" {
-		pictureURL = uuid.NewString()
-		wasEmpty = true
-	}
-
 	file, err := imageFileHeader.Open()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "bad image"})
 		return
 	}
 
-	if err = s.ImageStorage.UpdateProfilePicture(file, pictureURL); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
+	pictureURL, err := s.DB.GetProfilePictureURL(userUID)
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"err": err.Error()})
 		return
 	}
 
-	if wasEmpty {
-		if err = s.DB.SetProfilePicture(userUID, pictureURL); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
-			return
-		}
+	if err = s.ImageStorage.UpdateProfilePicture(file, pictureURL); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"newUrl": pictureURL})
@@ -132,18 +108,9 @@ func (s *Server) DeleteProfilePicture(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
 		return
 	}
-
-	url, err := s.DB.GetProfilePictureURL(userUID)
+	url, err := s.DB.DeleteProfilePicture(userUID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "User not found"})
-		return
-	}
-	if url == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "user has no image to delete"})
-		return
-	}
-	if err = s.DB.SetProfilePicture(userUID, ""); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
 	}
 	if err = s.ImageStorage.DeleteProfilePicture(url); err != nil {

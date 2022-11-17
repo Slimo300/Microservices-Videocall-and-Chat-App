@@ -8,5 +8,4 @@ type VerificationEmailData struct {
 	Email            string
 	Name             string
 	VerificationCode string
-	UserID           string
 }

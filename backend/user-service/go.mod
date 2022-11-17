@@ -3,6 +3,7 @@ module github.com/Slimo300/MicroservicesChatApp/backend/user-service
 go 1.19
 
 require (
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20221110200926-b23320549b1d
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221026134330-f9c023747ea9
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221108142600-bf5c2129edde
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221108142600-bf5c2129edde
