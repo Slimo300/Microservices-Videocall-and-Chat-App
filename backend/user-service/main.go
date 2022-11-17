@@ -10,9 +10,13 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Shopify/sarama"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/kafka"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/database/orm"
+	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/email"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/handlers"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/routes"
 	"github.com/gin-gonic/gin"
@@ -38,9 +42,32 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error when connecting to token service: %v", err)
 	}
+
+	conf := sarama.NewConfig()
+	client, err := sarama.NewClient(config.BrokersAddresses, conf)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	emitter, err := kafka.NewKafkaEventEmiter(client)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	storage := storage.Setup(config.S3Bucket)
+	emailService, err := email.NewSMTPService(config.EmailFrom, config.SMTPHost, config.SMTPPort, config.SMTPUser, config.SMTPPass)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	server := &handlers.Server{
 		DB:           db,
 		TokenService: tokenService,
+		Emitter:      emitter,
+		ImageStorage: &storage,
+		EmailService: emailService,
+		MaxBodyBytes: 4194304,
+		Domain:       "localhost",
 	}
 	routes.Setup(engine, server)
 

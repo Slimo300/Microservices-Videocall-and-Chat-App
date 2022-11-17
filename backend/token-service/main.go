@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
@@ -23,7 +24,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	lis, err := net.Listen("tcp", config.TokenService.GRPCPort)
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", config.TokenService.GRPCPort))
 	if err != nil {
 		log.Fatalf("Error when listening on TCP port: %v", err)
 	}

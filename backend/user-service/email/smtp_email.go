@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"crypto/tls"
 	"log"
+	"os"
+	"path/filepath"
 	"text/template"
 
 	"github.com/k3a/html2text"
@@ -19,12 +21,42 @@ type SMTPEmailService struct {
 	templates *template.Template
 }
 
+func NewSMTPService(emailFrom, host string, port int, user, pass string) (*SMTPEmailService, error) {
+	var paths []string
+
+	if err := filepath.Walk("templates", func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			paths = append(paths, path)
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	templates, err := template.ParseFiles(paths...)
+	if err != nil {
+		return nil, err
+	}
+
+	return &SMTPEmailService{
+		EmailFrom: emailFrom,
+		SMTPHost:  host,
+		SMTPPort:  port,
+		SMTPUser:  user,
+		SMTPPass:  pass,
+		templates: templates,
+	}, nil
+}
+
 // 👇 Email template parser
 func (srv SMTPEmailService) SendVerificationEmail(data VerificationEmailData) error {
 
 	var body bytes.Buffer
 
-	if err := srv.templates.ExecuteTemplate(&body, "../templates/verification.html", data); err != nil {
+	if err := srv.templates.ExecuteTemplate(&body, "verification.html", data); err != nil {
 		log.Fatal("Could not execute template", err)
 	}
 

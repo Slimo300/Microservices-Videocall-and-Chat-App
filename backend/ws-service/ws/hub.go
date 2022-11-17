@@ -19,6 +19,7 @@ var upgrader = &websocket.Upgrader{
 		return true
 	}}
 
+// TODO: Are these channels necessary?
 type WSHub struct {
 	messageServerChan chan<- *Message
 	forward           chan *Message

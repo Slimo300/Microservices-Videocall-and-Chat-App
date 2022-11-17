@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -35,7 +36,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error when connecting to database: %v", err)
 	}
-	tokenService, err := auth.NewGRPCTokenClient(config.TokenService.GRPCPort)
+	tokenService, err := auth.NewGRPCTokenClient(fmt.Sprintf(":%s", config.TokenService.GRPCPort))
 	if err != nil {
 		log.Fatalf("Error when connecting to token service: %v", err)
 	}
@@ -55,8 +56,8 @@ func main() {
 		reflect.TypeOf(events.GroupDeletedEvent{}),
 		reflect.TypeOf(events.MemberCreatedEvent{}),
 		reflect.TypeOf(events.MemberDeletedEvent{}),
-		reflect.TypeOf(events.MemberUpdatedEvent{}), // TODO
-		reflect.TypeOf(events.MessageSentEvent{}),   // TODO
+		reflect.TypeOf(events.MemberUpdatedEvent{}),
+		reflect.TypeOf(events.MessageSentEvent{}),
 	); err != nil {
 		log.Fatal(err)
 	}
@@ -80,11 +81,11 @@ func main() {
 
 	httpServer := &http.Server{
 		Handler: engine,
-		Addr:    config.WSService.HTTPPort,
+		Addr:    fmt.Sprintf(":%s", config.WSService.HTTPPort),
 	}
 	httpsServer := &http.Server{
 		Handler: engine,
-		Addr:    config.WSService.HTTPSPort,
+		Addr:    fmt.Sprintf(":%s", config.WSService.HTTPSPort),
 	}
 
 	errChan := make(chan error)

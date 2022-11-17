@@ -54,12 +54,6 @@ func (s *Server) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	// s.Emitter.Emit(events.UserRegisteredEvent{
-	// 	ID:         user.ID,
-	// 	Username:   user.UserName,
-	// 	PictureURL: user.Picture,
-	// })
-
 	c.JSON(http.StatusCreated, gin.H{"message": "success"})
 }
 

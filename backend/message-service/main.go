@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -61,7 +62,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	tokenService, err := auth.NewGRPCTokenClient(config.TokenService.GRPCPort)
+	tokenService, err := auth.NewGRPCTokenClient(fmt.Sprintf(":%s", config.TokenService.GRPCPort))
 	if err != nil {
 		log.Fatal("Couldn't connect to grpc auth server")
 	}
@@ -77,11 +78,11 @@ func main() {
 
 	httpServer := &http.Server{
 		Handler: engine,
-		Addr:    config.MessageService.HTTPPort,
+		Addr:    fmt.Sprintf(":%s", config.MessageService.HTTPPort),
 	}
 	httpsServer := &http.Server{
 		Handler: engine,
-		Addr:    config.MessageService.HTTPSPort,
+		Addr:    fmt.Sprintf(":%s", config.MessageService.HTTPSPort),
 	}
 
 	errChan := make(chan error)

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -35,8 +36,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	storage := storage.Setup()
-	authService, err := auth.NewGRPCTokenClient(config.TokenService.GRPCPort)
+	storage := storage.Setup(config.S3Bucket)
+	authService, err := auth.NewGRPCTokenClient(fmt.Sprintf(":%s", config.TokenService.GRPCPort))
 	if err != nil {
 		panic("Couldn't connect to grpc auth server")
 	}
@@ -75,11 +76,11 @@ func main() {
 
 	httpServer := &http.Server{
 		Handler: engine,
-		Addr:    config.GroupService.HTTPPort,
+		Addr:    fmt.Sprintf(":%s", config.GroupService.HTTPPort),
 	}
 	httpsServer := &http.Server{
 		Handler: engine,
-		Addr:    config.GroupService.HTTPSPort,
+		Addr:    fmt.Sprintf(":%s", config.GroupService.HTTPSPort),
 	}
 
 	errChan := make(chan error)

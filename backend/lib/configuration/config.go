@@ -21,6 +21,12 @@ type Config struct {
 
 	BrokerType       string   `mapstructure:"brokerType"`
 	BrokersAddresses []string `mapstructure:"brokerAddresses"`
+
+	EmailFrom string `mapstructure:"emailFrom"`
+	SMTPHost  string `mapstructure:"smtpHost"`
+	SMTPPort  int    `mapstructure:"smtpPort"`
+	SMTPUser  string `mapstructure:"smtpUser"`
+	SMTPPass  string `mapstructure:"smtpPass"`
 }
 
 type Service struct {
