@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/email"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/models"
@@ -41,7 +42,7 @@ func (s *Server) RegisterUser(c *gin.Context) {
 	user := models.User{Email: payload.Email, UserName: payload.UserName, Pass: payload.Pass, Verified: false, PictureURL: uuid.NewString()}
 	user, verificationCode, err := s.DB.RegisterUser(user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
+		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
 
@@ -66,7 +67,7 @@ func (s *Server) VerifyCode(c *gin.Context) {
 
 	user, err := s.DB.VerifyCode(code)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": "internal server error"})
+		c.JSON(apperrors.Status(err), gin.H{"err": "internal server error"})
 		return
 	}
 

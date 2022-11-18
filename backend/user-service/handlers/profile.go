@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -37,7 +38,7 @@ func (s *Server) ChangePassword(c *gin.Context) {
 	}
 
 	if err := s.DB.ChangePassword(userUID, payload.OldPassword, payload.NewPassword); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
+		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
 
@@ -86,7 +87,7 @@ func (s *Server) UpdateProfilePicture(c *gin.Context) {
 
 	pictureURL, err := s.DB.GetProfilePictureURL(userUID)
 	if err != nil {
-		c.JSON(http.StatusForbidden, gin.H{"err": err.Error()})
+		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
 
@@ -110,7 +111,7 @@ func (s *Server) DeleteProfilePicture(c *gin.Context) {
 	}
 	url, err := s.DB.DeleteProfilePicture(userUID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "User not found"})
+		c.JSON(apperrors.Status(err), gin.H{"err": "User not found"})
 		return
 	}
 	if err = s.ImageStorage.DeleteProfilePicture(url); err != nil {

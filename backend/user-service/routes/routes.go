@@ -14,6 +14,8 @@ func Setup(engine *gin.Engine, server *handlers.Server) {
 
 	api := engine.Group("/api")
 	api.POST("/register", server.RegisterUser)
+	api.GET("/verify-account/:code", server.VerifyCode)
+
 	api.POST("/login", server.SignIn)
 	api.POST("/refresh", server.RefreshToken)
 

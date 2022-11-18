@@ -4,12 +4,12 @@ go 1.19
 
 require (
 	github.com/Shopify/sarama v1.37.2
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20221110200926-b23320549b1d
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221026134330-f9c023747ea9
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221108142600-bf5c2129edde
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221108142600-bf5c2129edde
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221108142600-bf5c2129edde
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20221026134330-f9c023747ea9
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20221117201314-c4e23ccea858
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221117201314-c4e23ccea858
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221117201314-c4e23ccea858
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221117201314-c4e23ccea858
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221117201314-c4e23ccea858
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20221117201314-c4e23ccea858
 	github.com/gin-contrib/size v0.0.0-20220829131622-0fc0bc875336
 	github.com/gin-gonic/gin v1.8.1
 	github.com/google/uuid v1.3.0
@@ -23,7 +23,7 @@ require (
 )
 
 require (
-	github.com/aws/aws-sdk-go v1.44.124 // indirect
+	github.com/aws/aws-sdk-go v1.44.140 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/eapache/go-resiliency v1.3.0 // indirect
 	github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21 // indirect
@@ -59,20 +59,20 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
-	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
+	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/pierrec/lz4/v4 v4.1.17 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
-	github.com/spf13/afero v1.9.2 // indirect
+	github.com/spf13/afero v1.9.3 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.13.0 // indirect
+	github.com/spf13/viper v1.14.0 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	golang.org/x/net v0.1.0 // indirect
-	golang.org/x/sys v0.1.0 // indirect
+	golang.org/x/sys v0.2.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
 	google.golang.org/genproto v0.0.0-20221025140454-527a21cfbd71 // indirect
 	google.golang.org/grpc v1.50.1 // indirect
