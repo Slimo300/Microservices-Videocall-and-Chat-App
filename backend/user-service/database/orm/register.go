@@ -34,12 +34,12 @@ func (db *Database) RegisterUser(user models.User) (returnUser models.User, retu
 		now := time.Now()
 		// user creation
 		returnUser = models.User{ID: uuid.New(), UserName: user.UserName, Email: user.Email, Pass: hash, Verified: false, Created: now, Updated: now}
-		if err := db.Create(&returnUser).Error; err != nil {
+		if err := tx.Create(&returnUser).Error; err != nil {
 			return err
 		}
 		// verification code creation
 		returnCode = models.VerificationCode{UserID: returnUser.ID, ActivationCode: randstr.String(10), Created: now}
-		if err := db.Create(&returnCode).Error; err != nil {
+		if err := tx.Create(&returnCode).Error; err != nil {
 			return err
 		}
 		return nil
@@ -66,21 +66,21 @@ func (db *Database) VerifyCode(code string) (models.User, error) {
 
 		// we first delete verCode because no matter if code is expired or not
 		// it won't be needed outside the scope of this function
-		if err := db.Delete(&verCode).Error; err != nil {
+		if err := tx.Delete(&verCode).Error; err != nil {
 			return apperrors.NewInternal()
 		}
 
 		// if verification code expired we delete created user and return not found error
 		// pretending we don't know what the user wants ¯\_(ツ)_/¯
 		if elapsed > db.Config.VerificationCodeDuration {
-			if err := db.Delete(&user).Error; err != nil {
+			if err := tx.Delete(&user).Error; err != nil {
 				return apperrors.NewInternal()
 			}
 			return apperrors.NewNotFound("code", code)
 		}
 
 		// if verification code is still valid we update the user `verified` property
-		if err := db.Model(&user).Update("verified", true).Error; err != nil {
+		if err := tx.Model(&user).Update("verified", true).Error; err != nil {
 			return apperrors.NewInternal()
 		}
 		return nil

@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 type User struct {
@@ -16,10 +15,6 @@ type User struct {
 	Created    time.Time `gorm:"column:created" json:"created"`
 	Updated    time.Time `gorm:"column:updated" json:"updated"`
 	Verified   bool      `gorm:"column:verified" json:"verified"`
-}
-
-func (u *User) AfterUpdate(tx *gorm.DB) error {
-	return tx.Where(User{ID: u.ID}).Update("updated", time.Now()).Error
 }
 
 func (User) TableName() string {

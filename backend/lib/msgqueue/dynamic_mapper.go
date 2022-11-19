@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -55,6 +56,9 @@ func (m *DynamicEventMapper) MapEvent(eventName string, eventPayload interface{}
 	}
 
 	cfg := mapstructure.DecoderConfig{
+		DecodeHook: mapstructure.ComposeDecodeHookFunc(
+			stringToUUIDHookFunc(),
+		),
 		Result:  event,
 		TagName: "json",
 	}
@@ -70,4 +74,17 @@ func (m *DynamicEventMapper) MapEvent(eventName string, eventPayload interface{}
 
 	return event, nil
 
+}
+
+func stringToUUIDHookFunc() mapstructure.DecodeHookFunc {
+	return func(f reflect.Type, t reflect.Type, data interface{}) (interface{}, error) {
+		if f.Kind() != reflect.String {
+			return data, nil
+		}
+		if t != reflect.TypeOf(uuid.UUID{}) {
+			return data, nil
+		}
+
+		return uuid.Parse(data.(string))
+	}
 }

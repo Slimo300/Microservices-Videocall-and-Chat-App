@@ -47,8 +47,8 @@ github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-202211
 github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221117201314-c4e23ccea858/go.mod h1:IvcbN/b3kXy51jDW1TzgqmYBsFnG3kGwOLaUfyP8MNs=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221108142600-bf5c2129edde h1:tk9vrh6upNTgUd0BOk8miWZgXg6/AoAOKSg0Ic5Mh+o=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221108142600-bf5c2129edde/go.mod h1:GPFcoQIeRHM/6yxyVfbs/Wyysdf3PcnEZmuHiHp3OFg=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221108142600-bf5c2129edde h1:8K+EYPwTQzYidkgJCjiSIwSqGu6QmQUEcv48wpF7XcE=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221108142600-bf5c2129edde/go.mod h1:0qiLqa8VASHnhJ5nrgLnvS6FuR64sHh1wq4iO3emehU=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221119114501-6838077d6f58 h1:ZgyZsGuKcjsMmAOLOgO1cxDF7rYo1F3pvKBmF54JQLo=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221119114501-6838077d6f58/go.mod h1:sC6CUdVcdQCISNi2l2kzhX+Ys2MPZNAwTU4ZAvwr4pM=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20221118080724-7204f0fa543c h1:fVr9pDmjr80dTT1FrlLw1fYdbJmozyDik8t/IFIfEkI=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20221118080724-7204f0fa543c/go.mod h1:6zhnxlQzvKOai3QWSMJIMF6YdrFPfp98mLVTzyuHR+4=
 github.com/aws/aws-sdk-go v1.44.140 h1:6MxVSiAORc6AG+oh6401TEgWHb1ZzFL8y6+eBLoJtdU=
@@ -250,8 +250,8 @@ github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 h1:N/ElC8H3+5X
 github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475/go.mod h1:bCqnVzQkZxMG4s8nGwiZ5l3QUCyqpo9Y+/ZMZ9VjZe4=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/rogpeppe/go-internal v1.6.1/go.mod h1:xXDCJY+GAPziupqXw64V24skbSoqbTEfhy4qGm1nDQc=
-github.com/rogpeppe/go-internal v1.8.0 h1:FCbCCtXNOY3UtUuHUYaghJg4y7Fd14rXifAYUAtL9R8=
 github.com/rogpeppe/go-internal v1.8.0/go.mod h1:WmiCO8CzOY8rg0OYDC4/i/2WRWAB6poM+XZ2dLUbcbE=
+github.com/rogpeppe/go-internal v1.9.0 h1:73kH8U+JUqXU8lRuOHeVHaa/SZPifC7BkcraZVejAe8=
 github.com/spf13/afero v1.9.3 h1:41FoI0fD7OR7mGcKE/aOiLkGreyf8ifIOQmJANWogMk=
 github.com/spf13/afero v1.9.3/go.mod h1:iUV7ddyEEZPO5gA3zD4fJt6iStLlL+Lg4m2cihcDf8Y=
 github.com/spf13/cast v1.5.0 h1:rj3WzYc11XZaIZMPKmwP96zkFEnnAmV8s6XbB2aY32w=

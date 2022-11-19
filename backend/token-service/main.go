@@ -57,6 +57,9 @@ func main() {
 
 	go func() { errChan <- grpcServer.Serve(lis) }()
 
+	log.Println("Starting token service...")
+	log.Printf("Listening on port: %s", config.TokenService.GRPCPort)
+
 	select {
 	case <-quit:
 		grpcServer.GracefulStop()
