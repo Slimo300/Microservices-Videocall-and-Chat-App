@@ -1,10 +1,11 @@
 package email
 
 type EmailService interface {
-	SendVerificationEmail(data VerificationEmailData) error
+	SendVerificationEmail(data EmailData) error
 }
 
-type VerificationEmailData struct {
+type EmailData struct {
+	Subject          string
 	Email            string
 	Name             string
 	VerificationCode string

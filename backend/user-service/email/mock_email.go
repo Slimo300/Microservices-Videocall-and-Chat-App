@@ -10,7 +10,7 @@ func NewMockEmailService() *MockEmailService {
 	return new(MockEmailService)
 }
 
-func (m MockEmailService) SendVerificationEmail(data VerificationEmailData) error {
+func (m MockEmailService) SendVerificationEmail(data EmailData) error {
 	ret := m.Called(data)
 	return ret.Error(0)
 }

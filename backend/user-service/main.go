@@ -30,6 +30,7 @@ func main() {
 		log.Fatalf("Error when loading configuration: %v", err)
 	}
 
+	// Setting up MySQL connection
 	db, err := orm.Setup(config.UserService.DBAddress, orm.WithConfig(orm.DBConfig{
 		VerificationCodeDuration: 24 * time.Hour,
 		ResetCodeDuration:        10 * time.Minute,
@@ -38,14 +39,22 @@ func main() {
 		log.Fatalf("Error when connecting to database: %v", err)
 	}
 
+	// connecting to authentication server
 	tokenService, err := auth.NewGRPCTokenClient(fmt.Sprintf(":%s", config.TokenService.GRPCPort))
 	if err != nil {
 		log.Fatalf("Error when connecting to token service: %v", err)
 	}
 
+	// kafka broker setup
+	// sarama.Logger = log.New(os.Stdout, "[sarama] ", log.LstdFlags)
 	conf := sarama.NewConfig()
+	conf.ClientID = "userService"
+	conf.Version = sarama.V0_10_1_0
+	conf.Producer.Return.Successes = true
+
 	client, err := sarama.NewClient(config.BrokersAddresses, conf)
 	if err != nil {
+		log.Print(conf.Version)
 		log.Fatal(err)
 	}
 
@@ -54,8 +63,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Setup for handling image uploads to s3 and email sending
 	storage := storage.Setup(config.S3Bucket)
-	emailService, err := email.NewSMTPService(config.EmailFrom, config.SMTPHost, config.SMTPPort, config.SMTPUser, config.SMTPPass)
+	emailDir := "/home/sebastian/Dokumenty/GO/Projects/MicroChat/backend/user-service/email/templates"
+	emailService, err := email.NewSMTPService(emailDir, config.EmailFrom, config.SMTPHost, config.SMTPPort, config.SMTPUser, config.SMTPPass)
 	if err != nil {
 		log.Fatal(err)
 	}

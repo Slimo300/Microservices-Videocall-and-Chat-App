@@ -19,7 +19,7 @@ type User struct {
 }
 
 func (u *User) AfterUpdate(tx *gorm.DB) error {
-	return tx.Model(&User{}).Where("user_id = ?", u.ID).Update("updated", time.Now()).Error
+	return tx.Where(User{ID: u.ID}).Update("updated", time.Now()).Error
 }
 
 func (User) TableName() string {

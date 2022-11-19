@@ -21,10 +21,10 @@ type SMTPEmailService struct {
 	templates *template.Template
 }
 
-func NewSMTPService(emailFrom, host string, port int, user, pass string) (*SMTPEmailService, error) {
+func NewSMTPService(emailDir, emailFrom, host string, port int, user, pass string) (*SMTPEmailService, error) {
 	var paths []string
 
-	if err := filepath.Walk("templates", func(path string, info os.FileInfo, err error) error {
+	if err := filepath.Walk(emailDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -52,7 +52,7 @@ func NewSMTPService(emailFrom, host string, port int, user, pass string) (*SMTPE
 }
 
 // 👇 Email template parser
-func (srv SMTPEmailService) SendVerificationEmail(data VerificationEmailData) error {
+func (srv SMTPEmailService) SendVerificationEmail(data EmailData) error {
 
 	var body bytes.Buffer
 

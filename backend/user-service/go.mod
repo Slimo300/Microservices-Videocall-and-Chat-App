@@ -6,10 +6,10 @@ require (
 	github.com/Shopify/sarama v1.37.2
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20221117201314-c4e23ccea858
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221117201314-c4e23ccea858
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221117201314-c4e23ccea858
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221118080724-7204f0fa543c
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221117201314-c4e23ccea858
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221117201314-c4e23ccea858
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20221117201314-c4e23ccea858
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20221118080724-7204f0fa543c
 	github.com/gin-contrib/size v0.0.0-20220829131622-0fc0bc875336
 	github.com/gin-gonic/gin v1.8.1
 	github.com/google/uuid v1.3.0

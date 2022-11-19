@@ -46,7 +46,8 @@ func (s *Server) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	if err := s.EmailService.SendVerificationEmail(email.VerificationEmailData{
+	if err := s.EmailService.SendVerificationEmail(email.EmailData{
+		Subject:          "VerificationEmail",
 		Email:            user.Email,
 		Name:             user.UserName,
 		VerificationCode: verificationCode.ActivationCode,

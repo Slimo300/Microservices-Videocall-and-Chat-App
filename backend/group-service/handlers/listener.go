@@ -10,7 +10,7 @@ func (s *Server) RunListener(eventNames ...string) {
 
 	received, errors, err := s.Listener.Listen(eventNames...)
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 
 	for {

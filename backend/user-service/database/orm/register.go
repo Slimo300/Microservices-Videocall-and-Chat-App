@@ -14,12 +14,12 @@ import (
 
 func (db *Database) RegisterUser(user models.User) (returnUser models.User, returnCode models.VerificationCode, returnErr error) {
 	// checking if username is taken
-	if err := db.Where(models.User{UserName: user.UserName}).First(&models.User{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+	if err := db.Where(models.User{UserName: user.UserName}).First(&models.User{}).Error; !errors.Is(err, gorm.ErrRecordNotFound) {
 		returnErr = apperrors.NewConflict("username", user.UserName)
 		return
 	}
 	// checking if email is taken
-	if err := db.Where(models.User{Email: user.Email}).First(&models.User{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+	if err := db.Where(models.User{Email: user.Email}).First(&models.User{}).Error; !errors.Is(err, gorm.ErrRecordNotFound) {
 		returnErr = apperrors.NewConflict("email", user.Email)
 		return
 	}

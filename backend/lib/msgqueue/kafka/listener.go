@@ -19,7 +19,7 @@ type KafkaTopic struct {
 	Partitions []int32
 }
 
-func NewKafkaEventListener(client sarama.Client, mapper msgqueue.EventMapper, topics ...KafkaTopic) (msgqueue.EventListener, error) {
+func NewKafkaEventListener(client sarama.Client, mapper msgqueue.EventMapper, topics ...KafkaTopic) (*kafkaEventListener, error) {
 
 	consumer, err := sarama.NewConsumerFromClient(client)
 	if err != nil {
