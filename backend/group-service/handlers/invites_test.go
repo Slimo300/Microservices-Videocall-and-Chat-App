@@ -88,7 +88,7 @@ func TestSendGroupInvite(t *testing.T) {
 				c.Set("userID", tC.id)
 			})
 
-			engine.Handle(http.MethodPost, "/api/invite", s.SendGroupInvite)
+			engine.Handle(http.MethodPost, "/api/invite", s.CreateInvite)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
 
@@ -190,7 +190,7 @@ func TestRespondGroupInvite(t *testing.T) {
 			inviteID:           "0916b355-323c-45fd-b79e-4160eaac1320",
 			returnVal:          true,
 			expectedStatusCode: http.StatusOK,
-			expectedResponse:   models.Group{ID: groupId, Name: "New Group", Desc: "totally new group", Picture: "16fc5e9d-da47-4923-8475-9f444177990d", Created: dateGroupCreated},
+			expectedResponse:   models.Group{ID: groupId, Name: "New Group", Picture: "16fc5e9d-da47-4923-8475-9f444177990d", Created: dateGroupCreated},
 		},
 		{
 			desc:               "respondInviteNo",

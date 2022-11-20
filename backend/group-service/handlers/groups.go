@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -38,22 +37,21 @@ func (s *Server) CreateGroup(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
 	}
 
-	var group models.Group
-	err = c.ShouldBindJSON(&group)
+	payload := struct {
+		Name string `json:"name"`
+	}{}
+
+	err = c.ShouldBindJSON(&payload)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
 	}
-	if group.Name == "" {
+	if payload.Name == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "bad name"})
 		return
 	}
-	if group.Desc == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "bad description"})
-		return
-	}
 
-	group, err = s.DB.CreateGroup(userUID, group.Name, group.Desc)
+	group, err := s.DB.CreateGroup(userUID, payload.Name)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
@@ -73,30 +71,19 @@ func (s *Server) CreateGroup(c *gin.Context) {
 
 func (s *Server) DeleteGroup(c *gin.Context) {
 	userID := c.GetString("userID")
-	uid, err := uuid.Parse(userID)
+	userUUID, err := uuid.Parse(userID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
 		return
 	}
 
 	groupID := c.Param("groupID")
-	groupUID, err := uuid.Parse(groupID)
+	groupUUID, err := uuid.Parse(groupID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid group ID"})
 		return
 	}
-
-	member, err := s.DB.GetUserGroupMember(uid, groupUID)
-	if err != nil {
-		c.JSON(http.StatusForbidden, gin.H{"err": "couldn't delete group"})
-		return
-	}
-	if !member.Creator {
-		c.JSON(http.StatusForbidden, gin.H{"err": "couldn't delete group"})
-		return
-	}
-
-	group, err := s.DB.DeleteGroup(groupUID)
+	group, err := s.DB.DeleteGroup(userUUID, groupUUID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 	}

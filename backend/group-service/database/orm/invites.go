@@ -1,78 +1,86 @@
 package orm
 
 import (
-	"errors"
+	"fmt"
 	"time"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/database"
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
+func (db *Database) GetUserInvites(userID uuid.UUID) (invites []models.Invite, err error) {
+	return invites, db.Where(models.Invite{TargetID: userID, Status: models.INVITE_AWAITING}).Preload("Iss").Preload("Group").Find(&invites).Error
+}
+
 func (db *Database) AddInvite(issID, targetID, groupID uuid.UUID) (invite models.Invite, err error) {
-	invite = models.Invite{ID: uuid.New(), IssId: issID, TargetID: targetID, GroupID: groupID, Status: database.INVITE_AWAITING, Created: time.Now(), Modified: time.Now()}
-	return invite, db.Create(&invite).Error
+
+	var member models.Member
+	if err := db.Where(models.Member{UserID: issID, GroupID: groupID}).First(&member).Error; err != nil {
+		return models.Invite{}, apperrors.NewForbidden(fmt.Sprintf("User %v has no rights to add new members to group %v", issID, groupID))
+	}
+	if !member.Adding && !member.Admin && !member.Creator {
+		return models.Invite{}, apperrors.NewForbidden(fmt.Sprintf("User %v has no rights to add new members to group %v", issID, groupID))
+	}
+	if err := db.Where(models.Member{UserID: targetID, GroupID: groupID}).First(&models.Member{}).Error; err != gorm.ErrRecordNotFound {
+		return models.Invite{}, apperrors.NewForbidden(fmt.Sprintf("User %v already is already a member of group %v", targetID, groupID))
+	}
+	if err := db.Where(models.Invite{GroupID: groupID, TargetID: targetID, Status: models.INVITE_AWAITING}).First(&models.Invite{}).Error; err != nil {
+		return models.Invite{}, apperrors.NewForbidden(fmt.Sprintf("User %v already invited to group %v", targetID, groupID))
+	}
+	invite = models.Invite{ID: uuid.New(), IssId: issID, TargetID: targetID, GroupID: groupID, Status: models.INVITE_AWAITING, Created: time.Now(), Modified: time.Now()}
+	if err := db.Create(&invite).Error; err != nil {
+		return models.Invite{}, apperrors.NewInternal()
+	}
+	return invite, nil
 }
 
-func (db *Database) GetUserByUsername(username string) (user models.User, err error) {
-	return user, db.Where(models.User{UserName: username}).First(&user).Error
-}
+// AnswerInvite is a method for updating database after invite response providing that user has rights to answer the invite
+// and answered invite is actually awaiting a response. Method returns updated Invite object, also Group and Member objects if user
+// accepted invite. If user declined invite it will return nil.
+func (db *Database) AnswerInvite(userID, inviteID uuid.UUID, answer bool) (*models.Invite, *models.Group, *models.Member, error) {
+	// First we check if invite with provided ID exists in our database, then we check if user who answers it is
+	// actually the one who was invited and if invite is waiting for response
 
-func (db *Database) AcceptInvite(invite models.Invite) (group models.Group, err error) {
+	var invite *models.Invite
+	if err := db.First(invite, inviteID).Error; err != nil {
+		return nil, nil, nil, apperrors.NewNotFound("invite", inviteID.String())
+	}
+	if invite.TargetID != userID {
+		return nil, nil, nil, apperrors.NewNotFound("invite", inviteID.String())
+	}
+	if invite.Status != models.INVITE_AWAITING {
+		return nil, nil, nil, apperrors.NewForbidden("invite already answered")
+	}
 
-	if err = db.Transaction(func(tx *gorm.DB) error {
-		if err := db.createOrRestoreMember(invite.TargetID, invite.GroupID); err != nil {
+	// if invite is declined we return just an invite with empty member as none was created
+	if !answer {
+		if err := db.First(&models.Invite{}, inviteID).Updates(models.Invite{Status: models.INVITE_DECLINE, Modified: time.Now()}).Error; err != nil {
+			return nil, nil, nil, apperrors.NewInternal()
+		}
+		return invite, nil, nil, nil
+	}
+
+	// if invite is accepted we update invite status and create a new membership entry in our database
+	var member *models.Member
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.First(&models.Invite{}, inviteID).Updates(models.Invite{Status: models.INVITE_DECLINE, Modified: time.Now()}).Error; err != nil {
 			return err
 		}
-		if err := db.First(&invite, invite.ID).Updates(models.Invite{Status: database.INVITE_ACCEPT, Modified: time.Now()}).Error; err != nil {
+		member = &models.Member{ID: uuid.New(), UserID: userID, GroupID: invite.GroupID}
+		if err := tx.Create(member).Error; err != nil {
 			return err
 		}
 		return nil
 	}); err != nil {
-		return models.Group{}, err
+		return nil, nil, nil, apperrors.NewInternal()
 	}
 
-	if err := db.Preload("Members", "deleted is false").First(&group, invite.GroupID).Error; err != nil {
-		return models.Group{}, err
+	var group *models.Group
+	if err := db.First(group, invite.GroupID); err != nil {
+		return nil, nil, nil, apperrors.NewInternal()
 	}
 
-	return group, nil
-}
-
-func (db *Database) GetUserInvites(userID uuid.UUID) (invites []models.Invite, err error) {
-	return invites, db.Where(models.Invite{TargetID: userID, Status: database.INVITE_AWAITING}).Preload("Iss").Preload("Group").Find(&invites).Error
-}
-
-func (db *Database) GetInviteByID(inviteID uuid.UUID) (invite models.Invite, err error) {
-	return invite, db.First(&invite, inviteID).Error
-}
-
-// helper for creating membership with id, it first find user to get his
-// username and use it as member's nick
-func (db *Database) createOrRestoreMember(userID, groupID uuid.UUID) error {
-
-	if err := db.Where(models.Member{UserID: userID, GroupID: groupID, Deleted: true}).First(&models.Member{}).Update("deleted", false).Error; err == nil {
-		return nil
-	}
-
-	var user models.User
-	if err := db.First(&user, userID).Error; err != nil {
-		return err
-	}
-
-	member := models.Member{ID: uuid.New(), GroupID: groupID, UserID: userID, Nick: user.UserName, Adding: false, DeletingMembers: false, Setting: false, Creator: false, Deleted: false}
-	if err := db.Create(&member).Error; err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (db *Database) IsUserInvited(userID, groupID uuid.UUID) bool {
-	return errors.Is(db.Where(models.Invite{GroupID: groupID, TargetID: userID, Status: database.INVITE_AWAITING}).First(&models.Invite{}).Error, nil)
-}
-
-func (db *Database) DeclineInvite(inviteID uuid.UUID) error {
-	return db.First(&models.Invite{}, inviteID).Updates(models.Invite{Status: database.INVITE_DECLINE, Modified: time.Now()}).Error
+	return invite, group, member, nil
 }

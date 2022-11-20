@@ -1,11 +1,9 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
-	"strings"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/database"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -33,7 +31,7 @@ func (s *Server) GetUserInvites(c *gin.Context) {
 	c.JSON(http.StatusOK, invites)
 }
 
-func (s *Server) SendGroupInvite(c *gin.Context) {
+func (s *Server) CreateInvite(c *gin.Context) {
 	userID := c.GetString("userID")
 	userUID, err := uuid.Parse(userID)
 	if err != nil {
@@ -56,34 +54,13 @@ func (s *Server) SendGroupInvite(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid group ID"})
 		return
 	}
-	if strings.TrimSpace(load.Target) == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "user not specified"})
-		return
-	}
-
-	issuerMember, err := s.DB.GetUserGroupMember(userUID, groupUID)
-	if err != nil || !issuerMember.Adding {
-		c.JSON(http.StatusForbidden, gin.H{"err": "no rights to add"})
-		return
-	}
-
-	userToBeAdded, err := s.DB.GetUserByUsername(load.Target)
+	targetUUID, err := uuid.Parse(load.Target)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"err": fmt.Sprintf("no user with name: %s", load.Target)})
+		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid target user ID"})
 		return
 	}
 
-	if s.DB.IsUserInGroup(userToBeAdded.ID, groupUID) {
-		c.JSON(http.StatusConflict, gin.H{"err": "user is already a member of group"})
-		return
-	}
-
-	if s.DB.IsUserInvited(userToBeAdded.ID, groupUID) {
-		c.JSON(http.StatusConflict, gin.H{"err": "user already invited"})
-		return
-	}
-
-	_, err = s.DB.AddInvite(userUID, userToBeAdded.ID, groupUID)
+	_, err = s.DB.AddInvite(userUID, targetUUID, groupUID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": "internal database error"})
 		return
@@ -96,13 +73,13 @@ func (s *Server) SendGroupInvite(c *gin.Context) {
 
 func (s *Server) RespondGroupInvite(c *gin.Context) {
 	userID := c.GetString("userID")
-	userUID, err := uuid.Parse(userID)
+	userUUID, err := uuid.Parse(userID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
 		return
 	}
 	inviteID := c.Param("inviteID")
-	inviteUID, err := uuid.Parse(inviteID)
+	inviteUUID, err := uuid.Parse(inviteID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid invite id"})
 		return
@@ -116,35 +93,17 @@ func (s *Server) RespondGroupInvite(c *gin.Context) {
 		return
 	}
 
-	invite, err := s.DB.GetInviteByID(inviteUID)
+	invite, group, member, err := s.DB.AnswerInvite(userUUID, inviteUUID, *load.Answer)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"err": "resource not found"})
+		c.JSON(apperrors.Status(err), gin.H{"err": err.Error})
 		return
 	}
 
-	if invite.TargetID != userUID {
-		c.JSON(http.StatusForbidden, gin.H{"err": "no rights to respond"})
-		return
+	if member != nil {
+		// Emit NewMember
 	}
-
-	if invite.Status != database.INVITE_AWAITING {
-		c.JSON(http.StatusForbidden, gin.H{"err": "invite already answered"})
-		return
-	}
-
-	if !*load.Answer {
-		if err := s.DB.DeclineInvite(invite.ID); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
-			return
-		}
-		c.JSON(http.StatusOK, gin.H{"message": "invite declined"})
-		return
-	}
-
-	group, err := s.DB.AcceptInvite(invite)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"err": "no such invite"})
-		return
+	if invite != nil {
+		// Emit InviteUpdate
 	}
 
 	c.JSON(http.StatusOK, group)

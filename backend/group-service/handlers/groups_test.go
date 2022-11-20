@@ -37,8 +37,8 @@ func TestGetUserGroups(t *testing.T) {
 			returnVal:          true,
 			expectedStatusCode: http.StatusOK,
 			expectedResponse: []models.Group{
-				{ID: groupID2, Name: "New Group2", Desc: "totally new group2", Created: date2},
-				{ID: groupID1, Name: "New Group", Desc: "totally new group", Picture: "16fc5e9d-da47-4923-8475-9f444177990d", Created: date1},
+				{ID: groupID2, Name: "New Group2", Created: date2},
+				{ID: groupID1, Name: "New Group", Picture: "16fc5e9d-da47-4923-8475-9f444177990d", Created: date1},
 			},
 		},
 		{
@@ -182,7 +182,7 @@ func TestCreateGroup(t *testing.T) {
 			data:               map[string]interface{}{"name": "ng1", "desc": "ng1"},
 			returnVal:          true,
 			expectedStatusCode: http.StatusCreated,
-			expectedResponse:   models.Group{Name: "ng1", Desc: "ng1"},
+			expectedResponse:   models.Group{Name: "ng1"},
 		},
 	}
 

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -25,8 +26,8 @@ func (db *Database) GetUserGroups(id uuid.UUID) (groups []models.Group, err erro
 	return groups, nil
 }
 
-func (db *Database) CreateGroup(userID uuid.UUID, name, desc string) (models.Group, error) {
-	group := models.Group{ID: uuid.New(), Name: name, Desc: desc, Created: time.Now(), Picture: ""}
+func (db *Database) CreateGroup(userID uuid.UUID, name string) (models.Group, error) {
+	group := models.Group{ID: uuid.New(), Name: name, Created: time.Now(), Picture: ""}
 
 	var creator models.User
 	if err := db.First(&creator, userID).Error; err != nil {
@@ -34,14 +35,12 @@ func (db *Database) CreateGroup(userID uuid.UUID, name, desc string) (models.Gro
 	}
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		creation := tx.Create(&group)
-		if creation.Error != nil {
-			return creation.Error
+		if err := tx.Create(&group).Error; err != nil {
+			return err
 		}
-		member := models.Member{ID: uuid.New(), UserID: userID, GroupID: group.ID, Adding: true, DeletingMembers: true, Setting: true, Creator: true, Nick: creator.UserName}
-		m_create := tx.Create(&member)
-		if m_create.Error != nil {
-			return m_create.Error
+		member := models.Member{ID: uuid.New(), UserID: userID, GroupID: group.ID, Adding: true, DeletingMembers: true, Admin: true, Creator: true}
+		if err := tx.Create(&member).Error; err != nil {
+			return err
 		}
 
 		return nil
@@ -55,8 +54,17 @@ func (db *Database) CreateGroup(userID uuid.UUID, name, desc string) (models.Gro
 	return group, nil
 }
 
-func (db *Database) DeleteGroup(groupID uuid.UUID) (group models.Group, err error) {
+func (db *Database) DeleteGroup(userID, groupID uuid.UUID) (models.Group, error) {
 
+	var member models.Member
+	if err := db.Where(models.Member{UserID: userID, GroupID: groupID}).First(&member).Error; err != nil {
+		return models.Group{}, apperrors.NewForbidden("User has no right to delete group")
+	}
+	if !member.Creator {
+		return models.Group{}, apperrors.NewForbidden("User has no right to delete group")
+	}
+
+	var group models.Group
 	if err := db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where(models.Member{GroupID: groupID}).Delete(&models.Member{}).Error; err != nil {
 			return err
@@ -71,20 +79,4 @@ func (db *Database) DeleteGroup(groupID uuid.UUID) (group models.Group, err erro
 	}
 
 	return group, nil
-}
-
-func (db *Database) SetGroupProfilePicture(groupID uuid.UUID, newURI string) error {
-	return db.First(&models.Group{}, groupID).Update("picture_url", newURI).Error
-}
-
-func (db *Database) DeleteGroupProfilePicture(groupID uuid.UUID) error {
-	return db.First(&models.Group{}, groupID).Update("picture_url", "").Error
-}
-
-func (db *Database) GetGroupProfilePicture(groupID uuid.UUID) (string, error) {
-	var group models.Group
-	if err := db.First(&group, groupID).Error; err != nil {
-		return "", err
-	}
-	return group.Picture, nil
 }
