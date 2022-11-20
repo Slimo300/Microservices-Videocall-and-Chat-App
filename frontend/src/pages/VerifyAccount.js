@@ -1,19 +1,12 @@
-import React, { useState, useMemo, useEffect } from "react";
-import { Navigate, useParams, useLocation } from "react-router-dom";
-import APICaller from "../Requests";
-
-function useQuery() {
-  const { search } = useLocation();
-
-  return useMemo(() => new URLSearchParams(search), [search]);
-}
+import React, { useState, useEffect } from "react";
+import { Navigate, useParams} from "react-router-dom";
+import {VerifyAccount} from "../Requests";
 
 function EmailVerification() {
   const [verificationCode, setVerificationCode] = useState("");
   const [message, setMessage] = useState("");
   const [redirect, setRedirect] = useState(false);
-  const {userID} = useParams();
-  const code = useQuery().get("code");
+  const {code} = useParams();
 
   useEffect(() => {
     if (code !== "" ) {
@@ -27,9 +20,9 @@ function EmailVerification() {
     let result;
 
     try {
-      result = await APICaller.VerifyEmail(userID, verificationCode);
+      result = await VerifyAccount(verificationCode);
     } catch(err) {
-      setMessage(err.message);
+      setMessage(err.response.data.err);
       return;
     }
 
@@ -41,7 +34,7 @@ function EmailVerification() {
   }
 
   if (redirect) {
-    return <Navigate to="/login"/>;
+    return <Navigate to="/login?message=Account+activated"/>;
   }
 
   return (
@@ -49,7 +42,7 @@ function EmailVerification() {
       <div className="mt-5 d-flex justify-content-center">
         <div className="mt-5 row">
           <form onSubmit={submit}>
-            <div className="display-1 mb-4 text-center text-primary"> Verify your email</div>
+            <div className="display-1 mb-4 text-center text-primary"> Verify your account</div>
             <div className="mb-3 text-center text-danger">{message}</div>
             <div className="mb-3 text-center">
               <label className="form-label">Verification Code:</label>

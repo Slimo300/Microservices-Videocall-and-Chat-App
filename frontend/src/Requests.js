@@ -1,193 +1,197 @@
-const port = "8080";
-const hostname = "localhost";
+const groupsService = 'http://localhost:8081/api';
+const messageService = 'http://localhost:8082/api';
+const userService = 'http://localhost:8083/api';
+const wsService = 'ws://localhost:8084';
 
-export class API{
-    constructor() {
-        this.axios = require('axios').default;
-        console.log("NEW Caller");
-        this.axios.defaults.baseURL = 'http://'+hostname+':'+port+'/api/';
-        this.axios.defaults.headers.common['Content-Type'] = "application/json";
-        this.accessToken = "";
+let axios = require('axios').default;
+axios.defaults.headers.common['Content-Type'] = "application/json";
 
+export async function Register(email, username, password, rpassword) {
+    if (email.trim() === "") {
+        throw new Error("Email can't be blank");
     }
-
-    SetAccessToken(accessToken) {
-        this.axios.defaults.headers.common['Authorization'] = "Bearer " + accessToken;
-        this.accessToken = accessToken;
+    if (username.trim() === "") {
+        throw new Error("Username can't be blank");
     }
-
-    async Register(email, username, password, rpassword){
-        if (email.trim() === "") {
-            throw new Error("Email can't be blank");
-        }
-        if (username.trim() === "") {
-            throw new Error("Username can't be blank");
-        }
-        if (password.trim() === "") {
-            throw new Error("Password can't be blank");
-        }
-        if (password !== rpassword) {
-            throw new Error("Passwords don't match");
-        }
-        return await this.axios.post("/register", {
-                username: username, 
-                email: email,
-                password: password,
-            });
+    if (password.trim() === "") {
+        throw new Error("Password can't be blank");
     }
-
-    async Login(email, password) {
-        if (email.trim() === "") {
-            throw new Error("Email cannot be blank");
-        }
-        if (password.trim() === "") {
-            throw new Error("Password cannot be blank");
-        }
-        return await this.axios.post("/login", {
-            email: email,
-            password: password,
-        }, {
-            withCredentials: true,
-        });
+    if (password !== rpassword) {
+        throw new Error("Passwords don't match");
     }
+    return await axios.post(userService+"/register", {
+        username: username, 
+        email: email,
+        password: password,
+        rpassword: rpassword,
+    });
+}
 
-    async GetUser() {
-        return await this.axios.get('/user');
+export async function VerifyAccount(code) {
+    if (code === "") {
+        throw new Error("code can't be blank");
     }
+    return await axios.get(userService+"/verify-account/"+code);
+}
 
-    async GetInvites() {
-        return await this.axios.get("/invites");
+export async function Login(email, password) {
+    if (email.trim() === "") {
+        throw new Error("Email cannot be blank");
     }
-
-    async GetGroups() {
-        return await this.axios.get("/group");
+    if (password.trim() === "") {
+        throw new Error("Password cannot be blank");
     }
-
-    async Logout() {
-        return await this.axios.post("/signout", {}, {
-            withCredentials: true,
-        });
-    }
-
-    async LoadMessages(groupID, offset) {
-        return await this.axios.get("/group/"+groupID+"/messages?num=8&offset="+offset);
-    }
-
-    async CreateGroup(name, desc) {
-        return await this.axios.post("/group", {
-            "name": name,
-            "desc": desc,
-        })
-    }
-
-    async DeleteGroup(groupID) {
-        return await this.axios.delete("/group/"+groupID);
-    }
-
-    async SendGroupInvite(username, groupID) {
-        return await this.axios.post("/invites", {
-            "target": username,
-            "group": groupID
-        });
-    }
-
-    async RespondGroupInvite(inviteID, answer) {
-        return await this.axios.put("/invites/"+inviteID, {
-            "answer": answer
-        })
-    }
-
-    async DeleteMember(memberID) {
-        return await this.axios.delete("member/"+memberID);
-    }
-
-    async SetRights(memberID, adding, deleting, setting) {
-        return await this.axios.put("/member/"+memberID, {
-            "adding": adding,
-            "deleting": deleting,
-            "setting": setting
-        });
-    }
-
-    async ChangePassword(oldPassword, newPassword, repeatPassword) {
-        if (newPassword === "") {
-            throw new Error("password cannot be blank");
-        }
-        if (newPassword.length <  6) {
-            throw new Error("password must be at least 6 characters long");
-        }
-        if (repeatPassword !== newPassword) {
-            throw new Error("Passwords don't match");
-        }
-
-        return await this.axios.put("/change-password", {
-            "oldPassword": oldPassword,
-            "newPassword": newPassword,
-        });
-    }
-
-    async UpdateProfilePicture(image) {
-        return await this.axios.post("/set-image", image, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            }
-        })
-    }
-    
-    async DeleteProfilePicture() {
-        return await this.axios.delete("/delete-image");
-    }
-
-    async UpdateGroupProfilePicture(imageForm, groupID) {
-        return await this.axios.post("/group/"+groupID+"/image", imageForm, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            }
-        });
-    }
-
-    async DeleteGroupProfilePicture(groupID) {
-        return await this.axios.delete("group/"+groupID+"/image");
-    }
-
-    async GetWebsocket() {
-        let socket = new WebSocket('ws://'+hostname+':'+port+'/ws?authToken='+this.accessToken);
-        socket.onopen = () => {
-            console.log("Websocket openned");
-        };
-        socket.onclose = () => {
-            console.log("closed");
-        };
-        return socket;
-    }
+    return await axios.post(userService+"/login", {
+        email: email,
+        password: password,
+    }, {
+        withCredentials: true,
+    });
 }
 
 
-const APICaller = new API();
+export async function GetUser() {
+    return await axios.get(userService+'/user');
+}
 
-// Response interceptor for API calls
-APICaller.axios.interceptors.response.use((response) => {
+export async function GetInvites() {
+    return await axios.get(groupsService+"/invites");
+}
+
+export async function GetGroups() {
+    return await axios.get(groupsService+"/group");
+}
+
+export async function Logout() {
+    return await axios.post(userService+"/signout", {}, {
+        withCredentials: true,
+    });
+}
+
+export async function LoadMessages(groupID, offset) {
+    return await axios.get(messageService+"/group/"+groupID+"/messages?num=8&offset="+offset);
+}
+
+export async function CreateGroup(name) {
+    return await axios.post(groupsService+"/group", {
+        "name": name,
+    })
+}
+
+export async function DeleteGroup(groupID) {
+    return await axios.delete(groupsService+"/group/"+groupID);
+}
+
+export async function SendGroupInvite(username, groupID) {
+    return await axios.post(groupsService+"/invites", {
+        "target": username,
+        "group": groupID
+    });
+}
+
+export async function RespondGroupInvite(inviteID, answer) {
+    return await axios.put(groupsService+"/invites/"+inviteID, {
+        "answer": answer
+    })
+}
+
+export async function DeleteMember(memberID) {
+    return await axios.delete(groupsService+"member/"+memberID);
+}
+
+export async function SetRights(memberID, adding, deleting, setting) {
+    return await axios.put(groupsService+"/member/"+memberID, {
+        "adding": adding,
+        "deleting": deleting,
+        "setting": setting
+    });
+}
+
+export async function ChangePassword(oldPassword, newPassword, repeatPassword) {
+    if (newPassword === "") {
+        throw new Error("password cannot be blank");
+    }
+    if (newPassword.length <  6) {
+        throw new Error("password must be at least 6 characters long");
+    }
+    if (repeatPassword !== newPassword) {
+        throw new Error("Passwords don't match");
+    }
+
+    return await axios.put(userService+"/change-password", {
+        "oldPassword": oldPassword,
+        "newPassword": newPassword,
+    });
+}
+
+export async function UpdateProfilePicture(image) {
+    return await axios.post(userService+"/set-image", image, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        }
+    })
+}
+
+export async function DeleteProfilePicture() {
+    return await axios.delete(userService+"/delete-image");
+}
+
+export async function UpdateGroupProfilePicture(imageForm, groupID) {
+    return await axios.post(groupsService+"/group/"+groupID+"/image", imageForm, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        }
+    });
+}
+
+export async function DeleteGroupProfilePicture(groupID) {
+    return await axios.delete(groupsService+"group/"+groupID+"/image");
+}
+
+export async function GetWebsocket(accessToken) {
+    let socket = new WebSocket(wsService+'/ws?authToken='+accessToken);
+    socket.onopen = () => {
+        console.log("Websocket openned");
+    };
+    socket.onclose = () => {
+        console.log("closed");
+    };
+    return socket;
+}
+
+async function refreshAccessToken() {
+    let response = await axios.post(userService+"/refresh", {}, {
+        withCredentials: true,
+    })
+    if (response.accessToken !== undefined) {
+        window.localStorage.setItem("token", response.accessToken);
+    }
+}
+
+// Request interceptor for API calls
+axios.interceptors.request.use(
+    async config => {
+        let accessToken = window.localStorage.getItem("token")
+        config.headers = { 
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'application/json',
+        }
+        return config;
+    },
+    error => {
+      Promise.reject(error)
+  });
+  
+  // Response interceptor for API calls
+  axios.interceptors.response.use((response) => {
     return response
-}, async function (error) {
+  }, async function (error) {
     const originalRequest = error.config;
     if (error.response.status === 401 && !originalRequest._retry) {
-        originalRequest._retry = true;
-        
-        let response;
-        try {
-            response = await APICaller.axios.post("/refresh", {}, {
-                withCredentials: true,
-            });
-        } catch(err) {
-            console.log(err);
-            return;
-        }
-        APICaller.SetAccessToken(response.data.accessToken);
-        originalRequest.headers.Authorization = "Bearer "+response.data.accessToken;
-
-        return APICaller.axios(originalRequest);
+      originalRequest._retry = true;
+      const access_token = await refreshAccessToken();            
+      axios.defaults.headers.common['Authorization'] = 'Bearer ' + access_token;
+      return axios(originalRequest);
     }
     return Promise.reject(error);
-});
-
-export default APICaller;
+  });

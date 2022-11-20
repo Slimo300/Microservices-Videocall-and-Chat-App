@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
-import APICaller from "../../Requests";
+import {SendGroupInvite} from "../../Requests";
 
 export const ModalAddUser = (props) => {
 
@@ -13,7 +13,7 @@ export const ModalAddUser = (props) => {
         let response;
 
         try {
-            response = await APICaller.SendGroupInvite(username, props.group.ID);
+            response = await SendGroupInvite(username, props.group.ID);
             setMsg("Invite sent successfully");
         } catch(err) {
             setMsg(err.response.data.err);

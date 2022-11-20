@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { StorageContext, actionTypes } from "../ChatStorage";
-import APICaller from "../Requests";
+import {LoadMessages} from "../Requests";
 import GroupMenu from "./GroupMenu";
 import Message from "./Message";
 import { ModalAddUser } from "./modals/AddUser";
@@ -88,7 +88,7 @@ const Chat = (props) => {
     }
 
     const loadMessages = async() => {
-        let messages = await APICaller.LoadMessages(props.group.ID.toString(), props.group.messages.length);
+        let messages = await LoadMessages(props.group.ID.toString(), props.group.messages.length);
         if (messages.status === 204) {
             setAllMessagesFlag(true);
             return;

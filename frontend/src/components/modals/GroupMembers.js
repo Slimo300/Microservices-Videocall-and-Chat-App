@@ -1,7 +1,7 @@
 import React, {useContext, useState} from 'react';
 import {v4 as uuidv4} from "uuid";
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
-import APICaller from '../../Requests';
+import {SetRights, DeleteMember} from '../../Requests';
 import { actionTypes, StorageContext } from '../../ChatStorage';
 
 export const ModalMembers = (props) => {
@@ -58,7 +58,7 @@ const Member = (props) => {
 
     const deleteMember = async() => {
 
-        let response = await APICaller.DeleteMember(props.member.ID);
+        let response = await DeleteMember(props.member.ID);
         if (response.status === 200) {
             props.setMsg("Member deleted");
         } else props.setMsg(response.data.err);
@@ -73,7 +73,7 @@ const Member = (props) => {
         if (adding === props.member.adding && deleting === props.member.deleting && setting === props.member.setting) {
             return
         }
-        let response = await APICaller.SetRights(props.member.ID, adding, deleting, setting);
+        let response = await SetRights(props.member.ID, adding, deleting, setting);
         if (response.status === 200) {
             props.setMsg("Rights changed");
         } else props.setMsg(response.data.err);

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
-import APICaller from "../../Requests";
+import {UpdateGroupProfilePicture, DeleteGroupProfilePicture} from "../../Requests";
 import { actionTypes, StorageContext } from '../../ChatStorage';
 
 export const ModalGroupOptions = (props) => {
@@ -16,7 +16,7 @@ export const ModalGroupOptions = (props) => {
         let data = new FormData();
         data.append("avatarFile", file);
     
-        let response = await APICaller.UpdateGroupProfilePicture(data, props.group.ID);
+        let response = await UpdateGroupProfilePicture(data, props.group.ID);
 
         if (response.status === 200) {
             setMessage("Image uploaded successfully");
@@ -33,7 +33,7 @@ export const ModalGroupOptions = (props) => {
     };
 
     const deletePicture = async() => {
-        let response = await APICaller.DeleteGroupProfilePicture(props.group.ID)
+        let response = await DeleteGroupProfilePicture(props.group.ID)
 
         if (response.status === 200) {
             setMessage("Image deleted successfully");

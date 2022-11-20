@@ -1,7 +1,7 @@
 import React, {useContext, useState} from 'react';
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
 import { actionTypes, StorageContext } from '../../ChatStorage';
-import APICaller from '../../Requests';
+import {DeleteMember} from '../../Requests';
 
 export const ModalLeaveGroup = (props) => {
 
@@ -10,7 +10,7 @@ export const ModalLeaveGroup = (props) => {
     const [msg, setMsg] = useState("");
 
     const submit = async() => {
-        let response = await APICaller.DeleteMember(props.member.ID);
+        let response = await DeleteMember(props.member.ID);
         let flag = false;
         if (response.status !== 200){
             dispatch({type: actionTypes.DELETE_GROUP, payload: props.group.ID})

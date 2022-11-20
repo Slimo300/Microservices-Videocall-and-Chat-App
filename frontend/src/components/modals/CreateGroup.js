@@ -1,19 +1,18 @@
 import React, {useContext, useState} from 'react';
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
 import { actionTypes, StorageContext } from '../../ChatStorage';
-import APICaller from '../../Requests';
+import {CreateGroup} from '../../Requests';
 
 export const ModalCreateGroup = (props) => {
 
     const [, dispatch] = useContext(StorageContext);
 
     const [grName, setGrName] = useState("");
-    const [grDesc, setGrDesc] = useState("");
     const [msg, setMsg] = useState("");
 
     const submit = async(e) => {
         e.preventDefault();
-        let group = await APICaller.CreateGroup(grName, grDesc);
+        let group = await CreateGroup(grName);
         if (group.data.name === "Error") {
             setMsg(group.data);
         } else {
@@ -39,10 +38,6 @@ export const ModalCreateGroup = (props) => {
                             <div className="form-group">
                                 <label htmlFor="email">Group name:</label>
                                 <input name="name" type="text" className="form-control" id="gr_name" onChange={(e)=>{setGrName(e.target.value)}}/>
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="text">Description:</label>
-                                <input name="description" type="text" className="form-control" id="gr_desc" onChange={(e)=>{setGrDesc(e.target.value)}}/>
                             </div>
                             <div className="form-row text-center">
                                 <div className="col-12 mt-2">

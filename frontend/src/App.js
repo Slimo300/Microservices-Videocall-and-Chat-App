@@ -6,7 +6,7 @@ import ChatStorage from "./ChatStorage";
 
 import Main from "./pages/Main";
 import RegisterForm from "./pages/Register";
-import EmailVerification from "./pages/VerifyEmail";
+import EmailVerification from "./pages/VerifyAccount";
 import Page404 from "./pages/404";
 import SignInForm from './pages/Login';
 
@@ -30,7 +30,7 @@ function App() {
               <Route path="/" element={<Main name={name} profileShow={profileShow} toggleProfile={toggleProfileShow} ws={ws} setWs={setWs}/>}/>
               <Route path="/login" element={<SignInForm setName={setName} name={name}/>}/>
               <Route path="/register" element={<RegisterForm/>}/>
-              <Route path="/verify-email/:userID" element={<EmailVerification />}/>
+              <Route path="/verify-account/:code" element={<EmailVerification />}/>
               <Route path="*" element={<Page404 />}/>
             </Routes>
           </main>

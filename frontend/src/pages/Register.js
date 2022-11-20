@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Navigate } from "react-router-dom";
-import APICaller from "../Requests";
+// import { Navigate } from "react-router-dom";
+import {Register} from "../Requests";
 
 function RegisterForm() {
   const [username, setName] = useState("");
@@ -8,29 +8,20 @@ function RegisterForm() {
   const [password, setPassword] = useState("");
   const [rpassword, setRPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [redirect, setRedirect] = useState(false);
 
   const submit = async (e) => {
     e.preventDefault();
 
     let result;
-
     try {
-      result = await APICaller.Register(email, username, password, rpassword);
+      result = await Register(email, username, password, rpassword);
     } catch(err) {
-      setMessage(err.message);
-      return;
+      setMessage(err.response.data.err);
+    }
+    if (result.status == 201) {
+      setMessage("Verification email sent");
     }
 
-    if (result.data.err) {
-      setMessage(result.data.err);
-      return
-    } 
-    setRedirect(true);
-  }
-
-  if (redirect) {
-    return <Navigate to="/login"/>;
   }
 
   return (

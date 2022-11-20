@@ -5,7 +5,7 @@ import Chat from "../components/Chat";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GroupLabel } from "../components/GroupLabel";
 import { ModalCreateGroup } from "../components/modals/CreateGroup";
-import APICaller from "../Requests";
+import {GetUser, GetGroups, GetInvites, GetWebsocket, LoadMessages} from "../Requests";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { ModalUserProfile } from "./Profile";
 
@@ -35,17 +35,17 @@ const AuthMain = (props) => {
     // Getting user data, groups and invites and setting websocket connection
     useEffect(() => {
         const fetchData = async () => {
-            const userResult = await APICaller.GetUser();
+            const userResult = await GetUser();
             dispatch({type: actionTypes.LOGIN, payload: userResult.data});
-            const groupsResult = await APICaller.GetGroups();
+            const groupsResult = await GetGroups();
             if (groupsResult.status === 200) {
                 dispatch({type: actionTypes.SET_GROUPS, payload: groupsResult.data});
             }
-            const invitesResult = await APICaller.GetInvites();
+            const invitesResult = await GetInvites();
             if (invitesResult.status === 200) {
                 dispatch({type: actionTypes.SET_NOTIFICATIONS, payload: invitesResult.data});
             }
-            let websocket = await APICaller.GetWebsocket();
+            let websocket = await GetWebsocket();
             props.setWs(websocket);
         };
 
@@ -84,7 +84,7 @@ const AuthMain = (props) => {
         (
             async () => {
                 if (current.ID !== undefined && current.messages.length === 0) {
-                    let messages = await APICaller.LoadMessages(current.ID.toString(), 0);
+                    let messages = await LoadMessages(current.ID.toString(), 0);
                     if (messages.status === 204) {
                         return;
                     }

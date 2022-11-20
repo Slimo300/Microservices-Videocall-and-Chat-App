@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
-import APICaller from "../Requests";
+import {ChangePassword, UpdateProfilePicture, DeleteProfilePicture }from "../Requests";
 import { actionTypes, StorageContext } from '../ChatStorage';
 
 export const ModalUserProfile = (props) => {
@@ -20,7 +20,7 @@ export const ModalUserProfile = (props) => {
             let response;
 
             try {
-                response = await APICaller.ChangePassword(oldPassword, newPassword, repeatPassword);
+                response = await ChangePassword(oldPassword, newPassword, repeatPassword);
             } catch(err) {
                 setMessage(err.message);
             }
@@ -41,7 +41,7 @@ export const ModalUserProfile = (props) => {
         let data = new FormData();
         data.append("avatarFile", file);
     
-        let response = await APICaller.UpdateProfilePicture(data);
+        let response = await UpdateProfilePicture(data);
         if (response.status === 200) {
             setMessage("Image uploaded succesfully");
             dispatch({type: actionTypes.NEW_PROFILE_PICTURE, payload: response.data.newUrl});
@@ -59,7 +59,7 @@ export const ModalUserProfile = (props) => {
 
     const deletePicture = async() => {
 
-        let response = await APICaller.DeleteProfilePicture();
+        let response = await DeleteProfilePicture();
         if (response.status === 200) {
             setMessage("Image deleted successfully");
             dispatch({type: actionTypes.DELETE_PROFILE_PICTURE});

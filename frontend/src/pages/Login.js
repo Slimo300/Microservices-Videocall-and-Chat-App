@@ -1,6 +1,12 @@
-import React, { useState } from "react";
-import { Navigate } from "react-router-dom";
-import APICaller from "../Requests";
+import React, { useState, useMemo } from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import {Login} from "../Requests";
+
+function useQuery() {
+  const { search } = useLocation();
+
+  return useMemo(() => new URLSearchParams(search), [search]);
+}
 
 const SignInForm = (props) => {
 
@@ -8,13 +14,14 @@ const SignInForm = (props) => {
   const [password, setPassword] = useState('');
   const [redirect, setRedirect] = useState(false);
   const [message, setMessage] = useState('');
+  const msg = useQuery().get("message");
 
   const submit = async (e) => {
     e.preventDefault();
     let result;
 
     try {
-      result = await APICaller.Login(email, password);
+      result = await Login(email, password);
     } catch(err) {
       setMessage(err.message);
     }
@@ -23,7 +30,7 @@ const SignInForm = (props) => {
       setMessage(result.data.err);
       return;
     }
-    APICaller.SetAccessToken(result.data.accessToken);
+    window.localStorage.setItem("token", result.data.accessToken);
     props.setName("logged");
     setRedirect(true);
   }
@@ -38,7 +45,7 @@ const SignInForm = (props) => {
       <div className="mt-5 row">
         <form onSubmit={submit}>
           <div className="display-3 mb-4 text-center text-primary"> Log In</div>
-          <div id="message" className="mb-3 text-center text-danger">{message}</div>
+          <div id="message" className="mb-3 text-center text-danger">{message!==""?message:msg}</div>
           <div className="mb-3 text-center">
             <label htmlFor="email" className="form-label">Email address</label>
             <input type="email" className="form-control" id="email" onChange={e => setEmail(e.target.value)}/>

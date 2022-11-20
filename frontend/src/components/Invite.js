@@ -1,13 +1,13 @@
 import React, { useContext } from "react";
 import { actionTypes, StorageContext } from "../ChatStorage";
-import APICaller from "../Requests";
+import {RespondGroupInvite} from "../Requests";
 
 const Invite = (props) => {
 
     const [, dispatch] = useContext(StorageContext);
 
     const Respond = async (answer) => {
-        let response = await APICaller.RespondGroupInvite(props.invite.ID, answer);
+        let response = await RespondGroupInvite(props.invite.ID, answer);
         if (response.status === 200) {
             dispatch({type: actionTypes.NEW_GROUP, payload: response.data});
             dispatch({type: actionTypes.DELETE_NOTIFICATION, payload: props.invite.ID});

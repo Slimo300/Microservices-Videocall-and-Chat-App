@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import {NavLink} from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBell } from '@fortawesome/free-solid-svg-icons'
-import APICaller from '../Requests';
+import {Logout} from '../Requests';
 import { StorageContext, actionTypes } from '../ChatStorage';
 import Invite from './Invite';
 
@@ -11,11 +11,11 @@ const Navigation = (props) => {
     const [state, dispatch] = useContext(StorageContext);
 
     const logout = async () => {
-        let response = await APICaller.Logout();
+        let response = await Logout();
         if (response.status === 200) {
             // if (props.ws !== undefined) props.ws.close();
             dispatch({type: actionTypes.LOGOUT});
-            APICaller.SetAccessToken("");
+            window.localStorage.clear();
             props.setName("");
             props.ws.close();
         } else alert(response.data.message);
