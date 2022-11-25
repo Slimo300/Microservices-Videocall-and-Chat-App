@@ -12,12 +12,16 @@ func (db *Database) NewMember(event events.MemberCreatedEvent) error {
 		GroupID:          event.GroupID,
 		UserID:           event.UserID,
 		Creator:          event.Creator,
+		Admin:            false,
 		DeletingMessages: false,
 	}).Error
 }
 
 func (db *Database) ModifyMember(event events.MemberUpdatedEvent) error {
-	return db.Where(models.Membership{MembershipID: event.ID}).Update("deleting_messages", event.DeletingMessages).Error
+	if event.DeletingMessages == -1 {
+		return db.Where(models.Membership{MembershipID: event.ID}).Update("deleting_messages", false).Error
+	}
+	return db.Where(models.Membership{MembershipID: event.ID}).Update("deleting_messages", true).Error
 }
 
 func (db *Database) DeleteMember(event events.MemberDeletedEvent) error {
