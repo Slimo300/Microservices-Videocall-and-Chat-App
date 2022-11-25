@@ -1,22 +1,11 @@
 package models
 
-import "github.com/google/uuid"
+import (
+	"fmt"
+	"reflect"
 
-type role int
-
-const (
-	CREATOR role = iota + 1
-	ADMIN
-	DELETER
-	BASIC
+	"github.com/google/uuid"
 )
-
-type MemberRights struct {
-	Adding           *bool `json:"adding" binding:"required"`
-	DeletingMessages *bool `json:"deleting" binding:"required"`
-	DeletingMembers  *bool `json:"deletingMembers" binding:"required"`
-	Admin            *bool `json:"setting" binding:"required"`
-}
 
 type Member struct {
 	ID               uuid.UUID `gorm:"primaryKey"`
@@ -34,6 +23,18 @@ type Member struct {
 func (Member) TableName() string {
 	return "members"
 }
+
+// Here are methods and constants responsible for resolving users rights in a group when they try to alter
+// other members of a group
+
+type role int
+
+const (
+	CREATOR role = iota + 1
+	ADMIN
+	DELETER
+	BASIC
+)
 
 func (m Member) CanDelete(target Member) bool {
 	if m.role(false) < target.role(false) {
@@ -60,4 +61,48 @@ func (m Member) role(noDeleter bool) role {
 		return DELETER
 	}
 	return BASIC
+}
+
+// Here are methods and constants responsible for changing rights of a member
+
+type operation int
+
+const (
+	REVOKE operation = iota - 1
+	IGNORE
+	GRANT
+)
+
+type MemberRights struct {
+	Adding           operation `json:"adding"`
+	DeletingMessages operation `json:"deleting"`
+	DeletingMembers  operation `json:"deletingMembers"`
+	Admin            operation `json:"admin"`
+}
+
+func (m *Member) ApplyRights(rights MemberRights) error {
+	val := reflect.ValueOf(rights)
+	typ := val.Type()
+
+	for i := 0; i < val.NumField(); i++ {
+		switch val.Field(i).Interface() {
+		case IGNORE:
+			continue
+		case GRANT:
+			m.grant(typ.Field(i).Name)
+		case REVOKE:
+			m.revoke(typ.Field(i).Name)
+		default:
+			return fmt.Errorf("Unsupported action code: %v", val.Field(i).Interface())
+		}
+	}
+	return nil
+}
+
+func (m *Member) grant(field string) {
+	reflect.ValueOf(m).Elem().FieldByName(field).SetBool(true)
+}
+
+func (m *Member) revoke(field string) {
+	reflect.ValueOf(m).Elem().FieldByName(field).SetBool(false)
 }

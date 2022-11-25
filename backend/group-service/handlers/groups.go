@@ -88,11 +88,10 @@ func (s *Server) DeleteGroup(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 	}
 
-	if err := s.Emitter.Emit(events.GroupDeletedEvent{
+	s.Emitter.Emit(events.GroupDeletedEvent{
 		ID: group.ID,
-	}); err != nil {
-		log.Printf("Emitter failed: %s", err.Error())
-	}
+	})
+
 	c.JSON(http.StatusOK, gin.H{"message": "ok"})
 
 }

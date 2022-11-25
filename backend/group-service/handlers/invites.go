@@ -3,7 +3,9 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -60,13 +62,17 @@ func (s *Server) CreateInvite(c *gin.Context) {
 		return
 	}
 
-	_, err = s.DB.AddInvite(userUID, targetUUID, groupUID)
+	invite, err := s.DB.AddInvite(userUID, targetUUID, groupUID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": "internal database error"})
 		return
 	}
 
-	// s.actionChan <- &communication.Action{Invite: invite}
+	s.Emitter.Emit(events.InviteSentEvent{
+		ID:       invite.ID,
+		IssuerID: invite.IssId,
+		TargetID: invite.TargetID,
+	})
 
 	c.JSON(http.StatusCreated, gin.H{"message": "invite sent"})
 }
@@ -100,10 +106,24 @@ func (s *Server) RespondGroupInvite(c *gin.Context) {
 	}
 
 	if member != nil {
-		// Emit NewMember
+		s.Emitter.Emit(events.MemberCreatedEvent{
+			ID:      member.ID,
+			GroupID: member.GroupID,
+			UserID:  member.UserID,
+			Creator: false,
+		})
 	}
 	if invite != nil {
+		var answer bool
+		if invite.Status == models.INVITE_ACCEPT {
+			answer = true
+		}
 		// Emit InviteUpdate
+		s.Emitter.Emit(events.InviteRespondedEvent{
+			ID:       invite.ID,
+			IssuerID: invite.IssId,
+			Answer:   answer,
+		})
 	}
 
 	c.JSON(http.StatusOK, group)

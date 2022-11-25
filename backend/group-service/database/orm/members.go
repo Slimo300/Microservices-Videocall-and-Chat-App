@@ -73,10 +73,9 @@ func (db *Database) GrantRights(userID, groupID, memberID uuid.UUID, rights mode
 		return nil, apperrors.NewForbidden(fmt.Sprintf("User %v cannot alter member %v", userID, memberID))
 	}
 
-	target.Adding = *rights.Adding
-	target.DeletingMembers = *rights.Adding
-	target.DeletingMessages = *rights.DeletingMessages
-	target.Admin = *rights.Admin
+	if err := target.ApplyRights(rights); err != nil {
+		return nil, apperrors.NewBadRequest(err.Error())
+	}
 
 	if err := db.Save(&target).Error; err != nil {
 		return nil, apperrors.NewInternal()

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
@@ -37,12 +36,20 @@ func (s *Server) GrantPriv(c *gin.Context) {
 		return
 	}
 
-	_, err = s.DB.GrantRights(userUUID, groupUUID, memberUUID, rights)
+	member, err := s.DB.GrantRights(userUUID, groupUUID, memberUUID, rights)
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 	}
 
-	// emit MemberUpdate
+	s.Emitter.Emit(events.MemberUpdatedEvent{
+		ID:               member.ID,
+		GroupID:          member.GroupID,
+		UserID:           member.UserID,
+		DeletingMessages: int(rights.DeletingMessages),
+		DeletingMembers:  int(rights.DeletingMembers),
+		Adding:           int(rights.Adding),
+		Admin:            int(rights.Admin),
+	})
 
 	c.JSON(http.StatusOK, gin.H{"message": "ok"})
 }
@@ -72,9 +79,7 @@ func (s *Server) DeleteUserFromGroup(c *gin.Context) {
 		return
 	}
 
-	if err := s.Emitter.Emit(events.MemberDeletedEvent{ID: memberUUID}); err != nil {
-		log.Printf("Emitter failed: %s", err.Error())
-	}
+	s.Emitter.Emit(events.MemberDeletedEvent{ID: memberUUID})
 
 	c.JSON(http.StatusOK, gin.H{"message": "member deleted"})
 }
