@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"testing"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
 	mockqueue "github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/mock"
@@ -20,10 +21,8 @@ import (
 
 type MessageTestSuite struct {
 	suite.Suite
-	uuids    map[string]uuid.UUID
-	db       *mockdb.MockMessageDB
-	engine   *gin.Engine
-	recorder http.ResponseWriter
+	uuids map[string]uuid.UUID
+	db    *mockdb.MockMessageDB
 }
 
 func (s *MessageTestSuite) SetupSuite() {
@@ -58,7 +57,7 @@ func (s *MessageTestSuite) SetupSuite() {
 		{Text: "siema siema", Nick: "River"}}, nil)
 	mockDB.On("GetGroupMessages", s.uuids["userNotInGroup"], s.uuids["group"], 0, 4).Return([]models.Message{}, apperrors.NewForbidden("User cannot request from this group"))
 
-	mockDB.On("DeleteMessageForYourself", s.uuids["userInGroup"], s.uuids[" message"], s.uuids["group"]).Return(models.Message{Text: "valid"}, nil)
+	mockDB.On("DeleteMessageForYourself", s.uuids["userInGroup"], s.uuids["message"], s.uuids["group"]).Return(models.Message{Text: "valid"}, nil)
 	mockDB.On("DeleteMessageForYourself", s.uuids["userNotInGroup"], s.uuids["message"], s.uuids["group"]).Return(models.Message{}, apperrors.NewForbidden("user not in group"))
 	mockDB.On("DeleteMessageForYourself", s.uuids["userInGroup"], s.uuids["message"], s.uuids["otherGroup"]).Return(models.Message{}, apperrors.NewNotFound("message", s.uuids["message"].String()))
 	mockDB.On("DeleteMessageForYourself", s.uuids["userInGroup"], s.uuids["notExistingMessage"], s.uuids["group"]).Return(models.Message{}, apperrors.NewNotFound("message", s.uuids["notExistingMessage"].String()))
@@ -384,4 +383,8 @@ func (s *MessageTestSuite) TestDeleteMessageForEveryone() {
 			s.True(reflect.DeepEqual(respBody, tC.expectedResponse))
 		})
 	}
+}
+
+func TestMessageSuite(t *testing.T) {
+	suite.Run(t, &MessageTestSuite{})
 }
