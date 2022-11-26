@@ -16,7 +16,7 @@ import (
 
 func setupTestServer() *handlers.Server {
 
-	mockDB := new(mock.MockGroupDB)
+	mockDB := new(mock.MockGroupsDB)
 	s := &handlers.Server{
 		DB:      mockDB,
 		Storage: storage.MockStorage{},

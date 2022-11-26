@@ -41,22 +41,22 @@ func (s *Server) CreateInvite(c *gin.Context) {
 		return
 	}
 
-	load := struct {
+	payload := struct {
 		GroupID string `json:"group"`
 		Target  string `json:"target"`
 	}{}
 
 	// getting req body
-	if err := c.ShouldBindJSON(&load); err != nil {
+	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
 	}
-	groupUID, err := uuid.Parse(load.GroupID)
+	groupUID, err := uuid.Parse(payload.GroupID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid group ID"})
 		return
 	}
-	targetUUID, err := uuid.Parse(load.Target)
+	targetUUID, err := uuid.Parse(payload.Target)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid target user ID"})
 		return
@@ -64,7 +64,7 @@ func (s *Server) CreateInvite(c *gin.Context) {
 
 	invite, err := s.DB.AddInvite(userUID, targetUUID, groupUID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": "internal database error"})
+		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
 
@@ -101,7 +101,7 @@ func (s *Server) RespondGroupInvite(c *gin.Context) {
 
 	invite, group, member, err := s.DB.AnswerInvite(userUUID, inviteUUID, *load.Answer)
 	if err != nil {
-		c.JSON(apperrors.Status(err), gin.H{"err": err.Error})
+		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
 
@@ -124,6 +124,10 @@ func (s *Server) RespondGroupInvite(c *gin.Context) {
 			IssuerID: invite.IssId,
 			Answer:   answer,
 		})
+	}
+	if !*load.Answer {
+		c.JSON(http.StatusOK, gin.H{"message": "invite declined"})
+		return
 	}
 
 	c.JSON(http.StatusOK, group)

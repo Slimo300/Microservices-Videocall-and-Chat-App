@@ -3,20 +3,125 @@ package handlers_test
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"testing"
-	"time"
 
+	dbmock "github.com/Slimo300/MicroservicesChatApp/backend/group-service/database/mock"
+	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/handlers"
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
+	mockqueue "github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/mock"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestSendGroupInvite(t *testing.T) {
+type InvitesTestSuite struct {
+	suite.Suite
+	IDs    map[string]uuid.UUID
+	server *handlers.Server
+}
+
+func (s *InvitesTestSuite) SetupSuite() {
+
+	s.IDs = make(map[string]uuid.UUID)
+
+	s.IDs["inviteOK"] = uuid.MustParse("9248e828-8120-4f6d-a2c5-25a4689b9ba8")
+	s.IDs["inviteNotFound"] = uuid.MustParse("2917d4d0-b3ed-49ff-93de-d5913d24a6c8")
+	s.IDs["inviteAnswered"] = uuid.MustParse("a901767d-d908-471d-8a9a-f01945547da9")
+	s.IDs["userOK"] = uuid.MustParse("f515cb74-99b2-4aa9-be0d-faf1a68c8064")
+	s.IDs["userWithoutInvites"] = uuid.MustParse("1414bb70-a865-4a88-8c5d-adbe7fa1ec53")
+	s.IDs["userNoRights"] = uuid.MustParse("58bb1c85-7f6a-4e2b-90a9-b974928a81c4")
+	s.IDs["invitedUserOK"] = uuid.MustParse("34b80593-57fc-4953-8cd3-217ecb61b6eb")
+	s.IDs["invitedUserNotFound"] = uuid.MustParse("6ebb22de-1bd6-4c23-bb0f-eec359d10462")
+	s.IDs["invitedUserMember"] = uuid.MustParse("27df64da-a103-49fb-9724-151cdb2943b5")
+	s.IDs["invitedUserInvited"] = uuid.MustParse("34234be4-fe92-49cb-9ddd-76ba9f410266")
+	s.IDs["group"] = uuid.MustParse("b646e70f-3c8f-4782-84a3-0b34b0f9aecf")
+
+	db := new(dbmock.MockGroupsDB)
+	db.On("GetUserInvites", s.IDs["userOK"]).Return([]models.Invite{{ID: s.IDs["inviteOK"]}}, nil)
+	db.On("GetUserInvites", s.IDs["userWithoutInvites"]).Return([]models.Invite{}, nil)
+
+	db.On("AddInvite", s.IDs["userNoRights"], s.IDs["invitedUserOK"], s.IDs["group"]).
+		Return(models.Invite{}, apperrors.NewForbidden(fmt.Sprintf("User %v has no rights to add new members to group %v", s.IDs["userNoRights"], s.IDs["group"])))
+	db.On("AddInvite", s.IDs["userOK"], s.IDs["invitedUserNotFound"], s.IDs["group"]).
+		Return(models.Invite{}, apperrors.NewNotFound("user", s.IDs["invitedUserNotFound"].String()))
+	db.On("AddInvite", s.IDs["userOK"], s.IDs["invitedUserMember"], s.IDs["group"]).
+		Return(models.Invite{}, apperrors.NewForbidden(fmt.Sprintf("User %v already is already a member of group %v", s.IDs["invitedUserMember"], s.IDs["group"])))
+	db.On("AddInvite", s.IDs["userOK"], s.IDs["invitedUserInvited"], s.IDs["group"]).
+		Return(models.Invite{}, apperrors.NewForbidden(fmt.Sprintf("User %v already invited to group %v", s.IDs["invitedUserInvited"], s.IDs["group"])))
+	db.On("AddInvite", s.IDs["userOK"], s.IDs["invitedUserOK"], s.IDs["group"]).
+		Return(models.Invite{ID: s.IDs["inviteOK"]}, nil)
+
+	// TODO check emitting?
+	db.On("AnswerInvite", s.IDs["userOK"], s.IDs["inviteOK"], true).Return(nil, &models.Group{ID: s.IDs["group"]}, nil, nil)
+	db.On("AnswerInvite", s.IDs["userOK"], s.IDs["inviteOK"], false).Return(nil, nil, nil, nil)
+	db.On("AnswerInvite", s.IDs["userOK"], s.IDs["inviteNotFound"], mock.Anything).
+		Return(nil, nil, nil, apperrors.NewNotFound("invite", s.IDs["inviteNotFound"].String()))
+	db.On("AnswerInvite", s.IDs["userOK"], s.IDs["inviteAnswered"], mock.Anything).
+		Return(nil, nil, nil, apperrors.NewForbidden("invite already answered"))
+
+	s.server = handlers.NewServer(db, nil, nil)
+
+	emitter := new(mockqueue.MockEmitter)
+	emitter.On("Emit", mock.Anything).Return(nil)
+	s.server.Emitter = emitter
+
+}
+
+func (s InvitesTestSuite) TestGetUserInvites() {
 	gin.SetMode(gin.TestMode)
-	s := setupTestServer()
+
+	testCases := []struct {
+		desc               string
+		id                 string
+		expectedStatusCode int
+		expectedResponse   []models.Invite
+	}{
+		{
+			desc:               "getinvitessuccess",
+			id:                 s.IDs["userOK"].String(),
+			expectedStatusCode: http.StatusOK,
+			expectedResponse:   []models.Invite{{ID: s.IDs["inviteOK"]}},
+		},
+		{
+			desc:               "getinvitesnocontent",
+			id:                 s.IDs["userWithoutInvites"].String(),
+			expectedStatusCode: http.StatusNoContent,
+			expectedResponse:   []models.Invite{},
+		},
+	}
+
+	for _, tC := range testCases {
+		s.Run(tC.desc, func() {
+
+			req, _ := http.NewRequest("GET", "/api/invites", nil)
+
+			w := httptest.NewRecorder()
+			_, engine := gin.CreateTestContext(w)
+			engine.Use(func(c *gin.Context) {
+				c.Set("userID", tC.id)
+			})
+
+			engine.Handle(http.MethodGet, "/api/invites", s.server.GetUserInvites)
+			engine.ServeHTTP(w, req)
+			response := w.Result()
+
+			s.Equal(tC.expectedStatusCode, response.StatusCode)
+
+			respBody := []models.Invite{}
+			json.NewDecoder(response.Body).Decode(&respBody)
+
+			s.Equal(tC.expectedResponse, respBody)
+		})
+	}
+}
+
+func (s InvitesTestSuite) TestSendGroupInvite() {
+	gin.SetMode(gin.TestMode)
 
 	testCases := []struct {
 		desc               string
@@ -26,58 +131,58 @@ func TestSendGroupInvite(t *testing.T) {
 		expectedResponse   interface{}
 	}{
 		{
-			desc:               "invitesuccess",
-			id:                 "1c4dccaf-a341-4920-9003-f24e0412f8e0",
-			data:               map[string]interface{}{"group": "61fbd273-b941-471c-983a-0a3cd2c74747", "target": "Kel"},
-			expectedStatusCode: http.StatusCreated,
-			expectedResponse:   gin.H{"message": "invite sent"},
-		},
-		{
-			desc:               "invitenosuchuser",
-			id:                 "1c4dccaf-a341-4920-9003-f24e0412f8e0",
-			data:               map[string]interface{}{"group": "61fbd273-b941-471c-983a-0a3cd2c74747", "target": "Raul"},
-			expectedStatusCode: http.StatusNotFound,
-			expectedResponse:   gin.H{"err": "no user with name: Raul"},
-		},
-		{
-			desc:               "invitenorights",
-			id:                 "0ef41409-24b0-43e6-80a3-cf31a4b1a684",
-			data:               map[string]interface{}{"group": "61fbd273-b941-471c-983a-0a3cd2c74747", "target": "Kel"},
-			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": "no rights to add"},
-		},
-		{
-			desc:               "inviteuserismember",
-			id:                 "1c4dccaf-a341-4920-9003-f24e0412f8e0",
-			data:               map[string]interface{}{"group": "61fbd273-b941-471c-983a-0a3cd2c74747", "target": "River"},
-			expectedStatusCode: http.StatusConflict,
-			expectedResponse:   gin.H{"err": "user is already a member of group"},
-		},
-		{
-			desc:               "invitealreadyindatabase",
-			id:                 "1c4dccaf-a341-4920-9003-f24e0412f8e0",
-			data:               map[string]interface{}{"group": "61fbd273-b941-471c-983a-0a3cd2c74747", "target": "John"},
-			expectedStatusCode: http.StatusConflict,
-			expectedResponse:   gin.H{"err": "user already invited"},
-		},
-		{
-			desc:               "invitenogroup",
-			id:                 "1c4dccaf-a341-4920-9003-f24e0412f8e0",
-			data:               map[string]interface{}{"target": "Kel"},
+			desc:               "inviteNoGroup",
+			id:                 s.IDs["userOK"].String(),
+			data:               map[string]interface{}{"target": s.IDs["invitedUserOK"].String()},
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "invalid group ID"},
 		},
 		{
-			desc:               "invitenouser",
-			id:                 "1c4dccaf-a341-4920-9003-f24e0412f8e0",
-			data:               map[string]interface{}{"group": "61fbd273-b941-471c-983a-0a3cd2c74747"},
+			desc:               "inviteNoUser",
+			id:                 s.IDs["userOK"].String(),
+			data:               map[string]interface{}{"group": s.IDs["group"].String()},
 			expectedStatusCode: http.StatusBadRequest,
-			expectedResponse:   gin.H{"err": "user not specified"},
+			expectedResponse:   gin.H{"err": "invalid target user ID"},
+		},
+		{
+			desc:               "inviteNoRights",
+			id:                 s.IDs["userNoRights"].String(),
+			data:               map[string]interface{}{"group": s.IDs["group"].String(), "target": s.IDs["invitedUserOK"]},
+			expectedStatusCode: http.StatusForbidden,
+			expectedResponse:   gin.H{"err": fmt.Sprintf("Forbidden action. Reason: User %v has no rights to add new members to group %v", s.IDs["userNoRights"], s.IDs["group"])},
+		},
+		{
+			desc:               "inviteUserNotFound",
+			id:                 s.IDs["userOK"].String(),
+			data:               map[string]interface{}{"group": s.IDs["group"].String(), "target": s.IDs["invitedUserNotFound"]},
+			expectedStatusCode: http.StatusNotFound,
+			expectedResponse:   gin.H{"err": fmt.Sprintf("resource: user with value: %v not found", s.IDs["invitedUserNotFound"])},
+		},
+		{
+			desc:               "inviteUserMember",
+			id:                 s.IDs["userOK"].String(),
+			data:               map[string]interface{}{"group": s.IDs["group"].String(), "target": s.IDs["invitedUserMember"]},
+			expectedStatusCode: http.StatusForbidden,
+			expectedResponse:   gin.H{"err": fmt.Sprintf("Forbidden action. Reason: User %v already is already a member of group %v", s.IDs["invitedUserMember"], s.IDs["group"])},
+		},
+		{
+			desc:               "inviteUserInvited",
+			id:                 s.IDs["userOK"].String(),
+			data:               map[string]interface{}{"group": s.IDs["group"].String(), "target": s.IDs["invitedUserInvited"]},
+			expectedStatusCode: http.StatusForbidden,
+			expectedResponse:   gin.H{"err": fmt.Sprintf("Forbidden action. Reason: User %v already invited to group %v", s.IDs["invitedUserInvited"], s.IDs["group"])},
+		},
+		{
+			desc:               "invitesuccess",
+			id:                 s.IDs["userOK"].String(),
+			data:               map[string]interface{}{"group": s.IDs["group"].String(), "target": s.IDs["invitedUserOK"].String()},
+			expectedStatusCode: http.StatusCreated,
+			expectedResponse:   gin.H{"message": "invite sent"},
 		},
 	}
 
 	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
+		s.Run(tC.desc, func() {
 
 			requestBody, _ := json.Marshal(tC.data)
 			req, _ := http.NewRequest("POST", "/api/invite", bytes.NewReader(requestBody))
@@ -88,150 +193,99 @@ func TestSendGroupInvite(t *testing.T) {
 				c.Set("userID", tC.id)
 			})
 
-			engine.Handle(http.MethodPost, "/api/invite", s.CreateInvite)
+			engine.Handle(http.MethodPost, "/api/invite", s.server.CreateInvite)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
 
-			if response.StatusCode != tC.expectedStatusCode {
-				t.Errorf("Received Status code %d does not match expected status %d", response.StatusCode, tC.expectedStatusCode)
-			}
+			s.Equal(tC.expectedStatusCode, response.StatusCode)
 
 			var msg gin.H
 			json.NewDecoder(response.Body).Decode(&msg)
 
-			if !reflect.DeepEqual(msg, tC.expectedResponse) {
-				t.Errorf("Received HTTP response body %+v does not match expected HTTP response Body %+v", msg, tC.expectedResponse)
-			}
+			s.Equal(tC.expectedResponse, msg)
 		})
 	}
 }
 
-func TestGetUserInvites(t *testing.T) {
+func (s InvitesTestSuite) TestRespondGroupInvite() {
 	gin.SetMode(gin.TestMode)
-	s := setupTestServer()
-
-	dateCreated, _ := time.Parse("2006-01-02T15:04:05Z", "2019-03-17T22:04:45Z")
-	dateModified, _ := time.Parse("2006-01-02T15:04:05Z", "2019-03-17T22:04:45Z")
-	issId, _ := uuid.Parse("1c4dccaf-a341-4920-9003-f24e0412f8e0")
-	groupId, _ := uuid.Parse("61fbd273-b941-471c-983a-0a3cd2c74747")
-	targetId, _ := uuid.Parse("634240cf-1219-4be2-adfa-90ab6b47899b")
-	inviteId, _ := uuid.Parse("0916b355-323c-45fd-b79e-4160eaac1320")
-
-	testCases := []struct {
-		desc               string
-		id                 string
-		expectedStatusCode int
-		expectedResponse   []models.Invite
-	}{
-		{
-			desc:               "getinvitessuccess",
-			id:                 "634240cf-1219-4be2-adfa-90ab6b47899b",
-			expectedStatusCode: http.StatusOK,
-			expectedResponse:   []models.Invite{{ID: inviteId, IssId: issId, TargetID: targetId, GroupID: groupId, Status: 1, Created: dateCreated, Modified: dateModified}},
-		},
-		{
-			desc:               "getinvitesnocontent",
-			id:                 "1c4dccaf-a341-4920-9003-f24e0412f8e0",
-			expectedStatusCode: http.StatusNoContent,
-			expectedResponse:   []models.Invite{},
-		},
-	}
-
-	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
-
-			req, _ := http.NewRequest("GET", "/api/invites", nil)
-
-			w := httptest.NewRecorder()
-			_, engine := gin.CreateTestContext(w)
-			engine.Use(func(c *gin.Context) {
-				c.Set("userID", tC.id)
-			})
-
-			engine.Handle(http.MethodGet, "/api/invites", s.GetUserInvites)
-			engine.ServeHTTP(w, req)
-			response := w.Result()
-
-			if response.StatusCode != tC.expectedStatusCode {
-				t.Errorf("Received Status code %d does not match expected status %d", response.StatusCode, tC.expectedStatusCode)
-			}
-
-			respBody := []models.Invite{}
-			json.NewDecoder(response.Body).Decode(&respBody)
-
-			if !reflect.DeepEqual(respBody, tC.expectedResponse) {
-				t.Errorf("Received HTTP response body %+v does not match expected HTTP response Body %+v", respBody, tC.expectedResponse)
-			}
-		})
-	}
-}
-
-func TestRespondGroupInvite(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-	s := setupTestServer()
-
-	dateGroupCreated, _ := time.Parse("2006-01-02T15:04:05Z", "2019-01-13T08:47:44Z")
-	groupId, _ := uuid.Parse("61fbd273-b941-471c-983a-0a3cd2c74747")
 
 	testCases := []struct {
 		desc               string
 		userID             string
-		answer             bool
-		data               map[string]interface{}
 		inviteID           string
+		data               map[string]interface{}
 		returnVal          bool
 		expectedStatusCode int
 		expectedResponse   interface{}
 	}{
 		{
-			desc:               "respondInviteYes",
-			userID:             "634240cf-1219-4be2-adfa-90ab6b47899b",
+			desc:               "respondInviteInvalidUserID",
+			userID:             s.IDs["userOK"].String()[:2],
+			inviteID:           s.IDs["inviteOK"].String(),
 			data:               map[string]interface{}{"answer": true},
-			inviteID:           "0916b355-323c-45fd-b79e-4160eaac1320",
-			returnVal:          true,
-			expectedStatusCode: http.StatusOK,
-			expectedResponse:   models.Group{ID: groupId, Name: "New Group", Picture: "16fc5e9d-da47-4923-8475-9f444177990d", Created: dateGroupCreated},
+			returnVal:          false,
+			expectedStatusCode: http.StatusBadRequest,
+			expectedResponse:   gin.H{"err": "invalid ID"},
 		},
 		{
-			desc:               "respondInviteNo",
-			userID:             "634240cf-1219-4be2-adfa-90ab6b47899b",
-			data:               map[string]interface{}{"answer": false},
-			inviteID:           "0916b355-323c-45fd-b79e-4160eaac1320",
-			returnVal:          false,
-			expectedStatusCode: http.StatusOK,
-			expectedResponse:   gin.H{"message": "invite declined"},
-		},
-		{
-			desc:               "respondInviteNotInDatabase",
-			userID:             "634240cf-1219-4be2-adfa-90ab6b47899b",
+			desc:               "respondInviteInvalidInviteID",
+			userID:             s.IDs["userOK"].String(),
+			inviteID:           s.IDs["inviteOK"].String()[:2],
 			data:               map[string]interface{}{"answer": true},
-			inviteID:           "0916b355-323c-45fd-b79e-4161eaac1320",
 			returnVal:          false,
-			expectedStatusCode: http.StatusNotFound,
-			expectedResponse:   gin.H{"err": "resource not found"},
-		},
-		{
-			desc:               "respondInviteWrongUser",
-			userID:             "1c4dccaf-a341-4920-9003-f24e0412f8e0",
-			data:               map[string]interface{}{"answer": true},
-			inviteID:           "0916b355-323c-45fd-b79e-4160eaac1320",
-			returnVal:          false,
-			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": "no rights to respond"},
+			expectedStatusCode: http.StatusBadRequest,
+			expectedResponse:   gin.H{"err": "invalid invite id"},
 		},
 		{
 			desc:               "respondInviteNoAnswer",
-			userID:             "1c4dccaf-a341-4920-9003-f24e0412f8e0",
-			inviteID:           "0916b355-323c-45fd-b79e-4160eaac1320",
+			userID:             s.IDs["userOK"].String(),
+			inviteID:           s.IDs["inviteOK"].String(),
 			data:               map[string]interface{}{},
 			returnVal:          false,
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "answer not specified"},
 		},
+		{
+			desc:               "respondInviteNotFound",
+			userID:             s.IDs["userOK"].String(),
+			inviteID:           s.IDs["inviteNotFound"].String(),
+			data:               map[string]interface{}{"answer": true},
+			returnVal:          false,
+			expectedStatusCode: http.StatusNotFound,
+			expectedResponse:   gin.H{"err": "resource: invite with value: 2917d4d0-b3ed-49ff-93de-d5913d24a6c8 not found"},
+		},
+		{
+			desc:               "respondInviteAnswered",
+			userID:             s.IDs["userOK"].String(),
+			inviteID:           s.IDs["inviteAnswered"].String(),
+			data:               map[string]interface{}{"answer": true},
+			returnVal:          false,
+			expectedStatusCode: http.StatusForbidden,
+			expectedResponse:   gin.H{"err": "Forbidden action. Reason: invite already answered"},
+		},
+		{
+			desc:               "respondInviteNo",
+			userID:             s.IDs["userOK"].String(),
+			inviteID:           s.IDs["inviteOK"].String(),
+			data:               map[string]interface{}{"answer": false},
+			returnVal:          false,
+			expectedStatusCode: http.StatusOK,
+			expectedResponse:   gin.H{"message": "invite declined"},
+		},
+		{
+			desc:               "respondInviteYes",
+			userID:             s.IDs["userOK"].String(),
+			inviteID:           s.IDs["inviteOK"].String(),
+			data:               map[string]interface{}{"answer": true},
+			returnVal:          true,
+			expectedStatusCode: http.StatusOK,
+			expectedResponse:   models.Group{ID: s.IDs["group"]},
+		},
 	}
 
 	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
+		s.Run(tC.desc, func() {
 
 			requestBody, _ := json.Marshal(tC.data)
 			req, _ := http.NewRequest("PUT", "/api/invite/"+tC.inviteID, bytes.NewReader(requestBody))
@@ -242,13 +296,11 @@ func TestRespondGroupInvite(t *testing.T) {
 				c.Set("userID", tC.userID)
 			})
 
-			engine.Handle(http.MethodPut, "/api/invite/:inviteID", s.RespondGroupInvite)
+			engine.Handle(http.MethodPut, "/api/invite/:inviteID", s.server.RespondGroupInvite)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
 
-			if response.StatusCode != tC.expectedStatusCode {
-				t.Errorf("Received Status code %d does not match expected status %d", response.StatusCode, tC.expectedStatusCode)
-			}
+			s.Equal(tC.expectedStatusCode, response.StatusCode)
 
 			var respBody interface{}
 			if tC.returnVal {
@@ -261,9 +313,11 @@ func TestRespondGroupInvite(t *testing.T) {
 				respBody = msg
 			}
 
-			if !reflect.DeepEqual(respBody, tC.expectedResponse) {
-				t.Errorf("Received HTTP response body %+v does not match expected HTTP response Body %+v", respBody, tC.expectedResponse)
-			}
+			s.Equal(tC.expectedResponse, respBody)
 		})
 	}
+}
+
+func TestInvitesSuite(t *testing.T) {
+	suite.Run(t, &InvitesTestSuite{})
 }

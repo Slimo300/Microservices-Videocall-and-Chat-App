@@ -161,25 +161,16 @@ func TestCreateGroup(t *testing.T) {
 		{
 			desc:               "creategroupnoname",
 			ID:                 "634240cf-1219-4be2-adfa-90ab6b47899b",
-			data:               map[string]interface{}{"name": "", "desc": "ng1"},
+			data:               map[string]interface{}{"name": ""},
 			returnVal:          false,
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "bad name"},
-		},
-		// no description provided in request body
-		{
-			desc:               "creategroupnodesc",
-			ID:                 "634240cf-1219-4be2-adfa-90ab6b47899b",
-			data:               map[string]interface{}{"name": "ng1", "desc": ""},
-			returnVal:          false,
-			expectedStatusCode: http.StatusBadRequest,
-			expectedResponse:   gin.H{"err": "bad description"},
 		},
 		// creator deletes a group
 		{
 			desc:               "creategroupsuccess",
 			ID:                 "634240cf-1219-4be2-adfa-90ab6b47899b",
-			data:               map[string]interface{}{"name": "ng1", "desc": "ng1"},
+			data:               map[string]interface{}{"name": "ng1"},
 			returnVal:          true,
 			expectedStatusCode: http.StatusCreated,
 			expectedResponse:   models.Group{Name: "ng1"},

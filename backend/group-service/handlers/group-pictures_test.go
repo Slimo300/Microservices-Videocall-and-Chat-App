@@ -7,7 +7,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/database"
 	dbmock "github.com/Slimo300/MicroservicesChatApp/backend/group-service/database/mock"
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/handlers"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
@@ -20,9 +19,8 @@ import (
 
 type GroupPicturesTestSuite struct {
 	suite.Suite
-	IDs     map[string]uuid.UUID
-	db      database.DBlayer
-	storage storage.StorageLayer
+	IDs    map[string]uuid.UUID
+	server *handlers.Server
 }
 
 func (s *GroupPicturesTestSuite) SetupSuite() {
@@ -46,15 +44,13 @@ func (s *GroupPicturesTestSuite) SetupSuite() {
 	db.On("GetGroupProfilePictureURL", s.IDs["userWithoutRights"], s.IDs["groupOK"]).
 		Return("", apperrors.NewForbidden(fmt.Sprintf("User %v has no rights to set in group %v", s.IDs["userWithoutRights"], s.IDs["groupOK"])))
 
-	s.db = db
+	storage := new(storage.MockStorage)
 
-	s.storage = new(storage.MockStorage)
+	s.server = handlers.NewServer(db, storage, nil)
 }
 
 func (s GroupPicturesTestSuite) TestDeleteGroupProfilePicture() {
 	gin.SetMode(gin.TestMode)
-
-	server := handlers.NewServer(s.db, s.storage, nil)
 
 	testCases := []struct {
 		desc               string
@@ -110,7 +106,7 @@ func (s GroupPicturesTestSuite) TestDeleteGroupProfilePicture() {
 				c.Set("userID", tC.userID)
 			})
 
-			engine.Handle(http.MethodDelete, "/api/group/:groupID/image", server.DeleteGroupProfilePicture)
+			engine.Handle(http.MethodDelete, "/api/group/:groupID/image", s.server.DeleteGroupProfilePicture)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
 
@@ -126,7 +122,6 @@ func (s GroupPicturesTestSuite) TestDeleteGroupProfilePicture() {
 
 func (s GroupPicturesTestSuite) TestSetGroupProfilePicture() {
 	gin.SetMode(gin.TestMode)
-	server := handlers.NewServer(s.db, s.storage, nil)
 
 	testCases := []struct {
 		desc               string
@@ -221,7 +216,7 @@ func (s GroupPicturesTestSuite) TestSetGroupProfilePicture() {
 			if tC.setBodyLimiter {
 				engine.Use(limits.RequestSizeLimiter(10))
 			}
-			engine.Handle(http.MethodPut, "/api/group/:groupID/image", server.SetGroupProfilePicture)
+			engine.Handle(http.MethodPut, "/api/group/:groupID/image", s.server.SetGroupProfilePicture)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
 
