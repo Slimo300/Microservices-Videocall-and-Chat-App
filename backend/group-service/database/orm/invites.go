@@ -23,6 +23,9 @@ func (db *Database) AddInvite(issID, targetID, groupID uuid.UUID) (invite models
 	if !member.Adding && !member.Admin && !member.Creator {
 		return models.Invite{}, apperrors.NewForbidden(fmt.Sprintf("User %v has no rights to add new members to group %v", issID, groupID))
 	}
+	if err := db.First(&models.User{}, targetID).Error; err != nil {
+		return models.Invite{}, apperrors.NewNotFound("user", targetID.String())
+	}
 	if err := db.Where(models.Member{UserID: targetID, GroupID: groupID}).First(&models.Member{}).Error; err != gorm.ErrRecordNotFound {
 		return models.Invite{}, apperrors.NewForbidden(fmt.Sprintf("User %v already is already a member of group %v", targetID, groupID))
 	}
@@ -56,7 +59,7 @@ func (db *Database) AnswerInvite(userID, inviteID uuid.UUID, answer bool) (*mode
 
 	// if invite is declined we return just an invite with empty member as none was created
 	if !answer {
-		if err := db.First(&models.Invite{}, inviteID).Updates(models.Invite{Status: models.INVITE_DECLINE, Modified: time.Now()}).Error; err != nil {
+		if err := db.Model(invite).Updates(models.Invite{Status: models.INVITE_DECLINE, Modified: time.Now()}).Error; err != nil {
 			return nil, nil, nil, apperrors.NewInternal()
 		}
 		return invite, nil, nil, nil
