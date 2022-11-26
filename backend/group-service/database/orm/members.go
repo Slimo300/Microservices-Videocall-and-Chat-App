@@ -9,27 +9,6 @@ import (
 	"github.com/google/uuid"
 )
 
-func (db *Database) GetMemberByID(memberID uuid.UUID) (member models.Member, err error) {
-	return member, db.First(&member, memberID).Error
-}
-
-func (db *Database) GrantPriv(memberID uuid.UUID, adding, deletingMembers, admin, deletingMessages bool) error {
-	return db.First(&models.Member{}, memberID).Updates(models.Member{Adding: adding, DeletingMembers: deletingMembers, Admin: admin, DeletingMessages: deletingMessages}).Error
-}
-
-func (db *Database) GetUserGroupMember(userID, groupID uuid.UUID) (member models.Member, err error) {
-	return member, db.Where(models.Member{UserID: userID, GroupID: groupID}).First(&member).Error
-}
-
-func (db *Database) IsUserInGroup(userID, groupID uuid.UUID) bool {
-	var member models.Member
-	err := db.Where(models.Member{UserID: userID, GroupID: groupID}).First(&member).Error
-	if err != nil {
-		return false
-	}
-	return true
-}
-
 func (db *Database) NewUser(event events.UserRegisteredEvent) error {
 	return db.Create(&models.User{
 		ID:       event.ID,

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
@@ -57,14 +56,12 @@ func (s *Server) CreateGroup(c *gin.Context) {
 		return
 	}
 
-	if err := s.Emitter.Emit(events.MemberCreatedEvent{
+	s.Emitter.Emit(events.MemberCreatedEvent{
 		ID:      group.Members[0].ID,
 		GroupID: group.ID,
 		UserID:  userUID,
 		Creator: true,
-	}); err != nil {
-		log.Printf("Emitter failed: %s", err.Error())
-	}
+	})
 
 	c.JSON(http.StatusCreated, group)
 }
@@ -86,6 +83,15 @@ func (s *Server) DeleteGroup(c *gin.Context) {
 	group, err := s.DB.DeleteGroup(userUUID, groupUUID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
+		return
+	}
+	if group.Picture != "" {
+		if err := s.Storage.DeleteProfilePicture(group.Picture); err != nil {
+			// TODO: this err should be handled by logging it for investigation or handled
+			// at a later time
+			c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
+			return
+		}
 	}
 
 	s.Emitter.Emit(events.GroupDeletedEvent{

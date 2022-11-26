@@ -15,6 +15,12 @@ func (s *Server) SetGroupProfilePicture(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "Invalid ID"})
 		return
 	}
+	groupID := c.Param("groupID")
+	groupUID, err := uuid.Parse(groupID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "Invalid group ID"})
+		return
+	}
 
 	imageFileHeader, err := c.FormFile("avatarFile")
 	if err != nil {
@@ -25,13 +31,6 @@ func (s *Server) SetGroupProfilePicture(c *gin.Context) {
 	mimeType := imageFileHeader.Header.Get("Content-Type")
 	if !isAllowedImageType(mimeType) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "image extention not allowed"})
-		return
-	}
-
-	groupID := c.Param("groupID")
-	groupUID, err := uuid.Parse(groupID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "Invalid group ID"})
 		return
 	}
 
@@ -70,7 +69,7 @@ func (s *Server) DeleteGroupProfilePicture(c *gin.Context) {
 
 	pictureURL, err := s.DB.DeleteGroupProfilePicture(userUID, groupUID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
+		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
 

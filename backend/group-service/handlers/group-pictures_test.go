@@ -2,21 +2,59 @@ package handlers_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"testing"
 
+	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/database"
+	dbmock "github.com/Slimo300/MicroservicesChatApp/backend/group-service/database/mock"
+	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/handlers"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
 	limits "github.com/gin-contrib/size"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestDeleteGroupProfilePicture(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-	s := setupTestServer()
+type GroupPicturesTestSuite struct {
+	suite.Suite
+	IDs     map[string]uuid.UUID
+	db      database.DBlayer
+	storage storage.StorageLayer
+}
 
-	badGroupID := uuid.NewString()
+func (s *GroupPicturesTestSuite) SetupSuite() {
+
+	s.IDs = make(map[string]uuid.UUID)
+
+	s.IDs["userOK"] = uuid.MustParse("e95bd1fc-ec1f-472c-b7f3-6b39aa7a90c4")
+	s.IDs["groupOK"] = uuid.MustParse("4552667f-ea03-4ad3-8757-ea4645c8b4a0")
+	s.IDs["userWithoutRights"] = uuid.MustParse("ee2c6112-1114-4d9f-8869-716068ff7159")
+	s.IDs["groupWithoutPicture"] = uuid.MustParse("4399b92e-d68a-42be-9a01-a9e098df98d8")
+
+	db := new(dbmock.MockGroupsDB)
+
+	db.On("DeleteGroupProfilePicture", s.IDs["userOK"], s.IDs["groupOK"]).Return("picture_url", nil)
+	db.On("DeleteGroupProfilePicture", s.IDs["userWithoutRights"], s.IDs["groupOK"]).
+		Return("", apperrors.NewForbidden(fmt.Sprintf("User %v has no rights to set in group %v", s.IDs["userWithoutRights"], s.IDs["groupOK"])))
+	db.On("DeleteGroupProfilePicture", s.IDs["userOK"], s.IDs["groupWithoutPicture"]).
+		Return("", apperrors.NewForbidden(fmt.Sprintf("group %v has no profile picture", s.IDs["groupWithoutPicture"])))
+
+	db.On("GetGroupProfilePictureURL", s.IDs["userOK"], s.IDs["groupOK"]).Return("picture_url", nil)
+	db.On("GetGroupProfilePictureURL", s.IDs["userWithoutRights"], s.IDs["groupOK"]).
+		Return("", apperrors.NewForbidden(fmt.Sprintf("User %v has no rights to set in group %v", s.IDs["userWithoutRights"], s.IDs["groupOK"])))
+
+	s.db = db
+
+	s.storage = new(storage.MockStorage)
+}
+
+func (s GroupPicturesTestSuite) TestDeleteGroupProfilePicture() {
+	gin.SetMode(gin.TestMode)
+
+	server := handlers.NewServer(s.db, s.storage, nil)
 
 	testCases := []struct {
 		desc               string
@@ -27,57 +65,43 @@ func TestDeleteGroupProfilePicture(t *testing.T) {
 	}{
 		{
 			desc:               "DeleteProfilePictureInvalidUserID",
-			userID:             "1c4dccaf-a341-4920-9003-f4e0412f8e0",
-			groupID:            "61fbd273-b941-471c-983a-0a3cd2c74747",
+			userID:             s.IDs["userOK"].String()[:2],
+			groupID:            s.IDs["groupOK"].String(),
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "invalid ID"},
 		},
 		{
 			desc:               "DeleteProfilePictureInvalidGroupID",
-			userID:             "1c4dccaf-a341-4920-9003-f24e0412f8e0",
-			groupID:            "61fbd273-b941-471c-983a-a3cd2c7477",
+			userID:             s.IDs["userOK"].String(),
+			groupID:            s.IDs["groupOK"].String()[:2],
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "invalid group ID"},
 		},
 		{
-			desc:               "DeleteProfilePictureNoMember",
-			userID:             "1fa00013-89b1-49ad-af29-a79afea1f8b8",
-			groupID:            "61fbd273-b941-471c-983a-0a3cd2c74747",
+			desc:               "DeleteProfilePictureNoRights",
+			userID:             s.IDs["userWithoutRights"].String(),
+			groupID:            s.IDs["groupOK"].String(),
 			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": "no rights to set"},
-		},
-		{
-			desc:               "DeleteProfilePictureNoRightsToSet",
-			userID:             "0ef41409-24b0-43e6-80a3-cf31a4b1a684",
-			groupID:            "61fbd273-b941-471c-983a-0a3cd2c74747",
-			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": "no rights to set"},
-		},
-		{
-			desc:               "DeleteProfilePictureNoGroup",
-			userID:             "0ef41409-24b0-43e6-80a3-cf31a4b1a684",
-			groupID:            badGroupID,
-			expectedStatusCode: http.StatusBadRequest,
-			expectedResponse:   gin.H{"err": "record not found"},
+			expectedResponse:   gin.H{"err": "Forbidden action. Reason: User ee2c6112-1114-4d9f-8869-716068ff7159 has no rights to set in group 4552667f-ea03-4ad3-8757-ea4645c8b4a0"},
 		},
 		{
 			desc:               "DeleteProfilePictureNoPicture",
-			userID:             "1c4dccaf-a341-4920-9003-f24e0412f8e0",
-			groupID:            "87a0c639-e590-422e-9664-6aedd5ef85ba",
-			expectedStatusCode: http.StatusBadRequest,
-			expectedResponse:   gin.H{"err": "group has no image to delete"},
+			userID:             s.IDs["userOK"].String(),
+			groupID:            s.IDs["groupWithoutPicture"].String(),
+			expectedStatusCode: http.StatusForbidden,
+			expectedResponse:   gin.H{"err": "Forbidden action. Reason: group 4399b92e-d68a-42be-9a01-a9e098df98d8 has no profile picture"},
 		},
 		{
 			desc:               "DeleteProfilePictureSuccess",
-			userID:             "1c4dccaf-a341-4920-9003-f24e0412f8e0",
-			groupID:            "61fbd273-b941-471c-983a-0a3cd2c74747",
+			userID:             s.IDs["userOK"].String(),
+			groupID:            s.IDs["groupOK"].String(),
 			expectedStatusCode: http.StatusOK,
 			expectedResponse:   gin.H{"message": "success"},
 		},
 	}
 
 	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
+		s.Run(tC.desc, func() {
 
 			req, _ := http.NewRequest(http.MethodDelete, "/api/group/"+tC.groupID+"/image", nil)
 			w := httptest.NewRecorder()
@@ -86,27 +110,23 @@ func TestDeleteGroupProfilePicture(t *testing.T) {
 				c.Set("userID", tC.userID)
 			})
 
-			engine.Handle(http.MethodDelete, "/api/group/:groupID/image", s.DeleteGroupProfilePicture)
+			engine.Handle(http.MethodDelete, "/api/group/:groupID/image", server.DeleteGroupProfilePicture)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
 
-			if response.StatusCode != tC.expectedStatusCode {
-				t.Errorf("Received Status code %d does not match expected status %d", response.StatusCode, tC.expectedStatusCode)
-			}
+			s.Equal(tC.expectedStatusCode, response.StatusCode)
 
 			var msg gin.H
 			json.NewDecoder(response.Body).Decode(&msg)
 
-			if !reflect.DeepEqual(msg, tC.expectedResponse) {
-				t.Errorf("Received HTTP response body %+v does not match expected HTTP response Body %+v", msg, tC.expectedResponse)
-			}
+			s.Equal(tC.expectedResponse, msg)
 		})
 	}
 }
 
-func TestSetGroupProfilePicture(t *testing.T) {
+func (s GroupPicturesTestSuite) TestSetGroupProfilePicture() {
 	gin.SetMode(gin.TestMode)
-	s := setupTestServer()
+	server := handlers.NewServer(s.db, s.storage, nil)
 
 	testCases := []struct {
 		desc               string
@@ -114,98 +134,79 @@ func TestSetGroupProfilePicture(t *testing.T) {
 		groupID            string
 		imageData          map[string]string
 		setBodyLimiter     bool
-		returnVal          bool
 		expectedStatusCode int
 		expectedResponse   interface{}
 	}{
 		{
 			desc:               "UpdateProfilePictureInvalidUserID",
-			userID:             "1c4dccaf-a341-4920-9003-f4e0412f8e0",
-			groupID:            "61fbd273-b941-471c-983a-0a3cd2c74747",
+			userID:             s.IDs["userOK"].String()[:2],
+			groupID:            s.IDs["groupOK"].String(),
 			imageData:          map[string]string{"Key": "avatarFile", "CType": "image/png"},
 			setBodyLimiter:     false,
-			returnVal:          false,
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "Invalid ID"},
 		},
 		{
-			desc:               "UpdateProfilePictureNoFile",
-			userID:             "1c4dccaf-a341-4920-9003-f24e0412f8e0",
-			groupID:            "61fbd273-b941-471c-983a-0a3cd2c74747",
-			imageData:          map[string]string{"Key": "WrongFile", "CType": "image/png"},
-			setBodyLimiter:     false,
-			returnVal:          false,
-			expectedStatusCode: http.StatusBadRequest,
-			expectedResponse:   gin.H{"err": "http: no such file"},
-		},
-		{
 			desc:               "UpdateProfilePictureInvalidGroupID",
-			userID:             "1c4dccaf-a341-4920-9003-f24e0412f8e0",
-			groupID:            "61fbd273-b941-471c-983a-a3cd2c7477",
+			userID:             s.IDs["userOK"].String(),
+			groupID:            s.IDs["groupOK"].String()[:2],
 			imageData:          map[string]string{"Key": "avatarFile", "CType": "image/png"},
 			setBodyLimiter:     false,
-			returnVal:          false,
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "Invalid group ID"},
 		},
 		{
-			desc:               "UpdateProfilePictureNoMember",
-			userID:             "1fa00013-89b1-49ad-af29-a79afea1f8b8",
-			groupID:            "61fbd273-b941-471c-983a-0a3cd2c74747",
-			imageData:          map[string]string{"Key": "avatarFile", "CType": "image/png"},
+			desc:               "UpdateProfilePictureNoFile",
+			userID:             s.IDs["userOK"].String(),
+			groupID:            s.IDs["groupOK"].String(),
+			imageData:          map[string]string{"Key": "WrongFile", "CType": "image/png"},
 			setBodyLimiter:     false,
-			returnVal:          false,
-			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": "no rights to set"},
+			expectedStatusCode: http.StatusBadRequest,
+			expectedResponse:   gin.H{"err": "http: no such file"},
 		},
 		{
-			desc:               "UpdateProfilePictureNoRightsToSet",
-			userID:             "0ef41409-24b0-43e6-80a3-cf31a4b1a684",
-			groupID:            "61fbd273-b941-471c-983a-0a3cd2c74747",
+			desc:               "UpdateProfilePictureNoRights",
+			userID:             s.IDs["userWithoutRights"].String(),
+			groupID:            s.IDs["groupOK"].String(),
 			imageData:          map[string]string{"Key": "avatarFile", "CType": "image/png"},
 			setBodyLimiter:     false,
-			returnVal:          false,
 			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": "no rights to set"},
+			expectedResponse:   gin.H{"err": "Forbidden action. Reason: User ee2c6112-1114-4d9f-8869-716068ff7159 has no rights to set in group 4552667f-ea03-4ad3-8757-ea4645c8b4a0"},
 		},
 		{
 			desc:               "UpdateProfilePictureWrongImageType",
-			userID:             "1c4dccaf-a341-4920-9003-f24e0412f8e0",
-			groupID:            "61fbd273-b941-471c-983a-0a3cd2c74747",
+			userID:             s.IDs["userOK"].String(),
+			groupID:            s.IDs["groupOK"].String(),
 			imageData:          map[string]string{"Key": "avatarFile", "CType": "application/octet-stream"},
 			setBodyLimiter:     false,
-			returnVal:          false,
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "image extention not allowed"},
 		},
 		{
 			desc:               "UpdateProfilePictureTooBig",
-			userID:             "1c4dccaf-a341-4920-9003-f24e0412f8e0",
-			groupID:            "61fbd273-b941-471c-983a-0a3cd2c74747",
+			userID:             s.IDs["userOK"].String(),
+			groupID:            s.IDs["groupOK"].String(),
 			imageData:          map[string]string{"Key": "avatarFile", "CType": "image/png"},
 			setBodyLimiter:     true,
-			returnVal:          false,
 			expectedStatusCode: http.StatusRequestEntityTooLarge,
-			expectedResponse:   gin.H{"err": "too large"},
 		},
 		{
 			desc:               "UpdateProfilePictureSuccess",
-			userID:             "1c4dccaf-a341-4920-9003-f24e0412f8e0",
-			groupID:            "61fbd273-b941-471c-983a-0a3cd2c74747",
+			userID:             s.IDs["userOK"].String(),
+			groupID:            s.IDs["groupOK"].String(),
 			imageData:          map[string]string{"Key": "avatarFile", "CType": "image/png"},
 			setBodyLimiter:     false,
-			returnVal:          true,
 			expectedStatusCode: http.StatusOK,
-			expectedResponse:   nil,
+			expectedResponse:   gin.H{"newUrl": "picture_url"},
 		},
 	}
 
 	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
+		s.Run(tC.desc, func() {
 
 			body, writer, err := createTestFormFile(tC.imageData["Key"], tC.imageData["CType"])
 			if err != nil {
-				t.Errorf("error when creating form file: %v", err)
+				s.Fail("error when creating form file: %v", err)
 			}
 
 			req, _ := http.NewRequest(http.MethodPut, "/api/group/"+tC.groupID+"/image", body)
@@ -220,28 +221,22 @@ func TestSetGroupProfilePicture(t *testing.T) {
 			if tC.setBodyLimiter {
 				engine.Use(limits.RequestSizeLimiter(10))
 			}
-			engine.Handle(http.MethodPut, "/api/group/:groupID/image", s.SetGroupProfilePicture)
+			engine.Handle(http.MethodPut, "/api/group/:groupID/image", server.SetGroupProfilePicture)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
 
-			if response.StatusCode != tC.expectedStatusCode {
-				t.Errorf("Received Status code %d does not match expected status %d", response.StatusCode, tC.expectedStatusCode)
-			}
+			s.Equal(tC.expectedStatusCode, response.StatusCode)
 
 			var msg gin.H
 			json.NewDecoder(response.Body).Decode(&msg)
 
-			if tC.setBodyLimiter {
-				// expecting empty response
-			} else if !tC.returnVal {
-				if !reflect.DeepEqual(msg, tC.expectedResponse) {
-					t.Errorf("Received HTTP response body %+v does not match expected HTTP response Body %+v", msg, tC.expectedResponse)
-				}
-			} else {
-				if msg["newUrl"] == "" {
-					t.Errorf("Received HTTP response body %+v is not set", tC.expectedResponse)
-				}
+			if !tC.setBodyLimiter {
+				s.Equal(tC.expectedResponse, msg)
 			}
 		})
 	}
+}
+
+func TestGroupPicturesSuite(t *testing.T) {
+	suite.Run(t, &GroupPicturesTestSuite{})
 }

@@ -20,6 +20,7 @@ func (db *Database) GetGroupProfilePictureURL(userID, groupID uuid.UUID) (string
 
 	var group models.Group
 	if err := db.First(&group, groupID).Error; err != nil {
+		// TODO: Error here is only possible if there would exist membership to unexisting group. This should be internal error
 		return "", apperrors.NewForbidden(fmt.Sprintf("User %v has no rights to set in group %v", userID, groupID))
 	}
 
@@ -35,10 +36,6 @@ func (db *Database) GetGroupProfilePictureURL(userID, groupID uuid.UUID) (string
 }
 
 func (db *Database) DeleteGroupProfilePicture(userID, groupID uuid.UUID) (string, error) {
-	var group models.Group
-	if err := db.First(&group, groupID).Error; err != nil {
-		return "", apperrors.NewNotFound("group", groupID.String())
-	}
 
 	var member models.Member
 	if err := db.Where(models.Member{UserID: userID, GroupID: groupID}).First(&member).Error; err != nil {
@@ -49,8 +46,14 @@ func (db *Database) DeleteGroupProfilePicture(userID, groupID uuid.UUID) (string
 		return "", apperrors.NewForbidden(fmt.Sprintf("User %v has no rights to set in group %v", userID, groupID))
 	}
 
+	var group models.Group
+	// TODO: Error here is only possible if there would exist membership to unexisting group. This should be internal error
+	if err := db.First(&group, groupID).Error; err != nil {
+		return "", apperrors.NewNotFound("group", groupID.String())
+	}
+
 	if group.Picture == "" {
-		return "", apperrors.NewForbidden("group has no profile picture")
+		return "", apperrors.NewForbidden(fmt.Sprintf("group %v has no profile picture", groupID))
 	}
 
 	if err := db.Model(&group).Update("picture_url", "").Error; err != nil {
