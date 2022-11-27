@@ -16,7 +16,6 @@ func (s *Server) RunListener(eventNames ...string) {
 	for {
 		select {
 		case evt := <-received:
-			log.Println("received: ", evt)
 			switch e := evt.(type) {
 			case *events.UserRegisteredEvent:
 				if err := s.DB.NewUser(*e); err != nil {

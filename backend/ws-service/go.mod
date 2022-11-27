@@ -7,7 +7,7 @@ require (
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221108142600-bf5c2129edde
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221108142600-bf5c2129edde
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221119114501-6838077d6f58
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221108142600-bf5c2129edde
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221127190216-714f9367982a
 	github.com/gin-gonic/gin v1.8.1
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.0

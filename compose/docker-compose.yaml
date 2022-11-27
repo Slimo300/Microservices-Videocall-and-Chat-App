@@ -1,6 +1,16 @@
 version: "2"
 
 services:
+  redis:
+    image: docker.io/bitnami/redis:latest
+    volumes:
+      - "redis_data:/bitnami/redis/data"
+    environment:
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - "6379:6379"
+    
   zookeeper:
     image: docker.io/bitnami/zookeeper:3.8
     ports:
@@ -29,4 +39,6 @@ volumes:
   zookeeper_data:
     driver: local
   kafka_data:
+    driver: local
+  redis_data:
     driver: local

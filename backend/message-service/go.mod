@@ -8,7 +8,7 @@ require (
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221119193915-f9a59bcbb280
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221119193915-f9a59bcbb280
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221125115610-5dc6bb185539
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221119193915-f9a59bcbb280
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221127190216-714f9367982a
 	github.com/gin-gonic/gin v1.8.1
 	github.com/google/uuid v1.3.0
 	github.com/stretchr/testify v1.8.1

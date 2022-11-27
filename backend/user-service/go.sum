@@ -55,6 +55,8 @@ github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221119114
 github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221119114501-6838077d6f58/go.mod h1:sC6CUdVcdQCISNi2l2kzhX+Ys2MPZNAwTU4ZAvwr4pM=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221119193915-f9a59bcbb280 h1:XQiSR1GsjoEzvB57AJQgOzkCtv2zeAd42S2ggi6CWtE=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221119193915-f9a59bcbb280/go.mod h1:4B7YKdejTwNIP9R3qL9NpQI9jg/xlnIh8nks4Xj1Ssg=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221127190216-714f9367982a h1:OkFFyxqkdAniCTjr+p3scKjurpt+Olbk3IS0c6bahd0=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221127190216-714f9367982a/go.mod h1:4B7YKdejTwNIP9R3qL9NpQI9jg/xlnIh8nks4Xj1Ssg=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20221118080724-7204f0fa543c h1:fVr9pDmjr80dTT1FrlLw1fYdbJmozyDik8t/IFIfEkI=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20221118080724-7204f0fa543c/go.mod h1:6zhnxlQzvKOai3QWSMJIMF6YdrFPfp98mLVTzyuHR+4=
 github.com/aws/aws-sdk-go v1.44.140 h1:6MxVSiAORc6AG+oh6401TEgWHb1ZzFL8y6+eBLoJtdU=

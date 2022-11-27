@@ -43,7 +43,7 @@ func main() {
 
 	conf := sarama.NewConfig()
 	conf.ClientID = "websocketService"
-	conf.Version = sarama.V0_10_1_0
+	conf.Version = sarama.V2_3_0_0
 	conf.Producer.Return.Successes = true
 	conf.Consumer.Group.InstanceId = "ws"
 	client, err := sarama.NewClient(config.BrokersAddresses, conf)
