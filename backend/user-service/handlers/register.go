@@ -68,7 +68,7 @@ func (s *Server) VerifyCode(c *gin.Context) {
 
 	user, err := s.DB.VerifyCode(code)
 	if err != nil {
-		c.JSON(apperrors.Status(err), gin.H{"err": "internal server error"})
+		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
 

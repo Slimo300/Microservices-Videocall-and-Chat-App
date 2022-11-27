@@ -43,9 +43,10 @@ func main() {
 	}
 
 	conf := sarama.NewConfig()
-	conf.ClientID = "groupService"
+	conf.ClientID = "groupsService"
 	conf.Version = sarama.V0_10_1_0
 	conf.Producer.Return.Successes = true
+	conf.Consumer.Group.InstanceId = "groups"
 	client, err := sarama.NewClient(config.BrokersAddresses, conf)
 	if err != nil {
 		log.Fatal(err)
@@ -72,6 +73,7 @@ func main() {
 		TokenService: authService,
 		Emitter:      emitter,
 		Listener:     listener,
+		MaxBodyBytes: 4194304,
 	}
 	routes.Setup(engine, &server)
 

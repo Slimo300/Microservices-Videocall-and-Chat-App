@@ -51,6 +51,7 @@ func main() {
 	conf.ClientID = "userService"
 	conf.Version = sarama.V0_10_1_0
 	conf.Producer.Return.Successes = true
+	conf.Consumer.Group.InstanceId = "users"
 
 	client, err := sarama.NewClient(config.BrokersAddresses, conf)
 	if err != nil {

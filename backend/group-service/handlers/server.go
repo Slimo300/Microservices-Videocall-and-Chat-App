@@ -16,7 +16,6 @@ type Server struct {
 	DB           database.DBlayer
 	Storage      storage.StorageLayer
 	TokenService auth.TokenClient
-	domain       string
 	MaxBodyBytes int64
 	Emitter      msgqueue.EventEmitter
 	Listener     msgqueue.EventListener
@@ -26,7 +25,6 @@ func NewServer(db database.DBlayer, storage storage.StorageLayer, auth auth.Toke
 	return &Server{
 		DB:           db,
 		Storage:      storage,
-		domain:       "localhost",
 		MaxBodyBytes: 4194304,
 		TokenService: auth,
 	}

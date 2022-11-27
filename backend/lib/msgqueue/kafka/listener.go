@@ -53,7 +53,7 @@ func (k *kafkaEventListener) Listen(events ...string) (<-chan msgqueue.Event, <-
 
 		for _, partition := range partitions {
 
-			con, err := k.consumer.ConsumePartition(topic.Name, partition, 0)
+			con, err := k.consumer.ConsumePartition(topic.Name, partition, sarama.OffsetOldest)
 			if err != nil {
 				return nil, nil, err
 			}
