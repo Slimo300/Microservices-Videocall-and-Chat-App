@@ -40,6 +40,9 @@ func (m Member) CanDelete(target Member) bool {
 	if m.role(false) < target.role(false) {
 		return true
 	}
+	if m.ID == target.ID && !m.Creator { // user can delete himself
+		return true
+	}
 	return false
 }
 
@@ -74,10 +77,10 @@ const (
 )
 
 type MemberRights struct {
-	Adding           operation `json:"adding"`
-	DeletingMessages operation `json:"deleting"`
-	DeletingMembers  operation `json:"deletingMembers"`
-	Admin            operation `json:"admin"`
+	Adding           operation `json:"adding,omitempty"`
+	DeletingMessages operation `json:"deleting,omitempty"`
+	DeletingMembers  operation `json:"deletingMembers,omitempty"`
+	Admin            operation `json:"admin,omitempty"`
 }
 
 func (m *Member) ApplyRights(rights MemberRights) error {

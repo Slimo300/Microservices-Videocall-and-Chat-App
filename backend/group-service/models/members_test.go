@@ -4,44 +4,58 @@ import (
 	"testing"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 )
 
 type MemberTestSuite struct {
 	suite.Suite
-	basic   models.Member
-	deleter models.Member
-	admin   models.Member
-	creator models.Member
+	basic    models.Member
+	basic2   models.Member
+	deleter  models.Member
+	deleter2 models.Member
+	admin    models.Member
+	admin2   models.Member
+	creator  models.Member
+	creator2 models.Member
 }
 
 func (s *MemberTestSuite) SetupSuite() {
-	s.basic = models.Member{}
-	s.deleter = models.Member{DeletingMembers: true}
-	s.admin = models.Member{Admin: true}
-	s.creator = models.Member{Creator: true}
+	s.basic = models.Member{ID: uuid.New()}
+	s.basic2 = models.Member{ID: uuid.New()}
+	s.deleter = models.Member{ID: uuid.New(), DeletingMembers: true}
+	s.deleter2 = models.Member{ID: uuid.New(), DeletingMembers: true}
+	s.admin = models.Member{ID: uuid.New(), Admin: true}
+	s.admin2 = models.Member{ID: uuid.New(), Admin: true}
+	s.creator = models.Member{ID: uuid.New(), Creator: true}
+	s.creator2 = models.Member{ID: uuid.New(), Creator: true}
 }
 
 func (s MemberTestSuite) TestCanDelete() {
 	s.True(s.creator.CanDelete(s.basic))
 	s.True(s.creator.CanDelete(s.deleter))
 	s.True(s.creator.CanDelete(s.admin))
-	s.False(s.creator.CanDelete(s.creator))
+	s.False(s.creator.CanDelete(s.creator2))
 
 	s.True(s.admin.CanDelete(s.basic))
 	s.True(s.admin.CanDelete(s.deleter))
-	s.False(s.admin.CanDelete(s.admin))
+	s.False(s.admin.CanDelete(s.admin2))
 	s.False(s.admin.CanDelete(s.creator))
 
 	s.True(s.deleter.CanDelete(s.basic))
-	s.False(s.deleter.CanDelete(s.deleter))
+	s.False(s.deleter.CanDelete(s.deleter2))
 	s.False(s.deleter.CanDelete(s.admin))
 	s.False(s.deleter.CanDelete(s.creator))
 
-	s.False(s.basic.CanDelete(s.basic))
+	s.False(s.basic.CanDelete(s.basic2))
 	s.False(s.basic.CanDelete(s.deleter))
 	s.False(s.basic.CanDelete(s.admin))
 	s.False(s.basic.CanDelete(s.creator))
+
+	s.True(s.basic.CanDelete(s.basic))
+	s.True(s.deleter.CanDelete(s.deleter))
+	s.True(s.admin.CanDelete(s.admin))
+	s.False(s.creator.CanDelete(s.creator))
 }
 
 func (s MemberTestSuite) TestCanAlter() {

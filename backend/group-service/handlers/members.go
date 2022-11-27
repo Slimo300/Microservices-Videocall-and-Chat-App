@@ -20,7 +20,7 @@ func (s *Server) GrantPriv(c *gin.Context) {
 	groupID := c.Param("groupID")
 	groupUUID, err := uuid.Parse(groupID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid member ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid group ID"})
 		return
 	}
 	memberID := c.Param("memberID")
@@ -32,26 +32,33 @@ func (s *Server) GrantPriv(c *gin.Context) {
 
 	var rights models.MemberRights
 	if err := c.ShouldBindJSON(&rights); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "bad request, all 3 fields must be present"})
+		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+		return
+	}
+	if rights.Adding == 0 && rights.DeletingMessages == 0 && rights.DeletingMembers == 0 && rights.Admin == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "no action specified"})
 		return
 	}
 
 	member, err := s.DB.GrantRights(userUUID, groupUUID, memberUUID, rights)
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
+		return
 	}
 
-	s.Emitter.Emit(events.MemberUpdatedEvent{
-		ID:               member.ID,
-		GroupID:          member.GroupID,
-		UserID:           member.UserID,
-		DeletingMessages: int(rights.DeletingMessages),
-		DeletingMembers:  int(rights.DeletingMembers),
-		Adding:           int(rights.Adding),
-		Admin:            int(rights.Admin),
-	})
+	if member != nil {
+		s.Emitter.Emit(events.MemberUpdatedEvent{
+			ID:               member.ID,
+			GroupID:          member.GroupID,
+			UserID:           member.UserID,
+			DeletingMessages: int(rights.DeletingMessages),
+			DeletingMembers:  int(rights.DeletingMembers),
+			Adding:           int(rights.Adding),
+			Admin:            int(rights.Admin),
+		})
+	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "ok"})
+	c.JSON(http.StatusOK, gin.H{"message": "member updated"})
 }
 
 func (s *Server) DeleteUserFromGroup(c *gin.Context) {
@@ -64,7 +71,7 @@ func (s *Server) DeleteUserFromGroup(c *gin.Context) {
 	groupID := c.Param("groupID")
 	groupUUID, err := uuid.Parse(groupID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid member ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid group ID"})
 		return
 	}
 	memberID := c.Param("memberID")

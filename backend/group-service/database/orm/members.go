@@ -29,7 +29,6 @@ func (db *Database) DeleteMember(userID, groupID, memberID uuid.UUID) error {
 	if !issuer.CanDelete(target) {
 		return apperrors.NewForbidden(fmt.Sprintf("User %v cannot delete member %v", userID, memberID))
 	}
-
 	if err := db.Model(&target).Delete(&models.Member{}).Error; err != nil {
 		return apperrors.NewInternal()
 	}
@@ -41,7 +40,7 @@ func (db *Database) GrantRights(userID, groupID, memberID uuid.UUID, rights mode
 
 	var issuer models.Member
 	if err := db.Where(models.Member{UserID: userID, GroupID: groupID}).First(&issuer).Error; err != nil {
-		return nil, apperrors.NewForbidden(fmt.Sprintf("User %v has no right to grant rights in group %v", userID, groupID))
+		return nil, apperrors.NewForbidden(fmt.Sprintf("User %v has no right to alter members in group %v", userID, groupID))
 	}
 	var target *models.Member
 	if err := db.Where(models.Member{ID: memberID, GroupID: groupID}).First(target).Error; err != nil {

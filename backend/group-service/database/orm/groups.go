@@ -48,7 +48,7 @@ func (db *Database) CreateGroup(userID uuid.UUID, name string) (models.Group, er
 		return models.Group{}, err
 	}
 
-	if err := db.Where(models.Group{ID: group.ID}).Preload("Members", "deleted is false").First(&group).Error; err != nil {
+	if err := db.Where(models.Group{ID: group.ID}).Preload("Members").First(&group).Error; err != nil {
 		return models.Group{}, err
 	}
 	return group, nil
@@ -69,13 +69,16 @@ func (db *Database) DeleteGroup(userID, groupID uuid.UUID) (models.Group, error)
 		if err := tx.Where(models.Member{GroupID: groupID}).Delete(&models.Member{}).Error; err != nil {
 			return err
 		}
+		if err := tx.Where(models.Invite{GroupID: groupID}).Delete(&models.Invite{}).Error; err != nil {
+			return err
+		}
 		group = models.Group{ID: groupID}
 		if err := tx.Delete(&group).Error; err != nil {
 			return err
 		}
 		return nil
 	}); err != nil {
-		return models.Group{}, err
+		return models.Group{}, apperrors.NewInternal()
 	}
 
 	return group, nil

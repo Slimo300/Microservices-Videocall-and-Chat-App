@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -34,6 +35,7 @@ func (s *Server) CreateGroup(c *gin.Context) {
 	userUID, err := uuid.Parse(userID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
+		return
 	}
 
 	payload := struct {
@@ -46,7 +48,7 @@ func (s *Server) CreateGroup(c *gin.Context) {
 		return
 	}
 	if payload.Name == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "bad name"})
+		c.JSON(http.StatusBadRequest, gin.H{"err": "name not specified"})
 		return
 	}
 
@@ -82,7 +84,7 @@ func (s *Server) DeleteGroup(c *gin.Context) {
 	}
 	group, err := s.DB.DeleteGroup(userUUID, groupUUID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
+		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
 	if group.Picture != "" {
@@ -98,6 +100,6 @@ func (s *Server) DeleteGroup(c *gin.Context) {
 		ID: group.ID,
 	})
 
-	c.JSON(http.StatusOK, gin.H{"message": "ok"})
+	c.JSON(http.StatusOK, gin.H{"message": "group deleted"})
 
 }
