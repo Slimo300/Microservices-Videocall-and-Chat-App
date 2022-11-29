@@ -28,6 +28,8 @@ type Config struct {
 	SMTPUser         string `mapstructure:"smtpUser"`
 	SMTPPass         string `mapstructure:"smtpPass"`
 	EmailTemplateDir string `mapstructure:"templateDir"`
+
+	AuthAddress string `mapstructure:"authAddress"`
 }
 
 type Service struct {
