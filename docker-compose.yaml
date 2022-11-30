@@ -1,10 +1,64 @@
-version: '3'
+version: "2"
 
 services:
-  chatmysql:
+
+  zookeeper:
+    image: docker.io/bitnami/zookeeper:3.8
+    ports:
+      - "2181:2181"
+    volumes:
+      - "zookeeper_data:/bitnami"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - chatnet
+  kafka:
+    image: docker.io/bitnami/kafka:3.3
+    ports:
+      - "9093:9093"
+    volumes:
+      - "kafka_data:/bitnami"
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://localhost:9093
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT
+    depends_on:
+      - zookeeper
+    networks:
+      - chatnet
+
+  redis:
+    image: docker.io/bitnami/redis:latest
+    volumes:
+      - "redis_data:/bitnami/redis/data"
+    environment:
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - "6379:6379"
+    networks:
+      - chatnet
+  tokenservice:
+    build:
+      context: .
+      dockerfile: backend/token-service/Dockerfile
+    container_name: tokenservice
+    hostname: tokenservice
+    networks: 
+      - chatnet
+    ports:
+      - "9000:9000"
+    depends_on:
+      - redis
+    restart: on-failure
+
+  groupmysql:
     image: mysql/mysql-server
-    container_name: chatmysql
-    hostname: db
+    container_name: groupmysql
+    hostname: groupmysql
     user: root
     networks:
       - chatnet
@@ -12,74 +66,30 @@ services:
       - 3307:3306
     volumes:
       - chatmysqlvolume:/var/lib/mysql
-
-  chatredis:
-    image: redis
-    restart: always
-    hostname: tokendb
-    networks:
-      - chatnet
-    ports:
-      - 6379:6379
-    container_name: chatredis
-
-  chattokenservice:
-    depends_on:
-      - chatredis
+  groupservice:
     build:
-      context: backend/tokenservice
-    container_name: chattokenservice
-    hostname: tokens
+      context: .
+      dockerfile: backend/group-service/Dockerfile
+    container_name: groupservice
+    hostname: groupservice
     networks: 
       - chatnet
     ports:
-      - "9000:9000"
-    environment:
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REFRESH_SECRET=${REFRESH_SECRET}
-      - PUB_KEY_FILE=${PUB_KEY_FILE}
-      - PRIV_KEY_FILE=${PRIV_KEY_FILE}
-    deploy:
-      restart_policy:
-        condition: on-failure
-
-  chatbackend:
-    depends_on: 
-      - chatmysql
-    build:
-      context: backend/src
-    container_name: chatbackend
-    hostname: backend
-    networks:
-      - chatnet
-    ports:
-      - 8080:8080
-    environment:
-      - MYSQLUSERNAME=${MYSQLUSERNAME:-user}
-      - MYSQLPASSWORD=${MYSQLPASSWORD:?database password not set}
-      - MYSQLHOST=${MYSQLHOST:-db}
-      - MYSQLPORT=${MYSQLPORT:-3306}
-      - MYSQLDBNAME=${MYSQLDBNAME:-test}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - IMAGEBUCKETNAME=${IMAGEBUCKETNAME}
-    restart: always
-    deploy:
-      restart_policy:
-        condition: on-failure
-  chatfrontend:
-    build: frontend
-    container_name: chatfrontend
-    hostname: front
-    networks:
-      - chatnet
-    ports:
-      - 3000:3000
+      - "8080:8080"
+    depends_on:
+      - tokenservice
+      - groupmysql
+    restart: on-failure
 
 volumes:
+  zookeeper_data:
+    driver: local
+  kafka_data:
+    driver: local
+  redis_data:
+    driver: local
   chatmysqlvolume:
+    driver: local
 
 networks:
   chatnet:

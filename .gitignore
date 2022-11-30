@@ -1,7 +1,5 @@
 new_user_credentials.csv
 commands.sh
-app.env
-config.yaml
 private.pem
-public.pem
 cert/
+config/
