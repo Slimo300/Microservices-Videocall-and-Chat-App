@@ -66,7 +66,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	tokenService, err := auth.NewGRPCTokenClient(fmt.Sprintf(":%s", config.TokenService.GRPCPort))
+	tokenService, err := auth.NewGRPCTokenClient(config.AuthAddress)
 	if err != nil {
 		log.Fatal("Couldn't connect to grpc auth server")
 	}

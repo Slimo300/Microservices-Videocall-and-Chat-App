@@ -49,6 +49,8 @@ github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-202210
 github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221027132905-d89618260ad0/go.mod h1:IvcbN/b3kXy51jDW1TzgqmYBsFnG3kGwOLaUfyP8MNs=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221119193915-f9a59bcbb280 h1:XwRz/wZnJKxWdjx6ZCDBW+rE1XjBkIdwy63zwTtvnQc=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221119193915-f9a59bcbb280/go.mod h1:IvcbN/b3kXy51jDW1TzgqmYBsFnG3kGwOLaUfyP8MNs=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221130122718-b86a5eee85ff h1:2hyLYsDC5DqPspoQ20JEm4qC9qKkz65c9FByhn8FLuc=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221130122718-b86a5eee85ff/go.mod h1:IvcbN/b3kXy51jDW1TzgqmYBsFnG3kGwOLaUfyP8MNs=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221119193915-f9a59bcbb280 h1:yl9jKviqyjMyP0WSKjw32C/PzdMBnCgpzyD57ezUd6Q=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221119193915-f9a59bcbb280/go.mod h1:GPFcoQIeRHM/6yxyVfbs/Wyysdf3PcnEZmuHiHp3OFg=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221125115610-5dc6bb185539 h1:0tR+YJLO1cR99qwq+7+Pk8zvHmFhnPn6xFJrN4zbjU8=
@@ -57,6 +59,8 @@ github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221119193
 github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221119193915-f9a59bcbb280/go.mod h1:4B7YKdejTwNIP9R3qL9NpQI9jg/xlnIh8nks4Xj1Ssg=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221127190216-714f9367982a h1:OkFFyxqkdAniCTjr+p3scKjurpt+Olbk3IS0c6bahd0=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221127190216-714f9367982a/go.mod h1:4B7YKdejTwNIP9R3qL9NpQI9jg/xlnIh8nks4Xj1Ssg=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221130122718-b86a5eee85ff h1:YaQp+gYTlM5QbfnjW8oPfvpTI5SXEIcu86/A5tJ9gPY=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221130122718-b86a5eee85ff/go.mod h1:4B7YKdejTwNIP9R3qL9NpQI9jg/xlnIh8nks4Xj1Ssg=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=
 github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e/go.mod h1:nSuG5e5PlCu98SY8svDHJxuZscDgtXS6KTTbou5AhLI=
@@ -235,6 +239,8 @@ github.com/pelletier/go-toml v1.9.5 h1:4yBQzkHv+7BHq2PQUZF3Mx0IYxG7LsP222s7Agd3v
 github.com/pelletier/go-toml v1.9.5/go.mod h1:u1nR/EPcESfeI/szUZKdtJ0xRNbUoANCkoOuaOx1Y+c=
 github.com/pelletier/go-toml/v2 v2.0.5 h1:ipoSadvV8oGUjnUbMub59IDPPwfxF694nG/jwbMiyQg=
 github.com/pelletier/go-toml/v2 v2.0.5/go.mod h1:OMHamSCAODeSsVrwwvcJOaoN0LIUIaFVNZzmWyNfXas=
+github.com/pelletier/go-toml/v2 v2.0.6 h1:nrzqCb7j9cDFj2coyLNLaZuJTLjWjlaz6nvTvIwycIU=
+github.com/pelletier/go-toml/v2 v2.0.6/go.mod h1:eumQOmlWiOPt5WriQQqoM5y18pDHwha2N+QD+EUNTek=
 github.com/pierrec/lz4/v4 v4.1.17 h1:kV4Ip+/hUBC+8T6+2EgburRtkE9ef4nbY3f4dFhGjMc=
 github.com/pierrec/lz4/v4 v4.1.17/go.mod h1:gZWDp/Ze/IJXGXf23ltt2EXimqmTUXEy0GFuRQyBid4=
 github.com/pkg/diff v0.0.0-20210226163009-20ebb0f2a09e/go.mod h1:pJLUxLENpZxwdsKMEsNbx1VGcRFpLqf3715MtcvvzbA=
@@ -251,6 +257,8 @@ github.com/rogpeppe/go-internal v1.8.0/go.mod h1:WmiCO8CzOY8rg0OYDC4/i/2WRWAB6po
 github.com/rogpeppe/go-internal v1.9.0 h1:73kH8U+JUqXU8lRuOHeVHaa/SZPifC7BkcraZVejAe8=
 github.com/spf13/afero v1.9.2 h1:j49Hj62F0n+DaZ1dDCvhABaPNSGNkt32oRFxI33IEMw=
 github.com/spf13/afero v1.9.2/go.mod h1:iUV7ddyEEZPO5gA3zD4fJt6iStLlL+Lg4m2cihcDf8Y=
+github.com/spf13/afero v1.9.3 h1:41FoI0fD7OR7mGcKE/aOiLkGreyf8ifIOQmJANWogMk=
+github.com/spf13/afero v1.9.3/go.mod h1:iUV7ddyEEZPO5gA3zD4fJt6iStLlL+Lg4m2cihcDf8Y=
 github.com/spf13/cast v1.5.0 h1:rj3WzYc11XZaIZMPKmwP96zkFEnnAmV8s6XbB2aY32w=
 github.com/spf13/cast v1.5.0/go.mod h1:SpXXQ5YoyJw6s3/6cMTQuxvgRl3PCJiyaX9p6b155UU=
 github.com/spf13/jwalterweatherman v1.1.0 h1:ue6voC5bR5F8YxI5S67j9i582FU4Qvo2bmqnqMYADFk=
@@ -259,6 +267,8 @@ github.com/spf13/pflag v1.0.5 h1:iy+VFUOCP1a+8yFto/drg2CJ5u0yRoB7fZw3DKv/JXA=
 github.com/spf13/pflag v1.0.5/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An2Bg=
 github.com/spf13/viper v1.13.0 h1:BWSJ/M+f+3nmdz9bxB+bWX28kkALN2ok11D0rSo8EJU=
 github.com/spf13/viper v1.13.0/go.mod h1:Icm2xNL3/8uyh/wFuB1jI7TiTNKp8632Nwegu+zgdYw=
+github.com/spf13/viper v1.14.0 h1:Rg7d3Lo706X9tHsJMUjdiwMpHB7W8WnSVOssIY+JElU=
+github.com/spf13/viper v1.14.0/go.mod h1:WT//axPky3FdvXHzGw33dNdXXXfFQqmEalje+egj8As=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.4.0/go.mod h1:YvHI0jy2hoMjB+UWwv71VJQ9isScKT/TqJzVSSt89Yw=
 github.com/stretchr/objx v0.5.0 h1:1zr/of2m5FGMsad5YfcqgdqdWrIhu+EBEJRhR1U7z/c=
@@ -428,6 +438,8 @@ golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab/go.mod h1:oPkhp1MJrh7nUepCBc
 golang.org/x/sys v0.0.0-20220908164124-27713097b956/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.1.0 h1:kunALQeHf1/185U1i0GOB/fy1IPRDDpuoOOqRReG57U=
 golang.org/x/sys v0.1.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
+golang.org/x/sys v0.2.0 h1:ljd4t30dBnAvMZaQCevtY0xLLD0A+bRZXbgLMLU1F/A=
+golang.org/x/sys v0.2.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
 golang.org/x/term v0.0.0-20210927222741-03fcf44c2211/go.mod h1:jbD1KX2456YbFQfuXm/mYQcufACuNUgVhRMnK/tPxf8=
 golang.org/x/text v0.0.0-20170915032832-14c0d48ead0c/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=

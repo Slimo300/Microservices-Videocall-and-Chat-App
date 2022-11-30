@@ -40,7 +40,7 @@ func main() {
 	}
 
 	// connecting to authentication server
-	tokenService, err := auth.NewGRPCTokenClient(fmt.Sprintf("%s", config.TokenService.GRPCPort))
+	tokenService, err := auth.NewGRPCTokenClient(config.AuthAddress)
 	if err != nil {
 		log.Fatalf("Error when connecting to token service: %v", err)
 	}

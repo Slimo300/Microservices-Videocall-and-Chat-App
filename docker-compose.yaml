@@ -14,6 +14,7 @@ services:
       - chatnet
   kafka:
     image: docker.io/bitnami/kafka:3.3
+    hostname: kafka
     ports:
       - "9093:9093"
     volumes:
@@ -62,10 +63,8 @@ services:
     user: root
     networks:
       - chatnet
-    ports:
-      - 3307:3306
     volumes:
-      - chatmysqlvolume:/var/lib/mysql
+      - groupsmysql_data:/var/lib/mysql
   groupservice:
     build:
       context: .
@@ -75,10 +74,82 @@ services:
     networks: 
       - chatnet
     ports:
-      - "8080:8080"
+      - "8081:8080"
     depends_on:
       - tokenservice
       - groupmysql
+    restart: on-failure
+
+  messagemysql:
+    image: mysql/mysql-server
+    container_name: messagemysql
+    hostname: messagemysql
+    user: root
+    networks:
+      - chatnet
+    volumes:
+      - messagesmysql_data:/var/lib/mysql
+  messageservice:
+    build:
+      context: .
+      dockerfile: backend/message-service/Dockerfile
+    container_name: messageservice
+    hostname: messageservice
+    networks: 
+      - chatnet
+    ports:
+      - "8082:8080"
+    depends_on:
+      - tokenservice
+      - messagemysql
+    restart: on-failure
+
+  usermysql:
+    image: mysql/mysql-server
+    container_name: usermysql
+    hostname: usermysql
+    user: root
+    networks:
+      - chatnet
+    volumes:
+      - usersmysql_data:/var/lib/mysql
+  userservice:
+    build:
+      context: .
+      dockerfile: backend/user-service/Dockerfile
+    container_name: userservice
+    hostname: userservice
+    networks: 
+      - chatnet
+    ports:
+      - "8083:8080"
+    depends_on:
+      - tokenservice
+      - usermysql
+    restart: on-failure
+
+  wsmysql:
+    image: mysql/mysql-server
+    container_name: wsmysql
+    hostname: wsmysql
+    user: root
+    networks:
+      - chatnet
+    volumes:
+      - wsmysql_data:/var/lib/mysql
+  wsservice:
+    build:
+      context: .
+      dockerfile: backend/ws-service/Dockerfile
+    container_name: wsservice
+    hostname: wsservice
+    networks: 
+      - chatnet
+    ports:
+      - "8084:8080"
+    depends_on:
+      - tokenservice
+      - wsmysql
     restart: on-failure
 
 volumes:
@@ -88,7 +159,13 @@ volumes:
     driver: local
   redis_data:
     driver: local
-  chatmysqlvolume:
+  groupsmysql_data:
+    driver: local
+  messagesmysql_data:
+    driver: local
+  usersmysql_data:
+    driver: local
+  wsmysql_data:
     driver: local
 
 networks:

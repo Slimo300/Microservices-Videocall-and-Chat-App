@@ -36,7 +36,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error when connecting to database: %v", err)
 	}
-	tokenService, err := auth.NewGRPCTokenClient(fmt.Sprintf(":%s", config.TokenService.GRPCPort))
+	tokenService, err := auth.NewGRPCTokenClient(config.AuthAddress)
 	if err != nil {
 		log.Fatalf("Error when connecting to token service: %v", err)
 	}
