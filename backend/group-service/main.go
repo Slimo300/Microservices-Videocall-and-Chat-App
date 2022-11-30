@@ -37,7 +37,7 @@ func main() {
 		log.Fatal(err)
 	}
 	storage := storage.Setup(config.S3Bucket)
-	authService, err := auth.NewGRPCTokenClient(fmt.Sprintf(":%s", config.TokenService.GRPCPort))
+	authService, err := auth.NewGRPCTokenClient(config.AuthAddress)
 	if err != nil {
 		panic("Couldn't connect to grpc auth server")
 	}

@@ -47,6 +47,8 @@ github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221026134330-
 github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221026134330-f9c023747ea9/go.mod h1:5PeJJ5MZZAQG8fl8iHK8WG78DX88X6gYJ9QtMpIcSDA=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221117201314-c4e23ccea858 h1:AUOGBgJFLjFDGbaiTyr1wTjvpkYzeqCNaOKBl/X8VBM=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221117201314-c4e23ccea858/go.mod h1:IvcbN/b3kXy51jDW1TzgqmYBsFnG3kGwOLaUfyP8MNs=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221129213810-0e0002bc3c7d h1:n5KlcalG9Ry79UqO3swo6pvFgg7as49fFK/C6HFvB90=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221129213810-0e0002bc3c7d/go.mod h1:IvcbN/b3kXy51jDW1TzgqmYBsFnG3kGwOLaUfyP8MNs=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221108142600-bf5c2129edde h1:tk9vrh6upNTgUd0BOk8miWZgXg6/AoAOKSg0Ic5Mh+o=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221108142600-bf5c2129edde/go.mod h1:GPFcoQIeRHM/6yxyVfbs/Wyysdf3PcnEZmuHiHp3OFg=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221120190227-f31c1579fe40 h1:xRS1UCyXXyoWucW3cTphQuYuOsBpJEc1yZUK+7XXDRI=
