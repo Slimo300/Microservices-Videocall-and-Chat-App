@@ -15,12 +15,11 @@ func (db *Database) GetUserGroups(id uuid.UUID) (groups []models.Group, err erro
 	if err := db.Table("`groups`").Select("`groups`.id").
 		Joins("inner join `members` on `members`.group_id = `groups`.id").
 		Joins("inner join `users` on `users`.id = `members`.user_id").
-		Where("`members`.deleted = false").
 		Where("`users`.id = ?", id).Scan(&userGroupsIDs).Error; err != nil {
 		return groups, err
 	}
 
-	if err := db.Where("id in (?)", userGroupsIDs).Preload("Members", "deleted is false").Preload("Members.User").Find(&groups).Error; err != nil {
+	if err := db.Where("id in (?)", userGroupsIDs).Preload("Members").Preload("Members.User").Find(&groups).Error; err != nil {
 		return groups, err
 	}
 	return groups, nil

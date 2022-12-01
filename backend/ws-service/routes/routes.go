@@ -10,7 +10,7 @@ func Setup(engine *gin.Engine, server *handlers.Server) {
 	engine.Use(CORSMiddleware())
 	engine.Use(server.AuthWS())
 
-	engine.GET("", server.ServeWebSocket)
+	engine.GET("/ws", server.ServeWebSocket)
 }
 
 func CORSMiddleware() gin.HandlerFunc {

@@ -28,7 +28,7 @@ func Setup(address string) (*Database, error) {
 }
 
 func (db *Database) GetUserGroups(userID uuid.UUID) (groups []uuid.UUID, err error) {
-	return groups, db.Where(models.Membership{UserID: userID}).Select("memberships.group_id").Scan(&groups).Error
+	return groups, db.Table("memberships").Select("memberships.group_id").Where("memberships.user_id = ?", userID).Scan(&groups).Error
 }
 
 func (db *Database) NewMember(event events.MemberCreatedEvent) error {

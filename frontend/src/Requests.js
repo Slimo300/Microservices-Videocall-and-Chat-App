@@ -148,13 +148,14 @@ export async function DeleteGroupProfilePicture(groupID) {
     return await axios.delete(groupsService+"group/"+groupID+"/image");
 }
 
-export async function GetWebsocket(accessToken) {
-    let socket = new WebSocket(wsService+'/ws?authToken='+accessToken);
+export async function GetWebsocket() {
+    let access_token = window.localStorage.getItem("token")
+    let socket = new WebSocket(wsService+'/ws?authToken='+access_token);
     socket.onopen = () => {
         console.log("Websocket openned");
     };
     socket.onclose = () => {
-        console.log("closed");
+        console.log("Websocket closed");
     };
     return socket;
 }

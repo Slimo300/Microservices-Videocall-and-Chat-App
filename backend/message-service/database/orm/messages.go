@@ -1,6 +1,8 @@
 package orm
 
 import (
+	"errors"
+
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
 	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/models"
 	"github.com/google/uuid"
@@ -14,6 +16,9 @@ func (db *Database) GetGroupMessages(userID, groupID uuid.UUID, offset, num int)
 		return []models.Message{}, apperrors.NewForbidden("User not in group")
 	}
 	if err := db.Order("posted desc").Offset(offset).Limit(num).Where(models.Message{GroupID: groupID}).Find(&messages).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return []models.Message{}, nil
+		}
 		return []models.Message{}, apperrors.NewInternal()
 	}
 	for _, msg := range messages {

@@ -43,8 +43,8 @@ func main() {
 	s := server.NewTokenService(repo,
 		config.TokenService.RefreshTokenSecret,
 		*privKey,
-		config.TokenService.RefreshDuration,
-		config.TokenService.AccessDuration,
+		config.RefreshDuration,
+		config.AccessDuration,
 	)
 
 	grpcServer := grpc.NewServer()

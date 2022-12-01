@@ -13,9 +13,9 @@ func Setup(engine *gin.Engine, server *handlers.Server) {
 	api := engine.Group("/api")
 	apiAuth := api.Use(auth.MustAuth(server.TokenService))
 
-	apiAuth.GET("/groups/:groupID/messages", server.GetGroupMessages)
-	apiAuth.DELETE("/groups/:groupID/messages/:messageID", server.DeleteMessageForEveryone)
-	apiAuth.PATCH("/groups/:groupID/messages/:messageID", server.DeleteMessageForYourself)
+	apiAuth.GET("/group/:groupID/messages", server.GetGroupMessages)
+	apiAuth.DELETE("/group/:groupID/messages/:messageID", server.DeleteMessageForEveryone)
+	apiAuth.PATCH("/group/:groupID/messages/:messageID", server.DeleteMessageForYourself)
 }
 
 func CORSMiddleware() gin.HandlerFunc {

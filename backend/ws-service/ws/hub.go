@@ -17,9 +17,8 @@ var upgrader = &websocket.Upgrader{
 	WriteBufferSize: socketBufferSize,
 	CheckOrigin: func(r *http.Request) bool {
 		return true
-	}}
+	}} //TODO: CheckOrigin
 
-// TODO: Are these channels necessary?
 type WSHub struct {
 	messageServerChan chan<- *Message
 	forward           chan *Message
@@ -77,6 +76,7 @@ func ServeWebSocket(w http.ResponseWriter, req *http.Request, h Hub, groups []uu
 	if err != nil {
 		return
 	}
+	// socket.UnderlyingConn().SetDeadline(time.Now().Add(20 * time.Minute)) // TODO Connection duration should be read from config
 
 	client := &client{
 		id:     id_user,

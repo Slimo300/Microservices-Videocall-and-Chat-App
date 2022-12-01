@@ -79,6 +79,7 @@ func main() {
 		Hub:          ws.NewHub(messageChan),
 		MessageChan:  messageChan,
 	}
+	go server.RunHub()
 	routes.Setup(engine, server)
 
 	go server.RunListener()

@@ -29,7 +29,9 @@ type Config struct {
 	SMTPPass         string `mapstructure:"smtpPass"`
 	EmailTemplateDir string `mapstructure:"templateDir"`
 
-	AuthAddress string `mapstructure:"authAddress"`
+	AuthAddress     string        `mapstructure:"authAddress"`
+	AccessDuration  time.Duration `mapstructure:"accessDuration"`
+	RefreshDuration time.Duration `mapstructure:"refreshDuration"`
 }
 
 type Service struct {
@@ -40,13 +42,11 @@ type Service struct {
 }
 
 type TokenService struct {
-	GRPCPort              string        `mapstructure:"grpcPort"`
-	RedisAddress          string        `mapstructure:"redisAddress"`
-	RedisPass             string        `mapstructure:"redisPass"`
-	AccessTokenPrivateKey string        `mapstructure:"accessPrivKey"`
-	RefreshTokenSecret    string        `mapstructure:"refreshSecret"`
-	AccessDuration        time.Duration `mapstructure:"accessDuration"`
-	RefreshDuration       time.Duration `mapstructure:"refreshDuration"`
+	GRPCPort              string `mapstructure:"grpcPort"`
+	RedisAddress          string `mapstructure:"redisAddress"`
+	RedisPass             string `mapstructure:"redisPass"`
+	AccessTokenPrivateKey string `mapstructure:"accessPrivKey"`
+	RefreshTokenSecret    string `mapstructure:"refreshSecret"`
 }
 
 func LoadConfig(path string) (config Config, err error) {
