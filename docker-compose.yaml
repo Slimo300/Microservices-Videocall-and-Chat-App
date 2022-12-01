@@ -152,6 +152,15 @@ services:
       - wsmysql
     restart: on-failure
 
+  react:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: frontend
+    hostname: frontend
+    ports:
+      - "3000:80"
+
 volumes:
   zookeeper_data:
     driver: local
