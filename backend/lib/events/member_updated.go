@@ -5,7 +5,7 @@ import (
 )
 
 type MemberUpdatedEvent struct {
-	ID               uuid.UUID `json:"id"`
+	ID               uuid.UUID `json:"memberID"`
 	GroupID          uuid.UUID `json:"groupID"`
 	UserID           uuid.UUID `json:"userID"`
 	Adding           int       `json:"adding"`

@@ -5,7 +5,7 @@ import (
 )
 
 type UserRegisteredEvent struct {
-	ID         uuid.UUID `json:"id"`
+	ID         uuid.UUID `json:"userID"`
 	Username   string    `json:"username"`
 	PictureURL string    `json:"picture"`
 }

@@ -5,7 +5,7 @@ import (
 )
 
 type MessageDeletedEvent struct {
-	ID      uuid.UUID `json:"id"`
+	ID      uuid.UUID `json:"messageID"`
 	GroupID uuid.UUID `json:"groupID"`
 }
 
