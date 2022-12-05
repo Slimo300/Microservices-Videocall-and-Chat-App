@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
@@ -86,5 +87,18 @@ func stringToUUIDHookFunc() mapstructure.DecodeHookFunc {
 		}
 
 		return uuid.Parse(data.(string))
+	}
+}
+
+func stringToTimeHookFunc() mapstructure.DecodeHookFunc {
+	return func(f reflect.Type, t reflect.Type, data interface{}) (interface{}, error) {
+		if f.Kind() != reflect.String {
+			return data, nil
+		}
+		if t != reflect.TypeOf(time.Time{}) {
+			return data, nil
+		}
+
+		return time.Parse("2006-01-02 15:04:05", data.(string))
 	}
 }
