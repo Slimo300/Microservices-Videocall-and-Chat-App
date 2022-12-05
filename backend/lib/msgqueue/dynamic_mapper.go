@@ -100,6 +100,6 @@ func stringToTimeHookFunc() mapstructure.DecodeHookFunc {
 			return data, nil
 		}
 
-		return time.Parse("2006-01-02 15:04:05", data.(string))
+		return time.Parse("2006-01-02T15:04:05.000", data.(string))
 	}
 }
