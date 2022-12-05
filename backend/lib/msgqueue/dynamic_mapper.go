@@ -59,6 +59,7 @@ func (m *DynamicEventMapper) MapEvent(eventName string, eventPayload interface{}
 	cfg := mapstructure.DecoderConfig{
 		DecodeHook: mapstructure.ComposeDecodeHookFunc(
 			stringToUUIDHookFunc(),
+			stringToTimeHookFunc(),
 		),
 		Result:  event,
 		TagName: "json",
