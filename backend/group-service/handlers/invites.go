@@ -126,12 +126,12 @@ func (s *Server) RespondGroupInvite(c *gin.Context) {
 	}
 
 	if member != nil {
-		s.Emitter.Emit(events.MemberCreatedEvent{
-			ID:      member.ID,
-			GroupID: member.GroupID,
-			UserID:  member.UserID,
-			Creator: false,
-		})
+		// s.Emitter.Emit(events.MemberCreatedEvent{
+		// 	ID:      member.ID,
+		// 	GroupID: member.GroupID,
+		// 	UserID:  member.UserID,
+		// 	Creator: false,
+		// })
 	}
 	if invite != nil {
 		s.Emitter.Emit(events.InviteRespondedEvent{

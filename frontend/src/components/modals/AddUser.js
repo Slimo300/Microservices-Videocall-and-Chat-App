@@ -15,6 +15,7 @@ export const ModalAddUser = (props) => {
 
         try {
             let response = await SendGroupInvite(username, props.group.ID);
+            console.log(response.data);
             dispatch({type: actionTypes.ADD_INVITE, payload: response.data});
             setMsg("Invite sent successfully");
             setTimeout(function () {    

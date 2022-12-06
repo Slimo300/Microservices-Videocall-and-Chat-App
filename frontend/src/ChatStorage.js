@@ -97,6 +97,7 @@ function Login(state, payload) {
 }
 
 function Logout() {
+    console.log("Logout")
     return initialState;
 }
 
@@ -199,12 +200,14 @@ function AddInvites(state, payload) {
 
 function AddInvite(state, payload) {
     let newState = {...state};
+    console.log("Push");
     newState.invites.push(payload);
     return newState;
 }
 
 function UpdateInvite(state, payload) {
     let newState = {...state};
+    console.log(payload);
     newState.invites = newState.invites.filter((item)=>{return item.ID !== payload.ID});
     newState.invites.push(payload);
     return newState;

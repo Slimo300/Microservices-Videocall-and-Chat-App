@@ -6,7 +6,7 @@ require (
 	github.com/Shopify/sarama v1.37.2
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221108142600-bf5c2129edde
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221201180559-d90e6f458cc8
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221203092915-e71d568fbf13
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221206013624-12599b7cb3d9
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221206011217-6a565e93b169
 	github.com/gin-gonic/gin v1.8.1
 	github.com/golang-jwt/jwt v3.2.2+incompatible

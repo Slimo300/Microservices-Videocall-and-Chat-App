@@ -74,7 +74,7 @@ func (db *Database) AnswerInvite(userID, inviteID uuid.UUID, answer bool) (*mode
 	// if invite is accepted we update invite status and create a new membership entry in our database
 	var member models.Member
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.First(&models.Invite{}, inviteID).Updates(models.Invite{Status: models.INVITE_DECLINE, Modified: time.Now()}).Error; err != nil {
+		if err := tx.First(&models.Invite{}, inviteID).Updates(models.Invite{Status: models.INVITE_ACCEPT, Modified: time.Now()}).Error; err != nil {
 			return err
 		}
 		member = models.Member{ID: uuid.New(), UserID: userID, GroupID: invite.GroupID}
@@ -88,6 +88,9 @@ func (db *Database) AnswerInvite(userID, inviteID uuid.UUID, answer bool) (*mode
 
 	var group models.Group
 	if err := db.Where(models.Group{ID: invite.GroupID}).Preload("Members").First(&group, invite.GroupID).Error; err != nil {
+		return nil, nil, nil, apperrors.NewInternal()
+	}
+	if err := db.Where(models.Invite{ID: inviteID}).Preload("Iss").Preload("Group").Preload("Target").First(&invite).Error; err != nil {
 		return nil, nil, nil, apperrors.NewInternal()
 	}
 

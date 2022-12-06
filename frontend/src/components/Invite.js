@@ -76,10 +76,10 @@ const AnsweredInvite = (props) => {
     return (
         <div className="dropdown-item invite">
             <div className="list-group-item list-group-item-info d-flex row justify-content-around">
-                {isUserATarget?null:<InviteImage pictureUrl={props.invite.issuer.pictureUrl}/>}
+                {isUserATarget?null:<InviteImage pictureUrl={props.invite.target.pictureUrl}/>}
                 <div className="chat-name align-self-center">{isUserATarget?"You":props.invite.target.username}</div>
                 <div className="align-self-center">{action} </div>
-                {isUserATarget?<InviteImage pictureUrl={props.invite.target.pictureUrl}/>:null}
+                {isUserATarget?<InviteImage pictureUrl={props.invite.issuer.pictureUrl}/>:null}
                 <div className="chat-name align-self-center">{isUserATarget?props.invite.issuer.username:"your"}</div>
                 <div className="align-self-center">invite to </div>
                 <div className="chat-name align-self-center">{props.invite.group.name}</div>
