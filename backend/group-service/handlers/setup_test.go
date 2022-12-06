@@ -8,21 +8,7 @@ import (
 	"image/png"
 	"mime/multipart"
 	"net/textproto"
-
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/database/mock"
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/handlers"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
 )
-
-func setupTestServer() *handlers.Server {
-
-	mockDB := new(mock.MockGroupsDB)
-	s := &handlers.Server{
-		DB:      mockDB,
-		Storage: storage.MockStorage{},
-	}
-	return s
-}
 
 func createImage() *image.RGBA {
 	width := 200

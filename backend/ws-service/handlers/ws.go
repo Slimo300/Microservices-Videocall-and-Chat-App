@@ -23,7 +23,7 @@ func (s *Server) ServeWebSocket(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
 	}
-	ws.ServeWebSocket(c.Writer, c.Request, s.Hub, groups, userUID)
+	ws.ServeWebSocket(c.Writer, c.Request, *s.Hub, groups, userUID)
 }
 
 func (s *Server) AuthWS() gin.HandlerFunc {

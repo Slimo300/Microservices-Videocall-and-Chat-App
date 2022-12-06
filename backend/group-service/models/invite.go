@@ -15,11 +15,11 @@ const (
 )
 
 type Invite struct {
-	ID       uuid.UUID    `gorm:"primaryKey"`
+	ID       uuid.UUID    `gorm:"primaryKey" json:"ID"`
 	IssId    uuid.UUID    `gorm:"column:iss_id;size:191" json:"issID"`
 	Iss      User         `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"issuer"`
 	TargetID uuid.UUID    `gorm:"column:target_id;size:191" json:"targetID"`
-	Target   User         `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	Target   User         `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"target"`
 	GroupID  uuid.UUID    `gorm:"column:group_id;size:191" json:"groupID"`
 	Group    Group        `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"group"`
 	Status   InviteStatus `gorm:"column:status" json:"status"`

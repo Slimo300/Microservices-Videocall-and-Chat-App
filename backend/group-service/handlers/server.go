@@ -13,7 +13,7 @@ import (
 )
 
 type Server struct {
-	DB           database.DBlayer
+	DB           database.DBLayer
 	Storage      storage.StorageLayer
 	TokenService auth.TokenClient
 	MaxBodyBytes int64
@@ -21,7 +21,7 @@ type Server struct {
 	Listener     msgqueue.EventListener
 }
 
-func NewServer(db database.DBlayer, storage storage.StorageLayer, auth auth.TokenClient) *Server {
+func NewServer(db database.DBLayer, storage storage.StorageLayer, auth auth.TokenClient) *Server {
 	return &Server{
 		DB:           db,
 		Storage:      storage,

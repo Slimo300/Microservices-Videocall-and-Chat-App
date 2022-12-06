@@ -3,7 +3,6 @@ package orm
 import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/models"
-	"github.com/google/uuid"
 )
 
 func (db *Database) NewMember(event events.MemberCreatedEvent) error {
@@ -30,7 +29,7 @@ func (db *Database) DeleteMember(event events.MemberDeletedEvent) error {
 
 func (db *Database) AddMessage(event events.MessageSentEvent) error {
 	return db.Create(models.Message{
-		ID:      uuid.New(),
+		ID:      event.ID,
 		GroupID: event.GroupID,
 		UserID:  event.UserID,
 		Text:    event.Text,

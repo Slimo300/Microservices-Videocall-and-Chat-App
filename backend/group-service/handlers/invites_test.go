@@ -42,8 +42,8 @@ func (s *InvitesTestSuite) SetupSuite() {
 	s.IDs["group"] = uuid.MustParse("b646e70f-3c8f-4782-84a3-0b34b0f9aecf")
 
 	db := new(dbmock.MockGroupsDB)
-	db.On("GetUserInvites", s.IDs["userOK"]).Return([]models.Invite{{ID: s.IDs["inviteOK"]}}, nil)
-	db.On("GetUserInvites", s.IDs["userWithoutInvites"]).Return([]models.Invite{}, nil)
+	db.On("GetUserInvites", s.IDs["userOK"], 1, 0).Return([]models.Invite{{ID: s.IDs["inviteOK"]}}, nil)
+	db.On("GetUserInvites", s.IDs["userWithoutInvites"], 1, 0).Return([]models.Invite{}, nil)
 
 	db.On("AddInvite", s.IDs["userNoRights"], s.IDs["invitedUserOK"], s.IDs["group"]).
 		Return(models.Invite{}, apperrors.NewForbidden(fmt.Sprintf("User %v has no rights to add new members to group %v", s.IDs["userNoRights"], s.IDs["group"])))
@@ -98,7 +98,7 @@ func (s InvitesTestSuite) TestGetUserInvites() {
 	for _, tC := range testCases {
 		s.Run(tC.desc, func() {
 
-			req, _ := http.NewRequest("GET", "/api/invites", nil)
+			req, _ := http.NewRequest("GET", "/api/invites?num=1&offset=0", nil)
 
 			w := httptest.NewRecorder()
 			_, engine := gin.CreateTestContext(w)

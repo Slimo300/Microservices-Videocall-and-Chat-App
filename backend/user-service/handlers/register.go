@@ -46,15 +46,14 @@ func (s *Server) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	if err := s.EmailService.SendVerificationEmail(email.EmailData{
-		Subject:          "VerificationEmail",
-		Email:            user.Email,
-		Name:             user.UserName,
-		VerificationCode: verificationCode.ActivationCode,
-	}); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
-		return
-	}
+	go func() {
+		s.EmailService.SendVerificationEmail(email.EmailData{
+			Subject:          "VerificationEmail",
+			Email:            user.Email,
+			Name:             user.UserName,
+			VerificationCode: verificationCode.ActivationCode,
+		})
+	}()
 
 	c.JSON(http.StatusCreated, gin.H{"message": "success"})
 }

@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221026134330-f9c023747ea9
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221110200926-b23320549b1d
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221201180559-d90e6f458cc8
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.0

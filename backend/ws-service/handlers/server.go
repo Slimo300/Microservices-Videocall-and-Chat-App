@@ -12,11 +12,12 @@ import (
 
 type Server struct {
 	DB           database.DBLayer
-	Hub          ws.Hub
+	Hub          *ws.WSHub
 	TokenService auth.TokenClient
 	Emitter      msgqueue.EventEmitter
 	Listener     msgqueue.EventListener
 	MessageChan  <-chan *ws.Message
+	EventChan    chan<- msgqueue.Event
 }
 
 func (s *Server) RunHub() {

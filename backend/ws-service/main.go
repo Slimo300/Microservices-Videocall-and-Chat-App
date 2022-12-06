@@ -61,7 +61,9 @@ func main() {
 		reflect.TypeOf(events.MemberCreatedEvent{}),
 		reflect.TypeOf(events.MemberDeletedEvent{}),
 		reflect.TypeOf(events.MemberUpdatedEvent{}),
-		reflect.TypeOf(events.MessageSentEvent{}),
+		reflect.TypeOf(events.MessageDeletedEvent{}),
+		reflect.TypeOf(events.InviteSentEvent{}),
+		reflect.TypeOf(events.InviteRespondedEvent{}),
 	); err != nil {
 		log.Fatal(err)
 	}
@@ -71,13 +73,15 @@ func main() {
 	}
 
 	messageChan := make(chan *ws.Message)
+	actionChan := make(chan msgqueue.Event)
 	server := &handlers.Server{
 		DB:           db,
 		TokenService: tokenService,
 		Emitter:      emitter,
 		Listener:     listener,
-		Hub:          ws.NewHub(messageChan),
+		Hub:          ws.NewHub(messageChan, actionChan),
 		MessageChan:  messageChan,
+		EventChan:    actionChan,
 	}
 	go server.RunHub()
 	routes.Setup(engine, server)

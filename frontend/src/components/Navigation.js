@@ -12,13 +12,11 @@ const Navigation = (props) => {
 
     const logout = async () => {
         let response = await Logout();
-        if (response.status === 200) {
-            // if (props.ws !== undefined) props.ws.close();
-            dispatch({type: actionTypes.LOGOUT});
-            window.localStorage.clear();
-            props.setName("");
-            props.ws.close();
-        } else alert(response.data.message);
+        dispatch({type: actionTypes.LOGOUT});
+        window.localStorage.clear();
+        props.setName("");
+        props.ws.close();
+        if (response.status !== 200) alert(response.data.message);
     };
 
     let menu;
@@ -44,7 +42,7 @@ const Navigation = (props) => {
                         <span className="badge badge-secondary">{state.notifications!==undefined?state.notifications.length:null}</span>
                     </button>
                     <div className="dropdown-menu dropdown-menu-right">
-                        {state.notifications!==undefined?state.notifications.map((item)=> <Invite invite={item} />):null}
+                        {state.invites!==undefined?state.invites.map((item)=> <Invite invite={item} />):null}
                     </div>
                 </div>
 

@@ -1,27 +1,29 @@
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
+import { StorageContext } from "../../ChatStorage";
 import {SendGroupInvite} from "../../Requests";
+import { actionTypes } from "../../ChatStorage";
 
 export const ModalAddUser = (props) => {
 
     const [username, setUsername] = useState("");
     const [msg, setMsg] = useState("");
+    const [, dispatch] = useContext(StorageContext);
 
     const submitAddToGroup = async(e) => {
         e.preventDefault();
 
-        let response;
-
         try {
-            response = await SendGroupInvite(username, props.group.ID);
+            let response = await SendGroupInvite(username, props.group.ID);
+            dispatch({type: actionTypes.ADD_INVITE, payload: response.data});
             setMsg("Invite sent successfully");
+            setTimeout(function () {    
+                props.toggle();
+                setMsg("");
+            }, 3000);
         } catch(err) {
             setMsg(err.response.data.err);
         }
-        setTimeout(function () {    
-            props.toggle();
-            setMsg("");
-        }, 1000);
     }
     
     return (

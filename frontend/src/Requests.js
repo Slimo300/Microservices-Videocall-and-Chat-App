@@ -24,7 +24,7 @@ export async function Register(email, username, password, rpassword) {
         email: email,
         password: password,
         rpassword: rpassword,
-    });
+    })
 }
 
 export async function VerifyAccount(code) {
@@ -54,8 +54,8 @@ export async function GetUser() {
     return await axios.get(userService+'/user');
 }
 
-export async function GetInvites() {
-    return await axios.get(groupsService+"/invites");
+export async function GetInvites(offset) {
+    return await axios.get(groupsService+"/invites?num=8&offset="+offset);
 }
 
 export async function GetGroups() {
@@ -164,6 +164,7 @@ async function refreshAccessToken() {
     let response = await axios.post(userService+"/refresh", {}, {
         withCredentials: true,
     })
+    console.log(response);
     if (response.accessToken !== undefined) {
         window.localStorage.setItem("token", response.accessToken);
     }
@@ -190,7 +191,8 @@ axios.interceptors.request.use(
     const originalRequest = error.config;
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      const access_token = await refreshAccessToken();            
+      await refreshAccessToken();
+      let access_token = window.localStorage.getItem("token");
       axios.defaults.headers.common['Authorization'] = 'Bearer ' + access_token;
       return axios(originalRequest);
     }

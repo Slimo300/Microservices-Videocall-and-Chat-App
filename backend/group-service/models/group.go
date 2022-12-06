@@ -7,7 +7,7 @@ import (
 )
 
 type Group struct {
-	ID      uuid.UUID `gorm:"primaryKey"`
+	ID      uuid.UUID `gorm:"primaryKey" json:"ID"`
 	Name    string    `gorm:"column:name" json:"name"`
 	Picture string    `gorm:"column:picture_url" json:"pictureUrl"`
 	Created time.Time `gorm:"column:created" json:"created"`

@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type DBlayer interface {
+type DBLayer interface {
 	GetUserGroups(id uuid.UUID) ([]models.Group, error)
 
 	CreateGroup(userID uuid.UUID, name string) (models.Group, error)
@@ -17,8 +17,8 @@ type DBlayer interface {
 	GetGroupProfilePictureURL(userID, groupID uuid.UUID) (string, error)
 	DeleteGroupProfilePicture(userID, groupID uuid.UUID) (string, error)
 
-	GetUserInvites(userID uuid.UUID) ([]models.Invite, error)
-	AddInvite(issID, targetID, groupID uuid.UUID) (models.Invite, error)
+	GetUserInvites(userID uuid.UUID, num, offset int) ([]models.Invite, error)
+	AddInvite(issID, targetID, groupID uuid.UUID) (*models.Invite, error)
 	AnswerInvite(userID, inviteID uuid.UUID, answer bool) (*models.Invite, *models.Group, *models.Member, error)
 
 	NewUser(event events.UserRegisteredEvent) error

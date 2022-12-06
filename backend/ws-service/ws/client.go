@@ -9,7 +9,7 @@ type client struct {
 	id     uuid.UUID
 	socket *websocket.Conn
 	send   chan Sender
-	hub    Hub
+	hub    WSHub
 	groups []uuid.UUID
 }
 

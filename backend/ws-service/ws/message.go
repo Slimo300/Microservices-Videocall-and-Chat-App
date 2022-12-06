@@ -16,11 +16,17 @@ type Sender interface {
 
 // Message is a plain message in chat app
 type Message struct {
-	Group   uuid.UUID `json:"group"`
-	User    uuid.UUID `json:"user"`
+	ID      uuid.UUID `json:"messageID"`
+	Group   uuid.UUID `json:"groupID"`
+	User    uuid.UUID `json:"userID"`
 	Message string    `json:"text"`
 	Nick    string    `json:"nick"`
 	When    string    `json:"created"`
+}
+
+func (m *Message) Prepare() {
+	m.ID = uuid.New()
+	m.When = time.Now().Format(TIME_FORMAT)
 }
 
 // Send sends itself through websocket connection
@@ -29,10 +35,6 @@ func (m *Message) Send(ws *websocket.Conn) error {
 		return err
 	}
 	return nil
-}
-
-func (m *Message) SetTime() {
-	m.When = time.Now().Format(TIME_FORMAT)
 }
 
 type Action struct {

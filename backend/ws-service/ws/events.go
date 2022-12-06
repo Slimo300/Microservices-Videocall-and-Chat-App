@@ -5,7 +5,7 @@ import (
 )
 
 // Deletes group from every user that is subscribed to it and sends information via websocket to user
-func (h *WSHub) GroupDeleted(event events.GroupDeletedEvent) {
+func (h *WSHub) groupDeleted(event events.GroupDeletedEvent) {
 	for client := range h.clients {
 		for i, group := range client.groups {
 			if group == event.ID {
@@ -17,7 +17,7 @@ func (h *WSHub) GroupDeleted(event events.GroupDeletedEvent) {
 }
 
 // Adds subscription to member groups and sends info to other members in group
-func (h *WSHub) MemberAdded(event events.MemberCreatedEvent) {
+func (h *WSHub) memberAdded(event events.MemberCreatedEvent) {
 	for client := range h.clients {
 		if client.id == event.UserID {
 			client.groups = append(client.groups, event.GroupID)
@@ -34,7 +34,7 @@ func (h *WSHub) MemberAdded(event events.MemberCreatedEvent) {
 }
 
 // Deletes member subscription and sends info about it to other members in group
-func (h *WSHub) MemberDeleted(event events.MemberDeletedEvent) {
+func (h *WSHub) memberDeleted(event events.MemberDeletedEvent) {
 	for client := range h.clients {
 		for i, group := range client.groups {
 			// if user is a member of group
@@ -50,7 +50,7 @@ func (h *WSHub) MemberDeleted(event events.MemberDeletedEvent) {
 	}
 }
 
-func (h *WSHub) MemberUpdated(event events.MemberUpdatedEvent) {
+func (h *WSHub) memberUpdated(event events.MemberUpdatedEvent) {
 	for client := range h.clients {
 		for _, group := range client.groups {
 			if group == event.GroupID {
@@ -63,15 +63,23 @@ func (h *WSHub) MemberUpdated(event events.MemberUpdatedEvent) {
 }
 
 // Sends invite to specified user
-func (h *WSHub) InviteSent(event events.InviteSentEvent) {
+func (h *WSHub) inviteSent(event events.InviteSentEvent) {
 	for client := range h.clients {
 		if client.id == event.TargetID {
-			client.send <- &Action{ActionType: "SEND_INVITE", Payload: event}
+			client.send <- &Action{ActionType: "ADD_INVITE", Payload: event}
 		}
 	}
 }
 
-func (h *WSHub) MessageDeleted(event events.MessageDeletedEvent) {
+func (h *WSHub) inviteResponded(event events.InviteRespondedEvent) {
+	for client := range h.clients {
+		if client.id == event.IssuerID {
+			client.send <- &Action{ActionType: "UPDATE_INVITE", Payload: event}
+		}
+	}
+}
+
+func (h *WSHub) messageDeleted(event events.MessageDeletedEvent) {
 	for client := range h.clients {
 		for _, group := range client.groups {
 			if group == event.GroupID {

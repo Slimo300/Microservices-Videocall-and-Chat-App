@@ -12,17 +12,22 @@ export const ModalCreateGroup = (props) => {
 
     const submit = async(e) => {
         e.preventDefault();
-        let group = await CreateGroup(grName);
-        if (group.data.name === "Error") {
-            setMsg(group.data);
-        } else {
-            dispatch({type: actionTypes.NEW_GROUP, payload: group.data});
+        let response;
+        try {
+            response = await CreateGroup(grName);
+            
+            dispatch({type: actionTypes.ADD_GROUP, payload: response.data});
             setMsg("Group created");
+
+            setTimeout(function () {    
+                props.toggle();
+                setMsg("");
+            }, 1000);
         }
-        setTimeout(function () {    
-            props.toggle();
-            setMsg("");
-        }, 1000);
+        catch(err) {
+            if (err.response.data.err !== undefined) setMsg(err.response.data.err);
+            else setMsg(err.message);
+        }
     }
 
     return (

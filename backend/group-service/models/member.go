@@ -8,7 +8,7 @@ import (
 )
 
 type Member struct {
-	ID               uuid.UUID `gorm:"primaryKey"`
+	ID               uuid.UUID `gorm:"primaryKey" json:"ID"`
 	GroupID          uuid.UUID `gorm:"column:group_id;uniqueIndex:idx_first;size:191" json:"group_id"`
 	UserID           uuid.UUID `gorm:"column:user_id;uniqueIndex:idx_first;size:191" json:"user_id"`
 	User             User      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`

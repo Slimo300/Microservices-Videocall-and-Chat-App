@@ -39,35 +39,43 @@ const AuthMain = (props) => {
             dispatch({type: actionTypes.LOGIN, payload: userResult.data});
             const groupsResult = await GetGroups();
             if (groupsResult.status === 200) {
-                dispatch({type: actionTypes.SET_GROUPS, payload: groupsResult.data});
+                dispatch({type: actionTypes.ADD_GROUPS, payload: groupsResult.data});
             }
-            const invitesResult = await GetInvites();
+            const invitesResult = await GetInvites(state.invites.length);
             if (invitesResult.status === 200) {
-                dispatch({type: actionTypes.SET_NOTIFICATIONS, payload: invitesResult.data});
+                dispatch({type: actionTypes.ADD_INVITES, payload: invitesResult.data});
             }
             let websocket = await GetWebsocket();
             props.setWs(websocket);
         };
 
         fetchData();
-        
     }, [dispatch]);
 
     if (props.ws !== undefined) props.ws.onmessage = (e) => {
         const msgJSON = JSON.parse(e.data);
-        if (msgJSON.action !== undefined) {
-            switch (msgJSON.action) {
+        console.log(msgJSON);
+        if (msgJSON.type !== undefined) {
+            switch (msgJSON.type) {
                 case "DELETE_GROUP":
-                    dispatch({type: actionTypes.DELETE_GROUP, payload: msgJSON.group.ID});
+                    dispatch({type: actionTypes.DELETE_GROUP, payload: msgJSON.payload});
                     break;
                 case "DELETE_MEMBER":
-                    dispatch({type: actionTypes.DELETE_MEMBER, payload: msgJSON.member});
+                    dispatch({type: actionTypes.DELETE_MEMBER, payload: msgJSON.payload});
                     break;
                 case "ADD_MEMBER":
-                    dispatch({type: actionTypes.ADD_MEMBER, payload: msgJSON.member});
+                    dispatch({type: actionTypes.ADD_MEMBER, payload: msgJSON.payload});
+                    break;
+                case "ADD_INVITE":
+                    console.log(msgJSON);
+                    dispatch({type: actionTypes.ADD_INVITE, payload: msgJSON.payload});
+                    break;
+                case "UPDATE_INVITE":
+                    console.log(msgJSON);
+                    dispatch({type: actionTypes.UPDATE_INVITE, payload: msgJSON.payload});
                     break;
                 default:
-                    console.log("Unexpected action from websocket: ", msgJSON.action);
+                    console.log("Unexpected action from websocket: ", msgJSON.type);
             }
             return;
         }
