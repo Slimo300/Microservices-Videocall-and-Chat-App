@@ -9,7 +9,6 @@ import (
 type InviteRespondedEvent struct {
 	ID       uuid.UUID `json:"ID"`
 	IssuerID uuid.UUID `json:"issuerID"`
-	Iss      User      `json:"issuer"`
 	TargetID uuid.UUID `json:"targetID"`
 	Target   User      `json:"target"`
 	GroupID  uuid.UUID `json:"groupID"`

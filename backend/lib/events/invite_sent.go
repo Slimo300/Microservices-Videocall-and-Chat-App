@@ -7,11 +7,10 @@ import (
 )
 
 type InviteSentEvent struct {
-	ID       uuid.UUID `json:"inviteID"`
+	ID       uuid.UUID `json:"ID"`
 	IssuerID uuid.UUID `json:"issuerID"`
 	Issuer   User      `json:"issuer"`
 	TargetID uuid.UUID `json:"targetID"`
-	Target   User      `json:"target"`
 	GroupID  uuid.UUID `json:"groupID"`
 	Group    Group     `json:"group"`
 	Status   int       `json:"status"`
