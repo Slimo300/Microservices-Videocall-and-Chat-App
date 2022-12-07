@@ -10,7 +10,7 @@ func (h *WSHub) groupDeleted(event events.GroupDeletedEvent) {
 		for i, group := range client.groups {
 			if group == event.ID {
 				client.groups = append(client.groups[:i], client.groups[:i+1]...)
-				client.send <- &Action{ActionType: "DELETE_GROUP", Payload: event}
+				client.send <- &Action{ActionType: "DELETE_GROUP", Payload: event.ID}
 			}
 		}
 	}
@@ -42,6 +42,7 @@ func (h *WSHub) memberDeleted(event events.MemberDeletedEvent) {
 				// if user is the one to be deleted
 				if client.id == event.UserID {
 					client.groups = append(client.groups[:i], client.groups[:i+1]...)
+					client.send <- &Action{ActionType: "DELETE_GROUP", Payload: event.GroupID}
 				} else {
 					client.send <- &Action{ActionType: "DELETE_MEMBER", Payload: event}
 				}
@@ -54,9 +55,7 @@ func (h *WSHub) memberUpdated(event events.MemberUpdatedEvent) {
 	for client := range h.clients {
 		for _, group := range client.groups {
 			if group == event.GroupID {
-				if client.id == event.UserID {
-					client.send <- &Action{ActionType: "UPDATE_MEMBER", Payload: event}
-				}
+				client.send <- &Action{ActionType: "UPDATE_MEMBER", Payload: event}
 			}
 		}
 	}

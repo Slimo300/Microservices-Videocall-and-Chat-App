@@ -53,14 +53,14 @@ func (h *WSHub) Run() {
 				h.memberAdded(*e)
 			case *events.MemberDeletedEvent:
 				h.memberDeleted(*e)
-			case *events.InviteSentEvent:
-				h.inviteSent(*e)
 			case *events.MemberUpdatedEvent:
 				h.memberUpdated(*e)
-			case *events.MessageDeletedEvent:
-				h.messageDeleted(*e)
+			case *events.InviteSentEvent:
+				h.inviteSent(*e)
 			case *events.InviteRespondedEvent:
 				h.inviteResponded(*e)
+			case *events.MessageDeletedEvent:
+				h.messageDeleted(*e)
 			default:
 				log.Println("Unsupported Event Type: ", event.EventName())
 			}

@@ -60,6 +60,10 @@ const AuthMain = (props) => {
                 case "DELETE_GROUP":
                     dispatch({type: actionTypes.DELETE_GROUP, payload: msgJSON.payload});
                     break;
+                case "UPDATE_MEMBER":
+                    console.log("UPDATE_MEMBER");
+                    dispatch({type: actionTypes.UPDATE_MEMBER, payload: msgJSON.payload});
+                    break;
                 case "DELETE_MEMBER":
                     dispatch({type: actionTypes.DELETE_MEMBER, payload: msgJSON.payload});
                     break;

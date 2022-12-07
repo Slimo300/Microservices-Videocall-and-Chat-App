@@ -10,7 +10,7 @@ type DBLayer interface {
 	GetUserGroups(id uuid.UUID) ([]models.Group, error)
 
 	CreateGroup(userID uuid.UUID, name string) (models.Group, error)
-	DeleteMember(userID, groupID, memberID uuid.UUID) error
+	DeleteMember(userID, groupID, memberID uuid.UUID) (*models.Member, error)
 	GrantRights(userID, groupID, memberID uuid.UUID, rights models.MemberRights) (*models.Member, error)
 	DeleteGroup(userID, groupID uuid.UUID) (models.Group, error)
 

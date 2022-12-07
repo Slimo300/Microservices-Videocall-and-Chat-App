@@ -17,10 +17,7 @@ func (db *Database) NewMember(event events.MemberCreatedEvent) error {
 }
 
 func (db *Database) ModifyMember(event events.MemberUpdatedEvent) error {
-	if event.DeletingMessages == -1 {
-		return db.Where(models.Membership{MembershipID: event.ID}).Update("deleting_messages", false).Error
-	}
-	return db.Where(models.Membership{MembershipID: event.ID}).Update("deleting_messages", true).Error
+	return db.Where(models.Membership{MembershipID: event.ID}).Updates(models.Membership{DeletingMessages: event.DeletingMessages, Admin: event.Admin}).Error
 }
 
 func (db *Database) DeleteMember(event events.MemberDeletedEvent) error {

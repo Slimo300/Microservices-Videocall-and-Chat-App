@@ -95,14 +95,15 @@ export async function RespondGroupInvite(inviteID, answer) {
     })
 }
 
-export async function DeleteMember(memberID) {
-    return await axios.delete(groupsService+"member/"+memberID);
+export async function DeleteMember(groupID, memberID) {
+    return await axios.delete(groupsService+"/group/"+groupID+"/member/"+memberID);
 }
 
-export async function SetRights(memberID, adding, deleting, setting) {
-    return await axios.put(groupsService+"/member/"+memberID, {
+export async function SetRights(groupID, memberID, adding, deletingMessages, deletingMembers, setting) {
+    return await axios.patch(groupsService+"/group/"+groupID+"/member/"+memberID, {
         "adding": adding,
-        "deleting": deleting,
+        "deletingMessages": deletingMessages,
+        "deletingMembers": deletingMembers,
         "setting": setting
     });
 }

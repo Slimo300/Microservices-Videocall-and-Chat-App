@@ -48,13 +48,17 @@ func (s *Server) GrantPriv(c *gin.Context) {
 
 	if member != nil {
 		s.Emitter.Emit(events.MemberUpdatedEvent{
-			ID:               member.ID,
-			GroupID:          member.GroupID,
-			UserID:           member.UserID,
-			DeletingMessages: int(rights.DeletingMessages),
-			DeletingMembers:  int(rights.DeletingMembers),
-			Adding:           int(rights.Adding),
-			Admin:            int(rights.Admin),
+			ID:      member.ID,
+			GroupID: member.GroupID,
+			UserID:  member.UserID,
+			User: events.User{
+				UserName: member.User.UserName,
+				Picture:  member.User.Picture,
+			},
+			DeletingMessages: member.DeletingMessages,
+			DeletingMembers:  member.DeletingMembers,
+			Adding:           member.Adding,
+			Admin:            member.Admin,
 		})
 	}
 
@@ -81,12 +85,13 @@ func (s *Server) DeleteUserFromGroup(c *gin.Context) {
 		return
 	}
 
-	if err := s.DB.DeleteMember(userUUID, groupUUID, memberUUID); err != nil {
+	member, err := s.DB.DeleteMember(userUUID, groupUUID, memberUUID)
+	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
 
-	s.Emitter.Emit(events.MemberDeletedEvent{ID: memberUUID})
+	s.Emitter.Emit(events.MemberDeletedEvent{ID: member.ID, GroupID: member.GroupID, UserID: member.UserID})
 
 	c.JSON(http.StatusOK, gin.H{"message": "member deleted"})
 }

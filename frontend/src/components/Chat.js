@@ -63,7 +63,7 @@ const Chat = (props) => {
                     return
                 }
                 for (let i = 0; i < props.group.Members.length; i++) {
-                    if (props.group.Members[i].user_id === state.user.ID ) {
+                    if (props.group.Members[i].userID === state.user.ID ) {
                         setMember(props.group.Members[i]);
                         return;
                     }
@@ -108,7 +108,7 @@ const Chat = (props) => {
                         <button className="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Settings
                         </button>
-                        <GroupMenu toggleOptions={toggleOptions} toggleDel={toggleDelGroup} toggleAdd={toggleAddUser} toggleMembers={toggleMembers} toggleLeave={toggleLeaveGroup} member={member}/>
+                        <GroupMenu member={member} toggleOptions={toggleOptions} toggleDel={toggleDelGroup} toggleAdd={toggleAddUser} toggleMembers={toggleMembers} toggleLeave={toggleLeaveGroup}/>
                     </div>
                 </div>
                 <div className="chat-container">

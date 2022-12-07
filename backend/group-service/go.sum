@@ -71,6 +71,14 @@ github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-2022120601121
 github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221206011217-6a565e93b169/go.mod h1:GPFcoQIeRHM/6yxyVfbs/Wyysdf3PcnEZmuHiHp3OFg=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221206013624-12599b7cb3d9 h1:svgw7HKwNHKzimD8vXI0fytQLeQ/x+/6lXn7P9vPI0o=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221206013624-12599b7cb3d9/go.mod h1:GPFcoQIeRHM/6yxyVfbs/Wyysdf3PcnEZmuHiHp3OFg=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221206144759-3dab527dd929 h1:jmFBn4ER7zhkkTTWxH7fsrxyALBGTWW7UsqTCz9ahsk=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221206144759-3dab527dd929/go.mod h1:GPFcoQIeRHM/6yxyVfbs/Wyysdf3PcnEZmuHiHp3OFg=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221207152443-582209ece3c5 h1:W24AsTQ+hnk4Syzhq0VnNp58MxEB1vwkLNBgsKeCZXY=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221207152443-582209ece3c5/go.mod h1:GPFcoQIeRHM/6yxyVfbs/Wyysdf3PcnEZmuHiHp3OFg=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221207173752-13c96efba132 h1:feUgkWwWnkgfXEBSv6pAdZQDxydJusokWlrD5b3plXg=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221207173752-13c96efba132/go.mod h1:GPFcoQIeRHM/6yxyVfbs/Wyysdf3PcnEZmuHiHp3OFg=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221207174354-0b427497511c h1:SKvnkLmmui/m2n3BuBt1+bOOqTvxfOWpXxy4my3vxN4=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221207174354-0b427497511c/go.mod h1:GPFcoQIeRHM/6yxyVfbs/Wyysdf3PcnEZmuHiHp3OFg=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221119193915-f9a59bcbb280 h1:XQiSR1GsjoEzvB57AJQgOzkCtv2zeAd42S2ggi6CWtE=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221119193915-f9a59bcbb280/go.mod h1:4B7YKdejTwNIP9R3qL9NpQI9jg/xlnIh8nks4Xj1Ssg=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221127190216-714f9367982a h1:OkFFyxqkdAniCTjr+p3scKjurpt+Olbk3IS0c6bahd0=

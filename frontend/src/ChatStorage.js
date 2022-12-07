@@ -17,6 +17,7 @@ export const actionTypes = {
     DELETE_GROUP: "DELETE_GROUP",
 
     ADD_MEMBER: "ADD_MEMBER",
+    UPDATE_MEMBER: "UPDATE_MEMBER",
     DELETE_MEMBER: "DELETE_MEMBER",
 
     ADD_MESSAGES: "ADD_MESSAGES",
@@ -48,6 +49,8 @@ function reducer(state, action) {
 
         case actionTypes.ADD_MEMBER:
             return AddMemberToGroup(state, action.payload);
+        case actionTypes.UPDATE_MEMBER:
+            return UpdateMember(state, action.payload);
         case actionTypes.DELETE_MEMBER:
             return DeleteMemberFromGroup(state, action.payload);
             
@@ -140,12 +143,29 @@ function AddMemberToGroup(state, payload) {
     throw new Error("Group not found");
 }
 
+function UpdateMember(state, payload) {
+    let newState = {...state};
+    for (let i = 0; i < newState.groups.length; i++) {
+        if (newState.groups[i].ID === payload.groupID) {
+            console.log("Found group. Members: ", newState.groups[i].Members);
+            for (let j = 0; j < newState.groups[i].Members.length; j++) {
+                if (newState.groups[i].Members[j].ID === payload.ID) {
+                    console.log("Found member");
+                    newState.groups[i].Members[j] = payload;
+                    return newState;
+                }
+            }
+        }
+    }
+    throw new Error("Member not found");
+}
+
 function DeleteMemberFromGroup(state, payload) {
     let newState = {...state};
     for (let i = 0; i < newState.groups.length; i++) {
-        if (newState.groups[i].ID === payload.group_id) {
+        if (newState.groups[i].ID === payload.groupID) {
             newState.groups[i].Members = newState.groups[i].Members.filter((item)=>{return item.ID !== payload.ID});
-            return newState
+            return newState;
         }
     }
     throw new Error("Group not found");

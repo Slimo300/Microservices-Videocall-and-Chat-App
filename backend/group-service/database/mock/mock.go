@@ -144,17 +144,26 @@ func (_m *MockGroupsDB) DeleteGroupProfilePicture(userID uuid.UUID, groupID uuid
 }
 
 // DeleteMember provides a mock function with given fields: userID, groupID, memberID
-func (_m *MockGroupsDB) DeleteMember(userID uuid.UUID, groupID uuid.UUID, memberID uuid.UUID) error {
+func (_m *MockGroupsDB) DeleteMember(userID uuid.UUID, groupID uuid.UUID, memberID uuid.UUID) (*models.Member, error) {
 	ret := _m.Called(userID, groupID, memberID)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(uuid.UUID, uuid.UUID, uuid.UUID) error); ok {
+	var r0 *models.Member
+	if rf, ok := ret.Get(0).(func(uuid.UUID, uuid.UUID, uuid.UUID) *models.Member); ok {
 		r0 = rf(userID, groupID, memberID)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Member)
+		}
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func(uuid.UUID, uuid.UUID, uuid.UUID) error); ok {
+		r1 = rf(userID, groupID, memberID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // GetGroupProfilePictureURL provides a mock function with given fields: userID, groupID

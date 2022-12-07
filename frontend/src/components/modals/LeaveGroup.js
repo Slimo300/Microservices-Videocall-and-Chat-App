@@ -10,7 +10,7 @@ export const ModalLeaveGroup = (props) => {
     const [msg, setMsg] = useState("");
 
     const submit = async() => {
-        let response = await DeleteMember(props.member.ID);
+        let response = await DeleteMember(props.member.groupID, props.member.ID);
         let flag = false;
         if (response.status !== 200){
             dispatch({type: actionTypes.DELETE_GROUP, payload: props.group.ID})

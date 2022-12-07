@@ -7,7 +7,7 @@ require (
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20221119193915-f9a59bcbb280
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221026134330-f9c023747ea9
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221201180559-d90e6f458cc8
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221206013624-12599b7cb3d9
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221207174354-0b427497511c
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221205221422-aafa9090553b
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20221118080724-7204f0fa543c
 	github.com/gin-contrib/size v0.0.0-20220829131622-0fc0bc875336

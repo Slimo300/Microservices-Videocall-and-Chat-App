@@ -30,10 +30,8 @@ func (s *Server) RunListener(eventNames ...string) {
 					log.Printf("Error when creating member from message: %s\n", err.Error())
 				}
 			case *events.MemberUpdatedEvent:
-				if e.DeletingMessages != 0 {
-					if err := s.DB.ModifyMember(*e); err != nil {
-						log.Printf("Error when updating member from message: %s\n", err.Error())
-					}
+				if err := s.DB.ModifyMember(*e); err != nil {
+					log.Printf("Error when updating member from message: %s\n", err.Error())
 				}
 			case *events.MemberDeletedEvent:
 				if err := s.DB.DeleteMember(*e); err != nil {
