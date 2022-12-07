@@ -9,10 +9,10 @@ type MemberUpdatedEvent struct {
 	GroupID          uuid.UUID `json:"groupID"`
 	UserID           uuid.UUID `json:"userID"`
 	User             User      `json:"User"`
-	Adding           int       `json:"adding"`
-	DeletingMessages int       `json:"deletingMessages"`
-	DeletingMembers  int       `json:"deletingMembers"`
-	Admin            int       `json:"admin"`
+	Adding           bool      `json:"adding"`
+	DeletingMessages bool      `json:"deletingMessages"`
+	DeletingMembers  bool      `json:"deletingMembers"`
+	Admin            bool      `json:"admin"`
 }
 
 func (MemberUpdatedEvent) EventName() string {

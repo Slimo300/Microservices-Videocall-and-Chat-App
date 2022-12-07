@@ -7,7 +7,6 @@ import (
 type MemberDeletedEvent struct {
 	ID      uuid.UUID `json:"ID"`
 	GroupID uuid.UUID `json:"groupID"`
-	UserID  uuid.UUID `json:"userID"`
 }
 
 func (MemberDeletedEvent) EventName() string {

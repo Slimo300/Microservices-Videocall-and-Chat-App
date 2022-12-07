@@ -22,14 +22,12 @@ func (InviteSentEvent) EventName() string {
 }
 
 type Group struct {
-	ID      uuid.UUID `json:"ID"`
 	Name    string    `json:"name"`
 	Picture string    `json:"pictureUrl"`
 	Created time.Time `json:"created"`
 }
 
 type User struct {
-	ID       uuid.UUID `json:"ID"`
-	UserName string    `json:"username"`
-	Picture  string    `json:"pictureUrl"`
+	UserName string `json:"username"`
+	Picture  string `json:"pictureUrl"`
 }
