@@ -46,19 +46,18 @@ func (s *InvitesTestSuite) SetupSuite() {
 	db.On("GetUserInvites", s.IDs["userWithoutInvites"], 1, 0).Return([]models.Invite{}, nil)
 
 	db.On("AddInvite", s.IDs["userNoRights"], s.IDs["invitedUserOK"], s.IDs["group"]).
-		Return(models.Invite{}, apperrors.NewForbidden(fmt.Sprintf("User %v has no rights to add new members to group %v", s.IDs["userNoRights"], s.IDs["group"])))
+		Return(&models.Invite{}, apperrors.NewForbidden(fmt.Sprintf("User %v has no rights to add new members to group %v", s.IDs["userNoRights"], s.IDs["group"])))
 	db.On("AddInvite", s.IDs["userOK"], s.IDs["invitedUserNotFound"], s.IDs["group"]).
-		Return(models.Invite{}, apperrors.NewNotFound("user", s.IDs["invitedUserNotFound"].String()))
+		Return(&models.Invite{}, apperrors.NewNotFound("user", s.IDs["invitedUserNotFound"].String()))
 	db.On("AddInvite", s.IDs["userOK"], s.IDs["invitedUserMember"], s.IDs["group"]).
-		Return(models.Invite{}, apperrors.NewForbidden(fmt.Sprintf("User %v already is already a member of group %v", s.IDs["invitedUserMember"], s.IDs["group"])))
+		Return(&models.Invite{}, apperrors.NewForbidden(fmt.Sprintf("User %v already is already a member of group %v", s.IDs["invitedUserMember"], s.IDs["group"])))
 	db.On("AddInvite", s.IDs["userOK"], s.IDs["invitedUserInvited"], s.IDs["group"]).
-		Return(models.Invite{}, apperrors.NewForbidden(fmt.Sprintf("User %v already invited to group %v", s.IDs["invitedUserInvited"], s.IDs["group"])))
+		Return(&models.Invite{}, apperrors.NewForbidden(fmt.Sprintf("User %v already invited to group %v", s.IDs["invitedUserInvited"], s.IDs["group"])))
 	db.On("AddInvite", s.IDs["userOK"], s.IDs["invitedUserOK"], s.IDs["group"]).
-		Return(models.Invite{ID: s.IDs["inviteOK"]}, nil)
+		Return(&models.Invite{ID: s.IDs["inviteOK"]}, nil)
 
-	// TODO check emitting?
-	db.On("AnswerInvite", s.IDs["userOK"], s.IDs["inviteOK"], true).Return(nil, &models.Group{ID: s.IDs["group"]}, nil, nil)
-	db.On("AnswerInvite", s.IDs["userOK"], s.IDs["inviteOK"], false).Return(nil, nil, nil, nil)
+	db.On("AnswerInvite", s.IDs["userOK"], s.IDs["inviteOK"], true).Return(&models.Invite{ID: s.IDs["inviteOK"]}, &models.Group{ID: s.IDs["group"]}, nil, nil)
+	db.On("AnswerInvite", s.IDs["userOK"], s.IDs["inviteOK"], false).Return(&models.Invite{ID: s.IDs["inviteOK"]}, nil, nil, nil)
 	db.On("AnswerInvite", s.IDs["userOK"], s.IDs["inviteNotFound"], mock.Anything).
 		Return(nil, nil, nil, apperrors.NewNotFound("invite", s.IDs["inviteNotFound"].String()))
 	db.On("AnswerInvite", s.IDs["userOK"], s.IDs["inviteAnswered"], mock.Anything).
@@ -127,6 +126,7 @@ func (s InvitesTestSuite) TestSendGroupInvite() {
 		desc               string
 		id                 string
 		data               map[string]interface{}
+		returnVal          bool
 		expectedStatusCode int
 		expectedResponse   interface{}
 	}{
@@ -134,6 +134,7 @@ func (s InvitesTestSuite) TestSendGroupInvite() {
 			desc:               "inviteNoGroup",
 			id:                 s.IDs["userOK"].String(),
 			data:               map[string]interface{}{"target": s.IDs["invitedUserOK"].String()},
+			returnVal:          false,
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "invalid group ID"},
 		},
@@ -141,6 +142,7 @@ func (s InvitesTestSuite) TestSendGroupInvite() {
 			desc:               "inviteNoUser",
 			id:                 s.IDs["userOK"].String(),
 			data:               map[string]interface{}{"group": s.IDs["group"].String()},
+			returnVal:          false,
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "invalid target user ID"},
 		},
@@ -148,6 +150,7 @@ func (s InvitesTestSuite) TestSendGroupInvite() {
 			desc:               "inviteNoRights",
 			id:                 s.IDs["userNoRights"].String(),
 			data:               map[string]interface{}{"group": s.IDs["group"].String(), "target": s.IDs["invitedUserOK"]},
+			returnVal:          false,
 			expectedStatusCode: http.StatusForbidden,
 			expectedResponse:   gin.H{"err": fmt.Sprintf("Forbidden action. Reason: User %v has no rights to add new members to group %v", s.IDs["userNoRights"], s.IDs["group"])},
 		},
@@ -155,6 +158,7 @@ func (s InvitesTestSuite) TestSendGroupInvite() {
 			desc:               "inviteUserNotFound",
 			id:                 s.IDs["userOK"].String(),
 			data:               map[string]interface{}{"group": s.IDs["group"].String(), "target": s.IDs["invitedUserNotFound"]},
+			returnVal:          false,
 			expectedStatusCode: http.StatusNotFound,
 			expectedResponse:   gin.H{"err": fmt.Sprintf("resource: user with value: %v not found", s.IDs["invitedUserNotFound"])},
 		},
@@ -162,6 +166,7 @@ func (s InvitesTestSuite) TestSendGroupInvite() {
 			desc:               "inviteUserMember",
 			id:                 s.IDs["userOK"].String(),
 			data:               map[string]interface{}{"group": s.IDs["group"].String(), "target": s.IDs["invitedUserMember"]},
+			returnVal:          false,
 			expectedStatusCode: http.StatusForbidden,
 			expectedResponse:   gin.H{"err": fmt.Sprintf("Forbidden action. Reason: User %v already is already a member of group %v", s.IDs["invitedUserMember"], s.IDs["group"])},
 		},
@@ -169,6 +174,7 @@ func (s InvitesTestSuite) TestSendGroupInvite() {
 			desc:               "inviteUserInvited",
 			id:                 s.IDs["userOK"].String(),
 			data:               map[string]interface{}{"group": s.IDs["group"].String(), "target": s.IDs["invitedUserInvited"]},
+			returnVal:          false,
 			expectedStatusCode: http.StatusForbidden,
 			expectedResponse:   gin.H{"err": fmt.Sprintf("Forbidden action. Reason: User %v already invited to group %v", s.IDs["invitedUserInvited"], s.IDs["group"])},
 		},
@@ -176,8 +182,9 @@ func (s InvitesTestSuite) TestSendGroupInvite() {
 			desc:               "invitesuccess",
 			id:                 s.IDs["userOK"].String(),
 			data:               map[string]interface{}{"group": s.IDs["group"].String(), "target": s.IDs["invitedUserOK"].String()},
+			returnVal:          true,
 			expectedStatusCode: http.StatusCreated,
-			expectedResponse:   gin.H{"message": "invite sent"},
+			expectedResponse:   models.Invite{ID: s.IDs["inviteOK"]},
 		},
 	}
 
@@ -199,10 +206,19 @@ func (s InvitesTestSuite) TestSendGroupInvite() {
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 
-			var msg gin.H
-			json.NewDecoder(response.Body).Decode(&msg)
+			var respBody interface{}
 
-			s.Equal(tC.expectedResponse, msg)
+			if tC.returnVal {
+				var invite models.Invite
+				json.NewDecoder(response.Body).Decode(&invite)
+				respBody = invite
+			} else {
+				var msg gin.H
+				json.NewDecoder(response.Body).Decode(&msg)
+				respBody = msg
+			}
+
+			s.Equal(tC.expectedResponse, respBody)
 		})
 	}
 }
@@ -269,9 +285,9 @@ func (s InvitesTestSuite) TestRespondGroupInvite() {
 			userID:             s.IDs["userOK"].String(),
 			inviteID:           s.IDs["inviteOK"].String(),
 			data:               map[string]interface{}{"answer": false},
-			returnVal:          false,
+			returnVal:          true,
 			expectedStatusCode: http.StatusOK,
-			expectedResponse:   gin.H{"message": "invite declined"},
+			expectedResponse:   gin.H{"invite": models.Invite{ID: s.IDs["inviteOK"]}},
 		},
 		{
 			desc:               "respondInviteYes",
@@ -280,7 +296,7 @@ func (s InvitesTestSuite) TestRespondGroupInvite() {
 			data:               map[string]interface{}{"answer": true},
 			returnVal:          true,
 			expectedStatusCode: http.StatusOK,
-			expectedResponse:   models.Group{ID: s.IDs["group"]},
+			expectedResponse:   gin.H{"invite": models.Invite{ID: s.IDs["inviteOK"]}, "group": models.Group{ID: s.IDs["group"]}},
 		},
 	}
 
@@ -304,9 +320,39 @@ func (s InvitesTestSuite) TestRespondGroupInvite() {
 
 			var respBody interface{}
 			if tC.returnVal {
-				group := models.Group{}
-				json.NewDecoder(response.Body).Decode(&group)
-				respBody = group
+				var msg gin.H
+				json.NewDecoder(response.Body).Decode(&msg)
+
+				inviteAsInterface, ok := msg["invite"]
+				if !ok {
+					s.Fail("Returned message does not contain invite field")
+				}
+				inviteAsMap, ok := inviteAsInterface.(map[string]interface{})
+				if !ok {
+					s.Fail("group is not a map")
+				}
+				inviteID, err := uuid.Parse(inviteAsMap["ID"].(string))
+				if err != nil {
+					s.Fail("Parsing invite ID returned err: ", err.Error())
+				}
+
+				var groupID uuid.UUID
+				groupAsInterface, ok := msg["group"]
+				if ok {
+
+					groupAsMap, ok := groupAsInterface.(map[string]interface{})
+					if !ok {
+						s.Fail("group is not a map")
+					}
+					groupID, err = uuid.Parse(groupAsMap["ID"].(string))
+					if err != nil {
+						s.Fail("Parsing invite ID returned err: ", err.Error())
+					}
+					respBody = gin.H{"invite": models.Invite{ID: inviteID}, "group": models.Group{ID: groupID}}
+				} else {
+					respBody = gin.H{"invite": models.Invite{ID: inviteID}}
+				}
+
 			} else {
 				var msg gin.H
 				json.NewDecoder(response.Body).Decode(&msg)

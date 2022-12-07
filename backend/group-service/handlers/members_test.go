@@ -38,13 +38,13 @@ func (s *MembersTestSuite) SetupSuite() {
 
 	db := new(mockdb.MockGroupsDB)
 
-	db.On("DeleteMember", s.IDs["userOK"], s.IDs["groupOK"], s.IDs["memberOK"]).Return(nil)
+	db.On("DeleteMember", s.IDs["userOK"], s.IDs["groupOK"], s.IDs["memberOK"]).Return(&models.Member{ID: s.IDs["memberOK"]}, nil)
 	db.On("DeleteMember", s.IDs["userWithoutRights"], s.IDs["groupOK"], s.IDs["memberOK"]).
-		Return(apperrors.NewForbidden(fmt.Sprintf("User %v has no right to delete members in group %v", s.IDs["userWithoutRights"], s.IDs["groupOK"])))
+		Return(nil, apperrors.NewForbidden(fmt.Sprintf("User %v has no right to delete members in group %v", s.IDs["userWithoutRights"], s.IDs["groupOK"])))
 	db.On("DeleteMember", s.IDs["userOK"], s.IDs["groupOK"], s.IDs["memberNotFound"]).
-		Return(apperrors.NewNotFound("member", s.IDs["memberNotFound"].String()))
+		Return(nil, apperrors.NewNotFound("member", s.IDs["memberNotFound"].String()))
 	db.On("DeleteMember", s.IDs["userOK"], s.IDs["groupOK"], s.IDs["memberHighRank"]).
-		Return(apperrors.NewForbidden(fmt.Sprintf("User %v cannot delete member %v", s.IDs["userOK"], s.IDs["memberHighRank"])))
+		Return(nil, apperrors.NewForbidden(fmt.Sprintf("User %v cannot delete member %v", s.IDs["userOK"], s.IDs["memberHighRank"])))
 
 	db.On("GrantRights", s.IDs["userOK"], s.IDs["groupOK"], s.IDs["memberOK"], mock.Anything).Return(nil, nil)
 	db.On("GrantRights", s.IDs["userWithoutRights"], s.IDs["groupOK"], s.IDs["memberOK"], mock.Anything).
