@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 // import { Navigate } from "react-router-dom";
-import {Register} from "../Requests";
+import {Register} from "../requests/Users";
 
 function RegisterForm() {
   const [username, setName] = useState("");

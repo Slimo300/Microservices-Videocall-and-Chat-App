@@ -5,7 +5,10 @@ import Chat from "../components/Chat";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GroupLabel } from "../components/GroupLabel";
 import { ModalCreateGroup } from "../components/modals/CreateGroup";
-import {GetUser, GetGroups, GetInvites, GetWebsocket, LoadMessages} from "../Requests";
+import {GetGroups, GetInvites} from "../requests/Groups";
+import { GetUser } from "../requests/Users";
+import { GetWebsocket } from "../requests/Setup";
+import { LoadMessages } from "../requests/Messages";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { ModalUserProfile } from "./Profile";
 
@@ -71,22 +74,25 @@ const AuthMain = (props) => {
                     dispatch({type: actionTypes.ADD_MEMBER, payload: msgJSON.payload});
                     break;
                 case "ADD_INVITE":
-                    console.log(msgJSON);
                     dispatch({type: actionTypes.ADD_INVITE, payload: msgJSON.payload});
                     break;
                 case "UPDATE_INVITE":
-                    console.log(msgJSON);
                     dispatch({type: actionTypes.UPDATE_INVITE, payload: msgJSON.payload});
+                    break;
+                case "DELETE_MESSAGE":
+                    dispatch({type: actionTypes.DELETE_MESSAGE, payload: msgJSON.payload});
                     break;
                 default:
                     console.log("Unexpected action from websocket: ", msgJSON.type);
             }
             return;
         }
-        if (msgJSON.group === current.ID) { // add message to state
+        if (msgJSON.groupID === current.ID) { // add message to state
+            console.log("current: ", current.ID);
             dispatch({type: actionTypes.ADD_MESSAGE, payload: {message: msgJSON, current: true}})
             toggleToggler();
         } else {
+            console.log("Not current: ", current.ID);
             dispatch({type: actionTypes.ADD_MESSAGE, payload: {message: msgJSON, current: false}})
         }
     }
@@ -100,7 +106,7 @@ const AuthMain = (props) => {
                     if (messages.status === 204) {
                         return;
                     }
-                    dispatch({type: actionTypes.SET_MESSAGES, payload: {messages: messages.data, group: current.ID}})
+                    dispatch({type: actionTypes.ADD_MESSAGES, payload: {messages: messages.data, groupID: current.ID}})
                     toggleToggler();
                 }
             }

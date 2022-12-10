@@ -11,8 +11,8 @@ func (db *Database) NewMember(event events.MemberCreatedEvent) error {
 		GroupID:          event.GroupID,
 		UserID:           event.UserID,
 		Creator:          event.Creator,
-		Admin:            false,
-		DeletingMessages: false,
+		Admin:            event.Creator,
+		DeletingMessages: event.Creator,
 	}).Error
 }
 

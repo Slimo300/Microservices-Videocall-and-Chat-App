@@ -47,7 +47,7 @@ func (db *Database) CreateGroup(userID uuid.UUID, name string) (models.Group, er
 		return models.Group{}, err
 	}
 
-	if err := db.Where(models.Group{ID: group.ID}).Preload("Members").First(&group).Error; err != nil {
+	if err := db.Where(models.Group{ID: group.ID}).Preload("Members").Preload("Members.User").First(&group).Error; err != nil {
 		return models.Group{}, err
 	}
 	return group, nil

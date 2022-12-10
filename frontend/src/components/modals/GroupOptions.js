@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
-import {UpdateGroupProfilePicture, DeleteGroupProfilePicture} from "../../Requests";
+import {UpdateGroupProfilePicture, DeleteGroupProfilePicture} from "../../requests/Groups";
 import { actionTypes, StorageContext } from '../../ChatStorage';
 import { GroupPicture } from "../Pictures";
 

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { StorageContext, actionTypes } from "../ChatStorage";
-import {LoadMessages} from "../Requests";
+import {LoadMessages} from "../requests/Messages";
 import GroupMenu from "./GroupMenu";
 import Message from "./Message";
 import { ModalAddUser } from "./modals/AddUser";
@@ -71,17 +71,17 @@ const Chat = (props) => {
                 throw new Error("No member matches user");
             }
         )();
-    }, [props.group.ID, state.user.ID, props.group.Members]);
+    }, [props.group, state.user.ID]);
 
     // function for sending message when submit
     const sendMessage = (e) => {
         e.preventDefault();
         if (msg.trim() === "") return false;
         if (props.ws !== undefined) props.ws.send(JSON.stringify({
-            "group": props.group.ID,
-            "member": member.ID,
+            "groupID": props.group.ID,
+            "userID": state.user.ID,
             "text": msg,
-            "nick": member.nick
+            "nick": state.user.username,
         }));
         document.getElementById("text-area").value = "";
         document.getElementById("text-area").focus();
@@ -93,7 +93,7 @@ const Chat = (props) => {
             setAllMessagesFlag(true);
             return;
         }
-        dispatch({type: actionTypes.ADD_MESSAGES, payload: {messages: messages.data, group: props.group.ID}}); 
+        dispatch({type: actionTypes.ADD_MESSAGES, payload: {messages: messages.data, groupID: props.group.ID}}); 
     };
 
     let load;
@@ -112,11 +112,11 @@ const Chat = (props) => {
                     </div>
                 </div>
                 <div className="chat-container">
-                    <ul className="chat-box" style={{height: '70vh', overflow: 'scroll'}}>
-                        {!allMessagesFlag?<li className="text-center"><a className="text-primary" style={{cursor: "pointer"}} onClick={loadMessages}>Load more messages</a></li>:null}
+                    <ul className="chat-box" style={{height: '70vh', 'overflow-y': 'scroll'}}>
+                        {!allMessagesFlag?<li className="text-center align-top"><a className="text-primary" style={{cursor: "pointer"}} onClick={loadMessages}>Load more messages</a></li>:null}
                         {props.group.messages===undefined?null:props.group.messages.map((item) => {
-                        return <div ref={scrollRef}>
-                                <Message key={item.ID} time={item.created} message={item.text} name={item.nick} member={item.member} user={member.ID} picture={GetMemberPicture(props.group, item.member)} />
+                        return <div className="d-flex flex-column justify-content-end min-vh-65" ref={scrollRef}>
+                                <Message key={item.ID} message={item} user={state.user.ID} picture={GetMemberPicture(props.group, item.member)} />
                             </div>})}
                     </ul>
                     <form id="chatbox" className="form-group mt-3 mb-0 d-flex column justify-content-center" onSubmit={sendMessage}>

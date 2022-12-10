@@ -21,12 +21,12 @@ type Message struct {
 	User    uuid.UUID `json:"userID"`
 	Message string    `json:"text"`
 	Nick    string    `json:"nick"`
-	When    string    `json:"created"`
+	When    time.Time `json:"created"`
 }
 
 func (m *Message) Prepare() {
 	m.ID = uuid.New()
-	m.When = time.Now().Format(TIME_FORMAT)
+	m.When = time.Now()
 }
 
 // Send sends itself through websocket connection

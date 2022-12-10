@@ -15,16 +15,16 @@ func (db *Database) GetGroupMessages(userID, groupID uuid.UUID, offset, num int)
 	if err != nil {
 		return []models.Message{}, apperrors.NewForbidden("User not in group")
 	}
-	if err := db.Order("posted desc").Offset(offset).Limit(num).Where(models.Message{GroupID: groupID}).Find(&messages).Error; err != nil {
+	if err := db.Order("posted desc").Offset(offset).Limit(num).Preload("Deleters").Where(models.Message{GroupID: groupID}).Find(&messages).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return []models.Message{}, nil
 		}
 		return []models.Message{}, apperrors.NewInternal()
 	}
-	for _, msg := range messages {
+	for i, msg := range messages {
 		for _, del := range msg.Deleters {
 			if del.UserID == userID {
-				msg.Text = ""
+				messages[i].Text = ""
 			}
 		}
 	}
@@ -41,18 +41,18 @@ func (db *Database) DeleteMessageForYourself(userID, messageID, groupID uuid.UUI
 	// Here we find our message and if it belongs to a group user passed. Making user pass extra argument
 	// groupID allows us to check if request sender is aware of message affiliations
 	var message models.Message
-	if err := db.First(&message, messageID).Error; err != nil || message.GroupID != groupID {
+	if err := db.Preload("Deleters").First(&message, messageID).Error; err != nil || message.GroupID != groupID {
 		return models.Message{}, apperrors.NewNotFound("message", messageID.String())
 	}
 
 	// checking if user haven't already deleted this message
-	if err := db.Model(&message).Where(models.Membership{UserID: userID}).Association("Deleters").DB.First(&models.Membership{}).Error; err != gorm.ErrRecordNotFound {
-		if err == nil {
+	for _, member := range message.Deleters {
+		if member.UserID == userID {
 			return models.Message{}, apperrors.NewConflict("deleted", userID.String())
 		}
-		return models.Message{}, apperrors.NewInternal()
 	}
-	if err := db.Model(&message).Association("Deleters").Append(membership); err != nil { // 500
+
+	if err := db.Model(&message).Association("Deleters").Append(&membership); err != nil { // 500
 		return models.Message{}, apperrors.NewInternal()
 	}
 
@@ -71,7 +71,7 @@ func (db *Database) DeleteMessageForEveryone(userID, messageID, groupID uuid.UUI
 	if !membership.Creator && !membership.DeletingMessages && message.UserID != userID {
 		return models.Message{}, apperrors.NewForbidden("User has no right to delete message")
 	}
-	if err := db.Delete(&message).Error; err != nil {
+	if err := db.Model(&message).Update("text", "").Error; err != nil {
 		return models.Message{}, apperrors.NewInternal()
 	}
 	return message, nil

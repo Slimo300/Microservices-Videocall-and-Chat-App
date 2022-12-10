@@ -69,13 +69,10 @@ func (s *Server) DeleteMessageForEveryone(c *gin.Context) {
 		return
 	}
 
-	if err := s.Emitter.Emit(events.MessageDeletedEvent{
-		ID:      messageID,
+	s.Emitter.Emit(events.MessageDeletedEvent{
+		ID:      msg.ID,
 		GroupID: msg.GroupID,
-	}); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
-		return
-	}
+	})
 
 	c.JSON(http.StatusOK, msg)
 }

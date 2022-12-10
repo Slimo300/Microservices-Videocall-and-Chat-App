@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Navigate, useParams} from "react-router-dom";
-import {VerifyAccount} from "../Requests";
+import {VerifyAccount} from "../requests/Users";
 
 function EmailVerification() {
   const [verificationCode, setVerificationCode] = useState("");

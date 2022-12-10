@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import {NavLink} from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBell } from '@fortawesome/free-solid-svg-icons'
-import {Logout} from '../Requests';
+import {Logout} from '../requests/Users';
 import { StorageContext, actionTypes } from '../ChatStorage';
 import Invite from './Invite';
 
@@ -42,7 +42,7 @@ const Navigation = (props) => {
                         <span className="badge badge-secondary">{state.notifications!==undefined?state.notifications.length:null}</span>
                     </button>
                     <div className="dropdown-menu dropdown-menu-right">
-                        {state.invites!==undefined?state.invites.map((item)=> <Invite invite={item} />):null}
+                        {state.invites!==undefined?state.invites.map((item)=> <Invite key={item.ID} invite={item} />):null}
                     </div>
                 </div>
 

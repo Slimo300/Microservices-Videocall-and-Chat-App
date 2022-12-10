@@ -1,7 +1,7 @@
 import React, {useContext, useState} from 'react';
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
 import { actionTypes, StorageContext } from '../../ChatStorage';
-import {DeleteGroup} from '../../Requests';
+import {DeleteGroup} from '../../requests/Groups';
 
 export const ModalDeleteGroup = (props) => {
 

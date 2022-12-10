@@ -176,7 +176,8 @@ function DeleteMemberFromGroup(state, payload) {
 function AddMessage(state, payload) {
     let newState = {...state};
     for (let i = 0; i < newState.groups.length; i++) {
-        if (newState.groups[i].ID === payload.message.group) {
+        if (newState.groups[i].ID === payload.message.groupID) {
+            console.log("Pushing");
             newState.groups[i].messages.push(payload.message);
             if (!payload.current) {
                 newState.groups[i].unreadMessages += 1;
@@ -190,7 +191,7 @@ function AddMessage(state, payload) {
 function AddMessages(state, payload) {
     let newState = {...state};
     for (let i = 0; i < newState.groups.length; i++) {
-        if (newState.groups[i].ID === payload.group) {
+        if (newState.groups[i].ID === payload.groupID) {
             newState.groups[i].messages = [...payload.messages.reverse(), ...newState.groups[i].messages];
             return newState;
         }
@@ -203,8 +204,11 @@ function DeleteMessage(state, payload) {
     for (let i = 0; i < newState.groups.length; i++) {
         if (newState.groups[i].ID === payload.groupID) {
             for (let j = 0; j < newState.groups[i].messages.length; j++) {
-                newState.groups[i].messages = newState.groups[i].messages.filter((msg) => {return msg.ID !== payload.messageID})
+                if (newState.groups[i].messages[j].messageID === payload.messageID) {
+                    newState.groups[i].messages[j].text = ""; 
+                }
             }
+            return newState;
         }
     }
     throw new Error("Message not found")

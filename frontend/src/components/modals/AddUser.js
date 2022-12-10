@@ -1,7 +1,7 @@
 import React, {useContext, useState} from "react";
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
 import { StorageContext } from "../../ChatStorage";
-import {SendGroupInvite} from "../../Requests";
+import {SendGroupInvite} from "../../requests/Groups";
 import { actionTypes } from "../../ChatStorage";
 
 export const ModalAddUser = (props) => {

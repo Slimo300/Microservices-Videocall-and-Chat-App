@@ -78,7 +78,7 @@ const (
 
 type MemberRights struct {
 	Adding           operation `json:"adding,omitempty"`
-	DeletingMessages operation `json:"deleting,omitempty"`
+	DeletingMessages operation `json:"deletingMessages,omitempty"`
 	DeletingMembers  operation `json:"deletingMembers,omitempty"`
 	Admin            operation `json:"admin,omitempty"`
 }

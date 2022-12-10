@@ -1,7 +1,7 @@
 import React, {useContext, useState} from 'react';
 import {v4 as uuidv4} from "uuid";
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
-import {SetRights, DeleteMember} from '../../Requests';
+import {SetRights, DeleteMember} from '../../requests/Groups';
 import { actionTypes, StorageContext } from '../../ChatStorage';
 import { UserPicture } from '../Pictures';
 
@@ -136,6 +136,7 @@ const Rights = (props) => {
             DetermineAction(props.member.deletingMembers, deletingMembers),
             DetermineAction(props.member.admin, admin)
         );
+        console.log(response);
         if (response.status === 200) {
             props.setMsg("Rights changed");
         } else props.setMsg(response.data.err);

@@ -4,12 +4,12 @@ go 1.19
 
 require (
 	github.com/Shopify/sarama v1.37.2
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20221119193915-f9a59bcbb280
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221026134330-f9c023747ea9
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221201180559-d90e6f458cc8
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221207174354-0b427497511c
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221205221422-aafa9090553b
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20221118080724-7204f0fa543c
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20221210095715-6884d94fa4ab
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221210095715-6884d94fa4ab
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221210095715-6884d94fa4ab
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221210095715-6884d94fa4ab
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221210095715-6884d94fa4ab
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20221210095715-6884d94fa4ab
 	github.com/gin-contrib/size v0.0.0-20220829131622-0fc0bc875336
 	github.com/gin-gonic/gin v1.8.1
 	github.com/golang-jwt/jwt v3.2.2+incompatible
@@ -71,7 +71,7 @@ require (
 	golang.org/x/net v0.1.0 // indirect
 	golang.org/x/sys v0.2.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
-	google.golang.org/genproto v0.0.0-20221024183307-1bc688fe9f3e // indirect
+	google.golang.org/genproto v0.0.0-20221025140454-527a21cfbd71 // indirect
 	google.golang.org/grpc v1.50.1 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect

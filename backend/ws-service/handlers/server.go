@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"time"
-
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
@@ -30,15 +28,16 @@ func (s *Server) ListenToHub() {
 	for {
 		select {
 		case msg = <-s.MessageChan:
-			when, err := time.Parse(ws.TIME_FORMAT, msg.When)
-			if err != nil {
-				panic(err.Error())
-			}
+			// when, err := time.Parse(time.RFC3339, msg.When)
+			// if err != nil {
+			// 	panic(err.Error())
+			// }
 			s.Emitter.Emit(events.MessageSentEvent{
+				ID:      msg.ID,
 				GroupID: msg.Group,
 				UserID:  msg.User,
 				Nick:    msg.Nick,
-				Posted:  when,
+				Posted:  msg.When,
 				Text:    msg.Message,
 			})
 		}

@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { actionTypes, StorageContext } from "../ChatStorage";
-import {RespondGroupInvite} from "../Requests";
+import {RespondGroupInvite} from "../requests/Groups";
 import { UserPicture, GroupPicture } from "./Pictures";
 
 const Invite = (props) => {
