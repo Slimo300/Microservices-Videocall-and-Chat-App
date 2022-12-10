@@ -3,6 +3,7 @@ import {v4 as uuidv4} from "uuid";
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
 import {SetRights, DeleteMember} from '../../Requests';
 import { actionTypes, StorageContext } from '../../ChatStorage';
+import { UserPicture } from '../Pictures';
 
 export const ModalMembers = (props) => {
 
@@ -91,20 +92,14 @@ const Member = (props) => {
 
     return (
         <tr className='d-flex flex-column'>
-            <p className="chat-avatar d-flex flex-row justify-content-center">
-                <td className='pr-3'>
-                    <img
-                        src={"https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+props.member.User.pictureUrl}
-                        onError={({ currentTarget }) => {
-                            currentTarget.onerror = null; 
-                            currentTarget.src="https://erasmuscoursescroatia.com/wp-content/uploads/2015/11/no-user.jpg";
-                        }}
-                    />    
-                </td>
-                <td className="chat-name pr-3 w-50">{props.member.User.username}</td>
-                {isSetter(props.user)?<td className='pr-3 align-right'><button className='btn-primary btn' type="button" onClick={toggleCollapse} disabled={!CanSet(props.user, props.member)}>Set rights</button></td>:null}
-                {isDeleter(props.user)?<td className='pr-3 align-right'><button className='btn-primary btn' disabled={!CanDelete(props.user, props.member)} onClick={deleteMember}>Delete</button></td>:null}
-            </p>
+            <td className="chat-avatar d-flex flex-row justify-content-center">
+                <div className='pr-3 members-image-holder'>
+                    <UserPicture pictureUrl={props.member.User.pictureUrl} />
+                </div>
+                <div className="chat-name pr-3 w-50 d-flex align-items-center">{props.member.User.username}</div>
+                {isSetter(props.user)?<div className='pr-3 align-right'><button className='btn-primary btn' type="button" onClick={toggleCollapse} disabled={!CanSet(props.user, props.member)}>Set rights</button></div>:null}
+                {isDeleter(props.user)?<div className='pr-3 align-right'><button className='btn-primary btn' disabled={!CanDelete(props.user, props.member)} onClick={deleteMember}>Delete</button></div>:null}
+            </td>
             <Rights member={props.member} user={props.user} setMsg={props.setMsg} />
         </tr>
     );
@@ -151,8 +146,8 @@ const Rights = (props) => {
     }
 
     return (
-        <div class="collapse" id={"collapse-"+props.member.ID}>
-            <div class="card card-body d-flex flex-row">
+        <td className="collapse" id={"collapse-"+props.member.ID}>
+            <div className="card card-body d-flex flex-row">
                 <div className='pl-3 d-flex flex-column w-50'>
                     {props.user.admin?<div className='align-middle'>
                         <input className="form-check-input" type="checkbox" id="inlineCheckbox1" checked={adding} disabled={props.member.creator} onChange={toggleAdding}/>
@@ -175,7 +170,7 @@ const Rights = (props) => {
                     <button className='btn btn-secondary' onClick={setRights}>Change Rights</button>
                 </div>
             </div>
-        </div>
+        </td>
     )
 }
 

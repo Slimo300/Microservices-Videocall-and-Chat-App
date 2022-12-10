@@ -18,7 +18,7 @@ function RegisterForm() {
     } catch(err) {
       setMessage(err.response.data.err);
     }
-    if (result.status == 201) {
+    if (result.status === 201) {
       setMessage("Verification email sent");
     }
 

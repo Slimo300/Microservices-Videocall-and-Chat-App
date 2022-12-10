@@ -355,6 +355,11 @@ ul {
     width: 50px;
 }
 
+.members-image-holder img {
+    width: 50px;
+    height: 50px;
+}
+
 .invite {
     width: 40vw;
 }

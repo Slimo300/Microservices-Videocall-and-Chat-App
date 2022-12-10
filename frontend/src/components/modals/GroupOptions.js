@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
 import {UpdateGroupProfilePicture, DeleteGroupProfilePicture} from "../../Requests";
 import { actionTypes, StorageContext } from '../../ChatStorage';
+import { GroupPicture } from "../Pictures";
 
 export const ModalGroupOptions = (props) => {
 
@@ -52,7 +53,7 @@ export const ModalGroupOptions = (props) => {
         <Modal id="buy" tabIndex="-1" role="dialog" isOpen={props.show} toggle={props.toggle}>
             <div role="document">
                 <ModalHeader toggle={props.toggle} className="bg-dark text-primary text-center">
-                    User Profile
+                    Group Profile
                 </ModalHeader>
                 <ModalBody>
                     <div class="container">
@@ -61,13 +62,7 @@ export const ModalGroupOptions = (props) => {
                                 <div className="member-card">
                                     {message}
                                     <div className="mx-auto profile-image-holder">
-                                        <img id="profilePicture" className="rounded-circle img-thumbnail"
-                                            src={"https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+props.group.pictureUrl}
-                                            onError={({ currentTarget }) => {
-                                                currentTarget.onerror = null; 
-                                                currentTarget.src="https://cdn.icon-icons.com/icons2/3005/PNG/512/people_group_icon_188185.png";
-                                            }}
-                                        />
+                                        <GroupPicture pictureUrl={props.group.pictureUrl} imageID="profilePicture"/>
                                     </div>
                                     <div>
                                         <h4>{props.name}</h4>

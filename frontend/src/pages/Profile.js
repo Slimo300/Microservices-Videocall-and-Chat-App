@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
 import {ChangePassword, UpdateProfilePicture, DeleteProfilePicture }from "../Requests";
 import { actionTypes, StorageContext } from '../ChatStorage';
+import { UserPicture } from "../components/Pictures";
 
 export const ModalUserProfile = (props) => {
 
@@ -80,19 +81,13 @@ export const ModalUserProfile = (props) => {
                     User Profile
                 </ModalHeader>
                 <ModalBody>
-                    <div class="container">
+                    <div className="container">
                         <div className="row d-flex justify-content-center">
                             <div className="text-center card-box">
                                 <div className="member-card">
                                     {message}
                                     <div className="mx-auto profile-image-holder">
-                                        <img id="profilePicture" className="rounded-circle img-thumbnail"
-                                            src={"https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+state.user.pictureUrl}
-                                            onError={({ currentTarget }) => {
-                                                currentTarget.onerror = null; 
-                                                currentTarget.src="https://erasmuscoursescroatia.com/wp-content/uploads/2015/11/no-user.jpg";
-                                            }}
-                                        />
+                                        <UserPicture pictureUrl={state.user.pictureUrl} imageID="profilePicture"/>
                                     </div>
                                     <div>
                                         <h4>{props.name}</h4>

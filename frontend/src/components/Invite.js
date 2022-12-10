@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { actionTypes, StorageContext } from "../ChatStorage";
 import {RespondGroupInvite} from "../Requests";
+import { UserPicture, GroupPicture } from "./Pictures";
 
 const Invite = (props) => {
     if (props.invite.status === 1){ 
@@ -40,14 +41,14 @@ const AwaitingInvite = (props) => {
     return (
         <div className="dropdown-item invite">
             <div className="list-group-item list-group-item-info d-flex row justify-content-around">
-                {isUserATarget?<InviteImage pictureUrl={props.invite.issuer.pictureUrl}/>:null}
+                {isUserATarget?<InviteImage pictureUrl={props.invite.issuer.pictureUrl} user={true}/>:null}
                 <div className="chat-name align-self-center">{isUserATarget?props.invite.issuer.username:"You"}</div>
                 <div className="align-self-center">invited </div>
-                {isUserATarget?null:<InviteImage pictureUrl={props.invite.target.pictureUrl}/>}
+                {isUserATarget?null:<InviteImage pictureUrl={props.invite.target.pictureUrl} user={true}/>}
                 <div className="chat-name align-self-center">{isUserATarget?"You":props.invite.target.username}</div>
                 <div className="align-self-center">to </div>
                 <div className="chat-name align-self-center">{props.invite.group.name}</div>
-                <InviteImage pictureUrl={props.invite.group.pictureUrl}/>
+                <InviteImage pictureUrl={props.invite.group.pictureUrl} user={false}/>
                 {isUserATarget?<button className="btn-primary h-50 align-self-center" type="button" onClick={() => {Respond(true)}}>Accept</button>:null}
                 {isUserATarget?<button className="btn-secondary h-50 align-self-center" type="button" onClick={() => {Respond(false)}}>Decline</button>:null}
             </div>
@@ -90,15 +91,13 @@ const AnsweredInvite = (props) => {
 };
 
 const InviteImage = (props) => {
+    let image = <GroupPicture pictureUrl={props.pictureUrl} />;
+    if (props.user) {
+        image = <UserPicture pictureUrl={props.pictureUrl} />
+    }
     return (
         <div className="chat-avatar image-holder-invite">
-            <img className="rounded-circle img-thumbnail"
-                src={"https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+props.pictureUrl}
-                onError={({ currentTarget }) => {
-                    currentTarget.onerror = null; 
-                    currentTarget.src="https://cdn.icon-icons.com/icons2/3005/PNG/512/people_group_icon_188185.png";
-                }}
-            />
+            {image}
         </div>
     );
 } 

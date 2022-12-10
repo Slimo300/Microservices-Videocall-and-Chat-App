@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import { actionTypes, StorageContext } from "../ChatStorage";
+import { GroupPicture } from "./Pictures";
 
 export const GroupLabel = (props) => {
 
@@ -12,13 +13,7 @@ export const GroupLabel = (props) => {
     return (
         <li className="person" onClick={change}>
             <div className="user">
-                <img className="rounded-circle img-thumbnail"
-                    src={"https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+props.group.pictureUrl}
-                    onError={({ currentTarget }) => {
-                        currentTarget.onerror = null; 
-                        currentTarget.src="https://cdn.icon-icons.com/icons2/3005/PNG/512/people_group_icon_188185.png";
-                    }}
-                />
+                <GroupPicture pictureUrl={props.group.pictureUrl}/>
             </div>
             <p className="name-time">
                 <span className="name">{props.group.name}</span>
