@@ -2,11 +2,14 @@ package orm
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/database"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/models"
 	"github.com/google/uuid"
+	"github.com/thanhpk/randstr"
+	"gorm.io/gorm"
 )
 
 func (db *Database) GetUserById(id uuid.UUID) (user models.User, err error) {
@@ -79,4 +82,57 @@ func (db *Database) SignIn(email, password string) (models.User, error) {
 		return models.User{}, apperrors.NewBadRequest("invalid credentials")
 	}
 	return user, nil
+}
+
+func (db *Database) NewResetPasswordCode(email string) (*models.User, *models.ResetCode, error) {
+	var user models.User
+	if err := db.Where(models.User{Email: email}).First(&user).Error; err != nil {
+		return nil, nil, nil
+	}
+
+	// if user
+	var resetCode models.ResetCode
+	if err := db.First(&resetCode, user.ID).Error; err != gorm.ErrRecordNotFound {
+		if err := db.Delete(&resetCode).Error; err != nil {
+			return nil, nil, apperrors.NewInternal()
+		}
+	}
+
+	resetCode = models.ResetCode{UserID: user.ID, Created: time.Now(), ResetCode: randstr.String(10)}
+	if err := db.Create(&resetCode).Error; err != nil {
+		return nil, nil, apperrors.NewInternal()
+	}
+
+	return &user, &resetCode, nil
+}
+
+func (db *Database) ResetPassword(code, newPassword string) error {
+	var resetCode models.ResetCode
+	if err := db.Where(models.ResetCode{ResetCode: code}).First(&resetCode).Error; err != nil {
+		return apperrors.NewNotFound("reset code", code)
+	}
+
+	currentTime := time.Now()
+	if currentTime.Sub(resetCode.Created) > db.Config.ResetCodeDuration {
+		if err := db.Delete(&resetCode).Error; err != nil {
+			return apperrors.NewInternal()
+		}
+		return apperrors.NewNotFound("reset code", code)
+	}
+
+	var user models.User
+	if err := db.First(&user, resetCode.UserID).Error; err != nil {
+		return apperrors.NewBadRequest("User does not exist")
+	}
+
+	hash, err := database.HashPassword(newPassword)
+	if err != nil {
+		return apperrors.NewBadRequest("Invalid password")
+	}
+
+	if err := db.Model(&user).Update("password", hash).Error; err != nil {
+		return apperrors.NewInternal()
+	}
+
+	return nil
 }

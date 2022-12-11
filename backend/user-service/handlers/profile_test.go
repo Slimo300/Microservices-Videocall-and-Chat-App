@@ -23,7 +23,7 @@ import (
 func TestChangePassword(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	DBMock := new(mockdb.DBLayerMock)
+	DBMock := new(mockdb.MockUsersDB)
 	DBMock.On("GetUserById", uuid.MustParse("c71b4a02-85fb-4092-9e98-051302728eaf")).Return(models.User{
 		ID:   uuid.MustParse("c71b4a02-85fb-4092-9e98-051302728eaf"),
 		Pass: "$2a$10$6BSuuiaPdRJJF2AygYAfnOGkrKLY2o0wDWbEpebn.9Rk0O95D3hW."}, nil)
@@ -109,7 +109,7 @@ func TestChangePassword(t *testing.T) {
 func TestDeleteProfilePicture(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	DBMock := new(mockdb.DBLayerMock)
+	DBMock := new(mockdb.MockUsersDB)
 	DBMock.On("GetProfilePictureURL", uuid.MustParse("0ef41409-24b0-43e6-80a3-cf31a4b1a684")).Return("", nil)
 	DBMock.On("GetProfilePictureURL", uuid.MustParse("f586fa1a-af84-4a2e-9fc6-1a4ada270fe4")).Return("", gorm.ErrRecordNotFound)
 	DBMock.On("GetProfilePictureURL", uuid.MustParse("1c4dccaf-a341-4920-9003-f24e0412f8e0")).Return("url", nil)
@@ -183,7 +183,7 @@ func TestDeleteProfilePicture(t *testing.T) {
 func TestSetProfilePicture(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	DBMock := new(mockdb.DBLayerMock)
+	DBMock := new(mockdb.MockUsersDB)
 	DBMock.On("GetProfilePictureURL", uuid.MustParse("1c4dccaf-a341-4920-9003-f24e0412f8e0")).Return("someUrl", nil)
 
 	s := handlers.Server{

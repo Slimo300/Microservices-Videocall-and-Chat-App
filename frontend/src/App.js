@@ -9,6 +9,7 @@ import RegisterForm from "./pages/Register";
 import EmailVerification from "./pages/VerifyAccount";
 import Page404 from "./pages/404";
 import SignInForm from './pages/Login';
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   
@@ -31,6 +32,7 @@ function App() {
               <Route path="/login" element={<SignInForm setName={setName} name={name}/>}/>
               <Route path="/register" element={<RegisterForm/>}/>
               <Route path="/verify-account/:code" element={<EmailVerification />}/>
+              <Route path="/reset-password/:code" element={<ResetPassword />}/>
               <Route path="*" element={<Page404 />}/>
             </Routes>
           </main>

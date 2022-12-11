@@ -7,8 +7,8 @@
         <tr>
           <td>
             <p>Hi {{ .Name}},</p>
-            <p>Please verify your account to be able to login</p>
-            <p>Verification code is valid for 24hours</p>
+            <p>You can reset your password by clicking this link</p>
+            <p>This link will be active for 1 hour</p>
             <table
               role="presentation"
               border="0"
@@ -28,8 +28,8 @@
                       <tbody>
                         <tr>
                           <td>
-                            <a href="http://localhost:3000/verify-account/{{.Code}}" target="_blank"
-                              >Verify your account</a
+                            <a href="http://localhost:3000/reset-password/{{.Code}}" target="_blank"
+                              >Reset your password</a
                             >
                           </td>
                         </tr>

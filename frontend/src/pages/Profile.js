@@ -22,15 +22,21 @@ export const ModalUserProfile = (props) => {
 
             try {
                 response = await ChangePassword(oldPassword, newPassword, repeatPassword);
+                if (response.status === 200) {
+                    setMessage("Password changed");
+                }
             } catch(err) {
-                setMessage(err.message);
+                if (err.response !== undefined) setMessage(err.response.data.err);
+                else setMessage(err.message);
             }
-            
-            if (response.status === 200) {
-                setMessage("Password changed succesfully");
-            } else {
-                setMessage(response.data.err);
-            }
+            setRepeatPassword("");
+            setNewPassword("");
+            setOldPassword("");
+
+            document.getElementById("oldpassword").value= "";
+            document.getElementById("newpassword").value= "";
+            document.getElementById("rpassword").value= "";
+
             setTimeout(function() {
                 setMessage("");
             }, 3000);

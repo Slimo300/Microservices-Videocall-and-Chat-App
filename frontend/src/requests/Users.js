@@ -68,6 +68,7 @@ export async function ChangePassword(oldPassword, newPassword, repeatPassword) {
     return await axiosObject.put(userService+"/change-password", {
         "oldPassword": oldPassword,
         "newPassword": newPassword,
+        "repeatPassword": repeatPassword,
     });
 }
 
@@ -81,4 +82,26 @@ export async function UpdateProfilePicture(image) {
 
 export async function DeleteProfilePicture() {
     return await axiosObject.delete(userService+"/delete-image");
+}
+
+export async function ForgotPassword(email) {
+    return await axiosObject.get(userService+"/forgot-password?email="+email);
+}
+
+export async function ResetForgottenPassword(resetCode, newPassword, repeatPassword) {
+    if (newPassword === "") {
+        throw new Error("password cannot be blank");
+    }
+    if (newPassword.length <  6) {
+        throw new Error("password must be at least 6 characters long");
+    }
+    if (repeatPassword !== newPassword) {
+        throw new Error("Passwords don't match");
+    }
+
+    return await axiosObject.patch(userService+"/reset-password/"+resetCode, {
+        "newPassword": newPassword,
+        "repeatPassword": repeatPassword,
+    });
+
 }

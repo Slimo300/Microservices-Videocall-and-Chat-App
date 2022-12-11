@@ -35,6 +35,12 @@ const AuthMain = (props) => {
         setCreateGrShow(!createGrShow);
     }
 
+    // useEffect(() => {
+    //     if (current.ID !== undefined) {
+    //         toggleToggler();
+    //     }
+    // }, [current]);
+
     // Getting user data, groups and invites and setting websocket connection
     useEffect(() => {
         const fetchData = async () => {

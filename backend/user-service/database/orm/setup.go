@@ -44,7 +44,7 @@ func Setup(address string, options ...Option) (*Database, error) {
 		return nil, err
 	}
 
-	if err := conn.AutoMigrate(&models.User{}, models.VerificationCode{}); err != nil {
+	if err := conn.AutoMigrate(&models.User{}, models.VerificationCode{}, models.ResetCode{}); err != nil {
 		return nil, err
 	}
 

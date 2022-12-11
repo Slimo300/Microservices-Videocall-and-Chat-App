@@ -24,10 +24,12 @@ func (s *Server) ChangePassword(c *gin.Context) {
 		RepeatNewPassword string `json:"repeatPassword"`
 		OldPassword       string `json:"oldPassword"`
 	}{}
+
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
 	}
+
 	if !isPasswordValid(payload.NewPassword) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "Password must be at least 6 characters long"})
 		return

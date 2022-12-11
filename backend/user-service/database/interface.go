@@ -16,4 +16,7 @@ type DBLayer interface {
 
 	GetProfilePictureURL(userID uuid.UUID) (string, error)
 	DeleteProfilePicture(userID uuid.UUID) (string, error)
+
+	NewResetPasswordCode(email string) (*models.User, *models.ResetCode, error)
+	ResetPassword(code, newPassword string) error
 }

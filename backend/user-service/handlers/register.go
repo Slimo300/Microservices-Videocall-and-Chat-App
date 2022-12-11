@@ -48,10 +48,10 @@ func (s *Server) RegisterUser(c *gin.Context) {
 
 	go func() {
 		s.EmailService.SendVerificationEmail(email.EmailData{
-			Subject:          "VerificationEmail",
-			Email:            user.Email,
-			Name:             user.UserName,
-			VerificationCode: verificationCode.ActivationCode,
+			Subject: "Verification Email",
+			Email:   user.Email,
+			Name:    user.UserName,
+			Code:    verificationCode.ActivationCode,
 		})
 	}()
 

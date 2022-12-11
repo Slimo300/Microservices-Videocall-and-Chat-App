@@ -24,7 +24,7 @@ func TestRegister(t *testing.T) {
 	mockEmailService := email.NewMockEmailService()
 	mockEmailService.On("SendVerificationEmail", mock.Anything).Return(nil)
 
-	mockDB := new(mockdb.DBLayerMock)
+	mockDB := new(mockdb.MockUsersDB)
 	mockDB.On("IsUsernameInDatabase", "johnny").Return(true)
 	mockDB.On("IsUsernameInDatabase", "johnny1").Return(false)
 	mockDB.On("IsEmailInDatabase", "johnny@net.com").Return(true)
