@@ -123,21 +123,25 @@ func (_m *MockUsersDB) NewResetPasswordCode(email string) (*models.User, *models
 }
 
 // RegisterUser provides a mock function with given fields: _a0
-func (_m *MockUsersDB) RegisterUser(_a0 models.User) (models.User, models.VerificationCode, error) {
+func (_m *MockUsersDB) RegisterUser(_a0 models.User) (*models.User, *models.VerificationCode, error) {
 	ret := _m.Called(_a0)
 
-	var r0 models.User
-	if rf, ok := ret.Get(0).(func(models.User) models.User); ok {
+	var r0 *models.User
+	if rf, ok := ret.Get(0).(func(models.User) *models.User); ok {
 		r0 = rf(_a0)
 	} else {
-		r0 = ret.Get(0).(models.User)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.User)
+		}
 	}
 
-	var r1 models.VerificationCode
-	if rf, ok := ret.Get(1).(func(models.User) models.VerificationCode); ok {
+	var r1 *models.VerificationCode
+	if rf, ok := ret.Get(1).(func(models.User) *models.VerificationCode); ok {
 		r1 = rf(_a0)
 	} else {
-		r1 = ret.Get(1).(models.VerificationCode)
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(*models.VerificationCode)
+		}
 	}
 
 	var r2 error
@@ -186,14 +190,16 @@ func (_m *MockUsersDB) SignIn(email string, password string) (models.User, error
 }
 
 // VerifyCode provides a mock function with given fields: code
-func (_m *MockUsersDB) VerifyCode(code string) (models.User, error) {
+func (_m *MockUsersDB) VerifyCode(code string) (*models.User, error) {
 	ret := _m.Called(code)
 
-	var r0 models.User
-	if rf, ok := ret.Get(0).(func(string) models.User); ok {
+	var r0 *models.User
+	if rf, ok := ret.Get(0).(func(string) *models.User); ok {
 		r0 = rf(code)
 	} else {
-		r0 = ret.Get(0).(models.User)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.User)
+		}
 	}
 
 	var r1 error

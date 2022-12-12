@@ -26,7 +26,7 @@ func (db *Database) DeleteProfilePicture(userID uuid.UUID) (string, error) {
 
 	url := user.PictureURL
 	if url == "" {
-		return "", apperrors.NewForbidden("user has no profile picture")
+		return "", apperrors.NewBadRequest("user has no profile picture")
 	}
 
 	if err := db.Model(&user).Update("picture_url", "").Error; err != nil {
@@ -57,11 +57,9 @@ func (db *Database) ChangePassword(userID uuid.UUID, oldPassword, newPassword st
 	if err := db.First(&user, userID).Error; err != nil {
 		return apperrors.NewAuthorization("User not in database")
 	}
-
 	if !database.CheckPassword(user.Pass, oldPassword) {
 		return apperrors.NewForbidden("Wrong Password")
 	}
-
 	hash, err := database.HashPassword(newPassword)
 	if err != nil {
 		return apperrors.NewBadRequest(fmt.Sprintf("Invalid password: %v", err))
@@ -76,10 +74,10 @@ func (db *Database) ChangePassword(userID uuid.UUID, oldPassword, newPassword st
 func (db *Database) SignIn(email, password string) (models.User, error) {
 	var user models.User
 	if err := db.Where(models.User{Email: email}).First(&user).Error; err != nil {
-		return models.User{}, apperrors.NewBadRequest("invalid credentials")
+		return models.User{}, apperrors.NewBadRequest("wrong email or password")
 	}
 	if !database.CheckPassword(user.Pass, password) {
-		return models.User{}, apperrors.NewBadRequest("invalid credentials")
+		return models.User{}, apperrors.NewBadRequest("wrong email or password")
 	}
 	return user, nil
 }
@@ -90,7 +88,7 @@ func (db *Database) NewResetPasswordCode(email string) (*models.User, *models.Re
 		return nil, nil, nil
 	}
 
-	// if user
+	// here we check if user has any existing reset code and if any exist we delete it
 	var resetCode models.ResetCode
 	if err := db.First(&resetCode, user.ID).Error; err != gorm.ErrRecordNotFound {
 		if err := db.Delete(&resetCode).Error; err != nil {

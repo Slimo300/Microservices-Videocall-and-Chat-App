@@ -12,53 +12,53 @@ import (
 	"gorm.io/gorm"
 )
 
-func (db *Database) RegisterUser(user models.User) (returnUser models.User, returnCode models.VerificationCode, returnErr error) {
+func (db *Database) RegisterUser(user models.User) (*models.User, *models.VerificationCode, error) {
 	// checking if username is taken
 	if err := db.Where(models.User{UserName: user.UserName}).First(&models.User{}).Error; !errors.Is(err, gorm.ErrRecordNotFound) {
-		returnErr = apperrors.NewConflict("username", user.UserName)
-		return
+		return nil, nil, apperrors.NewConflict("username", user.UserName)
 	}
 	// checking if email is taken
 	if err := db.Where(models.User{Email: user.Email}).First(&models.User{}).Error; !errors.Is(err, gorm.ErrRecordNotFound) {
-		returnErr = apperrors.NewConflict("email", user.Email)
-		return
+		return nil, nil, apperrors.NewConflict("email", user.Email)
 	}
 
 	hash, err := database.HashPassword(user.Pass)
 	if err != nil {
-		returnErr = apperrors.NewBadRequest("invalid password")
-		return
+		return nil, nil, apperrors.NewBadRequest("invalid password")
 	}
+
+	var newUser models.User
+	var code models.VerificationCode
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
 		now := time.Now()
 		// user creation
-		returnUser = models.User{ID: uuid.New(), UserName: user.UserName, Email: user.Email, Pass: hash, Verified: false, Created: now, Updated: now}
-		if err := tx.Create(&returnUser).Error; err != nil {
+		newUser = models.User{ID: uuid.New(), UserName: user.UserName, Email: user.Email, Pass: hash, Verified: false, Created: now, Updated: now}
+		if err := tx.Create(&newUser).Error; err != nil {
 			return err
 		}
 		// verification code creation
-		returnCode = models.VerificationCode{UserID: returnUser.ID, ActivationCode: randstr.String(10), Created: now}
-		if err := tx.Create(&returnCode).Error; err != nil {
+		code := models.VerificationCode{UserID: newUser.ID, ActivationCode: randstr.String(10), Created: now}
+		if err = tx.Create(&code).Error; err != nil {
 			return err
 		}
 		return nil
 	}); err != nil {
-		return models.User{}, models.VerificationCode{}, apperrors.NewInternal()
+		return nil, nil, apperrors.NewInternal()
 	}
 
-	return
+	return &newUser, &code, nil
 }
 
-func (db *Database) VerifyCode(code string) (models.User, error) {
+func (db *Database) VerifyCode(code string) (*models.User, error) {
 	// checking if both verification code and the user it is refering to exist
 	var verCode models.VerificationCode
 	if err := db.Where(models.VerificationCode{ActivationCode: code}).First(&verCode).Error; err != nil {
-		return models.User{}, apperrors.NewNotFound("code", code)
+		return nil, apperrors.NewNotFound("code", code)
 	}
 	var user models.User
 	if err := db.First(&user, verCode.UserID).Error; err != nil {
-		return models.User{}, apperrors.NewNotFound("code", code)
+		return nil, apperrors.NewNotFound("code", code)
 	}
 
 	elapsed := time.Now().Sub(verCode.Created)
@@ -86,8 +86,8 @@ func (db *Database) VerifyCode(code string) (models.User, error) {
 		return nil
 
 	}); err != nil {
-		return models.User{}, err
+		return nil, err
 	}
-	return user, nil
+	return &user, nil
 
 }

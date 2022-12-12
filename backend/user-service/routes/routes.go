@@ -24,10 +24,12 @@ func Setup(engine *gin.Engine, server *handlers.Server) {
 
 	apiAuth := api.Use(auth.MustAuth(server.TokenService))
 
+	apiAuth.POST("/signout", server.SignOutUser)
+
 	apiAuth.DELETE("/delete-image", server.DeleteProfilePicture)
 	apiAuth.POST("/set-image", server.UpdateProfilePicture)
+
 	apiAuth.PUT("/change-password", server.ChangePassword)
-	apiAuth.POST("/signout", server.SignOutUser)
 	apiAuth.GET("/user", server.GetUser)
 
 }
