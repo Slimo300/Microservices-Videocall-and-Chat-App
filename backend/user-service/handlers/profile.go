@@ -9,6 +9,26 @@ import (
 	"github.com/google/uuid"
 )
 
+// /////////////////////////////////////////////////////////////////////////////////////////////
+// GetUser method
+func (s *Server) GetUser(c *gin.Context) {
+	userID := c.GetString("userID")
+	uid, err := uuid.Parse(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
+		return
+	}
+
+	user, err := s.DB.GetUserById(uid)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"err": "no such user"})
+		return
+	}
+	user.Pass = ""
+
+	c.JSON(http.StatusOK, user)
+}
+
 // /////////////////////////////////////////////////////////////////////////////////////////////////
 // ChangePassword
 func (s *Server) ChangePassword(c *gin.Context) {
@@ -113,7 +133,7 @@ func (s *Server) DeleteProfilePicture(c *gin.Context) {
 	}
 	url, err := s.DB.DeleteProfilePicture(userUID)
 	if err != nil {
-		c.JSON(apperrors.Status(err), gin.H{"err": "User not found"})
+		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
 	if err = s.ImageStorage.DeleteProfilePicture(url); err != nil {

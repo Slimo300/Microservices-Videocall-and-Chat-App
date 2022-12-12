@@ -6,9 +6,9 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"testing"
 
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
 	mockdb "github.com/Slimo300/MicroservicesChatApp/backend/user-service/database/mock"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/handlers"
@@ -17,21 +17,111 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
-	"gorm.io/gorm"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestChangePassword(t *testing.T) {
+type ProfileTestSuite struct {
+	suite.Suite
+	server handlers.Server
+	ids    map[string]uuid.UUID
+}
+
+func (s *ProfileTestSuite) SetupSuite() {
+
+	s.ids = make(map[string]uuid.UUID)
+	s.ids["userOK"] = uuid.MustParse("48fe113f-da82-4eb2-9944-3212bfcce63e")
+	s.ids["userNotFound"] = uuid.MustParse("56aabce7-1142-4e7e-a2a2-622226c1b0d5")
+	s.ids["userNoImage"] = uuid.MustParse("5099885a-9c28-42f6-b8a4-f8feeceab579")
+
+	db := new(mockdb.MockUsersDB)
+	db.On("GetUserById", s.ids["userOK"]).Return(models.User{ID: s.ids["userOK"]}, nil)
+	db.On("GetUserById", s.ids["userNotFound"]).Return(models.User{}, errors.New("no such user"))
+
+	db.On("ChangePassword", s.ids["userNotFound"], mock.Anything, mock.Anything).Return(apperrors.NewAuthorization("User not in database"))
+	db.On("ChangePassword", s.ids["userOK"], "password", mock.Anything).Return(apperrors.NewForbidden("Wrong Password"))
+	db.On("ChangePassword", s.ids["userOK"], "password12", mock.Anything).Return(nil)
+
+	db.On("DeleteProfilePicture", s.ids["userNotFound"]).Return("", apperrors.NewAuthorization("User not found"))
+	db.On("DeleteProfilePicture", s.ids["userNoImage"]).Return("", apperrors.NewBadRequest("User has no profile picture"))
+	db.On("DeleteProfilePicture", s.ids["userOK"]).Return("picuteURL", nil)
+
+	db.On("GetProfilePictureURL", s.ids["userNotFound"]).Return("", apperrors.NewAuthorization("User not found"))
+	db.On("GetProfilePictureURL", s.ids["userOK"]).Return("pictureURL", nil)
+
+	imageStorage := new(storage.MockStorage)
+
+	s.server = handlers.Server{
+		DB:           db,
+		ImageStorage: imageStorage,
+	}
+}
+
+func (s ProfileTestSuite) TestGetUser() {
 	gin.SetMode(gin.TestMode)
 
-	DBMock := new(mockdb.MockUsersDB)
-	DBMock.On("GetUserById", uuid.MustParse("c71b4a02-85fb-4092-9e98-051302728eaf")).Return(models.User{
-		ID:   uuid.MustParse("c71b4a02-85fb-4092-9e98-051302728eaf"),
-		Pass: "$2a$10$6BSuuiaPdRJJF2AygYAfnOGkrKLY2o0wDWbEpebn.9Rk0O95D3hW."}, nil)
-	DBMock.On("GetUserById", uuid.MustParse("5fc8ab07-cc10-40cc-a84e-9c850309b038")).Return(models.User{}, errors.New("No user with id: 5fc8ab07-cc10-40cc-a84e-9c850309b038"))
-	DBMock.On("SetPassword", uuid.MustParse("c71b4a02-85fb-4092-9e98-051302728eaf"), mock.AnythingOfType("string")).Return(nil)
-	s := handlers.Server{
-		DB: DBMock,
+	testCases := []struct {
+		desc               string
+		returnVal          bool
+		userID             string
+		expectedStatusCode int
+		expectedResponse   interface{}
+	}{
+		{
+			desc:               "getUserSuccess",
+			returnVal:          true,
+			userID:             s.ids["userOK"].String(),
+			expectedStatusCode: http.StatusOK,
+			expectedResponse:   models.User{ID: s.ids["userOK"]},
+		},
+		{
+			desc:               "getUserNotFound",
+			returnVal:          false,
+			userID:             s.ids["userNotFound"].String(),
+			expectedStatusCode: http.StatusNotFound,
+			expectedResponse:   gin.H{"err": "no such user"},
+		},
+		{
+			desc:               "getUserInvalidID",
+			returnVal:          false,
+			userID:             "1",
+			expectedStatusCode: http.StatusBadRequest,
+			expectedResponse:   gin.H{"err": "invalid ID"},
+		},
 	}
+
+	for _, tC := range testCases {
+		s.Run(tC.desc, func() {
+			req, _ := http.NewRequest(http.MethodGet, "/api/user", nil)
+			w := httptest.NewRecorder()
+			_, engine := gin.CreateTestContext(w)
+			engine.Use(func(c *gin.Context) {
+				c.Set("userID", tC.userID)
+			})
+
+			engine.Handle(http.MethodGet, "/api/user", s.server.GetUser)
+			engine.ServeHTTP(w, req)
+			response := w.Result()
+
+			s.Equal(tC.expectedStatusCode, response.StatusCode)
+
+			var respBody interface{}
+			if tC.returnVal {
+				var user models.User
+				json.NewDecoder(response.Body).Decode(&user)
+				respBody = user
+			} else {
+				var msg gin.H
+				json.NewDecoder(response.Body).Decode(&msg)
+				respBody = msg
+			}
+
+			s.Equal(tC.expectedResponse, respBody)
+		})
+	}
+}
+
+func (s ProfileTestSuite) TestChangePassword() {
+	gin.SetMode(gin.TestMode)
 
 	testCases := []struct {
 		desc               string
@@ -42,43 +132,50 @@ func TestChangePassword(t *testing.T) {
 	}{
 		{
 			desc:               "changePasswordInvalidID",
-			userID:             "1c4dccaf-a341-4920-9003-f4e0412f8e0",
-			data:               map[string]interface{}{"oldPassword": "test", "newPassword": "test12"},
+			userID:             "1",
+			data:               map[string]interface{}{"oldPassword": "password12", "newPassword": "password123", "repeatPassword": "password123"},
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "invalid ID"},
 		},
 		{
 			desc:               "changePasswordPassTooShort",
-			userID:             "c71b4a02-85fb-4092-9e98-051302728eaf",
-			data:               map[string]interface{}{"oldPassword": "test", "newPassword": "test1"},
+			userID:             s.ids["userOK"].String(),
+			data:               map[string]interface{}{"oldPassword": "password12", "newPassword": "pass", "repeatPassword": "pass"},
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "Password must be at least 6 characters long"},
 		},
 		{
-			desc:               "changePasswordNoUser",
-			userID:             "5fc8ab07-cc10-40cc-a84e-9c850309b038",
-			data:               map[string]interface{}{"oldPassword": "test", "newPassword": "test12"},
+			desc:               "changePasswordPassDontMatch",
+			userID:             s.ids["userOK"].String(),
+			data:               map[string]interface{}{"oldPassword": "password12", "newPassword": "password123", "repeatPassword": "password12"},
 			expectedStatusCode: http.StatusBadRequest,
-			expectedResponse:   gin.H{"err": "No user with id: 5fc8ab07-cc10-40cc-a84e-9c850309b038"},
+			expectedResponse:   gin.H{"err": "Passwords don't match"},
 		},
 		{
-			desc:               "changePasswordPassDontMatch",
-			userID:             "c71b4a02-85fb-4092-9e98-051302728eaf",
-			data:               map[string]interface{}{"oldPassword": "test1", "newPassword": "test12"},
+			desc:               "changePasswordNoUser",
+			userID:             s.ids["userNotFound"].String(),
+			data:               map[string]interface{}{"oldPassword": "password12", "newPassword": "password123", "repeatPassword": "password123"},
+			expectedStatusCode: http.StatusUnauthorized,
+			expectedResponse:   gin.H{"err": "User not in database"},
+		},
+		{
+			desc:               "changePasswordWrongPassword",
+			userID:             s.ids["userOK"].String(),
+			data:               map[string]interface{}{"oldPassword": "password", "newPassword": "password123", "repeatPassword": "password123"},
 			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": "Wrong password"},
+			expectedResponse:   gin.H{"err": "Forbidden action. Reason: Wrong Password"},
 		},
 		{
 			desc:               "changePasswordSuccess",
-			userID:             "c71b4a02-85fb-4092-9e98-051302728eaf",
-			data:               map[string]interface{}{"oldPassword": "test", "newPassword": "test12"},
+			userID:             s.ids["userOK"].String(),
+			data:               map[string]interface{}{"oldPassword": "password12", "newPassword": "password123", "repeatPassword": "password123"},
 			expectedStatusCode: http.StatusOK,
 			expectedResponse:   gin.H{"message": "password changed"},
 		},
 	}
 
 	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
+		s.Run(tC.desc, func() {
 
 			requestBody, _ := json.Marshal(tC.data)
 			req, _ := http.NewRequest(http.MethodPut, "/api/change-password", bytes.NewBuffer(requestBody))
@@ -88,37 +185,22 @@ func TestChangePassword(t *testing.T) {
 				c.Set("userID", tC.userID)
 			})
 
-			engine.Handle(http.MethodPut, "/api/change-password", s.ChangePassword)
+			engine.Handle(http.MethodPut, "/api/change-password", s.server.ChangePassword)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
 
-			if response.StatusCode != tC.expectedStatusCode {
-				t.Errorf("Received Status code %d does not match expected status %d", response.StatusCode, tC.expectedStatusCode)
-			}
+			s.Equal(tC.expectedStatusCode, response.StatusCode)
 
 			var msg gin.H
 			json.NewDecoder(response.Body).Decode(&msg)
 
-			if !reflect.DeepEqual(msg, tC.expectedResponse) {
-				t.Errorf("Received HTTP response body %+v does not match expected HTTP response Body %+v", msg, tC.expectedResponse)
-			}
+			s.Equal(tC.expectedResponse, msg)
 		})
 	}
 }
 
-func TestDeleteProfilePicture(t *testing.T) {
+func (s ProfileTestSuite) TestDeleteProfilePicture() {
 	gin.SetMode(gin.TestMode)
-
-	DBMock := new(mockdb.MockUsersDB)
-	DBMock.On("GetProfilePictureURL", uuid.MustParse("0ef41409-24b0-43e6-80a3-cf31a4b1a684")).Return("", nil)
-	DBMock.On("GetProfilePictureURL", uuid.MustParse("f586fa1a-af84-4a2e-9fc6-1a4ada270fe4")).Return("", gorm.ErrRecordNotFound)
-	DBMock.On("GetProfilePictureURL", uuid.MustParse("1c4dccaf-a341-4920-9003-f24e0412f8e0")).Return("url", nil)
-	DBMock.On("SetProfilePicture", uuid.MustParse("1c4dccaf-a341-4920-9003-f24e0412f8e0"), mock.AnythingOfType("string")).Return(nil)
-
-	s := handlers.Server{
-		DB:           DBMock,
-		ImageStorage: new(storage.MockStorage),
-	}
 
 	testCases := []struct {
 		desc               string
@@ -128,32 +210,32 @@ func TestDeleteProfilePicture(t *testing.T) {
 	}{
 		{
 			desc:               "DeleteProfilePicturePInvalidID",
-			userID:             "1c4dccaf-a341-4920-9003-f4e12f8e0",
+			userID:             "1",
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "invalid ID"},
 		},
 		{
 			desc:               "DeleteProfilePictureNoPicture",
-			userID:             "0ef41409-24b0-43e6-80a3-cf31a4b1a684",
+			userID:             s.ids["userNoImage"].String(),
 			expectedStatusCode: http.StatusBadRequest,
-			expectedResponse:   gin.H{"err": "user has no image to delete"},
+			expectedResponse:   gin.H{"err": "Bad request. Reason: User has no profile picture"},
 		},
 		{
 			desc:               "DeleteProfilePictureNoUser",
-			userID:             "f586fa1a-af84-4a2e-9fc6-1a4ada270fe4",
-			expectedStatusCode: http.StatusBadRequest,
+			userID:             s.ids["userNotFound"].String(),
+			expectedStatusCode: http.StatusUnauthorized,
 			expectedResponse:   gin.H{"err": "User not found"},
 		},
 		{
 			desc:               "DeleteProfilePictureSuccess",
-			userID:             "1c4dccaf-a341-4920-9003-f24e0412f8e0",
+			userID:             s.ids["userOK"].String(),
 			expectedStatusCode: http.StatusOK,
 			expectedResponse:   gin.H{"message": "success"},
 		},
 	}
 
 	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
+		s.Run(tC.desc, func() {
 
 			req, _ := http.NewRequest(http.MethodDelete, "/api/delete-image", nil)
 			w := httptest.NewRecorder()
@@ -162,97 +244,86 @@ func TestDeleteProfilePicture(t *testing.T) {
 				c.Set("userID", tC.userID)
 			})
 
-			engine.Handle(http.MethodDelete, "/api/delete-image", s.DeleteProfilePicture)
+			engine.Handle(http.MethodDelete, "/api/delete-image", s.server.DeleteProfilePicture)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
 
-			if response.StatusCode != tC.expectedStatusCode {
-				t.Errorf("Received Status code %d does not match expected status %d", response.StatusCode, tC.expectedStatusCode)
-			}
-
+			s.Equal(tC.expectedStatusCode, response.StatusCode)
 			var msg gin.H
 			json.NewDecoder(response.Body).Decode(&msg)
 
-			if !reflect.DeepEqual(msg, tC.expectedResponse) {
-				t.Errorf("Received HTTP response body %+v does not match expected HTTP response Body %+v", msg, tC.expectedResponse)
-			}
+			s.Equal(tC.expectedResponse, msg)
 		})
 	}
 }
 
-func TestSetProfilePicture(t *testing.T) {
+func (s ProfileTestSuite) TestSetProfilePicture() {
 	gin.SetMode(gin.TestMode)
-
-	DBMock := new(mockdb.MockUsersDB)
-	DBMock.On("GetProfilePictureURL", uuid.MustParse("1c4dccaf-a341-4920-9003-f24e0412f8e0")).Return("someUrl", nil)
-
-	s := handlers.Server{
-		DB:           DBMock,
-		ImageStorage: new(storage.MockStorage),
-	}
 
 	testCases := []struct {
 		desc               string
 		userID             string
 		imageData          map[string]string
 		setBodyLimiter     bool
-		returnVal          bool
 		expectedStatusCode int
 		expectedResponse   interface{}
 	}{
 		{
 			desc:               "UpdateProfilePictureInvalidUserID",
-			userID:             "1c4dccaf-a341-4920-9003-f4e0412f8e0",
+			userID:             "1",
 			imageData:          map[string]string{"Key": "avatarFile", "CType": "image/png"},
 			setBodyLimiter:     false,
-			returnVal:          false,
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "invalid ID"},
 		},
 		{
 			desc:               "UpdateProfilePictureNoFile",
-			userID:             "1c4dccaf-a341-4920-9003-f24e0412f8e0",
+			userID:             s.ids["userOK"].String(),
 			imageData:          map[string]string{"Key": "WrongFile", "CType": "image/png"},
 			setBodyLimiter:     false,
-			returnVal:          false,
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "http: no such file"},
 		},
 		{
 			desc:               "UpdateProfilePictureWrongImageType",
-			userID:             "1c4dccaf-a341-4920-9003-f24e0412f8e0",
+			userID:             s.ids["userOK"].String(),
 			imageData:          map[string]string{"Key": "avatarFile", "CType": "application/octet-stream"},
 			setBodyLimiter:     false,
-			returnVal:          false,
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "image extention not allowed"},
 		},
 		{
 			desc:               "UpdateProfilePictureTooBig",
-			userID:             "1c4dccaf-a341-4920-9003-f24e0412f8e0",
+			userID:             s.ids["userOK"].String(),
 			imageData:          map[string]string{"Key": "avatarFile", "CType": "image/png"},
 			setBodyLimiter:     true,
-			returnVal:          false,
 			expectedStatusCode: http.StatusRequestEntityTooLarge,
-			expectedResponse:   gin.H{"err": "too large"},
+			expectedResponse:   nil,
+		},
+		{
+			desc:               "UpdateProfilePictureNoUser",
+			userID:             s.ids["userNotFound"].String(),
+			imageData:          map[string]string{"Key": "avatarFile", "CType": "image/png"},
+			setBodyLimiter:     false,
+			expectedStatusCode: http.StatusUnauthorized,
+			expectedResponse:   gin.H{"err": "User not found"},
 		},
 		{
 			desc:               "UpdateProfilePictureSuccess",
-			userID:             "1c4dccaf-a341-4920-9003-f24e0412f8e0",
+			userID:             s.ids["userOK"].String(),
 			imageData:          map[string]string{"Key": "avatarFile", "CType": "image/png"},
 			setBodyLimiter:     false,
-			returnVal:          true,
 			expectedStatusCode: http.StatusOK,
-			expectedResponse:   nil,
+			expectedResponse:   gin.H{"newUrl": "pictureURL"},
 		},
 	}
 
 	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
+		s.Run(tC.desc, func() {
 
 			body, writer, err := createTestFormFile(tC.imageData["Key"], tC.imageData["CType"])
 			if err != nil {
-				t.Errorf("error when creating form file: %v", err)
+				s.Fail("error when creating form file: ", err)
 			}
 
 			req, _ := http.NewRequest(http.MethodPut, "/api/set-image", body)
@@ -267,28 +338,26 @@ func TestSetProfilePicture(t *testing.T) {
 			if tC.setBodyLimiter {
 				engine.Use(limits.RequestSizeLimiter(10))
 			}
-			engine.Handle(http.MethodPut, "/api/set-image", s.UpdateProfilePicture)
+			engine.Handle(http.MethodPut, "/api/set-image", s.server.UpdateProfilePicture)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
 
-			if response.StatusCode != tC.expectedStatusCode {
-				t.Errorf("Received Status code %d does not match expected status %d", response.StatusCode, tC.expectedStatusCode)
-			}
+			s.Equal(tC.expectedStatusCode, response.StatusCode)
 
-			var msg gin.H
-			json.NewDecoder(response.Body).Decode(&msg)
-
+			var respBody interface{}
 			if tC.setBodyLimiter {
-				// expecting empty response
-			} else if !tC.returnVal {
-				if !reflect.DeepEqual(msg, tC.expectedResponse) {
-					t.Errorf("Received HTTP response body %+v does not match expected HTTP response Body %+v", msg, tC.expectedResponse)
-				}
+				json.NewDecoder(response.Body).Decode(&respBody)
 			} else {
-				if msg["newUrl"] == "" {
-					t.Errorf("Received HTTP response body %+v is not set", tC.expectedResponse)
-				}
+				var msg gin.H
+				json.NewDecoder(response.Body).Decode(&msg)
+				respBody = msg
 			}
+
+			s.Equal(tC.expectedResponse, respBody)
 		})
 	}
+}
+
+func TestProfileSuite(t *testing.T) {
+	suite.Run(t, &ProfileTestSuite{})
 }

@@ -5,7 +5,6 @@ import (
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 // /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +45,7 @@ func (s *Server) SignOutUser(c *gin.Context) {
 	}
 
 	if err := s.TokenService.DeleteUserToken(refresh); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
 	}
 
@@ -55,25 +54,8 @@ func (s *Server) SignOutUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "success"})
 }
 
-// /////////////////////////////////////////////////////////////////////////////////////////////
-// GetUser method
-func (s *Server) GetUser(c *gin.Context) {
-	userID := c.GetString("userID")
-	uid, err := uuid.Parse(userID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
-	}
-
-	user, err := s.DB.GetUserById(uid)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"err": "no such user"})
-		return
-	}
-	user.Pass = ""
-
-	c.JSON(http.StatusOK, user)
-}
-
+// //////////////////////////////////////////////////////////////////////////////////////////////
+// Refresh Token
 func (s *Server) RefreshToken(c *gin.Context) {
 
 	refresh, err := c.Cookie("refreshToken")
@@ -88,10 +70,10 @@ func (s *Server) RefreshToken(c *gin.Context) {
 	}
 	if tokens.Error != "" {
 		if tokens.Error == "Token Blacklisted" {
-			c.JSON(http.StatusForbidden, gin.H{"err": "Token Blacklisted"})
+			c.JSON(http.StatusForbidden, gin.H{"err": tokens.Error})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"err": tokens.Error})
+		c.JSON(http.StatusBadRequest, gin.H{"err": tokens.Error})
 		return
 	}
 	c.SetCookie("refreshToken", tokens.RefreshToken, 86400, "/", s.Domain, false, true)

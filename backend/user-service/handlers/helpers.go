@@ -1,12 +1,8 @@
 package handlers
 
 import (
-	"errors"
 	"regexp"
 )
-
-var ErrNoDatabase = errors.New("No database connection")
-var InvalidToken = errors.New("Invalid token")
 
 func isPasswordValid(pass string) bool {
 	return len(pass) >= 6

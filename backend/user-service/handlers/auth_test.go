@@ -6,10 +6,10 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"testing"
 	"time"
 
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
 	mockdb "github.com/Slimo300/MicroservicesChatApp/backend/user-service/database/mock"
@@ -17,29 +17,58 @@ import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/stretchr/testify/mock"
-	"gorm.io/gorm"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestSignIn(t *testing.T) {
-	gin.SetMode(gin.TestMode)
+type AuthTestSuite struct {
+	suite.Suite
+	server handlers.Server
+	ids    map[string]uuid.UUID
+}
 
-	TokenClientMock := new(auth.MockTokenClient)
-	TokenClientMock.On("NewPairFromUserID", mock.Anything).Return(&pb.TokenPair{
+func (s *AuthTestSuite) SetupSuite() {
+	s.ids = make(map[string]uuid.UUID)
+	s.ids["userOK"] = uuid.MustParse("f2085c84-dadb-4362-accc-44898dedde7a")
+
+	db := new(mockdb.MockUsersDB)
+	db.On("SignIn", "host@net.pl", "password12").Return(models.User{ID: s.ids["userOK"]}, nil)
+	db.On("SignIn", "host2@net.pl", "password12").Return(models.User{}, apperrors.NewBadRequest("wrong email or password"))
+	db.On("SignIn", "host@net.pl", "password").Return(models.User{}, apperrors.NewBadRequest("wrong email or password"))
+
+	tokenService := new(auth.MockTokenClient)
+
+	tokenService.On("NewPairFromUserID", s.ids["userOK"]).Return(&pb.TokenPair{
 		AccessToken:  "validAccessToken",
 		RefreshToken: "validRefreshToken",
 		Error:        "",
 	}, nil)
+	tokenService.On("DeleteUserToken", "validRefreshToken").Return(nil)
+	tokenService.On("DeleteUserToken", "invalidRefreshToken").Return(errors.New("invalid refresh token"))
+	tokenService.On("NewPairFromRefresh", "validRefreshToken").Return(&pb.TokenPair{
+		AccessToken:  "validAccessToken",
+		RefreshToken: "validRefreshToken",
+		Error:        "",
+	}, nil)
+	tokenService.On("NewPairFromRefresh", "expiredRefreshToken").Return(&pb.TokenPair{
+		AccessToken:  "",
+		RefreshToken: "",
+		Error:        "Token Expired",
+	}, nil)
+	tokenService.On("NewPairFromRefresh", "blacklistedRefreshToken").Return(&pb.TokenPair{
+		AccessToken:  "",
+		RefreshToken: "",
+		Error:        "Token Blacklisted",
+	}, nil)
 
-	DBMock := new(mockdb.MockUsersDB)
-	DBMock.On("GetUserByEmail", "mal.zein@email.com").Return(models.User{ID: uuid.MustParse("c5904224-deec-4275-83bd-56e4cdeba1ae"), Pass: "$2a$10$6BSuuiaPdRJJF2AygYAfnOGkrKLY2o0wDWbEpebn.9Rk0O95D3hW."}, nil)
-	DBMock.On("GetUserByEmail", "mal1.zein@email.com").Return(models.User{}, gorm.ErrRecordNotFound)
-	DBMock.On("SignInUser", uuid.MustParse("c5904224-deec-4275-83bd-56e4cdeba1ae")).Return(nil)
-
-	s := handlers.Server{
-		DB:           DBMock,
-		TokenService: TokenClientMock,
+	s.server = handlers.Server{
+		DB:           db,
+		TokenService: tokenService,
 	}
+
+}
+
+func (s *AuthTestSuite) TestSignIn() {
+	gin.SetMode(gin.TestMode)
 
 	testCases := []struct {
 		desc               string
@@ -49,185 +78,162 @@ func TestSignIn(t *testing.T) {
 	}{
 		{
 			desc:               "loginsuccess",
-			data:               map[string]string{"email": "mal.zein@email.com", "password": "test"},
+			data:               map[string]string{"email": "host@net.pl", "password": "password12"},
 			expectedStatusCode: http.StatusOK,
 			expectedResponse:   gin.H{"accessToken": "validAccessToken"},
 		},
 		{
 			desc:               "loginnosuchemail",
-			data:               map[string]string{"email": "mal1.zein@email.com", "password": "test"},
+			data:               map[string]string{"email": "host2@net.pl", "password": "password12"},
 			expectedStatusCode: http.StatusBadRequest,
-			expectedResponse:   gin.H{"err": "wrong email or password"},
+			expectedResponse:   gin.H{"err": "Bad request. Reason: wrong email or password"},
 		},
 		{
 			desc:               "logininvalidpass",
-			data:               map[string]string{"email": "mal.zein@email.com", "password": "t2est"},
+			data:               map[string]string{"email": "host@net.pl", "password": "password"},
 			expectedStatusCode: http.StatusBadRequest,
-			expectedResponse:   gin.H{"err": "wrong email or password"},
+			expectedResponse:   gin.H{"err": "Bad request. Reason: wrong email or password"},
 		},
 	}
 
 	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
+		s.Run(tC.desc, func() {
 			requestBody, _ := json.Marshal(tC.data)
 			req := httptest.NewRequest(http.MethodPost, "/api/login", bytes.NewBuffer(requestBody))
 			w := httptest.NewRecorder()
 			_, engine := gin.CreateTestContext(w)
-			engine.Handle(http.MethodPost, "/api/login", s.SignIn)
+			engine.Handle(http.MethodPost, "/api/login", s.server.SignIn)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
 
-			if response.StatusCode != tC.expectedStatusCode {
-				t.Errorf("Received Status code %d does not match expected status %d", response.StatusCode, tC.expectedStatusCode)
-			}
+			s.Equal(tC.expectedStatusCode, response.StatusCode)
+
 			var respBody gin.H
 			json.NewDecoder(response.Body).Decode(&respBody)
-			if !reflect.DeepEqual(respBody, tC.expectedResponse) {
-				t.Errorf("Received HTTP response body %+v does not match expected HTTP response Body %+v", respBody, tC.expectedResponse)
-			}
+
+			s.Equal(tC.expectedResponse, respBody)
 		})
 	}
 }
 
-func TestSignOut(t *testing.T) {
+func (s AuthTestSuite) TestSignOut() {
 	gin.SetMode(gin.TestMode)
-
-	TokenClientMock := auth.NewMockTokenClient()
-	TokenClientMock.On("DeleteUserToken", mock.Anything).Return(nil)
-
-	DBMock := new(mockdb.MockUsersDB)
-	DBMock.On("SignOutUser", uuid.MustParse("1c4dccaf-a341-4920-9003-f24e0412f8e0")).Return(nil)
-	DBMock.On("SignOutUser", uuid.MustParse("2f8fd072-29d4-470a-9359-b3b0e056bf65")).Return(errors.New("No user with id: 2f8fd072-29d4-470a-9359-b3b0e056bf65"))
-
-	s := handlers.Server{
-		DB:           DBMock,
-		TokenService: TokenClientMock,
-	}
 
 	testCases := []struct {
 		desc               string
-		id                 string
+		cookiePresent      bool
+		cookieValue        string
 		expectedStatusCode int
 		expectedResponse   interface{}
 	}{
 		{
 			desc:               "logoutsuccess",
-			id:                 "1c4dccaf-a341-4920-9003-f24e0412f8e0",
+			cookiePresent:      true,
+			cookieValue:        "validRefreshToken",
 			expectedStatusCode: http.StatusOK,
 			expectedResponse:   gin.H{"message": "success"},
 		},
 		{
-			desc:               "logoutnouser",
-			id:                 "2f8fd072-29d4-470a-9359-b3b0e056bf65",
+			desc:               "logoutinvalidtoken",
+			cookiePresent:      true,
+			cookieValue:        "invalidRefreshToken",
 			expectedStatusCode: http.StatusBadRequest,
-			expectedResponse:   gin.H{"err": "No user with id: 2f8fd072-29d4-470a-9359-b3b0e056bf65"},
+			expectedResponse:   gin.H{"err": "invalid refresh token"},
+		},
+		{
+			desc:               "logoutnocookie",
+			cookiePresent:      false,
+			expectedStatusCode: http.StatusBadRequest,
+			expectedResponse:   gin.H{"err": "No token to invalidate"},
 		},
 	}
 
 	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
+		s.Run(tC.desc, func() {
 
 			req := httptest.NewRequest(http.MethodPost, "/api/signout", nil)
-			req.AddCookie(&http.Cookie{Name: "refreshToken", Value: "validRefreshToken", Path: "/", Expires: time.Now().Add(time.Hour * 24), Domain: "localhost"})
+			if tC.cookiePresent {
+				req.AddCookie(&http.Cookie{Name: "refreshToken", Value: tC.cookieValue, Path: "/", Expires: time.Now().Add(time.Hour * 24), Domain: "localhost"})
+			}
 			w := httptest.NewRecorder()
 
 			_, engine := gin.CreateTestContext(w)
-			engine.Use(func(c *gin.Context) {
-				c.Set("userID", tC.id)
-			})
 
-			engine.Handle(http.MethodPost, "/api/signout", s.SignOutUser)
+			engine.Handle(http.MethodPost, "/api/signout", s.server.SignOutUser)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
 
-			if response.StatusCode != tC.expectedStatusCode {
-				t.Errorf("Received Status code %d does not match expected status %d", response.StatusCode, tC.expectedStatusCode)
-			}
+			s.Equal(tC.expectedStatusCode, response.StatusCode)
 
 			var respBody gin.H
 			json.NewDecoder(response.Body).Decode(&respBody)
-			if !reflect.DeepEqual(respBody, tC.expectedResponse) {
-				t.Errorf("Received HTTP response body %+v does not match expected HTTP response Body %+v", respBody, tC.expectedResponse)
-			}
+			s.Equal(tC.expectedResponse, respBody)
 		})
 	}
 }
 
-func TestRefresh(t *testing.T) {
-
+func (s AuthTestSuite) TestRefresh() {
 	gin.SetMode(gin.TestMode)
-	TokenClientMock := auth.NewMockTokenClient()
-	s := handlers.Server{
-		DB:           new(mockdb.MockUsersDB),
-		TokenService: TokenClientMock,
-	}
 
 	testCases := []struct {
 		desc               string
 		withCookie         bool
-		prepare            func(m *mock.Mock)
+		cookieValue        string
 		expectedStatusCode int
 		expectedResponse   interface{}
 	}{
 		{
 			desc:               "refreshNoCookie",
 			withCookie:         false,
-			prepare:            func(m *mock.Mock) {},
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "No token provided"},
 		},
 		{
-			desc:       "refreshTokenBlacklisted",
-			withCookie: true,
-			prepare: func(m *mock.Mock) {
-				m.On("NewPairFromRefresh", mock.Anything).Return(&pb.TokenPair{
-					AccessToken:  "",
-					RefreshToken: "",
-					Error:        "Token Blacklisted",
-				}, nil).Once()
-			},
+			desc:               "refreshTokenExpired",
+			withCookie:         true,
+			cookieValue:        "expiredRefreshToken",
+			expectedStatusCode: http.StatusBadRequest,
+			expectedResponse:   gin.H{"err": "Token Expired"},
+		},
+		{
+			desc:               "refreshTokenBlacklisted",
+			withCookie:         true,
+			cookieValue:        "blacklistedRefreshToken",
 			expectedStatusCode: http.StatusForbidden,
 			expectedResponse:   gin.H{"err": "Token Blacklisted"},
 		},
 		{
-			desc:       "refreshOK",
-			withCookie: true,
-			prepare: func(m *mock.Mock) {
-				m.On("NewPairFromRefresh", mock.Anything).Return(&pb.TokenPair{
-					AccessToken:  "validAccessToken",
-					RefreshToken: "validRefreshToken",
-					Error:        "",
-				}, nil).Once()
-			},
+			desc:               "refreshOK",
+			withCookie:         true,
+			cookieValue:        "validRefreshToken",
 			expectedStatusCode: http.StatusOK,
 			expectedResponse:   gin.H{"accessToken": "validAccessToken"},
 		},
 	}
 	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
-			tC.prepare(&TokenClientMock.Mock)
+		s.Run(tC.desc, func() {
 
 			req := httptest.NewRequest(http.MethodPost, "/api/refresh", nil)
 			if tC.withCookie {
-				req.AddCookie(&http.Cookie{Name: "refreshToken", Value: "validRefreshToken", Path: "/", Expires: time.Now().Add(time.Hour * 24), Domain: "localhost"})
+				req.AddCookie(&http.Cookie{Name: "refreshToken", Value: tC.cookieValue, Path: "/", Expires: time.Now().Add(time.Hour * 24), Domain: "localhost"})
 			}
 			w := httptest.NewRecorder()
 
 			_, engine := gin.CreateTestContext(w)
 
-			engine.Handle(http.MethodPost, "/api/refresh", s.RefreshToken)
+			engine.Handle(http.MethodPost, "/api/refresh", s.server.RefreshToken)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
 
-			if response.StatusCode != tC.expectedStatusCode {
-				t.Errorf("Received Status code %d does not match expected status %d", response.StatusCode, tC.expectedStatusCode)
-			}
+			s.Equal(tC.expectedStatusCode, response.StatusCode)
 
 			var respBody gin.H
 			json.NewDecoder(response.Body).Decode(&respBody)
-			if !reflect.DeepEqual(respBody, tC.expectedResponse) {
-				t.Errorf("Received HTTP response body %+v does not match expected HTTP response Body %+v", respBody, tC.expectedResponse)
-			}
+			s.Equal(tC.expectedResponse, respBody)
 		})
 	}
+}
+
+func TestUserSuite(t *testing.T) {
+	suite.Run(t, &AuthTestSuite{})
 }

@@ -24,14 +24,16 @@ func (s *Server) ForgotPassword(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "reset password email sent"})
 	}
 
-	go func() {
-		s.EmailService.SendResetPasswordEmail(emails.EmailData{
-			Subject: "Reset Password",
-			Email:   user.Email,
-			Name:    user.UserName,
-			Code:    resetCode.ResetCode,
-		})
-	}()
+	if user != nil && resetCode != nil {
+		go func() {
+			s.EmailService.SendResetPasswordEmail(emails.EmailData{
+				Subject: "Reset Password",
+				Email:   user.Email,
+				Name:    user.UserName,
+				Code:    resetCode.ResetCode,
+			})
+		}()
+	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "reset password email sent"})
 }
