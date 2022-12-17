@@ -12,8 +12,8 @@ import (
 type amqpEventListener struct {
 	connection *amqp.Connection
 	queue      string
-	exchanges  []string
 	mapper     msgqueue.EventMapper
+	Decoder    msgqueue.Decoder
 }
 
 func NewAMQPEventListener(conn *amqp.Connection, mapper msgqueue.EventMapper, queueName string, exchanges ...string) (*amqpEventListener, error) {
@@ -37,8 +37,8 @@ func NewAMQPEventListener(conn *amqp.Connection, mapper msgqueue.EventMapper, qu
 	return &amqpEventListener{
 		connection: conn,
 		queue:      queueName,
-		exchanges:  exchanges,
 		mapper:     mapper,
+		Decoder:    msgqueue.NewJSONDecoder(),
 	}, nil
 }
 
@@ -80,7 +80,15 @@ func (a *amqpEventListener) Listen(eventNames ...string) (<-chan msgqueue.Event,
 				continue
 			}
 
-			event, err := a.mapper.MapEvent(eventName, msg.Body)
+			var messageBody interface{}
+			err := a.Decoder.Decode(msg.Body, messageBody)
+			if err != nil {
+				errChan <- fmt.Errorf("decoding message returned error: %v", err)
+				msg.Nack(false, false)
+				continue
+			}
+
+			event, err := a.mapper.MapEvent(eventName, messageBody)
 			if err != nil {
 				errChan <- fmt.Errorf("could not unmarshal event %s: %s", eventName, err)
 				msg.Nack(false, false)

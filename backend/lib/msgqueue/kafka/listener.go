@@ -1,7 +1,6 @@
 package kafka
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/Shopify/sarama"
@@ -12,6 +11,8 @@ type kafkaEventListener struct {
 	consumer sarama.Consumer
 	mapper   msgqueue.EventMapper
 	topics   []KafkaTopic
+	Decoder  msgqueue.Decoder
+	Offset   int64
 }
 
 type KafkaTopic struct {
@@ -30,6 +31,8 @@ func NewKafkaEventListener(client sarama.Client, mapper msgqueue.EventMapper, to
 		consumer: consumer,
 		mapper:   mapper,
 		topics:   topics,
+		Decoder:  msgqueue.NewJSONDecoder(),
+		Offset:   sarama.OffsetNewest,
 	}, nil
 
 }
@@ -53,7 +56,7 @@ func (k *kafkaEventListener) Listen(events ...string) (<-chan msgqueue.Event, <-
 
 		for _, partition := range partitions {
 
-			con, err := k.consumer.ConsumePartition(topic.Name, partition, sarama.OffsetOldest)
+			con, err := k.consumer.ConsumePartition(topic.Name, partition, k.Offset)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -61,7 +64,7 @@ func (k *kafkaEventListener) Listen(events ...string) (<-chan msgqueue.Event, <-
 			go func() {
 				for msg := range con.Messages() {
 					body := kafkaMessage{}
-					err := json.Unmarshal(msg.Value, &body)
+					err := k.Decoder.Decode(msg.Value, &body)
 					if err != nil {
 						errors <- fmt.Errorf("Could not unmarshal message: %s", err.Error())
 						continue

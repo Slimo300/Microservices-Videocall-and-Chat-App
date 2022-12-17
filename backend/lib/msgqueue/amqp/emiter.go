@@ -1,18 +1,17 @@
 package amqp
 
 import (
-	"encoding/json"
-
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
 	"github.com/streadway/amqp"
 )
 
-type amqpEventEmitter struct {
+type amqpEventEmiter struct {
 	connection *amqp.Connection
 	exchange   string
+	Encoder    msgqueue.Encoder
 }
 
-func NewAMQPEventEmitter(conn amqp.Connection, exchange string) (*amqpEventEmitter, error) {
+func NewAMQPEventEmiter(conn amqp.Connection, exchange string) (*amqpEventEmiter, error) {
 
 	channel, err := conn.Channel()
 	if err != nil {
@@ -23,20 +22,21 @@ func NewAMQPEventEmitter(conn amqp.Connection, exchange string) (*amqpEventEmitt
 	if err := channel.ExchangeDeclare(exchange, "topic", true, false, false, false, nil); err != nil {
 		return nil, err
 	}
-	return &amqpEventEmitter{
+	return &amqpEventEmiter{
 		connection: &conn,
 		exchange:   exchange,
+		Encoder:    msgqueue.NewJSONEncoder(),
 	}, nil
 }
 
-func (a *amqpEventEmitter) Emit(evt msgqueue.Event) error {
+func (a *amqpEventEmiter) Emit(evt msgqueue.Event) error {
 	channel, err := a.connection.Channel()
 	if err != nil {
 		return err
 	}
 	defer channel.Close()
 
-	jsonBody, err := json.Marshal(evt)
+	jsonBody, err := a.Encoder.Encode(evt)
 	if err != nil {
 		return err
 	}
