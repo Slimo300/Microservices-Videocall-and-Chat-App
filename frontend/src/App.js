@@ -13,7 +13,6 @@ import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   
-  const [name, setName] = useState('');
   const [ws, setWs] = useState({}); // websocket connection
 
   const [profileShow, setProfileShow] = useState(false);
@@ -25,11 +24,11 @@ function App() {
       <div >
         <ChatStorage>
         <Router>
-          <Navigation name={name} setName={setName} toggleProfile={toggleProfileShow} ws={ws} />
+          <Navigation toggleProfile={toggleProfileShow} ws={ws} />
           <main>
             <Routes>
-              <Route path="/" element={<Main name={name} profileShow={profileShow} toggleProfile={toggleProfileShow} ws={ws} setWs={setWs}/>}/>
-              <Route path="/login" element={<SignInForm setName={setName} name={name}/>}/>
+              <Route path="/" element={<Main profileShow={profileShow} toggleProfile={toggleProfileShow} ws={ws} setWs={setWs}/>}/>
+              <Route path="/login" element={<SignInForm />}/>
               <Route path="/register" element={<RegisterForm/>}/>
               <Route path="/verify-account/:code" element={<EmailVerification />}/>
               <Route path="/reset-password/:code" element={<ResetPassword />}/>

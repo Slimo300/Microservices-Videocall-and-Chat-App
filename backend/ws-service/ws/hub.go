@@ -100,7 +100,6 @@ func ServeWebSocket(w http.ResponseWriter, req *http.Request, h WSHub, groups []
 	if err != nil {
 		return
 	}
-	// socket.UnderlyingConn().SetDeadline(time.Now().Add(20 * time.Minute)) // TODO Connection duration should be read from config
 
 	client := &client{
 		id:     id_user,

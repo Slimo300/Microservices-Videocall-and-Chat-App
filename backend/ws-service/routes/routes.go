@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/handlers"
 	"github.com/gin-gonic/gin"
 )
@@ -8,7 +9,10 @@ import (
 func Setup(engine *gin.Engine, server *handlers.Server) {
 
 	engine.Use(CORSMiddleware())
-	engine.Use(server.AuthWS())
+
+	api := engine.Group("/api")
+	api.Use(auth.MustAuth(server.TokenService))
+	api.GET("/accessCode", server.GetAuthCode)
 
 	engine.GET("/ws", server.ServeWebSocket)
 }

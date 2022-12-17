@@ -6,12 +6,12 @@ require (
 	github.com/Shopify/sarama v1.37.2
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221210095715-6884d94fa4ab
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221210095715-6884d94fa4ab
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221210095715-6884d94fa4ab
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221210095715-6884d94fa4ab
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221217171522-4157e493c343
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221217171522-4157e493c343
 	github.com/gin-gonic/gin v1.8.1
-	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/websocket v1.5.0
+	github.com/thanhpk/randstr v1.0.4
 	gorm.io/driver/mysql v1.4.3
 	gorm.io/gorm v1.24.1
 )
@@ -28,6 +28,7 @@ require (
 	github.com/go-playground/validator/v10 v10.10.0 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/goccy/go-json v0.9.7 // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect

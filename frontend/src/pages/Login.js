@@ -9,7 +9,7 @@ function useQuery() {
   return useMemo(() => new URLSearchParams(search), [search]);
 }
 
-const SignInForm = (props) => {
+const SignInForm = () => {
 
   const [forgotPasswordShow, setForgotPasswordShow] = useState(false);
   const toggleForgotPassword = () => {
@@ -31,7 +31,6 @@ const SignInForm = (props) => {
       let result = await Login(email, password);
       if (result.status === 200) {
         window.localStorage.setItem("token", result.data.accessToken);
-        props.setName("logged");
         setRedirect(true);
       }
 

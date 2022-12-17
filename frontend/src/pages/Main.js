@@ -7,7 +7,7 @@ import { GroupLabel } from "../components/GroupLabel";
 import { ModalCreateGroup } from "../components/modals/CreateGroup";
 import {GetGroups, GetInvites} from "../requests/Groups";
 import { GetUser } from "../requests/Users";
-import { GetWebsocket } from "../requests/Setup";
+import { GetWebsocket } from "../requests/Ws";
 import { LoadMessages } from "../requests/Messages";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { ModalUserProfile } from "./Profile";
@@ -16,7 +16,7 @@ const Main = (props) => {
 
     return (
         <div>
-            {props.name === ""? <Navigate to="/login" />:<AuthMain {...props}/>}
+            {window.localStorage.getItem("token") === null? <Navigate to="/login" />:<AuthMain {...props}/>}
         </div>
     );
 }

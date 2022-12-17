@@ -54,6 +54,8 @@ func Setup(address string, options ...Option) (*Database, error) {
 		option(db)
 	}
 
+	go db.CleanCodes(1 * time.Minute)
+
 	return db, nil
 
 }

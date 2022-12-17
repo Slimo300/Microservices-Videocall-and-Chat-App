@@ -17,6 +17,7 @@ import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/kafka"
+	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/cache"
 	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/database"
 	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/handlers"
 	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/routes"
@@ -45,7 +46,6 @@ func main() {
 	conf.ClientID = "websocketService"
 	conf.Version = sarama.V2_3_0_0
 	conf.Producer.Return.Successes = true
-	conf.Consumer.Group.InstanceId = "ws"
 	client, err := sarama.NewClient(config.BrokersAddresses, conf)
 	if err != nil {
 		log.Fatal(err)
@@ -76,6 +76,7 @@ func main() {
 	actionChan := make(chan msgqueue.Event)
 	server := &handlers.Server{
 		DB:           db,
+		CodeCache:    cache.NewCache(5 * time.Second),
 		TokenService: tokenService,
 		Emitter:      emitter,
 		Listener:     listener,

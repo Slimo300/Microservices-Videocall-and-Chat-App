@@ -1,7 +1,8 @@
 export const groupsService = 'http://localhost:8081/api';
 export const messageService = 'http://localhost:8082/api';
 export const userService = 'http://localhost:8083/api';
-export const wsService = 'ws://localhost:8084';
+export const wsService = 'http://localhost:8084/api'
+export const wsServiceWebsocket = 'ws://localhost:8084';
 
 let axiosObject = require('axios').default;
 axiosObject.defaults.headers.common['Content-Type'] = "application/json";
@@ -11,24 +12,10 @@ async function refreshAccessToken() {
     let response = await axiosObject.post(userService+"/refresh", {}, {
         withCredentials: true,
     })
-    console.log(response);
-    if (response.accessToken !== undefined) {
-        window.localStorage.setItem("token", response.accessToken);
+    if (response.data.accessToken !== undefined) {
+        window.localStorage.setItem("token", response.data.accessToken);
     }
 }
-
-export async function GetWebsocket() {
-    let access_token = window.localStorage.getItem("token")
-    let socket = new WebSocket(wsService+'/ws?authToken='+access_token);
-    socket.onopen = () => {
-        console.log("Websocket openned");
-    };
-    socket.onclose = () => {
-        console.log("Websocket closed");
-    };
-    return socket;
-}
-
 
 // Request interceptor for API calls
 axiosObject.interceptors.request.use(

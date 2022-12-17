@@ -14,14 +14,13 @@ const Navigation = (props) => {
         let response = await Logout();
         dispatch({type: actionTypes.LOGOUT});
         window.localStorage.clear();
-        props.setName("");
         props.ws.close();
         if (response.status !== 200) alert(response.data.message);
     };
 
     let menu;
 
-    if (props.name === "") {
+    if (window.localStorage.getItem === null) {
         menu = (
             <div className="collapse navbar-collapse" id="navbarCollapse">
                 <ul className="navbar-nav mr-auto"></ul>

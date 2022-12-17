@@ -47,10 +47,10 @@ github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221210095715-
 github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221210095715-6884d94fa4ab/go.mod h1:N3SSG6kpSs4fbEBUCAwE12vVbDUmepuR6vVn7qy17u8=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221210095715-6884d94fa4ab h1:U1JxpPg9iO+fYFPDH1/pjjo1i5tDDWnbC0ZFfvLP4H8=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221210095715-6884d94fa4ab/go.mod h1:IvcbN/b3kXy51jDW1TzgqmYBsFnG3kGwOLaUfyP8MNs=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221210095715-6884d94fa4ab h1:olxcH5hRGW8N5YzqfLgYwaIbrfJEDVo9NBbqR4aJYPM=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221210095715-6884d94fa4ab/go.mod h1:GPFcoQIeRHM/6yxyVfbs/Wyysdf3PcnEZmuHiHp3OFg=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221210095715-6884d94fa4ab h1:PbFjroOi/3E/zZfdU/6vUR1k32d8gbdhh3UhI2v/d4U=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221210095715-6884d94fa4ab/go.mod h1:4B7YKdejTwNIP9R3qL9NpQI9jg/xlnIh8nks4Xj1Ssg=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221217171522-4157e493c343 h1:OimfisVDuA0zTXN/X7ghoCAMSUwOwtGZSW61OP9zGmQ=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221217171522-4157e493c343/go.mod h1:GPFcoQIeRHM/6yxyVfbs/Wyysdf3PcnEZmuHiHp3OFg=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221217171522-4157e493c343 h1:AEwrLm+iquHI5pF+usWbwZgmBNSU3CeqTIKIISbfK8Q=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221217171522-4157e493c343/go.mod h1:4B7YKdejTwNIP9R3qL9NpQI9jg/xlnIh8nks4Xj1Ssg=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20221210095715-6884d94fa4ab h1:992B7c5Eid84kplnib8+nWy5iM9NsIlFg0iKfRJonnw=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20221210095715-6884d94fa4ab/go.mod h1:6zhnxlQzvKOai3QWSMJIMF6YdrFPfp98mLVTzyuHR+4=
 github.com/aws/aws-sdk-go v1.44.140 h1:6MxVSiAORc6AG+oh6401TEgWHb1ZzFL8y6+eBLoJtdU=
