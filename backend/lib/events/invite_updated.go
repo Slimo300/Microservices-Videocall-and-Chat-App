@@ -7,14 +7,14 @@ import (
 )
 
 type InviteRespondedEvent struct {
-	ID       uuid.UUID `json:"ID"`
-	IssuerID uuid.UUID `json:"issuerID"`
-	TargetID uuid.UUID `json:"targetID"`
-	Target   User      `json:"target"`
-	GroupID  uuid.UUID `json:"groupID"`
-	Group    Group     `json:"group"`
-	Status   int       `json:"status"`
-	Modified time.Time `json:"modified"`
+	ID       uuid.UUID `json:"ID" mapstructure:"ID"`
+	IssuerID uuid.UUID `json:"issuerID" mapstructure:"issuerID"`
+	TargetID uuid.UUID `json:"targetID" mapstructure:"targetID"`
+	Target   User      `json:"target" mapstructure:"target"`
+	GroupID  uuid.UUID `json:"groupID" mapstructure:"groupID"`
+	Group    Group     `json:"group" mapstructure:"group"`
+	Status   int       `json:"status" mapstructure:"status"`
+	Modified time.Time `json:"modified" mapstructure:"modified"`
 }
 
 func (InviteRespondedEvent) EventName() string {

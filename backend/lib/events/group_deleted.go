@@ -5,7 +5,7 @@ import (
 )
 
 type GroupDeletedEvent struct {
-	ID uuid.UUID `json:"groupID"`
+	ID uuid.UUID `json:"groupID" mapstructure:"groupID"`
 }
 
 func (GroupDeletedEvent) EventName() string {

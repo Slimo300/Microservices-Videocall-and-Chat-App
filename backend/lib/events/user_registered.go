@@ -5,9 +5,9 @@ import (
 )
 
 type UserRegisteredEvent struct {
-	ID         uuid.UUID `json:"userID"`
-	Username   string    `json:"username"`
-	PictureURL string    `json:"picture"`
+	ID         uuid.UUID `json:"userID" mapstructure:"userID"`
+	Username   string    `json:"username" mapstructure:"username"`
+	PictureURL string    `json:"picture" mapstructure:"picture"`
 }
 
 func (UserRegisteredEvent) EventName() string {
