@@ -11,6 +11,7 @@ type Config struct {
 	UserService    Service `mapstructure:"user-service"`
 	MessageService Service `mapstructure:"message-service"`
 	WSService      Service `mapstructure:"ws-service"`
+	SearchService  Service `mapstructure:"search-service"`
 
 	TokenService TokenService `mapstructure:"token-service"`
 
