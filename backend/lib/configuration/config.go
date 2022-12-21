@@ -11,9 +11,9 @@ type Config struct {
 	UserService    Service `mapstructure:"user-service"`
 	MessageService Service `mapstructure:"message-service"`
 	WSService      Service `mapstructure:"ws-service"`
-	SearchService  Service `mapstructure:"search-service"`
 
-	TokenService TokenService `mapstructure:"token-service"`
+	SearchService SearchService `mapstructure:"search-service"`
+	TokenService  TokenService  `mapstructure:"token-service"`
 
 	S3Bucket string `mapstructure:"aws-bucket"`
 
@@ -48,6 +48,14 @@ type TokenService struct {
 	RedisPass             string `mapstructure:"redisPass"`
 	AccessTokenPrivateKey string `mapstructure:"accessPrivKey"`
 	RefreshTokenSecret    string `mapstructure:"refreshSecret"`
+}
+
+type SearchService struct {
+	HTTPPort  string   `mapstructure:"httpPort"`
+	HTTPSPort string   `mapstructure:"httpsPort"`
+	Addresses []string `mapstructure:"addresses"`
+	Username  string   `mapstructure:"username"`
+	Password  string   `mapstrucutre:"password"`
 }
 
 func LoadConfig(path string) (config Config, err error) {
