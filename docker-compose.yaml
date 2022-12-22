@@ -152,6 +152,27 @@ services:
       - wsmysql
     restart: on-failure
 
+  elasticsearch:
+    image: docker.io/bitnami/elasticsearch:8
+    networks:
+      - chatnet 
+    volumes:
+      - "elasticsearch_data:/bitnami/elasticsearch"
+  searchservice:
+    build:
+      context: .
+      dockerfile: backend/search-service/Dockerfile
+    container_name: searchservice
+    hostname: searchservice
+    networks:
+      - chatnet
+    ports:
+      - "8085:8080"
+    depends_on:
+      - tokenservice
+      - elasticsearch
+    restart: on-failure
+
   react:
     build:
       context: .
@@ -175,6 +196,8 @@ volumes:
   usersmysql_data:
     driver: local
   wsmysql_data:
+    driver: local
+  elasticsearch_data:
     driver: local
 
 networks:

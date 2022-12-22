@@ -14,6 +14,8 @@ async function refreshAccessToken() {
     })
     if (response.data.accessToken !== undefined) {
         window.localStorage.setItem("token", response.data.accessToken);
+    } else {
+      window.localStorage.clear();
     }
 }
 
