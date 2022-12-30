@@ -101,6 +101,7 @@ func (s ProfileTestSuite) TestGetUser() {
 			engine.Handle(http.MethodGet, "/api/user", s.server.GetUser)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 
@@ -188,6 +189,7 @@ func (s ProfileTestSuite) TestChangePassword() {
 			engine.Handle(http.MethodPut, "/api/change-password", s.server.ChangePassword)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 
@@ -247,6 +249,7 @@ func (s ProfileTestSuite) TestDeleteProfilePicture() {
 			engine.Handle(http.MethodDelete, "/api/delete-image", s.server.DeleteProfilePicture)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 			var msg gin.H
@@ -341,6 +344,7 @@ func (s ProfileTestSuite) TestSetProfilePicture() {
 			engine.Handle(http.MethodPut, "/api/set-image", s.server.UpdateProfilePicture)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 

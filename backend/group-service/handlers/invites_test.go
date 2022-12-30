@@ -108,6 +108,7 @@ func (s InvitesTestSuite) TestGetUserInvites() {
 			engine.Handle(http.MethodGet, "/api/invites", s.server.GetUserInvites)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 
@@ -203,6 +204,7 @@ func (s InvitesTestSuite) TestSendGroupInvite() {
 			engine.Handle(http.MethodPost, "/api/invite", s.server.CreateInvite)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 
@@ -315,6 +317,7 @@ func (s InvitesTestSuite) TestRespondGroupInvite() {
 			engine.Handle(http.MethodPut, "/api/invite/:inviteID", s.server.RespondGroupInvite)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 

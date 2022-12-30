@@ -6,7 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Setup(engine *gin.Engine, server *handlers.Server) {
+func Setup(server *handlers.Server) *gin.Engine {
+	engine := gin.Default()
 
 	engine.Use(CORSMiddleware())
 
@@ -15,6 +16,8 @@ func Setup(engine *gin.Engine, server *handlers.Server) {
 	api.GET("/accessCode", server.GetAuthCode)
 
 	engine.GET("/ws", server.ServeWebSocket)
+
+	return engine
 }
 
 func CORSMiddleware() gin.HandlerFunc {

@@ -1,7 +1,6 @@
 package elastic
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -42,16 +41,11 @@ func (es *elasticSearchDB) setupIndex() error {
 	}
 	defer exists.Body.Close()
 
-	var respBody map[string]interface{}
 	if exists.IsError() {
-		if err := json.NewDecoder(exists.Body).Decode(&respBody); err != nil {
-			return fmt.Errorf("Error decoding error body message: %v", err)
+		if exists.StatusCode != 404 {
+			return fmt.Errorf("Unexpected status code: %d", exists.StatusCode)
 		}
-		cause := respBody["error"].(map[string]interface{})["root_cause"].(map[string]interface{})["type"]
-		if cause != INDEX_EXISTS_EXCEPTION {
-			return fmt.Errorf("Unexpected error from request: %v", err)
-		}
-		// index exists return nil
+	} else {
 		return nil
 	}
 
@@ -65,7 +59,7 @@ func (es *elasticSearchDB) setupIndex() error {
 	}
 
 	if res.IsError() {
-		return fmt.Errorf("Error when creating database: %v", err)
+		return fmt.Errorf("Server returned unexpected status code: %d", res.StatusCode)
 	}
 
 	return nil

@@ -71,7 +71,7 @@ func (es *elasticSearchDB) GetUsers(query string, num int) ([]models.User, error
 
 	res, err := es.client.Search(
 		es.client.Search.WithContext(context.Background()),
-		es.client.Search.WithIndex("users1"),
+		es.client.Search.WithIndex(INDEX_NAME),
 		es.client.Search.WithBody(&buffer),
 		es.client.Search.WithPretty(),
 	)

@@ -38,10 +38,10 @@ cloud.google.com/go/storage v1.14.0/go.mod h1:GrKmX003DSIwi9o29oFT7YDnHYwZoctc3f
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221210095715-6884d94fa4ab h1:uuNzcZtxlhYJxKSdfcSkRbqFRecI7YJ7Xx84fAFsEtc=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221210095715-6884d94fa4ab/go.mod h1:N3SSG6kpSs4fbEBUCAwE12vVbDUmepuR6vVn7qy17u8=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221210095715-6884d94fa4ab h1:U1JxpPg9iO+fYFPDH1/pjjo1i5tDDWnbC0ZFfvLP4H8=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221210095715-6884d94fa4ab/go.mod h1:IvcbN/b3kXy51jDW1TzgqmYBsFnG3kGwOLaUfyP8MNs=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221222014351-247153fe8155 h1:JJQaZhI+Fomv82a0pxez+wN4so4DYiCuvADUP0YmiBU=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221222014351-247153fe8155/go.mod h1:N3SSG6kpSs4fbEBUCAwE12vVbDUmepuR6vVn7qy17u8=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221222014351-247153fe8155 h1:MbYs3VnaTopGY2Edb0Ry9wThQcDF0DWd8PiSsSB8ct4=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221222014351-247153fe8155/go.mod h1:IvcbN/b3kXy51jDW1TzgqmYBsFnG3kGwOLaUfyP8MNs=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=
 github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e/go.mod h1:nSuG5e5PlCu98SY8svDHJxuZscDgtXS6KTTbou5AhLI=

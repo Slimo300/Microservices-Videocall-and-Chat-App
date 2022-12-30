@@ -74,6 +74,7 @@ func (s ResetPasswordSuite) TestForgotPassword() {
 		engine.ServeHTTP(w, req)
 
 		response := w.Result()
+		defer response.Body.Close()
 
 		s.Equal(tC.expectedStatusCode, response.StatusCode)
 
@@ -135,6 +136,7 @@ func (s ResetPasswordSuite) TestResetForgottenPassword() {
 			engine.ServeHTTP(w, req)
 
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 

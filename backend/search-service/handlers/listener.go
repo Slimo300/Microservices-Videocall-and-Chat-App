@@ -17,8 +17,8 @@ func (s *Server) RunListener() {
 		select {
 		case evt := <-eventChan:
 			switch e := evt.(type) {
-			case events.UserRegisteredEvent:
-				if err := s.DB.AddUser(e); err != nil {
+			case *events.UserRegisteredEvent:
+				if err := s.DB.AddUser(*e); err != nil {
 					log.Printf("Adding user returned error: %v", err)
 				}
 			}

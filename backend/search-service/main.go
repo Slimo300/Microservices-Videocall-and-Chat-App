@@ -50,6 +50,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error creating kafka listener: %v", err)
 	}
+	listener.Offset = sarama.OffsetOldest
 
 	es, err := elastic.NewElasticSearchDB(conf.SearchService.Addresses, conf.SearchService.Username, conf.SearchService.Password)
 	if err != nil {
@@ -61,6 +62,7 @@ func main() {
 		Listener:    listener,
 		AuthService: authService,
 	}
+	go server.RunListener()
 
 	handler := routes.Setup(&server)
 

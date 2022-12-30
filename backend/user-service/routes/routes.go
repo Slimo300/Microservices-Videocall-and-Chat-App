@@ -7,7 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Setup(engine *gin.Engine, server *handlers.Server) {
+func Setup(server *handlers.Server) *gin.Engine {
+	engine := gin.Default()
 
 	engine.Use(CORSMiddleware())
 	engine.Use(limits.RequestSizeLimiter(server.MaxBodyBytes))
@@ -32,6 +33,7 @@ func Setup(engine *gin.Engine, server *handlers.Server) {
 	apiAuth.PUT("/change-password", server.ChangePassword)
 	apiAuth.GET("/user", server.GetUser)
 
+	return engine
 }
 
 func CORSMiddleware() gin.HandlerFunc {

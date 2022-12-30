@@ -18,9 +18,9 @@ export async function DeleteGroup(groupID) {
     return await axiosObject.delete(groupsService+"/group/"+groupID);
 }
 
-export async function SendGroupInvite(username, groupID) {
+export async function SendGroupInvite(targetID, groupID) {
     return await axiosObject.post(groupsService+"/invites", {
-        "target": username,
+        "target": targetID,
         "group": groupID
     });
 }

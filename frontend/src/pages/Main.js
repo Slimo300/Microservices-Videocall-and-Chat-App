@@ -35,12 +35,6 @@ const AuthMain = (props) => {
         setCreateGrShow(!createGrShow);
     }
 
-    // useEffect(() => {
-    //     if (current.ID !== undefined) {
-    //         toggleToggler();
-    //     }
-    // }, [current]);
-
     // Getting user data, groups and invites and setting websocket connection
     useEffect(() => {
         const fetchData = async () => {
@@ -135,14 +129,14 @@ const AuthMain = (props) => {
                                         </ul>
                                     </div>
                                 </div>
-                                <Chat group={current} ws={props.ws} setCurrent={setCurrent} toggler={toggler}/>
+                                <Chat group={current} ws={props.ws} user={state.user} setCurrent={setCurrent} toggler={toggler}/>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
           <ModalCreateGroup show={createGrShow} toggle={toggleCreateGroup}/>
-          <ModalUserProfile show={props.profileShow} toggle={props.toggleProfile} />
+          <ModalUserProfile show={props.profileShow} toggle={props.toggleProfile} user={state.user} />
         </div>
     )
 }

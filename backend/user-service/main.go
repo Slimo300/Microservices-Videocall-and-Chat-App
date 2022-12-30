@@ -19,11 +19,9 @@ import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/email"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/handlers"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/routes"
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	engine := gin.Default()
 
 	config, err := configuration.LoadConfig(os.Getenv("CHAT_CONFIG"))
 	if err != nil {
@@ -46,13 +44,10 @@ func main() {
 	}
 
 	// kafka broker setup
-	// sarama.Logger = log.New(os.Stdout, "[sarama] ", log.LstdFlags)
 	conf := sarama.NewConfig()
 	conf.ClientID = "userService"
 	conf.Version = sarama.V2_3_0_0
 	conf.Producer.Return.Successes = true
-	conf.Consumer.Group.InstanceId = "users"
-
 	client, err := sarama.NewClient(config.BrokersAddresses, conf)
 	if err != nil {
 		log.Fatal(err)
@@ -79,14 +74,14 @@ func main() {
 		MaxBodyBytes: 4194304,
 		Domain:       "localhost",
 	}
-	routes.Setup(engine, server)
+	handler := routes.Setup(server)
 
 	httpServer := &http.Server{
-		Handler: engine,
+		Handler: handler,
 		Addr:    fmt.Sprintf(":%s", config.UserService.HTTPPort),
 	}
 	httpsServer := &http.Server{
-		Handler: engine,
+		Handler: handler,
 		Addr:    fmt.Sprintf(":%s", config.UserService.HTTPSPort),
 	}
 

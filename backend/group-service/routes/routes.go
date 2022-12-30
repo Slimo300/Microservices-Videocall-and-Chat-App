@@ -6,7 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Setup(engine *gin.Engine, server *handlers.Server) {
+func Setup(server *handlers.Server) *gin.Engine {
+
+	engine := gin.Default()
 
 	engine.Use(CORSMiddleware())
 
@@ -27,6 +29,8 @@ func Setup(engine *gin.Engine, server *handlers.Server) {
 	apiAuth.GET("/invites", server.GetUserInvites)
 	apiAuth.POST("/invites", server.CreateInvite)
 	apiAuth.PUT("/invites/:inviteID", server.RespondGroupInvite)
+
+	return engine
 }
 
 func CORSMiddleware() gin.HandlerFunc {

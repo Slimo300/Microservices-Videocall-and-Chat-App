@@ -167,6 +167,7 @@ func (s MembersTestSuite) TestGrantPriv() {
 			engine.Handle(http.MethodPut, "/group/:groupID/member/:memberID", s.server.GrantPriv)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 
@@ -260,6 +261,7 @@ func (s MembersTestSuite) TestDeleteMember() {
 			engine.Handle(http.MethodDelete, "/group/:groupID/member/:memberID", s.server.DeleteUserFromGroup)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 
@@ -325,6 +327,7 @@ func (s MembersTestSuite) TestDeleteGroup() {
 			engine.Handle(http.MethodDelete, "/api/group/:groupID", s.server.DeleteGroup)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 

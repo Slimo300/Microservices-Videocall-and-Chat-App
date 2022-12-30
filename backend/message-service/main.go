@@ -21,11 +21,9 @@ import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/kafka"
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	engine := gin.Default()
 
 	config, err := configuration.LoadConfig(os.Getenv("CHAT_CONFIG"))
 	if err != nil {
@@ -75,16 +73,16 @@ func main() {
 		Emitter:      emitter,
 		Listener:     listener,
 	}
-	routes.Setup(engine, server)
+	handler := routes.Setup(server)
 
 	go server.RunListener()
 
 	httpServer := &http.Server{
-		Handler: engine,
+		Handler: handler,
 		Addr:    fmt.Sprintf(":%s", config.MessageService.HTTPPort),
 	}
 	httpsServer := &http.Server{
-		Handler: engine,
+		Handler: handler,
 		Addr:    fmt.Sprintf(":%s", config.MessageService.HTTPSPort),
 	}
 

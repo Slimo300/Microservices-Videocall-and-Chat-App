@@ -6,7 +6,7 @@ import { UserPicture } from "../components/Pictures";
 
 export const ModalUserProfile = (props) => {
 
-    const [state, dispatch] = useContext(StorageContext);
+    const [, dispatch] = useContext(StorageContext);
 
     const [oldPassword, setOldPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
@@ -53,7 +53,7 @@ export const ModalUserProfile = (props) => {
             setMessage("Image uploaded succesfully");
             dispatch({type: actionTypes.NEW_PROFILE_PICTURE, payload: response.data.newUrl});
             let timestamp = new Date().getTime();
-            document.getElementById("profilePicture").src = "https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+state.user.pictureUrl+"?"+timestamp;
+            document.getElementById("profilePicture").src = "https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+props.user.pictureUrl+"?"+timestamp;
             document.getElementById("customFile").value= null;
 
         } else {
@@ -71,7 +71,7 @@ export const ModalUserProfile = (props) => {
             setMessage("Image deleted successfully");
             dispatch({type: actionTypes.DELETE_PROFILE_PICTURE});
             let timestamp = new Date().getTime();
-            document.getElementById("profilePicture").src = "https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+state.user.pictureUrl+"?"+timestamp;
+            document.getElementById("profilePicture").src = "https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+props.user.pictureUrl+"?"+timestamp;
         } else {
             setMessage(response.data.err);
         }
@@ -93,7 +93,7 @@ export const ModalUserProfile = (props) => {
                                 <div className="member-card">
                                     {message}
                                     <div className="mx-auto profile-image-holder">
-                                        <UserPicture pictureUrl={state.user.pictureUrl} imageID="profilePicture"/>
+                                        <UserPicture pictureUrl={props.user.pictureUrl} imageID="profilePicture"/>
                                     </div>
                                     <div>
                                         <h4>{props.name}</h4>

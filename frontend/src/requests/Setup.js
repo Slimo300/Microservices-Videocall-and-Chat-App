@@ -3,6 +3,7 @@ export const messageService = 'http://localhost:8082/api';
 export const userService = 'http://localhost:8083/api';
 export const wsService = 'http://localhost:8084/api'
 export const wsServiceWebsocket = 'ws://localhost:8084';
+export const searchService = 'http://localhost:8085/api';
 
 let axiosObject = require('axios').default;
 axiosObject.defaults.headers.common['Content-Type'] = "application/json";

@@ -12,15 +12,15 @@ const Navigation = (props) => {
 
     const logout = async () => {
         let response = await Logout();
-        dispatch({type: actionTypes.LOGOUT});
         window.localStorage.clear();
+        dispatch({type: actionTypes.LOGOUT});
         props.ws.close();
         if (response.status !== 200) alert(response.data.message);
     };
 
     let menu;
 
-    if (window.localStorage.getItem === null) {
+    if (window.localStorage.getItem("token") === null) {
         menu = (
             <div className="collapse navbar-collapse" id="navbarCollapse">
                 <ul className="navbar-nav mr-auto"></ul>
@@ -38,10 +38,10 @@ const Navigation = (props) => {
                 <div className="btn-group">
                     <button type="button" className="btn btn-secondary dropdown-toggle bg-dark" data-toggle="dropdown" aria-expanded="false">
                         <FontAwesomeIcon className='text-primary pr-2' icon={faBell} />
-                        <span className="badge badge-secondary">{state.notifications!==undefined?state.notifications.length:null}</span>
+                        <span className="badge badge-secondary">{state.invites!==undefined?state.invites.length:null}</span>
                     </button>
                     <div className="dropdown-menu dropdown-menu-right">
-                        {state.invites!==undefined?state.invites.map((item)=> <Invite key={item.ID} invite={item} />):null}
+                        {state.invites!==undefined?state.invites.map((item)=> <Invite key={item.ID} invite={item} userID={state.user.ID} />):null}
                     </div>
                 </div>
 

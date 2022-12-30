@@ -109,6 +109,7 @@ func (s GroupPicturesTestSuite) TestDeleteGroupProfilePicture() {
 			engine.Handle(http.MethodDelete, "/api/group/:groupID/image", s.server.DeleteGroupProfilePicture)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 
@@ -219,6 +220,7 @@ func (s GroupPicturesTestSuite) TestSetGroupProfilePicture() {
 			engine.Handle(http.MethodPut, "/api/group/:groupID/image", s.server.SetGroupProfilePicture)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 

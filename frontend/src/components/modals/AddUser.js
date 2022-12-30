@@ -1,31 +1,37 @@
-import React, {useContext, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
 import { StorageContext } from "../../ChatStorage";
 import {SendGroupInvite} from "../../requests/Groups";
 import { actionTypes } from "../../ChatStorage";
+import { SearchUsers } from "../../requests/Users";
+import { UserPicture } from "../Pictures";
 
 export const ModalAddUser = (props) => {
 
     const [username, setUsername] = useState("");
     const [msg, setMsg] = useState("");
-    const [, dispatch] = useContext(StorageContext);
 
-    const submitAddToGroup = async(e) => {
-        e.preventDefault();
+    const [users, setUsers] = useState([]);
 
-        try {
-            let response = await SendGroupInvite(username, props.group.ID);
-            console.log(response.data);
-            dispatch({type: actionTypes.ADD_INVITE, payload: response.data});
-            setMsg("Invite sent successfully");
-            setTimeout(function () {    
-                props.toggle();
-                setMsg("");
-            }, 3000);
-        } catch(err) {
-            setMsg(err.response.data.err);
-        }
-    }
+    useEffect( () => {
+        async function fetchData() {
+            let dropdown = document.getElementById("dropdownUsers");
+            if (dropdown === null) return;
+            if (username.length < 4) {
+                dropdown.classList.remove("show");
+                return;
+            }
+            try {
+                let response = await SearchUsers(username, 5);
+                setUsers(response.data);
+                dropdown.classList.add("show");
+            }
+            catch(err) {
+                setMsg(err);
+            }
+        };
+        fetchData();
+    }, [username]);
     
     return (
         <Modal id="buy" tabIndex="-1" role="dialog" isOpen={props.show} toggle={props.toggle}>
@@ -36,16 +42,22 @@ export const ModalAddUser = (props) => {
                 <ModalBody>
                     <div>
                         {msg!==""?<h5 className="mb-4 text-danger">{msg}</h5>:null}
-                        <form onSubmit={submitAddToGroup}>
+                        <form>
                             <div className="form-group">
                                 <label htmlFor="email">Username:</label>
-                                <input name="name" type="text" className="form-control" id="gr_name" onChange={(e)=>{setUsername(e.target.value)}}/>
+                                <input name="name" type="text" className="form-control" id="gr_name" autoComplete="off" onChange={(e)=>{setUsername(e.target.value)}}/>
                             </div>
-                            <div className="form-row text-center">
-                                <div className="col-12 mt-2">
-                                    <button type="submit" className="btn btn-dark btn-large text-primary">Add User</button>
-                                </div>
-                            </div>
+                            <div className="dropdown w-100">
+                            <div data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"/>
+                            <div id="dropdownUsers" className="dropdown-menu w-100" aria-labelledby="dropdownMenuButton">
+                                {users.length===0?null:users.map((item) => {
+                                    return <div>
+                                            <User user={item} setMsg={setMsg} groupID={props.group.ID} isMember={isMember(props.group, item.ID)}/>
+                                            <hr />
+                                        </div>
+                                })}
+                            </div>      
+                        </div>
                         </form>
                     </div>
                 </ModalBody>
@@ -53,3 +65,45 @@ export const ModalAddUser = (props) => {
         </Modal>
     );
 } 
+
+
+const User = (props) => {
+
+    const [, dispatch] = useContext(StorageContext);
+
+    const AddUser = async(e) => {
+        e.preventDefault();
+        try {
+            let response = await SendGroupInvite(props.user.ID, props.groupID);
+            dispatch({type: actionTypes.ADD_INVITE, payload: response.data});
+
+            props.setMsg("Invite sent successfully");
+
+            setTimeout(function () {    
+                props.toggle();
+                props.setMsg("");
+            }, 3000);
+
+        } catch(err) {
+            props.setMsg(err.response);
+        }
+    }
+
+    return (
+        <div className="d-flex column justify-content-between align-items-center px-3">
+            <div className="d-flex column align-items-center">
+                <div className="chat-avatar image-holder-invite"><UserPicture pictureUrl={props.user.picture}/></div>
+                <div className="user-name pl-3">{props.user.username}</div>
+            </div>
+            <button className="btn btn-primary pl-3" disabled={props.isMember} onClick={AddUser}>Add User</button>
+        </div>
+    )
+}
+
+
+function isMember(group, userID) {
+    for (let i = 0; i < group.Members.length; i++) {
+        if (group.Members[i].userID === userID) return true;
+    }
+    return false;
+}

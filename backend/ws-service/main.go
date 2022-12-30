@@ -22,11 +22,9 @@ import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/handlers"
 	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/routes"
 	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/ws"
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	engine := gin.Default()
 
 	config, err := configuration.LoadConfig(os.Getenv("CHAT_CONFIG"))
 	if err != nil {
@@ -85,16 +83,16 @@ func main() {
 		EventChan:    actionChan,
 	}
 	go server.RunHub()
-	routes.Setup(engine, server)
+	handler := routes.Setup(server)
 
 	go server.RunListener()
 
 	httpServer := &http.Server{
-		Handler: engine,
+		Handler: handler,
 		Addr:    fmt.Sprintf(":%s", config.WSService.HTTPPort),
 	}
 	httpsServer := &http.Server{
-		Handler: engine,
+		Handler: handler,
 		Addr:    fmt.Sprintf(":%s", config.WSService.HTTPSPort),
 	}
 

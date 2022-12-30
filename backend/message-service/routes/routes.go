@@ -6,7 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Setup(engine *gin.Engine, server *handlers.Server) {
+func Setup(server *handlers.Server) *gin.Engine {
+	engine := gin.Default()
 
 	engine.Use(CORSMiddleware())
 
@@ -16,6 +17,8 @@ func Setup(engine *gin.Engine, server *handlers.Server) {
 	apiAuth.GET("/group/:groupID/messages", server.GetGroupMessages)
 	apiAuth.DELETE("/group/:groupID/messages/:messageID", server.DeleteMessageForEveryone)
 	apiAuth.PATCH("/group/:groupID/messages/:messageID", server.DeleteMessageForYourself)
+
+	return engine
 }
 
 func CORSMiddleware() gin.HandlerFunc {

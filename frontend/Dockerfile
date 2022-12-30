@@ -4,6 +4,7 @@ WORKDIR /app
 # Copy app files
 COPY frontend/. .
 # Install dependencies (npm ci makes sure the exact versions in the lockfile gets installed)
+RUN npm install
 RUN npm ci 
 # Build the app
 RUN npm run build

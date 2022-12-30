@@ -3,8 +3,8 @@ module github.com/Slimo300/MicroservicesChatApp/backend/token-service
 go 1.19
 
 require (
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221210095715-6884d94fa4ab
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221210095715-6884d94fa4ab
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221222014351-247153fe8155
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221222014351-247153fe8155
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.0

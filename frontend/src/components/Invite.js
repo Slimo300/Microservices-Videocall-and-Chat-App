@@ -17,7 +17,7 @@ const Invite = (props) => {
 
 const AwaitingInvite = (props) => {
 
-    const [state, dispatch] = useContext(StorageContext);
+    const [, dispatch] = useContext(StorageContext);
 
     const Respond = async (answer) => {
         let response;
@@ -34,7 +34,7 @@ const AwaitingInvite = (props) => {
     };
 
     let isUserATarget = false;
-    if (state.user.ID === props.invite.targetID) {
+    if (props.userID === props.invite.targetID) {
         isUserATarget = true;
     }
 
@@ -58,10 +58,8 @@ const AwaitingInvite = (props) => {
 
 const AnsweredInvite = (props) => {
 
-    const [state,] = useContext(StorageContext);
-
     let isUserATarget = false;
-    if (state.user.ID === props.invite.targetID) {
+    if (props.userID === props.invite.targetID) {
         isUserATarget = true;
     }
 

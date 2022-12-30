@@ -100,8 +100,8 @@ function Login(state, payload) {
 }
 
 function Logout() {
-    console.log("Logout")
-    return initialState;
+    let newState = {...initialState};
+    return newState;
 }
 
 // GROUP HANDLERS

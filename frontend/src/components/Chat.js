@@ -11,7 +11,7 @@ import { ModalLeaveGroup } from "./modals/LeaveGroup";
 
 const Chat = (props) => {
 
-    const [state, dispatch] = useContext(StorageContext);
+    const [, dispatch] = useContext(StorageContext);
 
     const [member, setMember] = useState({});
     const [msg, setMsg] = useState(""); // currently typed message
@@ -63,7 +63,7 @@ const Chat = (props) => {
                     return
                 }
                 for (let i = 0; i < props.group.Members.length; i++) {
-                    if (props.group.Members[i].userID === state.user.ID ) {
+                    if (props.group.Members[i].userID === props.user.ID ) {
                         setMember(props.group.Members[i]);
                         return;
                     }
@@ -71,7 +71,7 @@ const Chat = (props) => {
                 throw new Error("No member matches user");
             }
         )();
-    }, [props.group, state.user.ID]);
+    }, [props.group, props.user.ID]);
 
     // function for sending message when submit
     const sendMessage = (e) => {
@@ -79,9 +79,9 @@ const Chat = (props) => {
         if (msg.trim() === "") return false;
         if (props.ws !== undefined) props.ws.send(JSON.stringify({
             "groupID": props.group.ID,
-            "userID": state.user.ID,
+            "userID": props.user.ID,
             "text": msg,
-            "nick": state.user.username,
+            "nick": props.user.username,
         }));
         document.getElementById("text-area").value = "";
         document.getElementById("text-area").focus();
@@ -116,7 +116,7 @@ const Chat = (props) => {
                         {!allMessagesFlag?<li className="text-center align-top"><a className="text-primary" style={{cursor: "pointer"}} onClick={loadMessages}>Load more messages</a></li>:null}
                         {props.group.messages===undefined?null:props.group.messages.map((item) => {
                         return <div className="d-flex flex-column justify-content-end min-vh-65" ref={scrollRef}>
-                                <Message key={item.ID} message={item} user={state.user.ID} picture={GetMemberPicture(props.group, item.member)} />
+                                <Message key={item.ID} message={item} user={props.user.ID} picture={GetMemberPicture(props.group, item.member)} />
                             </div>})}
                     </ul>
                     <form id="chatbox" className="form-group mt-3 mb-0 d-flex column justify-content-center" onSubmit={sendMessage}>

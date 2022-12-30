@@ -97,6 +97,7 @@ func (s GroupTestSuite) TestGetUserGroups() {
 			engine.Handle(http.MethodGet, "/api/group/get", s.server.GetUserGroups)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(response.StatusCode, tC.expectedStatusCode)
 
@@ -163,6 +164,7 @@ func (s GroupTestSuite) TestCreateGroup() {
 			engine.Handle(http.MethodPost, "/api/group/create", s.server.CreateGroup)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 

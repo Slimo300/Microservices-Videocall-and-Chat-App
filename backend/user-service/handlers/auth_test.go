@@ -105,6 +105,7 @@ func (s *AuthTestSuite) TestSignIn() {
 			engine.Handle(http.MethodPost, "/api/login", s.server.SignIn)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 
@@ -162,6 +163,7 @@ func (s AuthTestSuite) TestSignOut() {
 			engine.Handle(http.MethodPost, "/api/signout", s.server.SignOutUser)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 
@@ -224,6 +226,7 @@ func (s AuthTestSuite) TestRefresh() {
 			engine.Handle(http.MethodPost, "/api/refresh", s.server.RefreshToken)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 

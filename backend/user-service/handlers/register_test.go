@@ -114,6 +114,7 @@ func (s RegisterSuite) TestRegister() {
 			engine.Handle(http.MethodPost, "/api/register", s.server.RegisterUser)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 			var msg gin.H
@@ -156,6 +157,7 @@ func (s RegisterSuite) TestVerifyEmail() {
 			engine.ServeHTTP(w, req)
 
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 

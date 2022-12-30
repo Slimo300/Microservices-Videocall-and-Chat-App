@@ -38,7 +38,7 @@ func (db *Database) RegisterUser(user models.User) (*models.User, *models.Verifi
 			return err
 		}
 		// verification code creation
-		code := models.VerificationCode{UserID: newUser.ID, ActivationCode: randstr.String(10), Created: now}
+		code = models.VerificationCode{UserID: newUser.ID, ActivationCode: randstr.String(10), Created: now}
 		if err = tx.Create(&code).Error; err != nil {
 			return err
 		}

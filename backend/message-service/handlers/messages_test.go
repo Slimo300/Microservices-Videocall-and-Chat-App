@@ -126,6 +126,7 @@ func (s MessageTestSuite) TestGetGroupMessages() {
 			engine.Handle(http.MethodGet, "/api/group/:groupID/messages", server.GetGroupMessages)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 
@@ -249,6 +250,7 @@ func (s *MessageTestSuite) TestDeleteMessageForYourself() {
 			engine.PATCH("/groups/:groupID/messages/:messageID", server.DeleteMessageForYourself)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 
@@ -366,6 +368,7 @@ func (s *MessageTestSuite) TestDeleteMessageForEveryone() {
 			engine.DELETE("/groups/:groupID/messages/:messageID", server.DeleteMessageForEveryone)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
+			defer response.Body.Close()
 
 			s.Equal(tC.expectedStatusCode, response.StatusCode)
 

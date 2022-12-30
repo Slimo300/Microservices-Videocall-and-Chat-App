@@ -1,4 +1,4 @@
-import axiosObject, {userService} from "./Setup";
+import axiosObject, {userService, searchService} from "./Setup";
 
 export async function Register(email, username, password, rpassword) {
     if (email.trim() === "") {
@@ -105,3 +105,7 @@ export async function ResetForgottenPassword(resetCode, newPassword, repeatPassw
     });
 
 }
+
+export async function SearchUsers(username, num) {
+    return await axiosObject.get(searchService+"/search/"+username+"?num="+num);
+ }
