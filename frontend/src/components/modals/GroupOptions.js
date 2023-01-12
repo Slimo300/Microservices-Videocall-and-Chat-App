@@ -21,7 +21,7 @@ export const ModalGroupOptions = (props) => {
 
         if (response.status === 200) {
             setMessage("Image uploaded successfully");
-            dispatch({type: actionTypes.NEW_GROUP_PROFILE_PICTURE, payload: {newURI: response.data.newUrl, groupID: props.group.ID}});
+            dispatch({type: actionTypes.SET_GROUP_PICTURE, payload: {newUrl: response.data.newUrl, groupID: props.group.ID}});
             let timestamp = new Date().getTime();
             document.getElementById("profilePicture").src = "https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+props.group.pictureUrl+"?"+timestamp;
             document.getElementById("customFile").value= null;

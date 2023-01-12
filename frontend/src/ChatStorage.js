@@ -254,7 +254,7 @@ function ResetCounter(state, payload) {
 
 function SetProfilePicture(state, payload) {
     let newState = {...state};
-    newState.user.pictureUrl = payload.pictureUrl
+    newState.user.pictureUrl = payload
     return newState;
 }
 
@@ -262,7 +262,7 @@ function SetGroupPicture(state, payload) {
     let newState = {...state}
     for (let i = 0; i < newState.groups.length; i++) {
         if (newState.groups[i].ID === payload.groupID) {
-            newState.groups[i].pictureUrl = payload.newURI;
+            newState.groups[i].pictureUrl = payload.newUrl;
             return newState
         }
     }

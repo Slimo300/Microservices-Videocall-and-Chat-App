@@ -73,6 +73,9 @@ services:
     hostname: groupservice
     networks: 
       - chatnet
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
     ports:
       - "8081:8080"
     depends_on:
@@ -119,6 +122,9 @@ services:
       dockerfile: backend/user-service/Dockerfile
     container_name: userservice
     hostname: userservice
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
     networks: 
       - chatnet
     ports:
