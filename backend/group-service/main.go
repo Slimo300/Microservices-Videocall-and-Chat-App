@@ -30,7 +30,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	db, err := orm.Setup(config.GroupService.DBAddress)
+	db, err := orm.Setup(config.GroupService.DBType, config.GroupService.DBAddress)
 	if err != nil {
 		log.Fatal(err)
 	}

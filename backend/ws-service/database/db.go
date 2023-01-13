@@ -7,6 +7,7 @@ import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/models"
 	"github.com/google/uuid"
 	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -14,8 +15,18 @@ type Database struct {
 	*gorm.DB
 }
 
-func Setup(address string) (*Database, error) {
-	db, err := gorm.Open(mysql.Open(fmt.Sprintf("%s?parseTime=true", address)), &gorm.Config{
+func Setup(dbtype, address string) (*Database, error) {
+	var dialector gorm.Dialector
+	switch dbtype {
+	case "MYSQL":
+		dialector = mysql.Open(fmt.Sprintf("%s?parseTime=true", address))
+	case "PostgreSQL":
+		dialector = postgres.Open(address)
+	default:
+		return nil, fmt.Errorf("Unsupported database type: %s", dbtype)
+	}
+
+	db, err := gorm.Open(dialector, &gorm.Config{
 		SkipDefaultTransaction: true,
 	})
 	if err != nil {

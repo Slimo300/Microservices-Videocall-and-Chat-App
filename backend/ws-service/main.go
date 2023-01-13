@@ -31,7 +31,7 @@ func main() {
 		log.Fatalf("Error when loading configuration: %v", err)
 	}
 
-	db, err := database.Setup(config.WSService.DBAddress)
+	db, err := database.Setup(config.WSService.DBType, config.WSService.DBAddress)
 	if err != nil {
 		log.Fatalf("Error when connecting to database: %v", err)
 	}

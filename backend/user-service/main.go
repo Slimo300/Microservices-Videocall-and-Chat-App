@@ -29,7 +29,7 @@ func main() {
 	}
 
 	// Setting up MySQL connection
-	db, err := orm.Setup(config.UserService.DBAddress, orm.WithConfig(orm.DBConfig{
+	db, err := orm.Setup(config.UserService.DBType, config.UserService.DBAddress, orm.WithConfig(orm.DBConfig{
 		VerificationCodeDuration: 24 * time.Hour,
 		ResetCodeDuration:        10 * time.Minute,
 	}))

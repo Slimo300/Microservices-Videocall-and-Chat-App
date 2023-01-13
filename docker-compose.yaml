@@ -1,4 +1,4 @@
-version: "2"
+version: "3.3"
 
 services:
 
@@ -15,8 +15,6 @@ services:
   kafka:
     image: docker.io/bitnami/kafka:3.3
     hostname: kafka
-    ports:
-      - "9093:9093"
     volumes:
       - "kafka_data:/bitnami"
     environment:
@@ -37,9 +35,7 @@ services:
       - "redis_data:/bitnami/redis/data"
     environment:
       - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG
-      - ALLOW_EMPTY_PASSWORD=yes
-    ports:
-      - "6379:6379"
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     networks:
       - chatnet
   tokenservice:
@@ -56,42 +52,52 @@ services:
       - redis
     restart: on-failure
 
-  groupmysql:
-    image: mysql/mysql-server
-    container_name: groupmysql
-    hostname: groupmysql
+
+  grouppostgres:
+    image: bitnami/postgresql
+    container_name: grouppostgres
+    hostname: grouppostgres
     user: root
     networks:
       - chatnet
     volumes:
-      - groupsmysql_data:/var/lib/mysql
+      - grouppostgres_data:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_USERNAME=${POSTGRES_USER}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRESQL_DATABASE=${POSTGRES_DATABASE}
   groupservice:
     build:
       context: .
       dockerfile: backend/group-service/Dockerfile
     container_name: groupservice
     hostname: groupservice
-    networks: 
-      - chatnet
     environment:
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+    networks: 
+      - chatnet
     ports:
       - "8081:8080"
     depends_on:
       - tokenservice
-      - groupmysql
+      - grouppostgres
     restart: on-failure
 
-  messagemysql:
-    image: mysql/mysql-server
-    container_name: messagemysql
-    hostname: messagemysql
+
+  messagepostgres:
+    image: bitnami/postgresql
+    container_name: messagepostgres
+    hostname: messagepostgres
     user: root
     networks:
       - chatnet
     volumes:
-      - messagesmysql_data:/var/lib/mysql
+      - messagepostgres_data:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_USERNAME=${POSTGRES_USER}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRESQL_DATABASE=${POSTGRES_DATABASE}
   messageservice:
     build:
       context: .
@@ -104,18 +110,22 @@ services:
       - "8082:8080"
     depends_on:
       - tokenservice
-      - messagemysql
+      - messagepostgres
     restart: on-failure
 
-  usermysql:
-    image: mysql/mysql-server
-    container_name: usermysql
-    hostname: usermysql
+  userpostgres:
+    image: bitnami/postgresql
+    container_name: userpostgres
+    hostname: userpostgres
     user: root
     networks:
       - chatnet
     volumes:
-      - usersmysql_data:/var/lib/mysql
+      - userpostgres_data:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_USERNAME=${POSTGRES_USER}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRESQL_DATABASE=${POSTGRES_DATABASE}
   userservice:
     build:
       context: .
@@ -131,18 +141,23 @@ services:
       - "8083:8080"
     depends_on:
       - tokenservice
-      - usermysql
+      - userpostgres
     restart: on-failure
 
-  wsmysql:
-    image: mysql/mysql-server
-    container_name: wsmysql
-    hostname: wsmysql
+
+  wspostgres:
+    image: bitnami/postgresql
+    container_name: wspostgres
+    hostname: wspostgres
     user: root
     networks:
       - chatnet
     volumes:
-      - wsmysql_data:/var/lib/mysql
+      - wspostgres_data:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_USERNAME=${POSTGRES_USER}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRESQL_DATABASE=${POSTGRES_DATABASE}
   wsservice:
     build:
       context: .
@@ -155,8 +170,9 @@ services:
       - "8084:8080"
     depends_on:
       - tokenservice
-      - wsmysql
+      - wspostgres
     restart: on-failure
+  
 
   elasticsearch:
     image: docker.io/bitnami/elasticsearch:8
@@ -165,16 +181,6 @@ services:
       - chatnet 
     volumes:
       - "elasticsearch_data:/bitnami/elasticsearch"
-  kibana:
-    image: docker.io/bitnami/kibana:8
-    networks:
-      - chatnet
-    ports:
-      - "5601:5601"
-    volumes:
-      - "kibana_data:/bitnami/kibana"
-    depends_on:
-      - elasticsearch
   searchservice:
     build:
       context: .
@@ -206,17 +212,15 @@ volumes:
     driver: local
   redis_data:
     driver: local
-  groupsmysql_data:
+  userpostgres_data:
     driver: local
-  messagesmysql_data:
+  wspostgres_data:
     driver: local
-  usersmysql_data:
+  grouppostgres_data:
     driver: local
-  wsmysql_data:
+  messagepostgres_data:
     driver: local
   elasticsearch_data:
-    driver: local
-  kibana_data:
     driver: local
 
 networks:

@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM golang:1.17-buster AS build
+FROM golang:1.19-buster AS build
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ WORKDIR /
 
 USER nonroot:nonroot
 
-ARG configFile=/config/docker-conf.yaml
+ARG configFile=/config/withPostgres.yaml
 ARG certDir=/cert
 ARG templateDir=/backend/user-service/templates
 
