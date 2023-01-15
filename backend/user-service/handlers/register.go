@@ -50,6 +50,7 @@ func (s *Server) RegisterUser(c *gin.Context) {
 				Email:   user.Email,
 				Name:    user.UserName,
 				Code:    verificationCode.ActivationCode,
+				Origin:  s.Origin,
 			})
 		}()
 	}

@@ -4,12 +4,12 @@ go 1.19
 
 require (
 	github.com/Shopify/sarama v1.37.2
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20221222014351-247153fe8155
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221222014351-247153fe8155
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221222014351-247153fe8155
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221222014351-247153fe8155
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221222014351-247153fe8155
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20221222014351-247153fe8155
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20230115173524-f3589cec1c1e
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230115173524-f3589cec1c1e
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20230115172545-1028cc8a6db8
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20230115173524-f3589cec1c1e
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230115173524-f3589cec1c1e
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20230115173524-f3589cec1c1e
 	github.com/gin-contrib/size v0.0.0-20220829131622-0fc0bc875336
 	github.com/gin-gonic/gin v1.8.1
 	github.com/google/uuid v1.3.0
@@ -57,7 +57,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.15.11 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
-	github.com/magiconair/properties v1.8.6 // indirect
+	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
@@ -73,11 +73,11 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.14.0 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
-	github.com/subosito/gotenv v1.4.1 // indirect
+	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	golang.org/x/net v0.3.0 // indirect
-	golang.org/x/sys v0.3.0 // indirect
-	golang.org/x/text v0.5.0 // indirect
+	golang.org/x/sys v0.4.0 // indirect
+	golang.org/x/text v0.6.0 // indirect
 	google.golang.org/genproto v0.0.0-20221025140454-527a21cfbd71 // indirect
 	google.golang.org/grpc v1.50.1 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect

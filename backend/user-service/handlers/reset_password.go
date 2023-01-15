@@ -31,6 +31,7 @@ func (s *Server) ForgotPassword(c *gin.Context) {
 				Email:   user.Email,
 				Name:    user.UserName,
 				Code:    resetCode.ResetCode,
+				Origin:  s.Origin,
 			})
 		}()
 	}

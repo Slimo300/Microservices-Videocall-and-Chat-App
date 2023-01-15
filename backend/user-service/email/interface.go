@@ -10,4 +10,5 @@ type EmailData struct {
 	Email   string
 	Name    string
 	Code    string
+	Origin  string
 }

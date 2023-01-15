@@ -64,7 +64,7 @@ func main() {
 	}
 	go server.RunListener()
 
-	handler := routes.Setup(&server)
+	handler := routes.Setup(&server, conf.Origin)
 
 	httpServer := &http.Server{
 		Handler: handler,

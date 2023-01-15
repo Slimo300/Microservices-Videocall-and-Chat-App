@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -59,22 +60,26 @@ func main() {
 	}
 
 	// Setup for handling image uploads to s3 and email sending
-	storage := storage.Setup(config.S3Bucket)
+	storage, err := storage.Setup(config.S3Bucket)
+	if err != nil {
+		log.Fatal(err)
+	}
 	emailService, err := email.NewSMTPService(config.EmailTemplateDir, config.EmailFrom, config.SMTPHost, config.SMTPPort, config.SMTPUser, config.SMTPPass)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	server := &handlers.Server{
+		Origin:       config.Origin,
 		DB:           db,
 		TokenService: tokenService,
 		Emitter:      emitter,
-		ImageStorage: &storage,
+		ImageStorage: storage,
 		EmailService: emailService,
 		MaxBodyBytes: 4194304,
-		Domain:       "localhost",
+		Domain:       strings.Split(config.Origin, "//")[1],
 	}
-	handler := routes.Setup(server)
+	handler := routes.Setup(server, config.Origin)
 
 	httpServer := &http.Server{
 		Handler: handler,

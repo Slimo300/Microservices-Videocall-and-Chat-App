@@ -9,11 +9,12 @@ import (
 )
 
 type Server struct {
+	Origin       string
 	DB           database.DBLayer
 	Emitter      msgqueue.EventEmitter
 	ImageStorage storage.StorageLayer
 	TokenService auth.TokenClient
 	EmailService email.EmailService
-	Domain       string
 	MaxBodyBytes int64
+	Domain       string
 }

@@ -4,10 +4,10 @@ go 1.19
 
 require (
 	github.com/Shopify/sarama v1.37.2
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20221222014351-247153fe8155
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20221222014351-247153fe8155
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20221222014351-247153fe8155
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20221222014351-247153fe8155
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230115173524-f3589cec1c1e
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20230115172545-1028cc8a6db8
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20230115173524-f3589cec1c1e
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230115173524-f3589cec1c1e
 	github.com/elastic/go-elasticsearch/v8 v8.5.0
 	github.com/gin-gonic/gin v1.8.1
 	github.com/google/uuid v1.3.0

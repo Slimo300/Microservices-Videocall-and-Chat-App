@@ -34,10 +34,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	storage := storage.Setup(config.S3Bucket)
+	storage, err := storage.Setup(config.S3Bucket)
+	if err != nil {
+		log.Fatalf("Error connecting to AWS S3: %v", err)
+	}
 	authService, err := auth.NewGRPCTokenClient(config.AuthAddress)
 	if err != nil {
-		panic("Couldn't connect to grpc auth server")
+		log.Fatalf("Couldn't connect to grpc auth server: %v", err)
 	}
 
 	conf := sarama.NewConfig()
@@ -66,13 +69,13 @@ func main() {
 
 	server := handlers.Server{
 		DB:           db,
-		Storage:      &storage,
+		Storage:      storage,
 		TokenService: authService,
 		Emitter:      emitter,
 		Listener:     listener,
 		MaxBodyBytes: 4194304,
 	}
-	handler := routes.Setup(&server)
+	handler := routes.Setup(&server, config.Origin)
 
 	go server.RunListener()
 

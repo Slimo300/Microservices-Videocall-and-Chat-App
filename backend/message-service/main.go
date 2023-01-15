@@ -73,8 +73,7 @@ func main() {
 		Emitter:      emitter,
 		Listener:     listener,
 	}
-	handler := routes.Setup(server)
-
+	handler := routes.Setup(server, config.Origin)
 	go server.RunListener()
 
 	httpServer := &http.Server{

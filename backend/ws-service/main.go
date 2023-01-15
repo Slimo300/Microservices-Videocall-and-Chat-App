@@ -83,7 +83,7 @@ func main() {
 		EventChan:    actionChan,
 	}
 	go server.RunHub()
-	handler := routes.Setup(server)
+	handler := routes.Setup(server, config.Origin)
 
 	go server.RunListener()
 
