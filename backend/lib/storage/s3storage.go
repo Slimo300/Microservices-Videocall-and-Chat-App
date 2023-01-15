@@ -13,13 +13,17 @@ type S3Storage struct {
 	Bucket string
 }
 
-func Setup(bucket string) S3Storage {
-	return S3Storage{
-		S3: s3.New(session.Must(session.NewSession(&aws.Config{
-			Region: aws.String("eu-central-1"),
-		}))),
-		Bucket: bucket,
+func Setup(bucket string) (*S3Storage, error) {
+	session, err := session.NewSession(&aws.Config{
+		Region: aws.String("eu-central-1"),
+	})
+	if err != nil {
+		return nil, err
 	}
+	return &S3Storage{
+		S3:     s3.New(session),
+		Bucket: bucket,
+	}, nil
 }
 
 func (s *S3Storage) UpdateProfilePicture(img multipart.File, key string) error {
