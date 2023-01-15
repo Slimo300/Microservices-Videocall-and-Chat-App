@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: messagesdeployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      chat/app: messages
+      chat/tier: api
+  template:
+    metadata:
+      labels:
+        chat/app: messages
+        chat/tier: api
+    spec:
+      containers:
+      - name: api
+        imagePullPolicy: Never
+        image: chat/messageservice
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 8090
+          name: https
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: messageservice
+spec:
+  selector:
+    chat/app: messages
+    chat/tier: api
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: http
+  - port: 8090
+    targetPort: 8090
+    name: https

@@ -15,14 +15,19 @@ type redisTokenRepository struct {
 	*redis.Client
 }
 
-func NewRedisTokenRepository(address, password string) *redisTokenRepository {
-	return &redisTokenRepository{
-		Client: redis.NewClient(&redis.Options{
-			Addr:     address,
-			Password: password,
-			DB:       0,
-		}),
+func NewRedisTokenRepository(address, password string) (*redisTokenRepository, error) {
+	client := redis.NewClient(&redis.Options{
+		Addr:     address,
+		Password: password,
+		DB:       0,
+	})
+	if err := client.Ping().Err(); err != nil {
+		return nil, err
 	}
+
+	return &redisTokenRepository{
+		Client: client,
+	}, nil
 }
 
 func (rdb *redisTokenRepository) SaveToken(token string, expiration time.Duration) error {

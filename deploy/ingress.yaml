@@ -1,0 +1,55 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: chatapp
+spec:
+  rules:
+  - host: api.chatapp.example
+    http:
+      paths:
+      - path: /groups
+        pathType: Prefix
+        backend:
+          service:
+            name: userservice
+            port:
+              number: 8080
+      - path: /messages
+        pathType: Prefix
+        backend:
+          service:
+            name: messageservice
+            port:
+              number: 8080
+      - path: /search
+        pathType: Prefix
+        backend:
+          service:
+            name: searchservice
+            port:
+              number: 8080
+      - path: /users
+        pathType: Prefix
+        backend:
+          service:
+            name: userservice
+            port:
+              number: 8080
+      - path: /ws
+        pathType: Prefix
+        backend:
+          service:
+            name: wsservice
+            port:
+              number: 8080
+  - host: www.chatapp.example
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 80
+    

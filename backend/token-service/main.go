@@ -38,7 +38,10 @@ func main() {
 		log.Fatalf("could not parse private key: %v", err)
 	}
 
-	repo := redis.NewRedisTokenRepository(config.TokenService.RedisAddress, config.TokenService.RedisPass)
+	repo, err := redis.NewRedisTokenRepository(config.TokenService.RedisAddress, config.TokenService.RedisPass)
+	if err != nil {
+		log.Fatal("could not connect to redis")
+	}
 
 	s := server.NewTokenService(repo,
 		config.TokenService.RefreshTokenSecret,

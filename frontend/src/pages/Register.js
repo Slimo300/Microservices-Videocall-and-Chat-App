@@ -14,6 +14,22 @@ function RegisterForm() {
 
     let result;
     try {
+      if (email.trim() === "") {
+          setMessage("Email can't be blank");
+          return;
+      }
+      if (username.trim() === "") {
+          setMessage("Username can't be blank");
+          return;
+      }
+      if (password.trim() === "") {
+          setMessage("Password can't be blank");
+          return;
+      }
+      if (password !== rpassword) {
+          setMessage("Passwords don't match");
+          return;
+      }
       result = await Register(email, username, password, rpassword);
     } catch(err) {
       setMessage(err.response.data.err);

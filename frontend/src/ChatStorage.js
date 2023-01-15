@@ -100,8 +100,11 @@ function Login(state, payload) {
 }
 
 function Logout() {
-    let newState = {...initialState};
-    return newState;
+    return {
+        groups: [],
+        invites: [],
+        user: {},
+    };
 }
 
 // GROUP HANDLERS
@@ -147,10 +150,8 @@ function UpdateMember(state, payload) {
     let newState = {...state};
     for (let i = 0; i < newState.groups.length; i++) {
         if (newState.groups[i].ID === payload.groupID) {
-            console.log("Found group. Members: ", newState.groups[i].Members);
             for (let j = 0; j < newState.groups[i].Members.length; j++) {
                 if (newState.groups[i].Members[j].ID === payload.ID) {
-                    console.log("Found member");
                     newState.groups[i].Members[j] = payload;
                     return newState;
                 }
@@ -177,7 +178,6 @@ function AddMessage(state, payload) {
     let newState = {...state};
     for (let i = 0; i < newState.groups.length; i++) {
         if (newState.groups[i].ID === payload.message.groupID) {
-            console.log("Pushing");
             newState.groups[i].messages.push(payload.message);
             if (!payload.current) {
                 newState.groups[i].unreadMessages += 1;
@@ -224,14 +224,12 @@ function AddInvites(state, payload) {
 
 function AddInvite(state, payload) {
     let newState = {...state};
-    console.log("Push");
     newState.invites.push(payload);
     return newState;
 }
 
 function UpdateInvite(state, payload) {
     let newState = {...state};
-    console.log(payload);
     newState.invites = newState.invites.filter((item)=>{return item.ID !== payload.ID});
     newState.invites.push(payload);
     return newState;

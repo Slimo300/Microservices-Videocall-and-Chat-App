@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wsdeployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      chat/app: ws
+      chat/tier: api
+  template:
+    metadata:
+      labels:
+        chat/app: ws
+        chat/tier: api
+    spec:
+      containers:
+      - name: api
+        imagePullPolicy: Never
+        image: chat/wsservice
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 8090
+          name: https
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wsservice
+spec:
+  selector:
+    chat/app: ws
+    chat/tier: api
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: http
+  - port: 8090
+    targetPort: 8090
+    name: https

@@ -15,7 +15,7 @@ FROM gcr.io/distroless/base-debian10
 
 WORKDIR /
 
-ARG configFile=/config/withPostgres.yaml
+ARG configFile=/config/docker-conf.yaml
 ARG rsaKey=private.pem
 
 COPY --from=build app/tokenservice /tokenservice

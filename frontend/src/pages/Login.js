@@ -28,6 +28,14 @@ const SignInForm = () => {
     e.preventDefault();
 
     try {
+      if (email.trim() === "") {
+          setMessage("Email cannot be blank");
+          return;
+      }
+      if (password.trim() === "") {
+          setMessage("Password cannot be blank");
+          return;
+      }
       let result = await Login(email, password);
       if (result.status === 200) {
         window.localStorage.setItem("token", result.data.accessToken);

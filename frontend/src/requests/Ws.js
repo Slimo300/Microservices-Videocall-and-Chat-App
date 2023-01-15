@@ -5,7 +5,7 @@ export async function GetWebsocket() {
 
     let response = await axiosObject.get(wsService+"/accessCode");
     
-    let socket = new WebSocket(wsServiceWebsocket+'/ws?accessCode='+response.data.accessCode);
+    let socket = new WebSocket(wsServiceWebsocket+'?accessCode='+response.data.accessCode);
     socket.onopen = () => {
         console.log("Websocket openned");
     };

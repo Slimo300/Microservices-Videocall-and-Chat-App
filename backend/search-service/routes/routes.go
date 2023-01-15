@@ -12,7 +12,7 @@ func Setup(server *handlers.Server) *gin.Engine {
 	engine.Use(CORSMiddleware())
 	engine.Use(auth.MustAuth(server.AuthService))
 
-	engine.GET("api/search/:name", server.SearchUsers)
+	engine.GET("/search/:name", server.SearchUsers)
 
 	return engine
 }

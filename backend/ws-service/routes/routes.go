@@ -11,7 +11,7 @@ func Setup(server *handlers.Server) *gin.Engine {
 
 	engine.Use(CORSMiddleware())
 
-	api := engine.Group("/api")
+	api := engine.Group("/ws")
 	api.Use(auth.MustAuth(server.TokenService))
 	api.GET("/accessCode", server.GetAuthCode)
 

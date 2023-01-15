@@ -17,7 +17,7 @@ WORKDIR /
 
 USER nonroot:nonroot
 
-ARG configFile=/config/withPostgres.yaml
+ARG configFile=/config/docker-conf.yaml
 ARG certDir=/cert
 
 COPY --from=build app/wsservice /wsservice

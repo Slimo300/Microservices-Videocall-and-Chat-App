@@ -1,18 +1,6 @@
 import axiosObject, {userService, searchService} from "./Setup";
 
 export async function Register(email, username, password, rpassword) {
-    if (email.trim() === "") {
-        throw new Error("Email can't be blank");
-    }
-    if (username.trim() === "") {
-        throw new Error("Username can't be blank");
-    }
-    if (password.trim() === "") {
-        throw new Error("Password can't be blank");
-    }
-    if (password !== rpassword) {
-        throw new Error("Passwords don't match");
-    }
     return await axiosObject.post(userService+"/register", {
         username: username, 
         email: email,
@@ -29,12 +17,6 @@ export async function VerifyAccount(code) {
 }
 
 export async function Login(email, password) {
-    if (email.trim() === "") {
-        throw new Error("Email cannot be blank");
-    }
-    if (password.trim() === "") {
-        throw new Error("Password cannot be blank");
-    }
     return await axiosObject.post(userService+"/login", {
         email: email,
         password: password,
@@ -107,5 +89,5 @@ export async function ResetForgottenPassword(resetCode, newPassword, repeatPassw
 }
 
 export async function SearchUsers(username, num) {
-    return await axiosObject.get(searchService+"/search/"+username+"?num="+num);
+    return await axiosObject.get(searchService+"/"+username+"?num="+num);
  }

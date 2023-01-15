@@ -1,4 +1,4 @@
-version: "3.3"
+version: "2"
 
 services:
 
@@ -15,6 +15,8 @@ services:
   kafka:
     image: docker.io/bitnami/kafka:3.3
     hostname: kafka
+    ports:
+      - "9093:9093"
     volumes:
       - "kafka_data:/bitnami"
     environment:
@@ -36,6 +38,8 @@ services:
     environment:
       - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
     networks:
       - chatnet
   tokenservice:
@@ -52,52 +56,51 @@ services:
       - redis
     restart: on-failure
 
-
-  grouppostgres:
-    image: bitnami/postgresql
-    container_name: grouppostgres
-    hostname: grouppostgres
-    user: root
+  groupmysql:
+    image: mysql
+    container_name: groupmysql
+    hostname: groupmysql
     networks:
       - chatnet
     volumes:
-      - grouppostgres_data:/bitnami/postgresql
+      - groupmysql_data:/var/lib/mysql
     environment:
-      - POSTGRESQL_USERNAME=${POSTGRES_USER}
-      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRESQL_DATABASE=${POSTGRES_DATABASE}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
   groupservice:
     build:
       context: .
       dockerfile: backend/group-service/Dockerfile
     container_name: groupservice
     hostname: groupservice
-    environment:
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
     networks: 
       - chatnet
     ports:
       - "8081:8080"
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
     depends_on:
+      - kafka
       - tokenservice
-      - grouppostgres
+      - groupmysql
     restart: on-failure
 
-
-  messagepostgres:
-    image: bitnami/postgresql
-    container_name: messagepostgres
-    hostname: messagepostgres
-    user: root
+  messagemysql:
+    image: mysql
+    container_name: messagemysql
+    hostname: messagemysql
     networks:
       - chatnet
     volumes:
-      - messagepostgres_data:/bitnami/postgresql
+      - messagemysql_data:/var/lib/mysql
     environment:
-      - POSTGRESQL_USERNAME=${POSTGRES_USER}
-      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRESQL_DATABASE=${POSTGRES_DATABASE}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
   messageservice:
     build:
       context: .
@@ -109,23 +112,24 @@ services:
     ports:
       - "8082:8080"
     depends_on:
+      - kafka
       - tokenservice
-      - messagepostgres
+      - messagemysql
     restart: on-failure
 
-  userpostgres:
-    image: bitnami/postgresql
-    container_name: userpostgres
-    hostname: userpostgres
-    user: root
+  usermysql:
+    image: mysql
+    container_name: usermysql
+    hostname: usermysql
     networks:
       - chatnet
     volumes:
-      - userpostgres_data:/bitnami/postgresql
+      - usermysql_data:/var/lib/mysql
     environment:
-      - POSTGRESQL_USERNAME=${POSTGRES_USER}
-      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRESQL_DATABASE=${POSTGRES_DATABASE}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
   userservice:
     build:
       context: .
@@ -140,24 +144,24 @@ services:
     ports:
       - "8083:8080"
     depends_on:
+      - kafka
       - tokenservice
-      - userpostgres
+      - usermysql
     restart: on-failure
 
-
-  wspostgres:
-    image: bitnami/postgresql
-    container_name: wspostgres
-    hostname: wspostgres
-    user: root
+  wsmysql:
+    image: mysql
+    container_name: wsmysql
+    hostname: wsmysql
     networks:
       - chatnet
     volumes:
-      - wspostgres_data:/bitnami/postgresql
+      - wsmysql_data:/var/lib/mysql
     environment:
-      - POSTGRESQL_USERNAME=${POSTGRES_USER}
-      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRESQL_DATABASE=${POSTGRES_DATABASE}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
   wsservice:
     build:
       context: .
@@ -169,10 +173,10 @@ services:
     ports:
       - "8084:8080"
     depends_on:
+      - kafka
       - tokenservice
-      - wspostgres
+      - wsmysql
     restart: on-failure
-  
 
   elasticsearch:
     image: docker.io/bitnami/elasticsearch:8
@@ -192,6 +196,7 @@ services:
     ports:
       - "8085:8080"
     depends_on:
+      - kafka
       - tokenservice
       - elasticsearch
     restart: on-failure
@@ -212,13 +217,13 @@ volumes:
     driver: local
   redis_data:
     driver: local
-  userpostgres_data:
+  groupmysql_data:
     driver: local
-  wspostgres_data:
+  messagemysql_data:
     driver: local
-  grouppostgres_data:
+  usermysql_data:
     driver: local
-  messagepostgres_data:
+  wsmysql_data:
     driver: local
   elasticsearch_data:
     driver: local

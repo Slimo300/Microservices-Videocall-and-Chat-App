@@ -12,7 +12,7 @@ func Setup(server *handlers.Server) *gin.Engine {
 
 	engine.Use(CORSMiddleware())
 
-	api := engine.Group("/api")
+	api := engine.Group("/groups")
 	api.Use(limits.RequestSizeLimiter(server.MaxBodyBytes))
 	apiAuth := api.Use(server.MustAuth())
 

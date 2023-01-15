@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      chat/app: frontend
+  template:
+    metadata:
+      labels:
+        chat/app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: chat/frontend
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 80
+          name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    chat/app: frontend
+  ports:
+  - port: 80
+    targetPort: 80
+    name: http
