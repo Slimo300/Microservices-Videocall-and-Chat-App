@@ -6,3 +6,4 @@ docker build -f backend/user-service/Dockerfile -t chat/userservice .
 docker build -f backend/ws-service/Dockerfile -t chat/wsservice .
 docker build -f backend/message-service/Dockerfile -t chat/messageservice .
 docker build -f frontend/Dockerfile -t chat/frontend .
+docker image rm $(docker images -f "dangling=true" -q)

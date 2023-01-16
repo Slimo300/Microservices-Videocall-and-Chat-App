@@ -11,7 +11,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: userservice
+            name: groupservice
             port:
               number: 8080
       - path: /messages
