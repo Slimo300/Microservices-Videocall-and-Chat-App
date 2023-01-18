@@ -78,7 +78,7 @@ func main() {
 		TokenService: tokenService,
 		Emitter:      emitter,
 		Listener:     listener,
-		Hub:          ws.NewHub(messageChan, actionChan),
+		Hub:          ws.NewHub(messageChan, actionChan, config.Origin),
 		MessageChan:  messageChan,
 		EventChan:    actionChan,
 	}

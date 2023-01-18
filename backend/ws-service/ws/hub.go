@@ -15,14 +15,8 @@ const (
 	messageBufferSize = 256
 )
 
-var upgrader = &websocket.Upgrader{
-	ReadBufferSize:  socketBufferSize,
-	WriteBufferSize: socketBufferSize,
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	}} //TODO: CheckOrigin
-
 type WSHub struct {
+	upgrader          *websocket.Upgrader
 	actionServerChan  <-chan msgqueue.Event
 	messageServerChan chan<- *Message
 	forward           chan *Message
@@ -31,8 +25,20 @@ type WSHub struct {
 	clients           map[*client]bool
 }
 
-func NewHub(messageChan chan<- *Message, actionChan <-chan msgqueue.Event) *WSHub {
+func NewHub(messageChan chan<- *Message, actionChan <-chan msgqueue.Event, origin string) *WSHub {
+
+	upgrader := &websocket.Upgrader{
+		ReadBufferSize:  socketBufferSize,
+		WriteBufferSize: socketBufferSize,
+		CheckOrigin: func(r *http.Request) bool {
+			if r.Header.Get("Origin") == origin {
+				return true
+			}
+			return false
+		}}
+
 	return &WSHub{
+		upgrader:          upgrader,
 		messageServerChan: messageChan,
 		actionServerChan:  actionChan,
 		forward:           make(chan *Message),
@@ -96,7 +102,7 @@ func (h *WSHub) Forward(msg *Message) {
 
 func ServeWebSocket(w http.ResponseWriter, req *http.Request, h WSHub, groups []uuid.UUID, id_user uuid.UUID) {
 
-	socket, err := upgrader.Upgrade(w, req, nil)
+	socket, err := h.upgrader.Upgrade(w, req, nil)
 	if err != nil {
 		return
 	}
