@@ -1,9 +1,14 @@
 package ws
 
 import (
+	"log"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
+
+const KEEP_ALIVE_INTERVAL = 50 * time.Second
 
 type client struct {
 	id     uuid.UUID
@@ -11,6 +16,7 @@ type client struct {
 	send   chan Sender
 	hub    WSHub
 	groups []uuid.UUID
+	ticker time.Ticker
 }
 
 // read reads messages received by socket
@@ -29,9 +35,17 @@ func (c *client) read() {
 // write sends messages from server to clients
 func (c *client) write() {
 	defer c.socket.Close()
-	for msg := range c.send {
-		if err := msg.Send(c.socket); err != nil {
-			break
+	for {
+		select {
+		case msg := <-c.send:
+			if err := msg.Send(c.socket); err != nil {
+				log.Printf("Error when sending message through socket: %v\n", err)
+			}
+			c.ticker.Reset(0)
+		case <-c.ticker.C:
+			if err := c.socket.WriteMessage(websocket.PingMessage, []byte("KeepAlive")); err != nil {
+				log.Printf("Error pinging client: %v\n", err)
+			}
 		}
 	}
 }

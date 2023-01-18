@@ -3,6 +3,7 @@ package ws
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
@@ -113,6 +114,7 @@ func ServeWebSocket(w http.ResponseWriter, req *http.Request, h WSHub, groups []
 		send:   make(chan Sender, messageBufferSize),
 		hub:    h,
 		groups: groups,
+		ticker: *time.NewTicker(KEEP_ALIVE_INTERVAL),
 	}
 
 	h.Join(client)
