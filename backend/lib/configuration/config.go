@@ -8,6 +8,7 @@ import (
 
 type Config struct {
 	Origin string `mapstructure:"origin"`
+	Domain string `mapstructure:"domain"`
 
 	GroupService   Service `mapstructure:"group-service"`
 	UserService    Service `mapstructure:"user-service"`
