@@ -59,6 +59,7 @@ func main() {
 	mapper := msgqueue.NewDynamicEventMapper()
 	if err := mapper.RegisterTypes(
 		reflect.TypeOf(events.UserRegisteredEvent{}),
+		reflect.TypeOf(events.UserPictureModifiedEvent{}),
 	); err != nil {
 		log.Fatal(err)
 	}

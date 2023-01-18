@@ -22,4 +22,5 @@ type DBLayer interface {
 	AnswerInvite(userID, inviteID uuid.UUID, answer bool) (*models.Invite, *models.Group, *models.Member, error)
 
 	NewUser(event events.UserRegisteredEvent) error
+	UpdateUserProfilePictureURL(event events.UserPictureModifiedEvent) error
 }

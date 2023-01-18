@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -107,10 +109,19 @@ func (s *Server) UpdateProfilePicture(c *gin.Context) {
 		return
 	}
 
-	pictureURL, err := s.DB.GetProfilePictureURL(userUID)
+	pictureURL, newUrl, err := s.DB.GetProfilePictureURL(userUID)
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
+	}
+
+	if newUrl {
+		if err := s.Emitter.Emit(events.UserPictureModifiedEvent{
+			ID:         userUID,
+			PictureURL: pictureURL,
+		}); err != nil {
+			log.Printf("Failed to emit event: %v\n", err)
+		}
 	}
 
 	if err = s.ImageStorage.UpdateProfilePicture(file, pictureURL); err != nil {
@@ -139,6 +150,12 @@ func (s *Server) DeleteProfilePicture(c *gin.Context) {
 	if err = s.ImageStorage.DeleteProfilePicture(url); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
+	}
+	if err := s.Emitter.Emit(events.UserPictureModifiedEvent{
+		ID:         userUID,
+		PictureURL: "",
+	}); err != nil {
+		log.Printf("Failed to emit event: %v\n", err)
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "success"})
 }

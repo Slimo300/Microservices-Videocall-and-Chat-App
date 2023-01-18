@@ -36,20 +36,21 @@ func (db *Database) DeleteProfilePicture(userID uuid.UUID) (string, error) {
 
 }
 
-// GetProfilePictureURL returns user's `pictureURL` and if one is not set it generates one and saves to database
-func (db *Database) GetProfilePictureURL(userID uuid.UUID) (string, error) {
+// GetProfilePictureURL fetches user's `pictureURL` and if one is not set it generates one and saves to database
+// Return values are pictureURL, boolean informing if new url was generated and error
+func (db *Database) GetProfilePictureURL(userID uuid.UUID) (string, bool, error) {
 	var user models.User
 	if err := db.First(&user, userID).Error; err != nil {
-		return "", apperrors.NewAuthorization("User not in database")
+		return "", false, apperrors.NewAuthorization("User not in database")
 	}
 	if user.PictureURL == "" {
 		newPictureURL := uuid.NewString()
 		if err := db.Model(&user).Update("picture_url", newPictureURL).Error; err != nil {
-			return "", apperrors.NewInternal()
+			return "", true, apperrors.NewInternal()
 		}
-		return newPictureURL, nil
+		return newPictureURL, true, nil
 	}
-	return user.PictureURL, nil
+	return user.PictureURL, false, nil
 }
 
 func (db *Database) ChangePassword(userID uuid.UUID, oldPassword, newPassword string) error {

@@ -270,6 +270,20 @@ func (_m *MockGroupsDB) NewUser(event events.UserRegisteredEvent) error {
 	return r0
 }
 
+// UpdateUserProfilePictureURL provides a mock function with given fields: event
+func (_m *MockGroupsDB) UpdateUserProfilePictureURL(event events.UserPictureModifiedEvent) error {
+	ret := _m.Called(event)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(events.UserPictureModifiedEvent) error); ok {
+		r0 = rf(event)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 type mockConstructorTestingTNewMockGroupsDB interface {
 	mock.TestingT
 	Cleanup(func())

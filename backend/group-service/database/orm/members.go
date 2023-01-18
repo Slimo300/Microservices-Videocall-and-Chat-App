@@ -5,17 +5,8 @@ import (
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 	"github.com/google/uuid"
 )
-
-func (db *Database) NewUser(event events.UserRegisteredEvent) error {
-	return db.Create(&models.User{
-		ID:       event.ID,
-		UserName: event.Username,
-		Picture:  event.PictureURL,
-	}).Error
-}
 
 func (db *Database) DeleteMember(userID, groupID, memberID uuid.UUID) (*models.Member, error) {
 	var issuer models.Member

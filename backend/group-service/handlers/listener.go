@@ -21,6 +21,10 @@ func (s *Server) RunListener(eventNames ...string) {
 				if err := s.DB.NewUser(*e); err != nil {
 					log.Printf("Listener NewUser error: %s", err.Error())
 				}
+			case *events.UserPictureModifiedEvent:
+				if err := s.DB.UpdateUserProfilePictureURL(*e); err != nil {
+					log.Printf("Listener UpdatePicture error: %s", err.Error())
+				}
 			default:
 				log.Println("Unsupported event type")
 			}

@@ -49,7 +49,7 @@ func (_m *MockUsersDB) DeleteProfilePicture(userID uuid.UUID) (string, error) {
 }
 
 // GetProfilePictureURL provides a mock function with given fields: userID
-func (_m *MockUsersDB) GetProfilePictureURL(userID uuid.UUID) (string, error) {
+func (_m *MockUsersDB) GetProfilePictureURL(userID uuid.UUID) (string, bool, error) {
 	ret := _m.Called(userID)
 
 	var r0 string
@@ -59,14 +59,21 @@ func (_m *MockUsersDB) GetProfilePictureURL(userID uuid.UUID) (string, error) {
 		r0 = ret.Get(0).(string)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
+	var r1 bool
+	if rf, ok := ret.Get(1).(func(uuid.UUID) bool); ok {
 		r1 = rf(userID)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(bool)
 	}
 
-	return r0, r1
+	var r2 error
+	if rf, ok := ret.Get(2).(func(uuid.UUID) error); ok {
+		r2 = rf(userID)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // GetUserById provides a mock function with given fields: uid
