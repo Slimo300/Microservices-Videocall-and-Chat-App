@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
+	mockqueue "github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/mock"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
 	mockdb "github.com/Slimo300/MicroservicesChatApp/backend/user-service/database/mock"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/handlers"
@@ -45,14 +46,17 @@ func (s *ProfileTestSuite) SetupSuite() {
 	db.On("DeleteProfilePicture", s.ids["userNoImage"]).Return("", apperrors.NewBadRequest("User has no profile picture"))
 	db.On("DeleteProfilePicture", s.ids["userOK"]).Return("picuteURL", nil)
 
-	db.On("GetProfilePictureURL", s.ids["userNotFound"]).Return("", apperrors.NewAuthorization("User not found"))
-	db.On("GetProfilePictureURL", s.ids["userOK"]).Return("pictureURL", nil)
+	db.On("GetProfilePictureURL", s.ids["userNotFound"]).Return("", false, apperrors.NewAuthorization("User not found"))
+	db.On("GetProfilePictureURL", s.ids["userOK"]).Return("pictureURL", false, nil)
 
 	imageStorage := new(storage.MockStorage)
+	emiter := new(mockqueue.MockEmitter)
+	emiter.On("Emit", mock.Anything).Return(nil)
 
 	s.server = handlers.Server{
 		DB:           db,
 		ImageStorage: imageStorage,
+		Emitter:      emiter,
 	}
 }
 
