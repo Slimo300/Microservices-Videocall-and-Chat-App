@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
 
@@ -28,7 +27,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error when loading configuration: %v", err)
 	}
-
 	// Setting up MySQL connection
 	db, err := orm.Setup(config.UserService.DBType, config.UserService.DBAddress, orm.WithConfig(orm.DBConfig{
 		VerificationCodeDuration: 24 * time.Hour,
@@ -77,7 +75,7 @@ func main() {
 		ImageStorage: storage,
 		EmailService: emailService,
 		MaxBodyBytes: 4194304,
-		Domain:       strings.Split(config.Origin, "//")[1],
+		Domain:       config.Domain,
 	}
 	handler := routes.Setup(server, config.Origin)
 

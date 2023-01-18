@@ -42,6 +42,8 @@ github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230115173524-
 github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230115173524-f3589cec1c1e/go.mod h1:N3SSG6kpSs4fbEBUCAwE12vVbDUmepuR6vVn7qy17u8=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20230115172545-1028cc8a6db8 h1:gwwSx+ZImUodnMNL8tNSDHBGxi3BrkMuFbk4lpBaiRU=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20230115172545-1028cc8a6db8/go.mod h1:IvcbN/b3kXy51jDW1TzgqmYBsFnG3kGwOLaUfyP8MNs=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20230118114117-2b572b5ea9d2 h1:U48CPy3qeogYBSB9D9+1di4GetRES6miQ32I0DPjjas=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20230118114117-2b572b5ea9d2/go.mod h1:IvcbN/b3kXy51jDW1TzgqmYBsFnG3kGwOLaUfyP8MNs=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=
 github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e/go.mod h1:nSuG5e5PlCu98SY8svDHJxuZscDgtXS6KTTbou5AhLI=
