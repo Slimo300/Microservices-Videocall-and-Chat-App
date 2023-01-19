@@ -38,10 +38,13 @@ func (c *client) write() {
 	for {
 		select {
 		case msg := <-c.send:
+			if msg == nil {
+				return
+			}
 			if err := msg.Send(c.socket); err != nil {
 				log.Printf("Error when sending message through socket: %v\n", err)
 			}
-			c.ticker.Reset(0)
+			c.ticker.Reset(1)
 		case <-c.ticker.C:
 			if err := c.socket.WriteMessage(websocket.PingMessage, []byte("KeepAlive")); err != nil {
 				log.Printf("Error pinging client: %v\n", err)
