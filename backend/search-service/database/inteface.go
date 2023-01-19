@@ -8,4 +8,5 @@ import (
 type DBLayer interface {
 	GetUsers(query string, num int) ([]models.User, error)
 	AddUser(user events.UserRegisteredEvent) error
+	UpdateProfilePicture(ev events.UserPictureModifiedEvent) error
 }

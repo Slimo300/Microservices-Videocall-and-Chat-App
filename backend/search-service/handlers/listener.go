@@ -21,6 +21,10 @@ func (s *Server) RunListener() {
 				if err := s.DB.AddUser(*e); err != nil {
 					log.Printf("Adding user returned error: %v", err)
 				}
+			case *events.UserPictureModifiedEvent:
+				if err := s.DB.UpdateProfilePicture(*e); err != nil {
+					log.Printf("Updating profile picture url returned error: %v", err)
+				}
 			}
 		case err = <-errorChan:
 			log.Printf("Error from listener: %v", err)

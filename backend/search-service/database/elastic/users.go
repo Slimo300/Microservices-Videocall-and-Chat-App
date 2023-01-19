@@ -13,6 +13,42 @@ import (
 	"github.com/google/uuid"
 )
 
+func (es *elasticSearchDB) UpdateProfilePicture(ev events.UserPictureModifiedEvent) error {
+	data := map[string]map[string]string{
+		"doc": {
+			"picture": ev.PictureURL,
+		},
+	}
+	dataJSON, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	req := esapi.UpdateRequest{
+		Index:      INDEX_NAME,
+		DocumentID: ev.ID.String(),
+		Body:       bytes.NewReader(dataJSON),
+		Refresh:    "true",
+	}
+
+	res, err := req.Do(context.TODO(), es.client)
+	if err != nil {
+		return err
+	}
+
+	defer res.Body.Close()
+
+	if res.IsError() {
+		var respBody map[string]interface{}
+		if err := json.NewDecoder(res.Body).Decode(&respBody); err != nil {
+			return fmt.Errorf("Error decoding error response body: %v", err)
+		}
+		return errors.New(respBody["error"].(map[string]interface{})["root_cause"].(map[string]interface{})["reason"].(string))
+	}
+
+	return nil
+}
+
 func (es *elasticSearchDB) AddUser(user events.UserRegisteredEvent) error {
 
 	data := map[string]string{

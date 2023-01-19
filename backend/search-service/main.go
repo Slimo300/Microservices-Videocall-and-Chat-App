@@ -42,8 +42,11 @@ func main() {
 	}
 
 	mapper := msgqueue.NewDynamicEventMapper()
-	if err := mapper.RegisterEventType(reflect.TypeOf(events.UserRegisteredEvent{})); err != nil {
-		log.Fatalf("Error when registering type: %v", err)
+	if err := mapper.RegisterTypes(
+		reflect.TypeOf(events.UserRegisteredEvent{}),
+		reflect.TypeOf(events.UserPictureModifiedEvent{}),
+	); err != nil {
+		log.Fatalf("Error when registering types by mapper: %v", err)
 	}
 
 	listener, err := kafka.NewKafkaEventListener(client, mapper, kafka.KafkaTopic{Name: "users"})
