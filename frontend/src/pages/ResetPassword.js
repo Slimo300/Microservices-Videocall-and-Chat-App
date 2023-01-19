@@ -18,6 +18,8 @@ function ResetPassword() {
     }
   }, [code]);
 
+  if (window.localStorage.getItem("token") !== null) return <Navigate to="/"/>
+
   const submit = async (e) => {
     e.preventDefault();
 

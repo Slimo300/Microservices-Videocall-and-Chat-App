@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-// import { Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import {Register} from "../requests/Users";
 
 function RegisterForm() {
@@ -8,6 +8,8 @@ function RegisterForm() {
   const [password, setPassword] = useState("");
   const [rpassword, setRPassword] = useState("");
   const [message, setMessage] = useState("");
+
+  if (window.localStorage.getItem("token") !== null) return <Navigate to="/"/>
 
   const submit = async (e) => {
     e.preventDefault();
