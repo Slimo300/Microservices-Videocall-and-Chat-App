@@ -38,8 +38,6 @@ services:
     environment:
       - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG
       - REDIS_PASSWORD=${REDIS_PASSWORD}
-    ports:
-      - "6379:6379"
     networks:
       - chatnet
   tokenservice:
@@ -50,8 +48,6 @@ services:
     hostname: tokenservice
     networks: 
       - chatnet
-    ports:
-      - "9000:9000"
     depends_on:
       - redis
     restart: on-failure
