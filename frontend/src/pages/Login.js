@@ -23,8 +23,9 @@ const SignInForm = () => {
 
   const [message, setMessage] = useState('');
   const msg = useQuery().get("message");
+  const logout = useQuery().get("logout");
 
-  if (window.localStorage.getItem("token") !== null) return <Navigate to="/"/>;
+  if (window.localStorage.getItem("token") !== null && logout !== "true") return <Navigate to="/"/>;
 
   const submit = async (e) => {
     e.preventDefault();

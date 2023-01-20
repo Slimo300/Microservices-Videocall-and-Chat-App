@@ -45,7 +45,7 @@ const Navigation = (props) => {
                     </div>
                 </div>
 
-                <NavLink className="nav-item nav-link" to="/login" onClick={logout}>Logout</NavLink>
+                <NavLink className="nav-item nav-link" to="/login?logout=true" onClick={logout}>Logout</NavLink>
             </div>
         );
     }
