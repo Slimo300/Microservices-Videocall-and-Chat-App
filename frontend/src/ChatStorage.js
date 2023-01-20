@@ -178,7 +178,7 @@ function AddMessage(state, payload) {
     let newState = {...state};
     for (let i = 0; i < newState.groups.length; i++) {
         if (newState.groups[i].ID === payload.message.groupID) {
-            newState.groups[i].messages.push(payload.message);
+            newState.groups[i].messages.unshift(payload.message)
             if (!payload.current) {
                 newState.groups[i].unreadMessages += 1;
             }
@@ -192,7 +192,7 @@ function AddMessages(state, payload) {
     let newState = {...state};
     for (let i = 0; i < newState.groups.length; i++) {
         if (newState.groups[i].ID === payload.groupID) {
-            newState.groups[i].messages = [...payload.messages.reverse(), ...newState.groups[i].messages];
+            newState.groups[i].messages = [...newState.groups[i].messages, ...payload.messages ];
             return newState;
         }
     }

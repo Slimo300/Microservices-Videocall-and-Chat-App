@@ -8,6 +8,7 @@ import { ModalDeleteGroup } from "./modals/DeleteGroup";
 import { ModalMembers } from "./modals/GroupMembers";
 import { ModalGroupOptions } from "./modals/GroupOptions";
 import { ModalLeaveGroup } from "./modals/LeaveGroup";
+import { ChatBox } from "./Chat-Box";
 
 const Chat = (props) => {
 
@@ -45,15 +46,6 @@ const Chat = (props) => {
         setOptionsShow(!optionsShow);
     };
     const [allMessagesFlag, setAllMessagesFlag] = useState(false);
-
-    const GetMemberPicture = (group, member) => {
-        for (let i = 0; i < group.Members.length; i++) {
-            if (group.Members[i].ID === member) {
-                return group.Members[i].User.pictureUrl;
-            }
-        }
-        return "";
-    }
 
     // getting group membership
     useEffect(()=>{
@@ -111,14 +103,9 @@ const Chat = (props) => {
                         <GroupMenu member={member} toggleOptions={toggleOptions} toggleDel={toggleDelGroup} toggleAdd={toggleAddUser} toggleMembers={toggleMembers} toggleLeave={toggleLeaveGroup}/>
                     </div>
                 </div>
-                <div className="chat-container">
-                    <ul className="chat-box" style={{height: '70vh', 'overflow-y': 'scroll'}}>
-                        {!allMessagesFlag?<li className="text-center align-top"><a className="text-primary" style={{cursor: "pointer"}} onClick={loadMessages}>Load more messages</a></li>:null}
-                        {props.group.messages===undefined?null:props.group.messages.map((item) => {
-                        return <div className="d-flex flex-column justify-content-end min-vh-65" ref={scrollRef}>
-                                <Message key={item.ID} message={item} user={props.user.ID} picture={GetMemberPicture(props.group, item.member)} />
-                            </div>})}
-                    </ul>
+                <div className="chat-container" style={{'height': '80vh'}}>
+                    {!allMessagesFlag?<div className="text-center align-top"><a className="text-primary" style={{cursor: "pointer"}} onClick={loadMessages}>Load more messages</a></div>:null}
+                    <ChatBox group={props.group} user={props.user} scrollRef={scrollRef} />
                     <form id="chatbox" className="form-group mt-3 mb-0 d-flex column justify-content-center" onSubmit={sendMessage}>
                         <textarea autoFocus  id="text-area" className="form-control mr-1" rows="3" placeholder="Type your message here..." onChange={(e)=>{setMsg(e.target.value)}}></textarea>
                         <input className="btn btn-primary" type="submit" value="Send" />
