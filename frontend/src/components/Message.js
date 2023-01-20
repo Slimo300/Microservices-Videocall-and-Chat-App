@@ -77,8 +77,8 @@ const MessageOptions = (props) => {
                 <FontAwesomeIcon icon={faEllipsis} />
             </button>
             <div className="dropdown-menu">
-                <button type="button" class="btn btn-light dropdown-item" onClick={DeleteForYourself}><p style={{float: props.side}}>Delete for yourself</p></button>
-                <button type="button" class="btn btn-light dropdown-item" onClick={DeleteForEveryone}><p style={{float: props.side}}>Delete for everyone</p></button>
+                <button type="button" className="btn btn-light dropdown-item" onClick={DeleteForYourself}><p style={{float: props.side}}>Delete for yourself</p></button>
+                <button type="button" className="btn btn-light dropdown-item" onClick={DeleteForEveryone}><p style={{float: props.side}}>Delete for everyone</p></button>
             </div>
         </div>
     )
