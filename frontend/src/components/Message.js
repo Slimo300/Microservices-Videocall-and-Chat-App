@@ -8,7 +8,7 @@ import { actionTypes, StorageContext } from "../ChatStorage";
 const Message = (props) => {
 
     let time = new Date(props.message.created);
-    let displayedTime = time.getHours() + ":" + time.getMinutes();
+    let displayedTime = time.getHours() + ":" + (time.getMinutes()<10?'0':'') + time.getMinutes();
     let messageText = props.message.text;
     if (props.message.text === "") {
         messageText=<div style={{"font-style": "italic"}}>Message deleted</div>
