@@ -9,15 +9,11 @@ const Message = (props) => {
 
     let time = new Date(props.message.created);
     let displayedTime = time.getHours() + ":" + (time.getMinutes()<10?'0':'') + time.getMinutes();
-    let messageText = props.message.text;
-    if (props.message.text === "") {
-        messageText=<div style={{"font-style": "italic"}}>Message deleted</div>
-    }
 
     const right = (
         <li className="chat-right">
             <div className="chat-hour">{displayedTime} <span className="fa fa-check-circle"></span></div>
-            <div className="chat-text d-flex align-items-center">{messageText}</div>
+            <MessageContent message={props.message} fileUrl={props.picture} side="right" />
             <div className="chat-avatar">
                 <UserPicture pictureUrl={props.picture} />
                 <div className="chat-name">{props.message.nick}</div>
@@ -33,7 +29,7 @@ const Message = (props) => {
                 <UserPicture pictureUrl={props.picture} />
                 <div className="chat-name">{props.message.nick}</div>
             </div>
-            <div className="chat-text d-flex align-items-center">{messageText}</div>
+            <MessageContent message={props.message} fileUrl={props.picture} side="left" />
             <div className="chat-hour">{displayedTime} <span className="fa fa-check-circle"></span></div>
         </li>
     )
@@ -42,6 +38,33 @@ const Message = (props) => {
         <div>
             {props.message.userID===props.user?right:left}
         </div>
+    )
+}
+
+const MessageContent = (props) => {
+    let messageText = props.message.text;
+    if (props.message.text === "") {
+        messageText=<div style={{"font-style": "italic"}}>Message deleted</div>
+    }
+    let messageHolderClassName = (props.side==="right")?"d-flex flex-row align-items-center justify-content-end":"d-flex flex-row align-items-center justify-content-start"
+
+    return (
+        <div className="d-flex flex-column justify-content-center">
+            <div className={messageHolderClassName}>
+                <div className="chat-text d-flex justify-content-end">{messageText}</div>
+            </div>
+            {props.message.files===undefined?null:<div className="d-flex flex-column">
+            {props.message.files.map((item) => {
+                return <MessageFile file={item} />
+            })}
+            </div>}
+        </div>
+    );
+}
+
+const MessageFile = (props) => {
+    return (
+    <img src={"https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+props.file.url} style={{height: '200px', width: '200px', border: '1px solid'}} alt="sample"/>
     )
 }
 

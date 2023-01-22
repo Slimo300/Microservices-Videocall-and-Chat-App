@@ -230,11 +230,11 @@ tr img {
     border-color: transparent #ffffff transparent transparent;
 }
 
-.chat-container li.chat-right > .chat-text {
+.chat-container li.chat-right .chat-text {
     text-align: right;
 }
 
-.chat-container li.chat-right > .chat-text:before {
+.chat-container li.chat-right .chat-text:before {
     right: -20px;
     border-color: transparent transparent transparent #ffffff;
     left: inherit;

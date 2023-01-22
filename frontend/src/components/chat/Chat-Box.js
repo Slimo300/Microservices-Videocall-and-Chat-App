@@ -50,9 +50,9 @@ export const ChatBox = (props) => {
     }
 
     return (
-        <div className="d-flex flex-column col p-0" style={{'overflowY': 'scroll', 'height': '60vh'}}>
+        <div className="d-flex flex-column col p-0" style={{'height': '60vh'}}>
             {!allMessagesFlag?<div className="text-center align-top"><p className="text-primary" style={{cursor: "pointer"}} onClick={loadMessages}>Load more messages</p></div>:null}         
-            <ul className="d-flex flex-column-reverse col p-0">
+            <ul className="d-flex flex-column-reverse col p-0" style={{'overflow-y': 'scroll'}}>
                 {props.group.messages===undefined?null:props.group.messages.map((item) => {
                 return <div key={item.ID} className="d-flex flex-column justify-content-end" ref={scrollRef}>
                         <Message message={item} user={props.user.ID} picture={GetMemberPicture(props.group, item.userID)} />
@@ -70,7 +70,7 @@ const NewDate = (props) => {
     let time = new Date(props.time)
     let displayedTime = time.getDate()+"."+(time.getMonth()+1)+"."+time.getFullYear()+" "+time.getHours()+":"+(time.getMinutes()<10?'0':'') + time.getMinutes();
     return (
-        <div className="d-flex flex-column justify-content-center align-self-center text-secondary">
+        <div className="d-flex flex-column justify-content-center align-self-center text-secondary my-3">
             {displayedTime}
         </div>
     );
