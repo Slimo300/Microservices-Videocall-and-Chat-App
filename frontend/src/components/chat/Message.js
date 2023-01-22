@@ -1,9 +1,9 @@
 import React, { useContext } from "react";
-import { UserPicture } from "./Pictures";
+import { UserPicture } from "../Pictures";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons'
-import {DeleteMessageForEveryone, DeleteMessageForYourself} from "../requests/Messages";
-import { actionTypes, StorageContext } from "../ChatStorage";
+import {DeleteMessageForEveryone, DeleteMessageForYourself} from "../../requests/Messages";
+import { actionTypes, StorageContext } from "../../ChatStorage";
 
 const Message = (props) => {
 

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import {Navigate} from "react-router-dom";
 import { actionTypes, StorageContext } from "../ChatStorage";
-import Chat from "../components/Chat";
+import Chat from "../components/chat/Chat";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GroupLabel } from "../components/GroupLabel";
 import { ModalCreateGroup } from "../components/modals/CreateGroup";

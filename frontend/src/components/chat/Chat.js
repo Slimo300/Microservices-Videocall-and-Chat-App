@@ -1,26 +1,16 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { StorageContext, actionTypes } from "../ChatStorage";
-import {LoadMessages} from "../requests/Messages";
+import React, {useEffect, useState } from "react";
 import GroupMenu from "./GroupMenu";
-import Message from "./Message";
-import { ModalAddUser } from "./modals/AddUser";
-import { ModalDeleteGroup } from "./modals/DeleteGroup";
-import { ModalMembers } from "./modals/GroupMembers";
-import { ModalGroupOptions } from "./modals/GroupOptions";
-import { ModalLeaveGroup } from "./modals/LeaveGroup";
+import { ModalAddUser } from "../modals/AddUser";
+import { ModalDeleteGroup } from "../modals/DeleteGroup";
+import { ModalMembers } from "../modals/GroupMembers";
+import { ModalGroupOptions } from "../modals/GroupOptions";
+import { ModalLeaveGroup } from "../modals/LeaveGroup";
 import { ChatBox } from "./Chat-Box";
+import ChatInput from "./Chat-Input";
 
 const Chat = (props) => {
 
-    const [, dispatch] = useContext(StorageContext);
-
     const [member, setMember] = useState({});
-    const [msg, setMsg] = useState(""); // currently typed message
-
-    const scrollRef = useRef();
-    useEffect( () => {
-        scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [props.toggler] );
 
     // add user to group modal
     const [addUserShow, setAddUserShow] = useState(false);
@@ -45,7 +35,6 @@ const Chat = (props) => {
     const toggleOptions = () => {
         setOptionsShow(!optionsShow);
     };
-    const [allMessagesFlag, setAllMessagesFlag] = useState(false);
 
     // getting group membership
     useEffect(()=>{
@@ -66,27 +55,6 @@ const Chat = (props) => {
     }, [props.group, props.user.ID]);
 
     // function for sending message when submit
-    const sendMessage = (e) => {
-        e.preventDefault();
-        if (msg.trim() === "") return false;
-        if (props.ws !== undefined) props.ws.send(JSON.stringify({
-            "groupID": props.group.ID,
-            "userID": props.user.ID,
-            "text": msg,
-            "nick": props.user.username,
-        }));
-        document.getElementById("text-area").value = "";
-        document.getElementById("text-area").focus();
-    }
-
-    const loadMessages = async() => {
-        let messages = await LoadMessages(props.group.ID.toString(), props.group.messages.length);
-        if (messages.status === 204) {
-            setAllMessagesFlag(true);
-            return;
-        }
-        dispatch({type: actionTypes.ADD_MESSAGES, payload: {messages: messages.data, groupID: props.group.ID}}); 
-    };
 
     let load;
     if (props.group.ID === undefined) {
@@ -103,13 +71,9 @@ const Chat = (props) => {
                         <GroupMenu member={member} toggleOptions={toggleOptions} toggleDel={toggleDelGroup} toggleAdd={toggleAddUser} toggleMembers={toggleMembers} toggleLeave={toggleLeaveGroup}/>
                     </div>
                 </div>
-                <div className="chat-container" style={{'height': '80vh'}}>
-                    {!allMessagesFlag?<div className="text-center align-top"><a className="text-primary" style={{cursor: "pointer"}} onClick={loadMessages}>Load more messages</a></div>:null}
-                    <ChatBox group={props.group} user={props.user} scrollRef={scrollRef} />
-                    <form id="chatbox" className="form-group mt-3 mb-0 d-flex column justify-content-center" onSubmit={sendMessage}>
-                        <textarea autoFocus  id="text-area" className="form-control mr-1" rows="3" placeholder="Type your message here..." onChange={(e)=>{setMsg(e.target.value)}}></textarea>
-                        <input className="btn btn-primary" type="submit" value="Send" />
-                    </form>
+                <div className="chat-container d-flex flex-column justify-content-end" style={{'height': '80vh'}}>
+                    <ChatBox group={props.group} user={props.user} toggler={props.toggler} />
+                    <ChatInput ws={props.ws} group={props.group} user={props.user}/>
                 </div>
                 <ModalDeleteGroup show={delGrShow} toggle={toggleDelGroup} group={props.group} setCurrent={props.setCurrent}/>
                 <ModalLeaveGroup show={leaveGrShow} toggle={toggleLeaveGroup} member={member} group={props.group} setCurrent={props.setCurrent}/>
