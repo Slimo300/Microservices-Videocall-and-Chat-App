@@ -43,7 +43,7 @@ func (es *elasticSearchDB) UpdateProfilePicture(ev events.UserPictureModifiedEve
 		if err := json.NewDecoder(res.Body).Decode(&respBody); err != nil {
 			return fmt.Errorf("Error decoding error response body: %v", err)
 		}
-		return errors.New(respBody["error"].(map[string]interface{})["root_cause"].(map[string]interface{})["reason"].(string))
+		return errors.New(respBody["error"].(map[string]interface{})["root_cause"].([]interface{})[0].(map[string]interface{})["reason"].(string))
 	}
 
 	return nil
