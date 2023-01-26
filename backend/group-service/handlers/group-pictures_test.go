@@ -14,6 +14,7 @@ import (
 	limits "github.com/gin-contrib/size"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -45,6 +46,9 @@ func (s *GroupPicturesTestSuite) SetupSuite() {
 		Return("", apperrors.NewForbidden(fmt.Sprintf("User %v has no rights to set in group %v", s.IDs["userWithoutRights"], s.IDs["groupOK"])))
 
 	storage := new(storage.MockStorage)
+
+	storage.On("DeleteFile", mock.Anything).Return(nil)
+	storage.On("UploadFile", mock.Anything, mock.Anything).Return(nil)
 
 	s.server = handlers.NewServer(db, storage, nil)
 }

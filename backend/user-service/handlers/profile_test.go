@@ -50,6 +50,9 @@ func (s *ProfileTestSuite) SetupSuite() {
 	db.On("GetProfilePictureURL", s.ids["userOK"]).Return("pictureURL", false, nil)
 
 	imageStorage := new(storage.MockStorage)
+	imageStorage.On("UploadFile", mock.Anything, mock.Anything).Return(nil)
+	imageStorage.On("DeleteFile", mock.Anything).Return(nil)
+
 	emiter := new(mockqueue.MockEmitter)
 	emiter.On("Emit", mock.Anything).Return(nil)
 

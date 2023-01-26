@@ -124,7 +124,7 @@ func (s *Server) UpdateProfilePicture(c *gin.Context) {
 		}
 	}
 
-	if err = s.ImageStorage.UpdateProfilePicture(file, pictureURL); err != nil {
+	if err = s.ImageStorage.UploadFile(file, pictureURL); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
 	}
@@ -147,7 +147,7 @@ func (s *Server) DeleteProfilePicture(c *gin.Context) {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
-	if err = s.ImageStorage.DeleteProfilePicture(url); err != nil {
+	if err = s.ImageStorage.DeleteFile(url); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
 	}

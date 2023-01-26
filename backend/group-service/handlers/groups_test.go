@@ -49,6 +49,7 @@ func (s *GroupTestSuite) SetupSuite() {
 	emitter.On("Emit", mock.Anything).Return(nil)
 
 	storage := new(storage.MockStorage)
+	storage.On("DeleteFile", mock.Anything).Return(nil)
 
 	s.server = handlers.NewServer(db, storage, nil)
 	s.server.Emitter = emitter

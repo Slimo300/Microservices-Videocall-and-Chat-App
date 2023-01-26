@@ -88,7 +88,7 @@ func (s *Server) DeleteGroup(c *gin.Context) {
 		return
 	}
 	if group.Picture != "" {
-		if err := s.Storage.DeleteProfilePicture(group.Picture); err != nil {
+		if err := s.Storage.DeleteFile(group.Picture); err != nil {
 			// TODO: this err should be handled by logging it for investigation or handled
 			// at a later time
 			c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})

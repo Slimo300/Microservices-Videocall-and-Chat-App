@@ -45,7 +45,7 @@ func (s *Server) SetGroupProfilePicture(c *gin.Context) {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 	}
 
-	if err = s.Storage.UpdateProfilePicture(file, pictureURL); err != nil {
+	if err = s.Storage.UploadFile(file, pictureURL); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
 	}
@@ -73,7 +73,7 @@ func (s *Server) DeleteGroupProfilePicture(c *gin.Context) {
 		return
 	}
 
-	if err = s.Storage.DeleteProfilePicture(pictureURL); err != nil {
+	if err = s.Storage.DeleteFile(pictureURL); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
 	}

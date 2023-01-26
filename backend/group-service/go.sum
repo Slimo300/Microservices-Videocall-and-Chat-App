@@ -57,6 +57,8 @@ github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230115173
 github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230115173524-f3589cec1c1e/go.mod h1:4B7YKdejTwNIP9R3qL9NpQI9jg/xlnIh8nks4Xj1Ssg=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20230115173524-f3589cec1c1e h1:xX9C4V/m9jGm6DwsbkEZoV0DqiU0UCt5QgDNfZiLRDg=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20230115173524-f3589cec1c1e/go.mod h1:6zhnxlQzvKOai3QWSMJIMF6YdrFPfp98mLVTzyuHR+4=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20230126210828-393cd579a66f h1:0ofRsXq11aMJ7OTKqQQFp1pyp82AY21y5lZ4t5hjtVo=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20230126210828-393cd579a66f/go.mod h1:6zhnxlQzvKOai3QWSMJIMF6YdrFPfp98mLVTzyuHR+4=
 github.com/aws/aws-sdk-go v1.44.180 h1:VLZuAHI9fa/3WME5JjpVjcPCNfpGHVMiHx8sLHWhMgI=
 github.com/aws/aws-sdk-go v1.44.180/go.mod h1:aVsgQcEevwlmQ7qHE9I3h+dtQgpqhFB+i8Phjh7fkwI=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
