@@ -3,6 +3,7 @@ package storage
 import "mime/multipart"
 
 type StorageLayer interface {
-	UpdateProfilePicture(img multipart.File, key string) error
-	DeleteProfilePicture(key string) error
+	UploadFile(img multipart.File, key string) error
+	DeleteFile(key string) error
+	GetPresignedPutRequest(key string) (string, error)
 }
