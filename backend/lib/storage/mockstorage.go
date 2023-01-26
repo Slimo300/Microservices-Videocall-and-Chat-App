@@ -27,6 +27,20 @@ func (_m *MockStorage) DeleteFile(key string) error {
 	return r0
 }
 
+// DeleteFolder provides a mock function with given fields: folder
+func (_m *MockStorage) DeleteFolder(folder string) error {
+	ret := _m.Called(folder)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(folder)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // GetPresignedPutRequest provides a mock function with given fields: key
 func (_m *MockStorage) GetPresignedPutRequest(key string) (string, error) {
 	ret := _m.Called(key)

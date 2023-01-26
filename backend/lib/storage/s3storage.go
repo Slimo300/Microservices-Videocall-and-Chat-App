@@ -27,11 +27,39 @@ func Setup(bucket string) (*S3Storage, error) {
 	}, nil
 }
 
+func (s *S3Storage) DeleteFolder(folder string) error {
+
+	response, err := s.S3.ListObjects(&s3.ListObjectsInput{
+		Bucket: aws.String(s.Bucket),
+		Prefix: aws.String(folder + "/"),
+	})
+	if err != nil {
+		return err
+	}
+
+	var objects []*s3.ObjectIdentifier
+	for _, object := range response.Contents {
+		objects = append(objects, &s3.ObjectIdentifier{Key: object.Key})
+	}
+
+	_, err = s.S3.DeleteObjects(&s3.DeleteObjectsInput{
+		Bucket: aws.String(s.Bucket),
+		Delete: &s3.Delete{
+			Objects: objects,
+		},
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *S3Storage) UploadFile(file multipart.File, key string) error {
 	_, err := s.S3.PutObject(&s3.PutObjectInput{
 		Body:   file,
 		Bucket: aws.String(s.Bucket),
 		Key:    aws.String(key),
+		ACL:    aws.String("public-read"),
 	})
 	return err
 }
@@ -48,6 +76,7 @@ func (s *S3Storage) GetPresignedPutRequest(key string) (string, error) {
 	req, _ := s.S3.PutObjectRequest(&s3.PutObjectInput{
 		Bucket: aws.String(s.Bucket),
 		Key:    aws.String(key),
+		ACL:    aws.String("public-read"),
 	})
 
 	url, err := req.Presign(30 * time.Second)
