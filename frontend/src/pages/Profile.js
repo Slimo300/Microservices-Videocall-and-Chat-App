@@ -51,7 +51,6 @@ export const ModalUserProfile = (props) => {
         let response = await UpdateProfilePicture(data);
         if (response.status === 200) {
             setMessage("Image uploaded succesfully");
-            console.log(response);
             dispatch({type: actionTypes.SET_PROFILE_PICTURE, payload: response.data.newUrl});
             let timestamp = new Date().getTime();
             document.getElementById("profilePicture").src = "https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+props.user.pictureUrl+"?"+timestamp;
