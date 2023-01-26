@@ -21,6 +21,7 @@ import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/kafka"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
 )
 
 func main() {
@@ -65,13 +66,19 @@ func main() {
 
 	tokenService, err := auth.NewGRPCTokenClient(config.AuthAddress)
 	if err != nil {
-		log.Fatal("Couldn't connect to grpc auth server")
+		log.Fatalf("Couldn't connect to grpc auth server: %v", err)
 	}
+	storage, err := storage.Setup(config.S3Bucket)
+	if err != nil {
+		log.Fatalf("Couldn't establish s3 session: %v", err)
+	}
+
 	server := &handlers.Server{
 		DB:           db,
 		TokenService: tokenService,
 		Emitter:      emitter,
 		Listener:     listener,
+		Storage:      storage,
 	}
 	handler := routes.Setup(server, config.Origin)
 	go server.RunListener()

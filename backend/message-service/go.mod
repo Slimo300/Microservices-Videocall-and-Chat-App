@@ -9,6 +9,7 @@ require (
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20230118114117-2b572b5ea9d2
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20230115172545-1028cc8a6db8
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230115173524-f3589cec1c1e
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20230126211334-004c9ad935cc
 	github.com/gin-gonic/gin v1.8.1
 	github.com/google/uuid v1.3.0
 	github.com/stretchr/testify v1.8.1
@@ -18,6 +19,7 @@ require (
 )
 
 require (
+	github.com/aws/aws-sdk-go v1.44.100 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/eapache/go-resiliency v1.3.0 // indirect
 	github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21 // indirect
@@ -46,6 +48,7 @@ require (
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.15.11 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect

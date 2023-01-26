@@ -21,8 +21,8 @@ import (
 
 type MessageTestSuite struct {
 	suite.Suite
-	uuids map[string]uuid.UUID
-	db    *mockdb.MockMessageDB
+	uuids  map[string]uuid.UUID
+	server handlers.Server
 }
 
 func (s *MessageTestSuite) SetupSuite() {
@@ -68,13 +68,20 @@ func (s *MessageTestSuite) SetupSuite() {
 	mockDB.On("DeleteMessageForEveryone", s.uuids["userWithNoRights"], s.uuids["message"], s.uuids["group"]).Return(models.Message{}, apperrors.NewForbidden("User has no right to delete messages"))
 	mockDB.On("DeleteMessageForEveryone", s.uuids["userInGroup"], s.uuids["message"], s.uuids["group"]).Return(models.Message{Text: "valid"}, nil)
 
-	s.db = mockDB
+	mockEmit := new(mockqueue.MockEmitter)
+	mockEmit.On("Emit", mock.Anything).Return(nil)
+
+	s.server = *handlers.NewServer(
+		mockDB,
+		nil,
+		mockEmit,
+		nil,
+		nil,
+	)
 }
 
 func (s MessageTestSuite) TestGetGroupMessages() {
 	gin.SetMode(gin.TestMode)
-
-	server := handlers.NewServer(s.db, nil, nil, nil)
 
 	testCases := []struct {
 		desc               string
@@ -123,7 +130,7 @@ func (s MessageTestSuite) TestGetGroupMessages() {
 				c.Set("userID", tC.userID)
 			})
 
-			engine.Handle(http.MethodGet, "/api/group/:groupID/messages", server.GetGroupMessages)
+			engine.Handle(http.MethodGet, "/api/group/:groupID/messages", s.server.GetGroupMessages)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
 			defer response.Body.Close()
@@ -148,10 +155,6 @@ func (s MessageTestSuite) TestGetGroupMessages() {
 
 func (s *MessageTestSuite) TestDeleteMessageForYourself() {
 	gin.SetMode(gin.TestMode)
-
-	// TokenClient, EventEmitter and EventListener are set to nil because there is no need
-	// to instantiate them as they will not be called in this method
-	server := handlers.NewServer(s.db, nil, nil, nil)
 
 	testCases := []struct {
 		desc               string
@@ -247,7 +250,7 @@ func (s *MessageTestSuite) TestDeleteMessageForYourself() {
 				ctx.Set("userID", tC.userID)
 			})
 
-			engine.PATCH("/groups/:groupID/messages/:messageID", server.DeleteMessageForYourself)
+			engine.PATCH("/groups/:groupID/messages/:messageID", s.server.DeleteMessageForYourself)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
 			defer response.Body.Close()
@@ -272,13 +275,6 @@ func (s *MessageTestSuite) TestDeleteMessageForYourself() {
 
 func (s *MessageTestSuite) TestDeleteMessageForEveryone() {
 	gin.SetMode(gin.TestMode)
-
-	mockEmit := new(mockqueue.MockEmitter)
-	mockEmit.On("Emit", mock.Anything).Return(nil)
-
-	// TokenClient and EventListener are set to nil because there is no need
-	// to instantiate them as they will not be called in this method
-	server := handlers.NewServer(s.db, nil, mockEmit, nil)
 
 	testCases := []struct {
 		desc               string
@@ -365,7 +361,7 @@ func (s *MessageTestSuite) TestDeleteMessageForEveryone() {
 				ctx.Set("userID", tC.userID)
 			})
 
-			engine.DELETE("/groups/:groupID/messages/:messageID", server.DeleteMessageForEveryone)
+			engine.DELETE("/groups/:groupID/messages/:messageID", s.server.DeleteMessageForEveryone)
 			engine.ServeHTTP(w, req)
 			response := w.Result()
 			defer response.Body.Close()

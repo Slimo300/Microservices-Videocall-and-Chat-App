@@ -32,7 +32,7 @@ func Setup(dbtype, address string) (*Database, error) {
 		return nil, err
 	}
 
-	if err := db.AutoMigrate(&models.Message{}, models.Membership{}); err != nil {
+	if err := db.AutoMigrate(&models.Message{}, &models.Membership{}, &models.MessageFile{}); err != nil {
 		return nil, err
 	}
 

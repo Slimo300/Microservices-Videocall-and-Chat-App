@@ -17,6 +17,7 @@ func Setup(server *handlers.Server, origin string) *gin.Engine {
 	apiAuth.GET("/group/:groupID/messages", server.GetGroupMessages)
 	apiAuth.DELETE("/group/:groupID/messages/:messageID", server.DeleteMessageForEveryone)
 	apiAuth.PATCH("/group/:groupID/messages/:messageID", server.DeleteMessageForYourself)
+	apiAuth.GET("/group/:groupID/messages/:messageID", server.GetPresignedPutRequest)
 
 	return engine
 }
