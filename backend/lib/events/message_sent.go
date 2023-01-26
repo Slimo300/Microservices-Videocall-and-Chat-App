@@ -13,6 +13,12 @@ type MessageSentEvent struct {
 	Text    string    `json:"text" mapstructure:"text"`
 	Nick    string    `json:"nick" mapstructure:"nick"`
 	Posted  time.Time `json:"posted" mapstructure:"posted"`
+	Files   []File    `json:"files" mapstructure:"files"`
+}
+
+type File struct {
+	Key       string `json:"key" mapstructure:"key"`
+	Extension string `json:"ext" mapstructure:"ext"`
 }
 
 func (MessageSentEvent) EventName() string {
