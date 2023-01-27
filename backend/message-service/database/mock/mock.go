@@ -100,6 +100,27 @@ func (_m *MockMessageDB) DeleteMessageForYourself(userID uuid.UUID, messageID uu
 	return r0, r1
 }
 
+// GetGroupMembership provides a mock function with given fields: userID, groupID
+func (_m *MockMessageDB) GetGroupMembership(userID uuid.UUID, groupID uuid.UUID) (models.Membership, error) {
+	ret := _m.Called(userID, groupID)
+
+	var r0 models.Membership
+	if rf, ok := ret.Get(0).(func(uuid.UUID, uuid.UUID) models.Membership); ok {
+		r0 = rf(userID, groupID)
+	} else {
+		r0 = ret.Get(0).(models.Membership)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(uuid.UUID, uuid.UUID) error); ok {
+		r1 = rf(userID, groupID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetGroupMessages provides a mock function with given fields: userID, groupID, offset, num
 func (_m *MockMessageDB) GetGroupMessages(userID uuid.UUID, groupID uuid.UUID, offset int, num int) ([]models.Message, error) {
 	ret := _m.Called(userID, groupID, offset, num)

@@ -104,28 +104,3 @@ func (s *Server) DeleteMessageForYourself(c *gin.Context) {
 	c.JSON(http.StatusOK, msg)
 
 }
-
-func (s *Server) GetPresignedPutRequest(c *gin.Context) {
-	// userID, err := uuid.Parse(c.GetString("userID"))
-	// if err != nil {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"err": "invalid user ID"})
-	// 	return
-	// }
-	// groupID, err := uuid.Parse((c.Param("groupID")))
-	// if err != nil {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"err": "invalid group ID"})
-	// 	return
-	// }
-	// files := c.Query("files")
-	// if files == "" {
-	// 	files = "1"
-	// }
-	// filesInt, err := strconv.Atoi(files)
-	// if err != nil {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"err": "files query value is not a valid integer"})
-	// 	return
-	// }
-
-	// check Membership
-	// generate presigned urls
-}
