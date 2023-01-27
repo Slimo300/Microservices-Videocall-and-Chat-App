@@ -14,15 +14,33 @@ type S3Storage struct {
 	Bucket string
 }
 
-func Setup(bucket string) (*S3Storage, error) {
+func Setup(bucket, origin string) (*S3Storage, error) {
 	session, err := session.NewSession(&aws.Config{
 		Region: aws.String("eu-central-1"),
 	})
 	if err != nil {
 		return nil, err
 	}
+	// putting cors
+	client := s3.New(session)
+	rule := s3.CORSRule{
+		AllowedHeaders: aws.StringSlice([]string{"Authorization", "Content-Type", "Content-Length", "Accept-Encoding", "Authorization", "accept", "origin", "Cache-Control", " X-Requested-With"}),
+		AllowedOrigins: aws.StringSlice([]string{origin}),
+		MaxAgeSeconds:  aws.Int64(3000),
+
+		// Add HTTP methods CORS request that were specified in the CLI.
+		AllowedMethods: aws.StringSlice([]string{"PUT", "GET", "DELETE"}),
+	}
+
+	client.PutBucketCors(&s3.PutBucketCorsInput{
+		Bucket: aws.String(bucket),
+		CORSConfiguration: &s3.CORSConfiguration{
+			CORSRules: []*s3.CORSRule{&rule},
+		},
+	})
+
 	return &S3Storage{
-		S3:     s3.New(session),
+		S3:     client,
 		Bucket: bucket,
 	}, nil
 }
