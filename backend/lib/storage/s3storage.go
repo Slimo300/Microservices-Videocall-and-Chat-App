@@ -21,14 +21,14 @@ func Setup(bucket, origin string) (*S3Storage, error) {
 	if err != nil {
 		return nil, err
 	}
-	// putting cors
+
 	client := s3.New(session)
+
 	rule := s3.CORSRule{
 		AllowedHeaders: aws.StringSlice([]string{"Authorization", "Content-Type", "Content-Length", "Accept-Encoding", "Authorization", "accept", "origin", "Cache-Control", " X-Requested-With"}),
 		AllowedOrigins: aws.StringSlice([]string{origin}),
 		MaxAgeSeconds:  aws.Int64(3000),
 
-		// Add HTTP methods CORS request that were specified in the CLI.
 		AllowedMethods: aws.StringSlice([]string{"PUT", "GET", "DELETE"}),
 	}
 
@@ -94,7 +94,6 @@ func (s *S3Storage) GetPresignedPutRequest(key string) (string, error) {
 	req, _ := s.S3.PutObjectRequest(&s3.PutObjectInput{
 		Bucket: aws.String(s.Bucket),
 		Key:    aws.String(key),
-		ACL:    aws.String("public-read"),
 	})
 
 	url, err := req.Presign(30 * time.Second)

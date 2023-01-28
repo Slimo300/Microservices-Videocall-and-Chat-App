@@ -9,7 +9,7 @@ require (
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20230126230357-7c98f0fe400b
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20230126230357-7c98f0fe400b
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230126230357-7c98f0fe400b
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20230127185947-9a0e3e668408
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20230127220243-3ab0724cc7d2
 	github.com/gin-contrib/size v0.0.0-20220829131622-0fc0bc875336
 	github.com/gin-gonic/gin v1.8.1
 	github.com/golang-jwt/jwt v3.2.2+incompatible
