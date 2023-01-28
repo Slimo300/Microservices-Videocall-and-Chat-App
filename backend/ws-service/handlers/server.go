@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"log"
+
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
@@ -30,14 +32,22 @@ func (s *Server) ListenToHub() {
 	for {
 		select {
 		case msg = <-s.MessageChan:
-			s.Emitter.Emit(events.MessageSentEvent{
+			var files []events.File
+			for _, f := range msg.Files {
+				files = append(files, events.File{Key: f.Key, Extension: f.Ext})
+			}
+
+			if err := s.Emitter.Emit(events.MessageSentEvent{
 				ID:      msg.ID,
 				GroupID: msg.Group,
 				UserID:  msg.User,
 				Nick:    msg.Nick,
 				Posted:  msg.When,
 				Text:    msg.Message,
-			})
+				Files:   files,
+			}); err != nil {
+				log.Printf("Error when sending message to broker %v: %v", msg, err)
+			}
 		}
 	}
 }

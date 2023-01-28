@@ -53,9 +53,9 @@ const MessageContent = (props) => {
             <div className={messageHolderClassName}>
                 <div className="chat-text d-flex justify-content-end">{messageText}</div>
             </div>
-            {props.message.files===undefined?null:<div className="d-flex flex-column">
+            {props.message.files===undefined||props.message.files===null?null:<div className="d-flex flex-column">
             {props.message.files.map((item) => {
-                return <MessageFile file={item} />
+                return <MessageFile key={item.key} file={item} />
             })}
             </div>}
         </div>
@@ -64,7 +64,7 @@ const MessageContent = (props) => {
 
 const MessageFile = (props) => {
     return (
-    <img src={"https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+props.file.url} style={{height: '200px', width: '200px', border: '1px solid'}} alt="sample"/>
+    <img src={"https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+props.file.key} style={{height: '200px', width: '200px', border: '1px solid'}} alt="sample"/>
     )
 }
 

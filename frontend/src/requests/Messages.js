@@ -12,3 +12,7 @@ export async function DeleteMessageForYourself(groupID, messageID) {
 export async function DeleteMessageForEveryone(groupID, messageID) {
     return await axiosObject.delete(messageService+"/group/"+groupID+"/messages/"+messageID);
 }
+
+export async function GetPresignedRequests(groupID, num) {
+    return await axiosObject.get(messageService+"/group/"+groupID+"?files="+num);
+}

@@ -25,6 +25,10 @@ func (db *Database) DeleteMember(event events.MemberDeletedEvent) error {
 }
 
 func (db *Database) AddMessage(event events.MessageSentEvent) error {
+	var files []models.MessageFile
+	for _, f := range event.Files {
+		files = append(files, models.MessageFile{Key: f.Key, Extention: f.Extension})
+	}
 	return db.Create(models.Message{
 		ID:      event.ID,
 		GroupID: event.GroupID,
@@ -32,6 +36,7 @@ func (db *Database) AddMessage(event events.MessageSentEvent) error {
 		Text:    event.Text,
 		Nick:    event.Nick,
 		Posted:  event.Posted,
+		Files:   files,
 	}).Error
 }
 

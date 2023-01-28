@@ -15,7 +15,7 @@ func (db *Database) GetGroupMessages(userID, groupID uuid.UUID, offset, num int)
 	if err != nil {
 		return []models.Message{}, apperrors.NewForbidden("User not in group")
 	}
-	if err := db.Order("posted desc").Offset(offset).Limit(num).Preload("Deleters").Where(models.Message{GroupID: groupID}).Find(&messages).Error; err != nil {
+	if err := db.Order("posted desc").Offset(offset).Limit(num).Preload("Files").Preload("Deleters").Where(models.Message{GroupID: groupID}).Find(&messages).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return []models.Message{}, nil
 		}

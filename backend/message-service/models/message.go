@@ -14,7 +14,7 @@ type Message struct {
 	GroupID  uuid.UUID     `json:"groupID"`
 	Nick     string        `json:"nick"`
 	Deleters []Membership  `gorm:"many2many:users_who_deleted;constraint:OnDelete:CASCADE;"`
-	Files    []MessageFile `gorm:"foreignKey:Key" json:"files"`
+	Files    []MessageFile `gorm:"foreignKey:MessageID" json:"files"`
 }
 
 func (Message) TableName() string {
@@ -22,7 +22,8 @@ func (Message) TableName() string {
 }
 
 type MessageFile struct {
-	Key       string `gorm:"primaryKey" json:"key"`
+	MessageID string `gorm:"primaryKey"`
+	Key       string `json:"key"`
 	Extention string `json:"ext"`
 }
 

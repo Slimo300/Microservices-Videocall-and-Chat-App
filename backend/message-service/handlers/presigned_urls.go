@@ -8,6 +8,11 @@ import (
 	"github.com/google/uuid"
 )
 
+type presignedEnvelope struct {
+	Url string `json:"url"`
+	Key string `json:"key"`
+}
+
 func (s *Server) GetPresignedPutRequest(c *gin.Context) {
 	userID, err := uuid.Parse(c.GetString("userID"))
 	if err != nil {
@@ -35,15 +40,17 @@ func (s *Server) GetPresignedPutRequest(c *gin.Context) {
 		return
 	}
 
-	urls := make([]string, filesInt)
+	var requestsData []presignedEnvelope
 	for i := 0; i < filesInt; i++ {
-		urls[i], err = s.Storage.GetPresignedPutRequest(groupID.String() + "/" + uuid.NewString())
+		key := groupID.String() + "/" + uuid.NewString()
+		url, err := s.Storage.GetPresignedPutRequest(key)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 			return
 		}
+		requestsData = append(requestsData, presignedEnvelope{Url: url, Key: key})
 	}
 
-	c.JSON(http.StatusOK, gin.H{"urls": urls})
+	c.JSON(http.StatusOK, gin.H{"requests": requestsData})
 
 }
