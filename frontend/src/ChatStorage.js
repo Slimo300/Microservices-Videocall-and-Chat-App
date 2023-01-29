@@ -206,6 +206,7 @@ function DeleteMessage(state, payload) {
             for (let j = 0; j < newState.groups[i].messages.length; j++) {
                 if (newState.groups[i].messages[j].messageID === payload.messageID) {
                     newState.groups[i].messages[j].text = ""; 
+                    newState.groups[i].messages[j].files = [];
                 }
             }
             return newState;
