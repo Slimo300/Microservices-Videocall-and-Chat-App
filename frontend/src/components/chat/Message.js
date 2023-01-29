@@ -43,16 +43,18 @@ const Message = (props) => {
 
 const MessageContent = (props) => {
     let messageText = props.message.text;
-    if (props.message.text === "") {
+    let isDeleted = props.message.text === "" && props.message.files.length === 0;
+    let hasText = props.message.text !== "";
+    if (isDeleted) {
         messageText=<div style={{"font-style": "italic"}}>Message deleted</div>
     }
     let messageHolderClassName = (props.side==="right")?"d-flex flex-row align-items-center justify-content-end":"d-flex flex-row align-items-center justify-content-start"
 
     return (
         <div className="d-flex flex-column justify-content-center">
-            <div className={messageHolderClassName}>
+            {hasText||isDeleted?<div className={messageHolderClassName}>
                 <div className="chat-text d-flex justify-content-end">{messageText}</div>
-            </div>
+            </div>:null}
             {props.message.files===undefined||props.message.files===null?null:<div className="d-flex flex-column">
             {props.message.files.map((item) => {
                 return <MessageFile key={item.key} file={item} />
