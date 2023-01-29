@@ -101,10 +101,7 @@ func (s PresignedUrlSuite) TestGetPresignedUrl() {
 			num:                "2",
 			returnVal:          true,
 			expectedStatusCode: http.StatusOK,
-			expectedResponse: gin.H{"urls": []interface{}{
-				"someUrl",
-				"someUrl",
-			}},
+			expectedResponse:   []string{"someUrl", "someUrl"},
 		},
 	}
 
@@ -131,7 +128,13 @@ func (s PresignedUrlSuite) TestGetPresignedUrl() {
 			if tC.returnVal {
 				var msg gin.H
 				json.NewDecoder(response.Body).Decode(&msg)
-				respBody = msg
+
+				var urls []string
+				for _, url := range msg["requests"].([]interface{}) {
+					urls = append(urls, url.(map[string]interface{})["url"].(string))
+				}
+
+				respBody = urls
 			} else {
 				var msg gin.H
 				json.NewDecoder(response.Body).Decode(&msg)
