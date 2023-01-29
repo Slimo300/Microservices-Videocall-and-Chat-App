@@ -25,10 +25,6 @@ const AuthMain = (props) => {
 
     const [state, dispatch] = useContext(StorageContext);
     const [current, setCurrent] = useState({}); // current group
-    const [toggler, setToggler] = useState(false);
-    function toggleToggler(){
-        setToggler(!toggler);
-    }
 
     const [createGrShow, setCreateGrShow] = useState(false);
     const toggleCreateGroup = () => {
@@ -90,7 +86,6 @@ const AuthMain = (props) => {
         if (msgJSON.groupID === current.ID) { // add message to state
             console.log("current: ", current.ID);
             dispatch({type: actionTypes.ADD_MESSAGE, payload: {message: msgJSON, current: true}})
-            toggleToggler();
         } else {
             console.log("Not current: ", current.ID);
             dispatch({type: actionTypes.ADD_MESSAGE, payload: {message: msgJSON, current: false}})
@@ -107,7 +102,6 @@ const AuthMain = (props) => {
                         return;
                     }
                     dispatch({type: actionTypes.ADD_MESSAGES, payload: {messages: messages.data, groupID: current.ID}})
-                    toggleToggler();
                 }
             }
         )();
@@ -129,7 +123,7 @@ const AuthMain = (props) => {
                                         </ul>
                                     </div>
                                 </div>
-                                <Chat group={current} ws={props.ws} user={state.user} setCurrent={setCurrent} toggler={toggler}/>
+                                <Chat group={current} ws={props.ws} user={state.user} setCurrent={setCurrent}/>
                             </div>
                         </div>
                     </div>

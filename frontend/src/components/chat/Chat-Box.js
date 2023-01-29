@@ -1,4 +1,4 @@
-import React, { useContext, useState, useRef, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import { StorageContext } from "../../ChatStorage";
 import { LoadMessages } from "../../requests/Messages";
 import { actionTypes } from "../../ChatStorage";
@@ -8,11 +8,6 @@ export const ChatBox = (props) => {
 
     const [allMessagesFlag, setAllMessagesFlag] = useState(false);
     const [, dispatch] = useContext(StorageContext);
-
-    const scrollRef = useRef();
-    useEffect( () => {
-        scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [props.toggler] );
 
     const GetMemberPicture = (group, userID) => {
         for (let i = 0; i < group.Members.length; i++) {
@@ -54,11 +49,11 @@ export const ChatBox = (props) => {
             {!allMessagesFlag?<div className="text-center align-top"><p className="text-primary" style={{cursor: "pointer"}} onClick={loadMessages}>Load more messages</p></div>:null}         
             <ul className="d-flex flex-column-reverse col p-0" style={{'overflow-y': 'scroll'}}>
                 {props.group.messages===undefined?null:props.group.messages.map((item) => {
-                return <div key={item.ID} className="d-flex flex-column justify-content-end" ref={scrollRef}>
+                return <div key={item.ID} className="d-flex flex-column justify-content-end">
                         <Message message={item} user={props.user.ID} picture={GetMemberPicture(props.group, item.userID)} />
                         {shouldDisplayDate(new Date(item.created), lastMessageDate)?<NewDate time={dateToDisplay} />:null}
                     </div>})}
-                {props.group.messages[props.group.messages.length-1]===undefined?null:<div className="d-flex flex-column justify-content-end" ref={scrollRef}>
+                {props.group.messages[props.group.messages.length-1]===undefined?null:<div className="d-flex flex-column justify-content-end">
                     <NewDate time={props.group.messages[props.group.messages.length-1].created} />
                 </div>}
             </ul>

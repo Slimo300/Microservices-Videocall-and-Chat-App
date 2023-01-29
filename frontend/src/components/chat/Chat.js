@@ -72,7 +72,7 @@ const Chat = (props) => {
                     </div>
                 </div>
                 <div className="chat-container d-flex flex-column justify-content-end" style={{'height': '80vh'}}>
-                    <ChatBox group={props.group} user={props.user} toggler={props.toggler} />
+                    <ChatBox group={props.group} user={props.user} />
                     <ChatInput ws={props.ws} group={props.group} user={props.user}/>
                 </div>
                 <ModalDeleteGroup show={delGrShow} toggle={toggleDelGroup} group={props.group} setCurrent={props.setCurrent}/>

@@ -50,8 +50,8 @@ export const ModalAddUser = (props) => {
                             <div className="dropdown w-100">
                             <div data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"/>
                             <div id="dropdownUsers" className="dropdown-menu w-100" aria-labelledby="dropdownMenuButton">
-                                {users.length===0?null:users.map((item) => {
-                                    return <div>
+                                {users===null||users.length===0?null:users.map((item) => {
+                                    return <div key={item.ID}>
                                             <User user={item} setMsg={setMsg} groupID={props.group.ID} isMember={isMember(props.group, item.ID)}/>
                                             <hr />
                                         </div>
