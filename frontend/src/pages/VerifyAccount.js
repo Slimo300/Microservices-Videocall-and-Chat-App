@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Navigate, useParams} from "react-router-dom";
+import {Navigate, useParams} from "react-router-dom";
 import {VerifyAccount} from "../requests/Users";
 
 function EmailVerification() {
@@ -13,8 +13,6 @@ function EmailVerification() {
       setVerificationCode(code);
     }
   }, [code]);
-
-  if (window.localStorage.getItem("token") !== null) return <Navigate to="/"/>
 
   const submit = async (e) => {
     e.preventDefault();

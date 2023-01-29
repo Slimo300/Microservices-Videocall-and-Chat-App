@@ -114,10 +114,10 @@ const AuthMain = (props) => {
                     <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                         <div className="card m-0">
                             <div className="row no-gutters">
-                                <div className="col-xl-4 col-lg-4 col-md-4 col-sm-3 col-3" style={{height: '85vh', overflow: 'scroll'}}>
+                                <div className="col-xl-4 col-lg-4 col-md-4 col-sm-3 col-3" style={{height: '85vh', 'overflow-y': 'scroll'}}>
                                     <button className="btn btn-primary mt-3 ml-3" onClick={toggleCreateGroup}><FontAwesomeIcon icon={faPlus} className="mr-3"/>New Group</button>
                                     <hr />
-                                    <div className="users-container">
+                                    <div className="users-container h-auto">
                                         <ul className="users">
                                             {state.groups.length!==0?state.groups.map(item => {return <GroupLabel key={item.ID} setCurrent={setCurrent} group={item}/>}):null}
                                         </ul>

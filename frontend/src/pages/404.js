@@ -1,8 +1,6 @@
 import React from 'react';
-import { Navigate } from "react-router-dom";
 
 function Page404() {
-  if (window.localStorage.getItem("token") !== null) return <Navigate to="/"/>
 
   return (
     <div className="container mt-4 pt-4">

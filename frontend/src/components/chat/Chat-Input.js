@@ -5,12 +5,14 @@ const ChatInput = (props) => {
 
     const [msg, setMsg] = useState("");
     const [files, setFiles] = useState({});
-    const drop = useRef(null);
+    const form = useRef(null);
+    const submitButton = useRef(null);
 
     useEffect(() => {
-        let current = drop.current;
+        let current = form.current;
         current.addEventListener('dragover', handleDragOver);
         current.addEventListener('drop', handleDrop);
+        current.addEventListener('keypress', handleKeypress);
         
         return () => {
             current.removeEventListener('dragover', handleDragOver);
@@ -22,6 +24,14 @@ const ChatInput = (props) => {
         e.preventDefault();
         e.stopPropagation();
     };
+
+    const handleKeypress = (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            e.stopPropagation();
+            submitButton.current.click();
+        }
+    }
       
     const handleDrop = (e) => {
         e.preventDefault();
@@ -64,6 +74,8 @@ const ChatInput = (props) => {
             }
         }
 
+        console.log(msg);
+
         if (props.ws !== undefined) props.ws.send(JSON.stringify({
             "groupID": props.group.ID,
             "userID": props.user.ID,
@@ -76,11 +88,11 @@ const ChatInput = (props) => {
     }
 
     return (
-        <form ref={drop} id="chat-input" className="form-group mb-0" onSubmit={sendMessage}>
+        <form ref={form} id="chat-input" className="form-group mb-0" onSubmit={sendMessage}>
             <input className="form-control form-control-sm" id="fileUpload" type="file" hidden multiple accept=".jpg, .png, .jpeg"/>
             <div className="d-flex column justify-content-center">
                 <textarea autoFocus  id="text-area" className="form-control mr-1" rows="3" placeholder="Type your message here..." onChange={(e)=>{setMsg(e.target.value)}}></textarea>
-                <input className="btn btn-primary" type="submit" value="Send"/>
+                <input className="btn btn-primary" type="submit" value="Send" ref={submitButton} hidden/>
             </div>
         </form>
     )
