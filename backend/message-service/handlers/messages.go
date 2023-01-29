@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -68,6 +69,15 @@ func (s *Server) DeleteMessageForEveryone(c *gin.Context) {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
+
+	go func() {
+		for _, file := range msg.Files {
+			if err := s.Storage.DeleteFile(file.Key); err != nil {
+				log.Printf("Error when deleting file %v: %v\n", file.Key, err)
+				return
+			}
+		}
+	}()
 
 	s.Emitter.Emit(events.MessageDeletedEvent{
 		ID:      msg.ID,

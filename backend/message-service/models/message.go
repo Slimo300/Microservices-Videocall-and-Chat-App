@@ -22,8 +22,8 @@ func (Message) TableName() string {
 }
 
 type MessageFile struct {
-	MessageID string `gorm:"primaryKey"`
-	Key       string `json:"key"`
+	MessageID string `gorm:"size:191"`
+	Key       string `gorm:"primaryKey" json:"key"`
 	Extention string `json:"ext"`
 }
 

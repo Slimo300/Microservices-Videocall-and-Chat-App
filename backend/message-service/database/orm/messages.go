@@ -25,6 +25,7 @@ func (db *Database) GetGroupMessages(userID, groupID uuid.UUID, offset, num int)
 		for _, del := range msg.Deleters {
 			if del.UserID == userID {
 				messages[i].Text = ""
+				messages[i].Files = []models.MessageFile{}
 			}
 		}
 	}
@@ -65,13 +66,16 @@ func (db *Database) DeleteMessageForEveryone(userID, messageID, groupID uuid.UUI
 		return models.Message{}, apperrors.NewForbidden("User not in group")
 	}
 	var message models.Message
-	if err := db.First(&message, messageID).Error; err != nil {
+	if err := db.Preload("Files").First(&message, messageID).Error; err != nil {
 		return models.Message{}, apperrors.NewNotFound("message", messageID.String())
 	}
 	if !membership.Creator && !membership.DeletingMessages && message.UserID != userID {
 		return models.Message{}, apperrors.NewForbidden("User has no right to delete message")
 	}
 	if err := db.Model(&message).Update("text", "").Error; err != nil {
+		return models.Message{}, apperrors.NewInternal()
+	}
+	if err := db.Where(models.MessageFile{MessageID: message.ID.String()}).Delete(&models.MessageFile{}).Error; err != nil {
 		return models.Message{}, apperrors.NewInternal()
 	}
 	return message, nil

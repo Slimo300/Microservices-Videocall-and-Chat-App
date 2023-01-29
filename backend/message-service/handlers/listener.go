@@ -25,6 +25,11 @@ func (s *Server) RunListener(eventNames ...string) {
 				if err := s.DB.DeleteGroupMembers(*e); err != nil {
 					log.Printf("Error when deleting group members: %s\n", err.Error())
 				}
+				go func() {
+					if err := s.Storage.DeleteFolder(e.ID.String()); err != nil {
+						log.Printf("Error when deleting group files from storage: %s\n", err.Error())
+					}
+				}()
 			case *events.MemberCreatedEvent:
 				if err := s.DB.NewMember(*e); err != nil {
 					log.Printf("Error when creating member from message: %s\n", err.Error())
