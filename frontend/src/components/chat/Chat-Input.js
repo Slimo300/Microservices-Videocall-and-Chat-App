@@ -74,8 +74,6 @@ const ChatInput = (props) => {
             }
         }
 
-        console.log(msg);
-
         if (props.ws !== undefined) props.ws.send(JSON.stringify({
             "groupID": props.group.ID,
             "userID": props.user.ID,
@@ -84,6 +82,8 @@ const ChatInput = (props) => {
             "files": fileInfo
         }));
         document.getElementById("chat-input").reset();
+        setMsg("");
+
         document.getElementById("text-area").focus();
     }
 
