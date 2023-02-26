@@ -4,17 +4,17 @@ go 1.19
 
 require (
 	github.com/Shopify/sarama v1.37.2
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20230126230357-7c98f0fe400b
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230126230357-7c98f0fe400b
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20230126230357-7c98f0fe400b
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20230126230357-7c98f0fe400b
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230126230357-7c98f0fe400b
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20230127220243-3ab0724cc7d2
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20230226171856-6155e6862233
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230226171856-6155e6862233
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20230226171856-6155e6862233
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20230226171856-6155e6862233
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230226231353-a01ab2acbc4e
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20230226231353-a01ab2acbc4e
 	github.com/gin-contrib/size v0.0.0-20220829131622-0fc0bc875336
 	github.com/gin-gonic/gin v1.8.1
 	github.com/google/uuid v1.3.0
 	github.com/k3a/html2text v1.0.8
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.8.2
 	github.com/thanhpk/randstr v1.0.4
 	golang.org/x/crypto v0.4.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df

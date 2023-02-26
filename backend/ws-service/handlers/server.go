@@ -16,7 +16,7 @@ type Server struct {
 	Hub          *ws.WSHub
 	TokenService auth.TokenClient
 	CodeCache    cache.AccessCodeCache
-	Emitter      msgqueue.EventEmitter
+	Emitter      msgqueue.EventEmiter
 	Listener     msgqueue.EventListener
 	MessageChan  <-chan *ws.Message
 	EventChan    chan<- msgqueue.Event

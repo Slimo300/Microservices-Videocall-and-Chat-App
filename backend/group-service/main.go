@@ -34,7 +34,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	storage, err := storage.Setup(config.S3Bucket, config.Origin)
+	storage, err := storage.NewS3Storage(config.S3Bucket, config.Origin)
 	if err != nil {
 		log.Fatalf("Error connecting to AWS S3: %v", err)
 	}

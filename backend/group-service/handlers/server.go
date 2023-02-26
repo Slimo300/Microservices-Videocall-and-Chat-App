@@ -14,14 +14,14 @@ import (
 
 type Server struct {
 	DB           database.DBLayer
-	Storage      storage.StorageLayer
+	Storage      storage.FileStorage
 	TokenService auth.TokenClient
 	MaxBodyBytes int64
-	Emitter      msgqueue.EventEmitter
+	Emitter      msgqueue.EventEmiter
 	Listener     msgqueue.EventListener
 }
 
-func NewServer(db database.DBLayer, storage storage.StorageLayer, auth auth.TokenClient) *Server {
+func NewServer(db database.DBLayer, storage storage.FileStorage, auth auth.TokenClient) *Server {
 	return &Server{
 		DB:           db,
 		Storage:      storage,

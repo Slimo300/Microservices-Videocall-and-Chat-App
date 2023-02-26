@@ -4,10 +4,10 @@ go 1.19
 
 require (
 	github.com/Shopify/sarama v1.37.2
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230126230357-7c98f0fe400b
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20230126230357-7c98f0fe400b
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20230126230357-7c98f0fe400b
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230126230357-7c98f0fe400b
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230226171856-6155e6862233
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20230226171856-6155e6862233
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20230226171856-6155e6862233
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230226231353-a01ab2acbc4e
 	github.com/elastic/go-elasticsearch/v8 v8.5.0
 	github.com/gin-gonic/gin v1.8.1
 	github.com/google/uuid v1.3.0
@@ -55,8 +55,8 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.13.0 // indirect
-	github.com/stretchr/objx v0.4.0 // indirect
-	github.com/stretchr/testify v1.8.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
+	github.com/stretchr/testify v1.8.2 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect

@@ -68,7 +68,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Couldn't connect to grpc auth server: %v", err)
 	}
-	storage, err := storage.Setup(config.S3Bucket, config.Origin)
+	storage, err := storage.NewS3Storage(config.S3Bucket, config.Origin)
 	if err != nil {
 		log.Fatalf("Couldn't establish s3 session: %v", err)
 	}

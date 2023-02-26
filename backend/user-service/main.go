@@ -58,7 +58,7 @@ func main() {
 	}
 
 	// Setup for handling image uploads to s3 and email sending
-	storage, err := storage.Setup(config.S3Bucket, config.Origin)
+	storage, err := storage.NewS3Storage(config.S3Bucket, config.Origin)
 	if err != nil {
 		log.Fatal(err)
 	}

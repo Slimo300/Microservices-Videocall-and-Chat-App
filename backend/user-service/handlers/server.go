@@ -11,8 +11,8 @@ import (
 type Server struct {
 	Origin       string
 	DB           database.DBLayer
-	Emitter      msgqueue.EventEmitter
-	ImageStorage storage.StorageLayer
+	Emitter      msgqueue.EventEmiter
+	ImageStorage storage.FileStorage
 	TokenService auth.TokenClient
 	EmailService email.EmailService
 	MaxBodyBytes int64

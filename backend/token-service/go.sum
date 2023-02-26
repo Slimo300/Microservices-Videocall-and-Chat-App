@@ -38,10 +38,10 @@ cloud.google.com/go/storage v1.14.0/go.mod h1:GrKmX003DSIwi9o29oFT7YDnHYwZoctc3f
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230126230357-7c98f0fe400b h1:G8xMCoXk8fYKOpIv8A2mZ+7kCrXnsGNdcowDDiZhbtw=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230126230357-7c98f0fe400b/go.mod h1:N3SSG6kpSs4fbEBUCAwE12vVbDUmepuR6vVn7qy17u8=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20230126230357-7c98f0fe400b h1:oatTnfYzTC4auLcgDJrZaYjMrS2mqIRIpObweUYafeg=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20230126230357-7c98f0fe400b/go.mod h1:IvcbN/b3kXy51jDW1TzgqmYBsFnG3kGwOLaUfyP8MNs=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230226171856-6155e6862233 h1:rA2ZWmwx+7aTpQmbnTDGYTI/XOvVYK8eT2ta22M21Mc=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230226171856-6155e6862233/go.mod h1:N3SSG6kpSs4fbEBUCAwE12vVbDUmepuR6vVn7qy17u8=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20230226171856-6155e6862233 h1:lmoF/LQDBkcA3eag8W+16ix/GNRlN4UDVNtDN317lhc=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration v0.0.0-20230226171856-6155e6862233/go.mod h1:IvcbN/b3kXy51jDW1TzgqmYBsFnG3kGwOLaUfyP8MNs=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=
 github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e/go.mod h1:nSuG5e5PlCu98SY8svDHJxuZscDgtXS6KTTbou5AhLI=
@@ -197,8 +197,8 @@ github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO+kdMU+MU=
-github.com/stretchr/testify v1.8.1 h1:w7B6lhMri9wdJUVmEZPGGhZzrYTPvgJArz7wNPgYKsk=
-github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
+github.com/stretchr/testify v1.8.2 h1:+h33VjcLVPDHtOdpUCuF+7gSuG3yGIftsP1YvFihtJ8=
+github.com/stretchr/testify v1.8.2/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/subosito/gotenv v1.4.1 h1:jyEFiXpy21Wm81FBN71l9VoMMV8H8jG+qIK3GCpY6Qs=
 github.com/subosito/gotenv v1.4.1/go.mod h1:ayKnFf/c6rvx/2iiLrJUk1e6plDbT3edrFNGqEflhK0=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=

@@ -10,12 +10,12 @@ import (
 type Server struct {
 	DB           database.DBLayer
 	TokenService auth.TokenClient
-	Emitter      msgqueue.EventEmitter
+	Emitter      msgqueue.EventEmiter
 	Listener     msgqueue.EventListener
-	Storage      storage.StorageLayer
+	Storage      storage.FileStorage
 }
 
-func NewServer(db database.DBLayer, auth auth.TokenClient, emitter msgqueue.EventEmitter, listener msgqueue.EventListener, storage storage.StorageLayer) *Server {
+func NewServer(db database.DBLayer, auth auth.TokenClient, emitter msgqueue.EventEmiter, listener msgqueue.EventListener, storage storage.FileStorage) *Server {
 	return &Server{
 		DB:           db,
 		TokenService: auth,
