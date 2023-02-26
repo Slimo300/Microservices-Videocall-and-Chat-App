@@ -55,7 +55,7 @@ func main() {
 	pb.RegisterTokenServiceServer(grpcServer, s)
 
 	errChan := make(chan error)
-	quit := make(chan os.Signal)
+	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() { errChan <- grpcServer.Serve(lis) }()
