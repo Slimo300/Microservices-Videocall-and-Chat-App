@@ -77,7 +77,6 @@ func (s *S3Storage) UploadFile(file multipart.File, key string) error {
 		Body:   file,
 		Bucket: aws.String(s.Bucket),
 		Key:    aws.String(key),
-		ACL:    aws.String("public-read"),
 	})
 	return err
 }
