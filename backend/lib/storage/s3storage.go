@@ -9,12 +9,14 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
+// S3Storage allows to interact with S3 to store files
 type S3Storage struct {
 	S3     *s3.S3
 	Bucket string
 }
 
-func Setup(bucket, origin string) (*S3Storage, error) {
+// NewS3Storage creates new S3 session
+func NewS3Storage(bucket, origin string) (*S3Storage, error) {
 	session, err := session.NewSession(&aws.Config{
 		Region: aws.String("eu-central-1"),
 	})
@@ -45,6 +47,7 @@ func Setup(bucket, origin string) (*S3Storage, error) {
 	}, nil
 }
 
+// DeleteFolder deletes every file in aws folder (prefixed: <folder>/)
 func (s *S3Storage) DeleteFolder(folder string) error {
 
 	response, err := s.S3.ListObjects(&s3.ListObjectsInput{
@@ -72,6 +75,7 @@ func (s *S3Storage) DeleteFolder(folder string) error {
 	return nil
 }
 
+// UploadFile uploads file with a given key
 func (s *S3Storage) UploadFile(file multipart.File, key string) error {
 	_, err := s.S3.PutObject(&s3.PutObjectInput{
 		Body:   file,
@@ -81,6 +85,7 @@ func (s *S3Storage) UploadFile(file multipart.File, key string) error {
 	return err
 }
 
+// DeleteFile deletes a file with a given key
 func (s *S3Storage) DeleteFile(key string) error {
 	_, err := s.S3.DeleteObject(&s3.DeleteObjectInput{
 		Bucket: aws.String(s.Bucket),
@@ -89,6 +94,7 @@ func (s *S3Storage) DeleteFile(key string) error {
 	return err
 }
 
+// GetPresignedPutRequest creates a new PUT request and signs it with application credentials
 func (s *S3Storage) GetPresignedPutRequest(key string) (string, error) {
 	req, _ := s.S3.PutObjectRequest(&s3.PutObjectInput{
 		Bucket: aws.String(s.Bucket),

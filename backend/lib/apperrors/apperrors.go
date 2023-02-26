@@ -6,8 +6,10 @@ import (
 	"net/http"
 )
 
+// Type represents http status
 type Type string
 
+// Definitions of Error Types
 const (
 	Authorization        Type = "AUTHORIZATION"          // Authentication Failures -
 	BadRequest           Type = "BAD_REQUEST"            // Validation errors / BadInput
@@ -20,15 +22,19 @@ const (
 	UnsupportedMediaType Type = "UNSUPPORTED_MEDIA_TYPE" // for http 415
 )
 
+// Error is a wrapper around error message that holds
+// error type (its http status)
 type Error struct {
 	Type    Type   `json:"type"`
 	Message string `json:"message"`
 }
 
+// Error fulfills error interface
 func (e *Error) Error() string {
 	return e.Message
 }
 
+// Status returns http status based on its type
 func (e *Error) Status() int {
 	switch e.Type {
 	case Authorization:
@@ -54,6 +60,8 @@ func (e *Error) Status() int {
 	}
 }
 
+// Status returns corresponding http status if err is of type Error
+// if not it returns status 500
 func Status(err error) int {
 	var e *Error
 	if errors.As(err, &e) {
@@ -62,6 +70,7 @@ func Status(err error) int {
 	return http.StatusInternalServerError
 }
 
+// NewAuthorization creates Authorization Error with given message
 func NewAuthorization(reason string) *Error {
 	return &Error{
 		Type:    Authorization,
@@ -69,6 +78,7 @@ func NewAuthorization(reason string) *Error {
 	}
 }
 
+// NewBadRequest creates BadRequest Error with given message
 func NewBadRequest(reason string) *Error {
 	return &Error{
 		Type:    BadRequest,
@@ -76,6 +86,7 @@ func NewBadRequest(reason string) *Error {
 	}
 }
 
+// NewForbidden creates Forbidden Error with given message
 func NewForbidden(reason string) *Error {
 	return &Error{
 		Type:    Forbidden,
@@ -83,6 +94,7 @@ func NewForbidden(reason string) *Error {
 	}
 }
 
+// NewConflict constructs Conflict Error with given parameters
 func NewConflict(name string, value string) *Error {
 	return &Error{
 		Type:    Conflict,
@@ -90,6 +102,7 @@ func NewConflict(name string, value string) *Error {
 	}
 }
 
+// NewInternal creates new Internal Error
 func NewInternal() *Error {
 	return &Error{
 		Type:    Internal,
@@ -97,6 +110,7 @@ func NewInternal() *Error {
 	}
 }
 
+// NewNotFound constructs new NotFound Error with given parameters
 func NewNotFound(name string, value string) *Error {
 	return &Error{
 		Type:    NotFound,
@@ -104,6 +118,7 @@ func NewNotFound(name string, value string) *Error {
 	}
 }
 
+// NewPayloadTooLarge constructs new PayloadTooLarge error with given parameters
 func NewPayloadTooLarge(maxBodySize int64, contentLength int64) *Error {
 	return &Error{
 		Type:    PayloadTooLarge,
@@ -111,6 +126,7 @@ func NewPayloadTooLarge(maxBodySize int64, contentLength int64) *Error {
 	}
 }
 
+// NewServiceUnavailable creates new ServiceUnavailable Error
 func NewServiceUnavailable() *Error {
 	return &Error{
 		Type:    ServiceUnavailable,
@@ -118,6 +134,7 @@ func NewServiceUnavailable() *Error {
 	}
 }
 
+// NewUnsupportedMediaType creates new UnsupportedMediaType Error with given message
 func NewUnsupportedMediaType(reason string) *Error {
 	return &Error{
 		Type:    UnsupportedMediaType,
