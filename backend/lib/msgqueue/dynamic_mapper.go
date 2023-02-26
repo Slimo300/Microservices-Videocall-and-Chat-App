@@ -10,16 +10,19 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+// DynamicEventMapper allows to define event types in runtime
 type DynamicEventMapper struct {
 	typeMap map[string]reflect.Type
 }
 
+// NewDynamicEventMapper creates new mapper
 func NewDynamicEventMapper() *DynamicEventMapper {
 	return &DynamicEventMapper{
 		typeMap: make(map[string]reflect.Type),
 	}
 }
 
+// RegisterEventType adds new type to list for later mapping
 func (m *DynamicEventMapper) RegisterEventType(eventType reflect.Type) error {
 
 	emptyEvent := reflect.New(eventType)
@@ -34,6 +37,7 @@ func (m *DynamicEventMapper) RegisterEventType(eventType reflect.Type) error {
 	return nil
 }
 
+// RegisterTypes allows to register any number of types
 func (m *DynamicEventMapper) RegisterTypes(eventTypes ...reflect.Type) error {
 	for _, typ := range eventTypes {
 		if err := m.RegisterEventType(typ); err != nil {
@@ -43,6 +47,8 @@ func (m *DynamicEventMapper) RegisterTypes(eventTypes ...reflect.Type) error {
 	return nil
 }
 
+// MapEvent searches for event with given event name and if it finds it, it returns event payload
+// decoded to this type, decoded value is returned as an instance of Event interface
 func (m *DynamicEventMapper) MapEvent(eventName string, eventPayload interface{}) (Event, error) {
 
 	typ, ok := m.typeMap[eventName]

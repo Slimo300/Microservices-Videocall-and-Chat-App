@@ -11,20 +11,24 @@ import (
 
 type jSONEncoder struct{}
 
-func NewJSONEncoder() jSONEncoder {
+// NewJSONEncoder creates json encoder
+func NewJSONEncoder() Encoder {
 	return jSONEncoder{}
 }
 
+// Encode encodes payload to its json representation
 func (jSONEncoder) Encode(payload interface{}) ([]byte, error) {
 	return json.Marshal(payload)
 }
 
 type jsonDecoder struct{}
 
-func NewJSONDecoder() jsonDecoder {
+// NewJSONDecoder creates new json decoder
+func NewJSONDecoder() Decoder {
 	return jsonDecoder{}
 }
 
+// Decode decodes json into given destination
 func (jsonDecoder) Decode(byt []byte, dest interface{}) error {
 	return json.Unmarshal(byt, dest)
 }
@@ -36,8 +40,8 @@ type gobEncoder struct {
 	buffer  bytes.Buffer
 }
 
-// Gob encoder
-func NewGobEncoder(types ...reflect.Type) *gobEncoder {
+// NewGobEncoder creates new gob encoder
+func NewGobEncoder(types ...reflect.Type) Encoder {
 	for _, typ := range types {
 		gob.Register(typ)
 	}
@@ -49,6 +53,7 @@ func NewGobEncoder(types ...reflect.Type) *gobEncoder {
 	}
 }
 
+// Encode encodes payload to its gob representation
 func (e *gobEncoder) Encode(payload interface{}) ([]byte, error) {
 
 	err := e.encoder.Encode(payload)
@@ -56,13 +61,13 @@ func (e *gobEncoder) Encode(payload interface{}) ([]byte, error) {
 	return e.buffer.Bytes(), err
 }
 
-// Gob decoder
 type gobDecoder struct {
 	decoder gob.Decoder
 	buffer  bytes.Buffer
 }
 
-func NewGobDecoder(types ...reflect.Type) *gobDecoder {
+// NewGobDecoder creates new gob decoder
+func NewGobDecoder(types ...reflect.Type) Decoder {
 	for _, typ := range types {
 		gob.Register(typ)
 	}
@@ -73,6 +78,7 @@ func NewGobDecoder(types ...reflect.Type) *gobDecoder {
 	}
 }
 
+// Decode decodes gob into given destination
 func (d *gobDecoder) Decode(byt []byte, dest interface{}) error {
 
 	_, err := d.buffer.Write(byt)

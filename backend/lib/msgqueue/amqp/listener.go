@@ -13,10 +13,11 @@ type amqpEventListener struct {
 	connection *amqp.Connection
 	queue      string
 	mapper     msgqueue.EventMapper
-	Decoder    msgqueue.Decoder
+	decoder    msgqueue.Decoder
 }
 
-func NewAMQPEventListener(conn *amqp.Connection, mapper msgqueue.EventMapper, queueName string, exchanges ...string) (*amqpEventListener, error) {
+// NewAMQPEventListener creates amqp listener
+func NewAMQPEventListener(conn *amqp.Connection, mapper msgqueue.EventMapper, queueName string, exchanges ...string) (msgqueue.EventListener, error) {
 	channel, err := conn.Channel()
 	if err != nil {
 		return nil, err
@@ -38,10 +39,11 @@ func NewAMQPEventListener(conn *amqp.Connection, mapper msgqueue.EventMapper, qu
 		connection: conn,
 		queue:      queueName,
 		mapper:     mapper,
-		Decoder:    msgqueue.NewJSONDecoder(),
+		decoder:    msgqueue.NewJSONDecoder(),
 	}, nil
 }
 
+// Listen will check amqp queue for given events and send them through returned channel
 func (a *amqpEventListener) Listen(eventNames ...string) (<-chan msgqueue.Event, <-chan error, error) {
 	eventChan := make(chan msgqueue.Event)
 	errChan := make(chan error)
@@ -81,7 +83,7 @@ func (a *amqpEventListener) Listen(eventNames ...string) (<-chan msgqueue.Event,
 			}
 
 			var messageBody interface{}
-			err := a.Decoder.Decode(msg.Body, messageBody)
+			err := a.decoder.Decode(msg.Body, messageBody)
 			if err != nil {
 				errChan <- fmt.Errorf("decoding message returned error: %v", err)
 				msg.Nack(false, false)

@@ -11,15 +11,17 @@ type kafkaEventListener struct {
 	consumer sarama.Consumer
 	mapper   msgqueue.EventMapper
 	topics   []KafkaTopic
-	Decoder  msgqueue.Decoder
-	Offset   int64
+	decoder  msgqueue.Decoder
+	offset   int64
 }
 
+// KafkaTopic holds kafka topic and partitions it covers
 type KafkaTopic struct {
 	Name       string
 	Partitions []int32
 }
 
+// NewKafkaEventListener creates kafka listener
 func NewKafkaEventListener(client sarama.Client, mapper msgqueue.EventMapper, topics ...KafkaTopic) (*kafkaEventListener, error) {
 
 	consumer, err := sarama.NewConsumerFromClient(client)
@@ -31,12 +33,13 @@ func NewKafkaEventListener(client sarama.Client, mapper msgqueue.EventMapper, to
 		consumer: consumer,
 		mapper:   mapper,
 		topics:   topics,
-		Decoder:  msgqueue.NewJSONDecoder(),
-		Offset:   sarama.OffsetNewest,
+		decoder:  msgqueue.NewJSONDecoder(),
+		offset:   sarama.OffsetNewest,
 	}, nil
 
 }
 
+// Listen will check amqp queue for given events and send them through returned channel
 func (k *kafkaEventListener) Listen(events ...string) (<-chan msgqueue.Event, <-chan error, error) {
 
 	var err error
@@ -56,7 +59,7 @@ func (k *kafkaEventListener) Listen(events ...string) (<-chan msgqueue.Event, <-
 
 		for _, partition := range partitions {
 
-			con, err := k.consumer.ConsumePartition(topic.Name, partition, k.Offset)
+			con, err := k.consumer.ConsumePartition(topic.Name, partition, k.offset)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -64,7 +67,7 @@ func (k *kafkaEventListener) Listen(events ...string) (<-chan msgqueue.Event, <-
 			go func() {
 				for msg := range con.Messages() {
 					body := kafkaMessage{}
-					err := k.Decoder.Decode(msg.Value, &body)
+					err := k.decoder.Decode(msg.Value, &body)
 					if err != nil {
 						errors <- fmt.Errorf("Could not unmarshal message: %s", err.Error())
 						continue

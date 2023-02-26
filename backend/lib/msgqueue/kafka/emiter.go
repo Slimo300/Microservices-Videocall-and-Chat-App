@@ -17,7 +17,8 @@ type kafkaMessage struct {
 	Payload   interface{} `json:"payload"`
 }
 
-func NewKafkaEventEmiter(client sarama.Client) (*kafkaEventEmiter, error) {
+// NewKafkaEventEmiter creates kafka emiter
+func NewKafkaEventEmiter(client sarama.Client) (msgqueue.EventEmiter, error) {
 	producer, err := sarama.NewSyncProducerFromClient(client)
 	if err != nil {
 		return nil, err
@@ -29,6 +30,7 @@ func NewKafkaEventEmiter(client sarama.Client) (*kafkaEventEmiter, error) {
 	}, nil
 }
 
+// Emit sends a new Event to kafka
 func (k *kafkaEventEmiter) Emit(event msgqueue.Event) error {
 	messageBody, err := k.Encoder.Encode(kafkaMessage{
 		EventName: event.EventName(),
