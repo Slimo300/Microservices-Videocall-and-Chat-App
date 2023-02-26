@@ -44,6 +44,8 @@ services:
     build:
       context: .
       dockerfile: backend/token-service/Dockerfile
+    ports:
+      - "9000:9000"
     container_name: tokenservice
     hostname: tokenservice
     networks: 
@@ -200,14 +202,14 @@ services:
       - elasticsearch
     restart: on-failure
 
-  # react:
-  #   build:
-  #     context: .
-  #     dockerfile: frontend/Dockerfile
-  #   container_name: frontend
-  #   hostname: frontend
-  #   ports:
-  #     - "3000:80"
+  react:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: frontend
+    hostname: frontend
+    ports:
+      - "3000:80"
 
 volumes:
   zookeeper_data:
