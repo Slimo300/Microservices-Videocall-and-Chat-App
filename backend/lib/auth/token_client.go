@@ -19,7 +19,8 @@ type gRPCTokenAuthClient struct {
 	iteration string
 }
 
-func NewGRPCTokenClient(port string) (*gRPCTokenAuthClient, error) {
+// NewGRPCTokenClient is a constructor for grpc client to reach token service
+func NewGRPCTokenClient(port string) (TokenClient, error) {
 	conn, err := grpc.Dial(port, grpc.WithInsecure())
 	if err != nil {
 		return &gRPCTokenAuthClient{}, err
@@ -31,7 +32,7 @@ func NewGRPCTokenClient(port string) (*gRPCTokenAuthClient, error) {
 		return &gRPCTokenAuthClient{}, err
 	}
 	if pubKeyMsg.Error != "" {
-		return &gRPCTokenAuthClient{}, errors.New(fmt.Sprintf("Message from token service: %v", pubKeyMsg.Error))
+		return &gRPCTokenAuthClient{}, fmt.Errorf("Message from token service: %v", pubKeyMsg.Error)
 	}
 
 	publicKeyParsed, err := x509.ParsePKIXPublicKey(pubKeyMsg.PublicKey)

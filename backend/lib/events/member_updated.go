@@ -4,6 +4,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// MemberUpdatedEvent holds information about member's privileges being changed
 type MemberUpdatedEvent struct {
 	ID               uuid.UUID `json:"ID" mapstructure:"ID"`
 	GroupID          uuid.UUID `json:"groupID" mapstructure:"groupID"`
@@ -15,6 +16,7 @@ type MemberUpdatedEvent struct {
 	Admin            bool      `json:"admin" mapstructure:"admin"`
 }
 
+// EventName method from Event interface
 func (MemberUpdatedEvent) EventName() string {
 	return "groups.memberupdated"
 }

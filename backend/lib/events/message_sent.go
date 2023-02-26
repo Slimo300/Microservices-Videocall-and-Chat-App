@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// MessageSentEvent holds information about message being sent
 type MessageSentEvent struct {
 	ID      uuid.UUID `json:"messageID" mapstructure:"messageID"`
 	GroupID uuid.UUID `json:"groupID" mapstructure:"groupID"`
@@ -16,11 +17,13 @@ type MessageSentEvent struct {
 	Files   []File    `json:"files" mapstructure:"files"`
 }
 
+// File holds information about file send alongside message
 type File struct {
 	Key       string `json:"key" mapstructure:"key"`
 	Extension string `json:"ext" mapstructure:"ext"`
 }
 
+// EventName method from Event interface
 func (MessageSentEvent) EventName() string {
 	return "wsmessages.created"
 }

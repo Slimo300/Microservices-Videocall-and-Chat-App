@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// TokenClient is an interface for JWT token provider service
 type TokenClient interface {
 	NewPairFromUserID(userID uuid.UUID) (*pb.TokenPair, error)
 	NewPairFromRefresh(refresh string) (*pb.TokenPair, error)
@@ -18,6 +19,7 @@ type TokenClient interface {
 	GetPublicKey() *rsa.PublicKey
 }
 
+// MustAuth is a Gin middleware to wrap methods that need authorization
 func MustAuth(auth TokenClient) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		accessHeader := strings.Split(c.GetHeader("Authorization"), " ")[1]

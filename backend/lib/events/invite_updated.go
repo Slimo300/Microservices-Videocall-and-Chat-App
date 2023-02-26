@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// InviteRespondedEvent holds information about responding to an invite to group
 type InviteRespondedEvent struct {
 	ID       uuid.UUID `json:"ID" mapstructure:"ID"`
 	IssuerID uuid.UUID `json:"issuerID" mapstructure:"issuerID"`
@@ -17,6 +18,7 @@ type InviteRespondedEvent struct {
 	Modified time.Time `json:"modified" mapstructure:"modified"`
 }
 
+// EventName method from Event interface
 func (InviteRespondedEvent) EventName() string {
 	return "groups.inviteresponded"
 }

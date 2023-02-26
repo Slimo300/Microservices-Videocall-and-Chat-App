@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Config holds information about project resources and behavior
 type Config struct {
 	Origin string `mapstructure:"origin"`
 	Domain string `mapstructure:"domain"`
@@ -38,6 +39,7 @@ type Config struct {
 	RefreshDuration time.Duration `mapstructure:"refreshDuration"`
 }
 
+// Service type holds regular information for REST service
 type Service struct {
 	DBType    string `mapstructure:"dbtype"`
 	DBAddress string `mapstructure:"dbaddress"`
@@ -45,6 +47,7 @@ type Service struct {
 	HTTPSPort string `mapstructure:"httpsPort"`
 }
 
+// TokenService is a specific type for managing token-service
 type TokenService struct {
 	GRPCPort              string `mapstructure:"grpcPort"`
 	RedisAddress          string `mapstructure:"redisAddress"`
@@ -53,6 +56,7 @@ type TokenService struct {
 	RefreshTokenSecret    string `mapstructure:"refreshSecret"`
 }
 
+// SearchService is a specific type for managing search-service
 type SearchService struct {
 	HTTPPort  string   `mapstructure:"httpPort"`
 	HTTPSPort string   `mapstructure:"httpsPort"`
@@ -61,6 +65,8 @@ type SearchService struct {
 	Password  string   `mapstrucutre:"password"`
 }
 
+// LoadConfig looks up config.yaml file in path given by parameter and reads
+// project configuration from it
 func LoadConfig(path string) (config Config, err error) {
 	vp := viper.New()
 	vp.AddConfigPath(path)
