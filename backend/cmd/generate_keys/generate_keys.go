@@ -16,7 +16,6 @@ func main() {
 		fmt.Printf("Cannot generate RSA key\n")
 		os.Exit(1)
 	}
-	publickey := &privatekey.PublicKey
 
 	// dump private key to file
 	var privateKeyBytes []byte = x509.MarshalPKCS1PrivateKey(privatekey)
@@ -24,7 +23,7 @@ func main() {
 		Type:  "RSA PRIVATE KEY",
 		Bytes: privateKeyBytes,
 	}
-	privatePem, err := os.Create("../../private.pem")
+	privatePem, err := os.Create("private.pem")
 	if err != nil {
 		fmt.Printf("error when create private.pem: %s \n", err)
 		os.Exit(1)
@@ -32,27 +31,6 @@ func main() {
 	err = pem.Encode(privatePem, privateKeyBlock)
 	if err != nil {
 		fmt.Printf("error when encode private pem: %s \n", err)
-		os.Exit(1)
-	}
-
-	// dump public key to file
-	publicKeyBytes, err := x509.MarshalPKIXPublicKey(publickey)
-	if err != nil {
-		fmt.Printf("error when dumping publickey: %s \n", err)
-		os.Exit(1)
-	}
-	publicKeyBlock := &pem.Block{
-		Type:  "PUBLIC KEY",
-		Bytes: publicKeyBytes,
-	}
-	publicPem, err := os.Create("../../public.pem")
-	if err != nil {
-		fmt.Printf("error when create public.pem: %s \n", err)
-		os.Exit(1)
-	}
-	err = pem.Encode(publicPem, publicKeyBlock)
-	if err != nil {
-		fmt.Printf("error when encode public pem: %s \n", err)
 		os.Exit(1)
 	}
 }
