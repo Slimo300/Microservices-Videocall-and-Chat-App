@@ -12,6 +12,10 @@ helm install kafka bitnami/kafka
 
 kubectl apply -f deploy/secrets
 kubectl apply -f deploy/dbs
+
+echo "Waiting for dbs to start"
+sleep 10s
+
 kubectl apply -f deploy/services
 kubectl apply -f deploy/frontend.yaml
 kubectl apply -f deploy/ingress.yaml

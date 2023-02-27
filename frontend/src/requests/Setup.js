@@ -1,15 +1,15 @@
-// export const groupsService = 'http://localhost:8081/groups';
-// export const messageService = 'http://localhost:8082/messages';
-// export const userService = 'http://localhost:8083/users';
-// export const wsService = 'http://localhost:8084/ws'
-// export const wsServiceWebsocket = 'ws://localhost:8084/ws';
-// export const searchService = 'http://localhost:8085/search';
-export const groupsService = 'http://api.chatapp.example/groups';
-export const messageService = 'http://api.chatapp.example/messages';
-export const userService = 'http://api.chatapp.example/users';
-export const wsService = 'http://api.chatapp.example/ws'
-export const wsServiceWebsocket = 'ws://api.chatapp.example/ws';
-export const searchService = 'http://api.chatapp.example/search';
+export const groupsService = 'http://localhost:8081/groups';
+export const messageService = 'http://localhost:8082/messages';
+export const userService = 'http://localhost:8083/users';
+export const wsService = 'http://localhost:8084/ws'
+export const wsServiceWebsocket = 'ws://localhost:8084/ws';
+export const searchService = 'http://localhost:8085/search';
+// export const groupsService = 'http://api.chatapp.example/groups';
+// export const messageService = 'http://api.chatapp.example/messages';
+// export const userService = 'http://api.chatapp.example/users';
+// export const wsService = 'http://api.chatapp.example/ws'
+// export const wsServiceWebsocket = 'ws://api.chatapp.example/ws';
+// export const searchService = 'http://api.chatapp.example/search';
 
 let axiosObject = require('axios').default;
 axiosObject.defaults.headers.common['Content-Type'] = "application/json";
