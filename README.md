@@ -15,7 +15,7 @@ such as Cloud Native Development, Event Sourcing, etc. This application consists
 8. File storage - application uses AWS S3 service to store user and group pictures. It also stores files sent by users  (for now only jpeg and png)
 9. Message broker - application uses Kafka for asynchronous communication
 10. Application is dockerized 
-11. Application is ready to be deployed to Kubernetes if needed config files and environment variables are prepared
+11. Application is ready to be deployed to Kubernetes if needed config files are present and environment variables are set
 
 ## How to setup?
 
