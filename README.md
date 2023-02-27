@@ -22,7 +22,7 @@ such as Cloud Native Development, Event Sourcing, etc. This application consists
 In order to setup this project you'll need a couple of things first: 
 
 1. configuration file - every microservice starts with loading config file from file $CHAT_CONFIG/config.yaml. CHAT_CONFIG is an environment describing config file location
-The way how config file should look can be seen in sample-conf.yaml
+The way how config file should look can be seen in config-template.yaml
 
 Because I wanted to test this app in different environments (local, docker, kubernetes) they are all looking for different config file
 - when started locally services will look for config.yaml (in container runtime other names are also changed to this)

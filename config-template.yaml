@@ -1,39 +1,39 @@
 origin: http://localhost:3000 # for CORS
 domain: localhost # for cookie setting
-cert: /cert/cert.pem
+cert: cert/cert.pem
 privKey: cert/key.pem
 group-service:
   dbtype: MYSQL
-  dbaddress: username:password@tcp(groupdb:3306)/dbgroups
+  dbaddress: <USERNAME>:<PASSWORD>!@tcp(<HOSTNAME>:<PORT>)/<DBNAME>
   httpPort: "8081"
   httpsPort: "8091"
 message-service:
   dbtype: MYSQL
-  dbaddress: username:password@tcp(messagedb:3306)/dbmessages
+  dbaddress: <USERNAME>:<PASSWORD>!@tcp(<HOSTNAME>:<PORT>)/<DBNAME>
   httpPort: "8082"
   httpsPort: "8092"
 user-service:
   dbtype: MYSQL
-  dbaddress: username:password!@tcp(userdb:3306)/dbusers
+  dbaddress: <USERNAME>:<PASSWORD>!@tcp(<HOSTNAME>:<PORT>)/<DBNAME>
   httpPort: "8083"
   httpsPort: "8093"
 ws-service:
   dbtype: MYSQL
-  dbaddress: username:password!@tcp(wsdb:3306)/dbws
+  dbaddress: <USERNAME>:<PASSWORD>!@tcp(<HOSTNAME>:<PORT>)/<DBNAME>
   httpPort: "8084"
   httpsPort: "8094"
 search-service:
   addresses:
-    - "http://localhost:9200"
-  username:
-  password:
+    - "http://<HOST>:<PORT>"
+  username: <USERNAME>
+  password: <PASSWORD>
   httpPort: "8085"
   httpsPort: "8095"
 token-service:
   grpcPort: "9000"
-  redisAddress: redis:6379
-  redisPass:
-  accessPrivKey: private.pem
+  redisAddress: <HOST>:<PORT>
+  redisPass: <REDIS_PASSWORD>
+  accessPrivKey: <PRIVATE_KEY>.pem
   refreshSecret: secret
 accessDuration: 1200s
 refreshDuration: 86400s
@@ -41,10 +41,10 @@ authAddress: tokenservice:9000
 aws-bucket: bucketname
 brokerType: kafka
 brokerAddresses:
-  - "kafka:9092"
-emailFrom: email@from.com
-smtpHost: smtp_host
-smtpPort: smtp_port
-smtpUser: smtp_user
-smtpPass: smtp_pass
+  - "<HOST>:<PORT>"
+emailFrom: <EMAIL_ADDRESS>
+smtpHost: <SMTP_HOST>
+smtpPort: <SMTP_PORT>
+smtpUser: <SMTP_USER>
+smtpPass: <SMTP_PASS>
 templateDir: backend/user-service/templates
