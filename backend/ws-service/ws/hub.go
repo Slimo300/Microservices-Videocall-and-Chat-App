@@ -80,11 +80,14 @@ func (h *WSHub) Run() {
 			msg.Prepare()
 			h.messageServerChan <- msg
 			for client := range h.clients {
-				for _, gr := range client.groups {
-					if gr == msg.Group {
-						client.send <- msg
-					}
+				if _, ok := client.groups[msg.Group]; ok {
+					client.send <- msg
 				}
+				// for _, gr := range client.groups {
+				// 	if gr == msg.Group {
+				// 		client.send <- msg
+				// 	}
+				// }
 			}
 		}
 	}
@@ -108,12 +111,17 @@ func ServeWebSocket(w http.ResponseWriter, req *http.Request, h WSHub, groups []
 		return
 	}
 
+	groupsMap := make(map[uuid.UUID]struct{})
+	for _, group := range groups {
+		groupsMap[group] = struct{}{}
+	}
+
 	client := &client{
 		id:     id_user,
 		socket: socket,
 		send:   make(chan Sender, messageBufferSize),
 		hub:    h,
-		groups: groups,
+		groups: groupsMap,
 		ticker: *time.NewTicker(KEEP_ALIVE_INTERVAL),
 	}
 

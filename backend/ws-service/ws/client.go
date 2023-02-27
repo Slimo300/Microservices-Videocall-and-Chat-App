@@ -15,7 +15,7 @@ type client struct {
 	socket *websocket.Conn
 	send   chan Sender
 	hub    WSHub
-	groups []uuid.UUID
+	groups map[uuid.UUID]struct{}
 	ticker time.Ticker
 }
 
