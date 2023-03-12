@@ -16,7 +16,12 @@ type TokenClient interface {
 	NewPairFromUserID(userID uuid.UUID) (*pb.TokenPair, error)
 	NewPairFromRefresh(refresh string) (*pb.TokenPair, error)
 	DeleteUserToken(refresh string) error
-	GetPublicKey() *rsa.PublicKey
+	GetPublicKey(keyID string) (*rsa.PublicKey, error)
+}
+
+type JWTCustomClaims struct {
+	jwt.StandardClaims
+	keyId string
 }
 
 // MustAuth is a Gin middleware to wrap methods that need authorization
@@ -27,9 +32,10 @@ func MustAuth(auth TokenClient) gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"err": "user not authenticated"})
 			return
 		}
-		accessToken, err := jwt.ParseWithClaims(accessHeader, &jwt.StandardClaims{},
+		accessToken, err := jwt.ParseWithClaims(accessHeader, &JWTCustomClaims{},
 			func(t *jwt.Token) (interface{}, error) {
-				return auth.GetPublicKey(), nil
+				key := t.Claims.(JWTCustomClaims).keyId
+				return auth.GetPublicKey(key)
 			})
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"err": err.Error()})
