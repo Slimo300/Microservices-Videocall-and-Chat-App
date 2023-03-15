@@ -37,7 +37,7 @@ It can be changed by changing deploy/deploy/sh file
 
 To generate such cert (it won't be signed by CA so it will be useless in browser but will be good enough to start project) you can use:
 ```sh
-go run %GOROOT%/src/crypto/tls/generate_cert.go
+go run %GOROOT%/src/crypto/tls/generate_cert.go --host=<HOSTNAME>
 ```
 You can also check your GOROOT by typing
 ```sh

@@ -23,17 +23,9 @@ spec:
           name: http
         - containerPort: 8090
           name: https
-        env:
-          - name: AWS_ACCESS_KEY_ID
-            valueFrom:
-              secretKeyRef:
-                name: awskey
-                key: AWS_ACCESS_KEY_ID
-          - name: AWS_SECRET_ACCESS_KEY
-            valueFrom:
-              secretKeyRef:
-                name: awskey
-                key: AWS_SECRET_ACCESS_KEY
+        envFrom:
+        - secretRef:
+            name: awskey
 ---
 apiVersion: v1
 kind: Service

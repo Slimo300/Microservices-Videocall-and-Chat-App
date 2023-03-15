@@ -4,6 +4,8 @@ services:
 
   zookeeper:
     image: docker.io/bitnami/zookeeper:3.8
+    hostname: zookeeper
+    container_name: zookeeper
     ports:
       - "2181:2181"
     volumes:
@@ -15,6 +17,7 @@ services:
   kafka:
     image: docker.io/bitnami/kafka:3.3
     hostname: kafka
+    container_name: kafka
     ports:
       - "9093:9093"
     volumes:
@@ -33,11 +36,13 @@ services:
 
   redis:
     image: docker.io/bitnami/redis:latest
+    hostname: redis
+    container_name: redis
     volumes:
       - "redis_data:/bitnami/redis/data"
     environment:
       - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_PASSWORD=redis
     networks:
       - chatnet
   tokenservice:
@@ -63,10 +68,10 @@ services:
     volumes:
       - groupmysql_data:/var/lib/mysql
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: chatapp
+      MYSQL_USER: chat
+      MYSQL_PASSWORD: password12
+      MYSQL_ROOT_PASSWORD: password123
   groupservice:
     build:
       context: .
@@ -95,10 +100,10 @@ services:
     volumes:
       - messagemysql_data:/var/lib/mysql
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: chatapp
+      MYSQL_USER: chat
+      MYSQL_PASSWORD: password12
+      MYSQL_ROOT_PASSWORD: password123
   messageservice:
     build:
       context: .
@@ -127,10 +132,10 @@ services:
     volumes:
       - usermysql_data:/var/lib/mysql
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: chatapp
+      MYSQL_USER: chat
+      MYSQL_PASSWORD: password12
+      MYSQL_ROOT_PASSWORD: password123
   userservice:
     build:
       context: .
@@ -159,10 +164,10 @@ services:
     volumes:
       - wsmysql_data:/var/lib/mysql
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: chatapp
+      MYSQL_USER: chat
+      MYSQL_PASSWORD: password12
+      MYSQL_ROOT_PASSWORD: password123
   wsservice:
     build:
       context: .
