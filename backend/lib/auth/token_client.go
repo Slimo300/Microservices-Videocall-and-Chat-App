@@ -16,7 +16,6 @@ import (
 type gRPCTokenAuthClient struct {
 	client pb.TokenServiceClient
 	pubKey rsa.PublicKey
-	keyid  string
 }
 
 // NewGRPCTokenClient is a constructor for grpc client to reach token service
@@ -48,7 +47,6 @@ func NewGRPCTokenClient(port string) (TokenClient, error) {
 	return &gRPCTokenAuthClient{
 		client: client,
 		pubKey: *publicKey,
-		keyid:  pubKeyMsg.Iteration,
 	}, nil
 }
 
@@ -85,29 +83,7 @@ func (c *gRPCTokenAuthClient) DeleteUserToken(refresh string) error {
 	return nil
 }
 
-func (c *gRPCTokenAuthClient) GetPublicKey(keyID string) (*rsa.PublicKey, error) {
+func (c *gRPCTokenAuthClient) GetPublicKey() *rsa.PublicKey {
 
-	if keyID == c.keyid {
-		return &c.pubKey, nil
-	}
-
-	pubKeyMsg, err := c.client.GetPublicKey(context.Background(), &pb.Empty{})
-	if err != nil {
-		return nil, err
-	}
-	if pubKeyMsg.Error != "" {
-		return nil, fmt.Errorf("Message from token service: %v", pubKeyMsg.Error)
-	}
-
-	publicKeyParsed, err := x509.ParsePKIXPublicKey(pubKeyMsg.PublicKey)
-	if err != nil {
-		return nil, err
-	}
-
-	publicKey, ok := publicKeyParsed.(*rsa.PublicKey)
-	if !ok {
-		return nil, errors.New("PublicKey not of type *rsa.PublicKey")
-	}
-
-	return publicKey, nil
+	return &c.pubKey
 }

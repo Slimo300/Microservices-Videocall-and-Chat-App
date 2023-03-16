@@ -32,6 +32,5 @@ message Empty {}
 
 message PublicKey {
     bytes publicKey = 1;
-    string iteration = 2;
-    string error = 3;
+    string error = 2;
 }
