@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -10,48 +9,38 @@ import (
 	"syscall"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration"
 	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo/redis"
 	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/server"
-	"github.com/golang-jwt/jwt"
 	"google.golang.org/grpc"
 )
 
 func main() {
 
-	config, err := configuration.LoadConfig(os.Getenv("CHAT_CONFIG"))
+	config, err := loadConfig()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Couldn't read configuration: %v", err)
 	}
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", config.TokenService.GRPCPort))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", config.GRPCPort))
 	if err != nil {
 		log.Fatalf("Error when listening on TCP port: %v", err)
 	}
 
-	priv, err := ioutil.ReadFile(config.TokenService.AccessTokenPrivateKey)
-	if err != nil {
-		log.Fatalf("could not read private key pem file: %v", err)
-	}
-	privKey, err := jwt.ParseRSAPrivateKeyFromPEM(priv)
-	if err != nil {
-		log.Fatalf("could not parse private key: %v", err)
-	}
-
-	repo, err := redis.NewRedisTokenRepository(config.TokenService.RedisAddress, config.TokenService.RedisPass)
+	repo, err := redis.NewRedisTokenRepository(config.RedisAddress, config.RedisPassword)
 	if err != nil {
 		log.Fatal("could not connect to redis")
 	}
 
-	s := server.NewTokenService(repo,
-		config.TokenService.RefreshTokenSecret,
-		*privKey,
+	s, err := server.NewTokenService(repo,
+		config.RefreshTokenSecret,
 		config.RefreshDuration,
 		config.AccessDuration,
 	)
+	if err != nil {
+		log.Fatalf("Error creating token service: %v", err)
+	}
 
 	grpcServer := grpc.NewServer()
-
 	pb.RegisterTokenServiceServer(grpcServer, s)
 
 	errChan := make(chan error)
@@ -61,7 +50,7 @@ func main() {
 	go func() { errChan <- grpcServer.Serve(lis) }()
 
 	log.Println("Starting token service...")
-	log.Printf("Listening on port: %s", config.TokenService.GRPCPort)
+	log.Printf("Listening on port: %s", config.GRPCPort)
 
 	select {
 	case <-quit:

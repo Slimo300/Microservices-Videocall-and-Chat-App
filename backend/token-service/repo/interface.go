@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"crypto/rsa"
 	"errors"
 	"time"
 )
@@ -26,6 +27,9 @@ type TokenRepository interface {
 	IsTokenValid(userID, tokenID string) (bool, error)
 	InvalidateToken(userID, tokenID string) error
 	InvalidateTokens(userID, tokenID string) error
+
+	GetPrivateKey() (*rsa.PrivateKey, error)
+	SetPrivateKey(key *rsa.PrivateKey) error
 }
 
 var TokenBlacklistedError = errors.New("Token Blacklisted")

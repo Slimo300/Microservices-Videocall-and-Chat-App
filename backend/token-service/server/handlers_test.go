@@ -2,8 +2,8 @@ package server_test
 
 import (
 	"context"
+	"crypto/rand"
 	"crypto/rsa"
-	"io/ioutil"
 	"log"
 	"os"
 	"testing"
@@ -22,18 +22,27 @@ import (
 var PrivateKey *rsa.PrivateKey
 var RefreshSecret string
 
+var repo *mockrepo.MockTokenRepository
+var service *server.TokenService
+
 func TestMain(m *testing.M) {
-
-	priv, err := ioutil.ReadFile(os.Getenv("PRIV_KEY_FILE"))
+	// generate key
+	priv, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
-		log.Fatal("could not read private key pem file: %w", err)
+		log.Fatal("Cannot generate RSA key\n")
 	}
-	PrivateKey, err = jwt.ParseRSAPrivateKeyFromPEM(priv)
-	if err != nil {
-		log.Fatal("could not parse private key: %w", err)
-	}
+	PrivateKey = priv
 
-	RefreshSecret = os.Getenv("REFRESH_SECRET")
+	RefreshSecret = "secret"
+
+	repo = new(mockrepo.MockTokenRepository)
+	repo.On("SaveToken", mock.AnythingOfType("string"), time.Hour*24).Return(nil)
+	repo.On("GetPrivateKey").Return(priv, nil)
+
+	service, err = server.NewTokenService(repo, RefreshSecret, time.Hour*24, time.Minute*20)
+	if err != nil {
+		log.Fatal("Couldn't create token service")
+	}
 
 	os.Exit(m.Run())
 }
@@ -41,11 +50,6 @@ func TestMain(m *testing.M) {
 func TestNewPairFromUserID(t *testing.T) {
 
 	userID := uuid.NewString()
-
-	repo := mockrepo.NewMockTokenRepository()
-	repo.On("SaveToken", mock.AnythingOfType("string"), time.Hour*24).Return(nil)
-
-	service := server.NewTokenService(repo, RefreshSecret, *PrivateKey, time.Hour*24, time.Minute*20)
 
 	tokens, err := service.NewPairFromUserID(context.Background(), &pb.UserID{ID: userID})
 	if err != nil {
@@ -77,14 +81,10 @@ func TestNewPairFromUserID(t *testing.T) {
 	assert.Equal(t, userID, refreshTokenUserID)
 
 }
+
 func TestNewPairFromRefresh(t *testing.T) {
 
-	repo := mockrepo.NewMockTokenRepository()
-
 	userID := uuid.NewString()
-	repo.On("SaveToken", userID).Return(nil)
-
-	service := server.NewTokenService(repo, RefreshSecret, *PrivateKey, time.Hour*24, time.Minute*20)
 
 	token, err := service.GenerateRefreshToken(userID)
 	if err != nil {
@@ -196,12 +196,10 @@ func TestNewPairFromRefresh(t *testing.T) {
 	}
 
 }
+
 func TestDeleteUserToken(t *testing.T) {
 
-	repo := mockrepo.NewMockTokenRepository()
-
 	userID := uuid.NewString()
-	service := server.NewTokenService(repo, RefreshSecret, *PrivateKey, time.Hour*24, time.Minute*20)
 
 	token, err := service.GenerateRefreshToken(userID)
 	if err != nil {
@@ -254,16 +252,12 @@ func TestDeleteUserToken(t *testing.T) {
 
 func TestGetPublicKey(t *testing.T) {
 
-	repo := mockrepo.NewMockTokenRepository()
-	service := server.NewTokenService(repo, RefreshSecret, *PrivateKey, time.Hour*24, time.Minute*20)
-
 	pubKey, err := service.GetPublicKey(context.Background(), &pb.Empty{})
 	if err != nil {
 		t.Errorf("Service returned error: %v", err.Error())
 	}
 
 	assert.NotEmpty(t, pubKey.PublicKey)
-	assert.NotEmpty(t, pubKey.Iteration)
 	assert.Empty(t, pubKey.Error)
 
 }

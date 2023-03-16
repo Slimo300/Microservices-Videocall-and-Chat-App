@@ -1,9 +1,10 @@
 package redis
 
 import (
+	"crypto/rsa"
+	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -15,7 +16,7 @@ type redisTokenRepository struct {
 	*redis.Client
 }
 
-func NewRedisTokenRepository(address, password string) (*redisTokenRepository, error) {
+func NewRedisTokenRepository(address, password string) (repo.TokenRepository, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     address,
 		Password: password,
@@ -30,13 +31,39 @@ func NewRedisTokenRepository(address, password string) (*redisTokenRepository, e
 	}, nil
 }
 
+func (rdb *redisTokenRepository) GetPrivateKey() (*rsa.PrivateKey, error) {
+	res, err := rdb.Get("privateKey").Result()
+	if err != nil {
+		return nil, err
+	}
+
+	var privateKey *rsa.PrivateKey
+	if err := json.Unmarshal([]byte(res), privateKey); err != nil {
+		return nil, err
+	}
+
+	return privateKey, redis.Nil
+}
+
+func (rdb *redisTokenRepository) SetPrivateKey(key *rsa.PrivateKey) error {
+	byteKey, err := json.Marshal(key)
+	if err != nil {
+		return err
+	}
+
+	if err := rdb.Set("privateKey", byteKey, 0).Err(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (rdb *redisTokenRepository) SaveToken(token string, expiration time.Duration) error {
 	return rdb.Set(token, "1", expiration).Err()
 }
 
 func (rdb *redisTokenRepository) IsTokenValid(userID, tokenID string) (bool, error) {
 	pattern := fmt.Sprintf("%s:*%s", userID, tokenID)
-	log.Println(pattern)
 
 	keys, err := rdb.Keys(pattern).Result()
 	if err != nil {

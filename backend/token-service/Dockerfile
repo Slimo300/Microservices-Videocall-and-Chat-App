@@ -1,28 +1,34 @@
 # syntax=docker/dockerfile:1
 
-FROM golang:1.17-buster AS build
+FROM golang:1.19-buster AS build
 
 WORKDIR /app
 
-COPY backend/token-service/go.mod ./
-COPY backend/token-service/go.sum ./
+COPY go.mod ./
+COPY go.sum ./
 RUN go mod download
 
-COPY  backend/token-service/. ./
+COPY  . ./
 RUN CGO_ENABLED=0 go build -o tokenservice
 
 FROM gcr.io/distroless/base-debian10
 
 WORKDIR /
 
-ARG configFile=/config/docker-conf.yaml
-ARG rsaKey=private.pem
-
 COPY --from=build app/tokenservice /tokenservice
-COPY ${configFile} ./config.yaml
-COPY ${rsaKey} ./private.pem
 
-ENV CHAT_CONFIG=.
+# GRPC port for communication with other services
+ENV GRPC_PORT=9000
+# Address to connect with redis
+ENV REDIS_ADDRESS=localhost:6379
+# Redis password
+ENV REDIS_PASSWORD=redis
+# Secret used to sign refresh tokens
+ENV REFRESH_SECRET=secret
+# Refresh Token TTL
+ENV REFRESH_DURATION=86400s
+# Access Token TTL
+ENV ACCESS_DURATION=1200s
 
 EXPOSE 9000
 

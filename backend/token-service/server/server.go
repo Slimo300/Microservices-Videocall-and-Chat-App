@@ -1,17 +1,17 @@
 package server
 
 import (
+	"crypto/rand"
 	"crypto/rsa"
 	"time"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
 	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo"
-	"github.com/google/uuid"
+	"github.com/go-redis/redis"
 )
 
 type TokenService struct {
 	*pb.UnimplementedTokenServiceServer
-	iteration             uuid.UUID
 	repo                  repo.TokenRepository
 	refreshTokenSecret    string
 	accessTokenPrivateKey rsa.PrivateKey
@@ -19,15 +19,31 @@ type TokenService struct {
 	refreshTokenDuration  time.Duration
 }
 
-func NewTokenService(repo repo.TokenRepository, refreshSecret string, accessPrivKey rsa.PrivateKey,
-	refreshDuration, accessDuration time.Duration) *TokenService {
+// NewTokenService creates new token server
+func NewTokenService(repo repo.TokenRepository, refreshSecret string,
+	refreshDuration, accessDuration time.Duration) (*TokenService, error) {
+
+	privKey, err := repo.GetPrivateKey()
+	if err != nil && err != redis.Nil {
+		return nil, err
+	}
+
+	if err == redis.Nil {
+		privKey, err = rsa.GenerateKey(rand.Reader, 2048)
+		if err != nil {
+			return nil, err
+		}
+
+		if err = repo.SetPrivateKey(privKey); err != nil {
+			return nil, err
+		}
+	}
 
 	return &TokenService{
-		iteration:             uuid.New(),
 		repo:                  repo,
 		refreshTokenSecret:    refreshSecret,
-		accessTokenPrivateKey: accessPrivKey,
+		accessTokenPrivateKey: *privKey,
 		refreshTokenDuration:  refreshDuration,
 		accessTokenDuration:   accessDuration,
-	}
+	}, nil
 }
