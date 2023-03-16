@@ -1,5 +1,5 @@
-github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230315095155-e97205ae12ba h1:PPrCkhQBAlrSmJzpvLjkYvLhe8Q1ERW6Rdh/YmADbFI=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230315095155-e97205ae12ba/go.mod h1:N3SSG6kpSs4fbEBUCAwE12vVbDUmepuR6vVn7qy17u8=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230316150851-019fa64fb92c h1:n/lR3waYiMfhEF6w8Td2Uyu8dWXN0gkhAnpZY0MKG7Q=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230316150851-019fa64fb92c/go.mod h1:N3SSG6kpSs4fbEBUCAwE12vVbDUmepuR6vVn7qy17u8=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=

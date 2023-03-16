@@ -4,11 +4,11 @@ FROM golang:1.19-buster AS build
 
 WORKDIR /app
 
-COPY go.mod ./
-COPY go.sum ./
+COPY backend/token-service/go.mod ./
+COPY backend/token-service/go.sum ./
 RUN go mod download
 
-COPY  . ./
+COPY  backend/token-service/. ./
 RUN CGO_ENABLED=0 go build -o tokenservice
 
 FROM gcr.io/distroless/base-debian10
@@ -20,7 +20,7 @@ COPY --from=build app/tokenservice /tokenservice
 # GRPC port for communication with other services
 ENV GRPC_PORT=9000
 # Address to connect with redis
-ENV REDIS_ADDRESS=localhost:6379
+ENV REDIS_ADDRESS=redis:6379
 # Redis password
 ENV REDIS_PASSWORD=redis
 # Secret used to sign refresh tokens
