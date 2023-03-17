@@ -3,7 +3,8 @@ package email
 import (
 	"bytes"
 	"crypto/tls"
-	"log"
+	"errors"
+	"fmt"
 	"path/filepath"
 	"text/template"
 
@@ -12,53 +13,59 @@ import (
 )
 
 type SMTPEmailService struct {
-	EmailFrom             string
-	SMTPHost              string
-	SMTPPass              string
-	SMTPPort              int
-	SMTPUser              string
-	VerificationTemplate  *template.Template
-	ResetPasswordTemplate *template.Template
+	SMTPDialer *gomail.Dialer
+	Templates  map[string]*template.Template
+	EmailFrom  string
+	Origin     string
 }
 
 func NewSMTPService(emailDir, emailFrom, host string, port int, user, pass string) (*SMTPEmailService, error) {
 
-	verificationTemplates, err := template.ParseFiles(
-		filepath.Join(emailDir, "verification.html"),
-		filepath.Join(emailDir, "base.html"),
-		filepath.Join(emailDir, "styles.html"),
-	)
+	templateCache := make(map[string]*template.Template)
+
+	pages, err := filepath.Glob(fmt.Sprintf("%s/*.page.html", emailDir))
 	if err != nil {
 		return nil, err
 	}
 
-	resetPasswordTemplates, err := template.ParseFiles(
-		filepath.Join(emailDir, "reset.html"),
-		filepath.Join(emailDir, "base.html"),
-		filepath.Join(emailDir, "styles.html"),
-	)
-	if err != nil {
-		return nil, err
+	for _, page := range pages {
+		name := filepath.Base(page)
+
+		tmpl, err := template.New(name).ParseFiles(page)
+		if err != nil {
+			return nil, err
+		}
+
+		tmpl, err = tmpl.ParseGlob(fmt.Sprintf("%s/*.layout.html", emailDir))
+		if err != nil {
+			return nil, err
+		}
+
+		templateCache[name] = tmpl
 	}
+
+	d := gomail.NewDialer(host, port, user, pass)
+	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 
 	return &SMTPEmailService{
-		EmailFrom:             emailFrom,
-		SMTPHost:              host,
-		SMTPPass:              pass,
-		SMTPPort:              port,
-		SMTPUser:              user,
-		VerificationTemplate:  verificationTemplates,
-		ResetPasswordTemplate: resetPasswordTemplates,
+		SMTPDialer: d,
+		Templates:  templateCache,
+		EmailFrom:  emailFrom,
 	}, nil
 }
 
-// 👇 Email template parser
-func (srv SMTPEmailService) SendVerificationEmail(data EmailData) error {
+// Sending email
+func (srv SMTPEmailService) SendEmail(tmpl string, data EmailData) error {
 
 	var body bytes.Buffer
 
-	if err := srv.VerificationTemplate.ExecuteTemplate(&body, "verification.html", data); err != nil {
-		log.Fatal("Could not execute template", err)
+	t, ok := srv.Templates[tmpl]
+	if !ok {
+		return errors.New("Could not get template")
+	}
+
+	if err := t.Execute(&body, data); err != nil {
+		return err
 	}
 
 	m := gomail.NewMessage()
@@ -69,39 +76,9 @@ func (srv SMTPEmailService) SendVerificationEmail(data EmailData) error {
 	m.SetBody("text/html", body.String())
 	m.AddAlternative("text/plain", html2text.HTML2Text(body.String()))
 
-	d := gomail.NewDialer(srv.SMTPHost, srv.SMTPPort, srv.SMTPUser, srv.SMTPPass)
-	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
-
-	// Send Email
-	if err := d.DialAndSend(m); err != nil {
+	if err := srv.SMTPDialer.DialAndSend(m); err != nil {
 		return err
 	}
-	return nil
-}
 
-// 👇 Email template parser
-func (srv SMTPEmailService) SendResetPasswordEmail(data EmailData) error {
-
-	var body bytes.Buffer
-
-	if err := srv.ResetPasswordTemplate.ExecuteTemplate(&body, "reset.html", data); err != nil {
-		log.Fatal("Could not execute template", err)
-	}
-
-	m := gomail.NewMessage()
-
-	m.SetHeader("From", srv.EmailFrom)
-	m.SetHeader("To", data.Email)
-	m.SetHeader("Subject", data.Subject)
-	m.SetBody("text/html", body.String())
-	m.AddAlternative("text/plain", html2text.HTML2Text(body.String()))
-
-	d := gomail.NewDialer(srv.SMTPHost, srv.SMTPPort, srv.SMTPUser, srv.SMTPPass)
-	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
-
-	// Send Email
-	if err := d.DialAndSend(m); err != nil {
-		return err
-	}
 	return nil
 }

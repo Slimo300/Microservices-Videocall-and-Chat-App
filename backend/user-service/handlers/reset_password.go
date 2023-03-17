@@ -26,7 +26,7 @@ func (s *Server) ForgotPassword(c *gin.Context) {
 
 	if user != nil && resetCode != nil {
 		go func() {
-			s.EmailService.SendResetPasswordEmail(emails.EmailData{
+			s.EmailService.SendEmail("reset.page.html", emails.EmailData{
 				Subject: "Reset Password",
 				Email:   user.Email,
 				Name:    user.UserName,

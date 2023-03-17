@@ -45,7 +45,7 @@ func (s *Server) RegisterUser(c *gin.Context) {
 	}
 	if user != nil && verificationCode != nil {
 		go func() {
-			s.EmailService.SendVerificationEmail(email.EmailData{
+			s.EmailService.SendEmail("verification.page.html", email.EmailData{
 				Subject: "Verification Email",
 				Email:   user.Email,
 				Name:    user.UserName,

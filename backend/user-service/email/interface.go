@@ -1,8 +1,7 @@
 package email
 
 type EmailService interface {
-	SendVerificationEmail(data EmailData) error
-	SendResetPasswordEmail(data EmailData) error
+	SendEmail(tmpl string, data EmailData) error
 }
 
 type EmailData struct {
