@@ -50,8 +50,8 @@ func NewGRPCTokenClient(port string) (TokenClient, error) {
 	}, nil
 }
 
-func (c *gRPCTokenAuthClient) NewPairFromUserID(userID uuid.UUID) (*pb.TokenPair, error) {
-	response, err := c.client.NewPairFromUserID(context.Background(), &pb.UserID{ID: userID.String()})
+func (c *gRPCTokenAuthClient) NewPairFromUserID(ctx context.Context, userID uuid.UUID) (*pb.TokenPair, error) {
+	response, err := c.client.NewPairFromUserID(ctx, &pb.UserID{ID: userID.String()})
 	if err != nil {
 		return nil, err
 	}
@@ -61,8 +61,8 @@ func (c *gRPCTokenAuthClient) NewPairFromUserID(userID uuid.UUID) (*pb.TokenPair
 	return response, nil
 }
 
-func (c *gRPCTokenAuthClient) NewPairFromRefresh(refresh string) (*pb.TokenPair, error) {
-	response, err := c.client.NewPairFromRefresh(context.Background(), &pb.RefreshToken{Token: refresh})
+func (c *gRPCTokenAuthClient) NewPairFromRefresh(ctx context.Context, refresh string) (*pb.TokenPair, error) {
+	response, err := c.client.NewPairFromRefresh(ctx, &pb.RefreshToken{Token: refresh})
 	if err != nil {
 		return nil, err
 	}
@@ -72,8 +72,8 @@ func (c *gRPCTokenAuthClient) NewPairFromRefresh(refresh string) (*pb.TokenPair,
 	return response, nil
 }
 
-func (c *gRPCTokenAuthClient) DeleteUserToken(refresh string) error {
-	response, err := c.client.DeleteUserToken(context.Background(), &pb.RefreshToken{Token: refresh})
+func (c *gRPCTokenAuthClient) DeleteUserToken(ctx context.Context, refresh string) error {
+	response, err := c.client.DeleteUserToken(ctx, &pb.RefreshToken{Token: refresh})
 	if err != nil {
 		return err
 	}

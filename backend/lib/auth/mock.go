@@ -3,10 +3,12 @@
 package auth
 
 import (
-	rsa "crypto/rsa"
+	context "context"
 
 	pb "github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
 	mock "github.com/stretchr/testify/mock"
+
+	rsa "crypto/rsa"
 
 	uuid "github.com/google/uuid"
 )
@@ -16,13 +18,13 @@ type MockTokenClient struct {
 	mock.Mock
 }
 
-// DeleteUserToken provides a mock function with given fields: refresh
-func (_m *MockTokenClient) DeleteUserToken(refresh string) error {
-	ret := _m.Called(refresh)
+// DeleteUserToken provides a mock function with given fields: ctx, refresh
+func (_m *MockTokenClient) DeleteUserToken(ctx context.Context, refresh string) error {
+	ret := _m.Called(ctx, refresh)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string) error); ok {
-		r0 = rf(refresh)
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, refresh)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -46,25 +48,25 @@ func (_m *MockTokenClient) GetPublicKey() *rsa.PublicKey {
 	return r0
 }
 
-// NewPairFromRefresh provides a mock function with given fields: refresh
-func (_m *MockTokenClient) NewPairFromRefresh(refresh string) (*pb.TokenPair, error) {
-	ret := _m.Called(refresh)
+// NewPairFromRefresh provides a mock function with given fields: ctx, refresh
+func (_m *MockTokenClient) NewPairFromRefresh(ctx context.Context, refresh string) (*pb.TokenPair, error) {
+	ret := _m.Called(ctx, refresh)
 
 	var r0 *pb.TokenPair
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*pb.TokenPair, error)); ok {
-		return rf(refresh)
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*pb.TokenPair, error)); ok {
+		return rf(ctx, refresh)
 	}
-	if rf, ok := ret.Get(0).(func(string) *pb.TokenPair); ok {
-		r0 = rf(refresh)
+	if rf, ok := ret.Get(0).(func(context.Context, string) *pb.TokenPair); ok {
+		r0 = rf(ctx, refresh)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*pb.TokenPair)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(refresh)
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, refresh)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -72,25 +74,25 @@ func (_m *MockTokenClient) NewPairFromRefresh(refresh string) (*pb.TokenPair, er
 	return r0, r1
 }
 
-// NewPairFromUserID provides a mock function with given fields: userID
-func (_m *MockTokenClient) NewPairFromUserID(userID uuid.UUID) (*pb.TokenPair, error) {
-	ret := _m.Called(userID)
+// NewPairFromUserID provides a mock function with given fields: ctx, userID
+func (_m *MockTokenClient) NewPairFromUserID(ctx context.Context, userID uuid.UUID) (*pb.TokenPair, error) {
+	ret := _m.Called(ctx, userID)
 
 	var r0 *pb.TokenPair
 	var r1 error
-	if rf, ok := ret.Get(0).(func(uuid.UUID) (*pb.TokenPair, error)); ok {
-		return rf(userID)
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*pb.TokenPair, error)); ok {
+		return rf(ctx, userID)
 	}
-	if rf, ok := ret.Get(0).(func(uuid.UUID) *pb.TokenPair); ok {
-		r0 = rf(userID)
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *pb.TokenPair); ok {
+		r0 = rf(ctx, userID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*pb.TokenPair)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
-		r1 = rf(userID)
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = rf(ctx, userID)
 	} else {
 		r1 = ret.Error(1)
 	}

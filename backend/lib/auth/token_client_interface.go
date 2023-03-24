@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"crypto/rsa"
 	"net/http"
 	"strings"
@@ -13,9 +14,9 @@ import (
 
 // TokenClient is an interface for JWT token provider service
 type TokenClient interface {
-	NewPairFromUserID(userID uuid.UUID) (*pb.TokenPair, error)
-	NewPairFromRefresh(refresh string) (*pb.TokenPair, error)
-	DeleteUserToken(refresh string) error
+	NewPairFromUserID(ctx context.Context, userID uuid.UUID) (*pb.TokenPair, error)
+	NewPairFromRefresh(ctx context.Context, refresh string) (*pb.TokenPair, error)
+	DeleteUserToken(ctx context.Context, refresh string) error
 	GetPublicKey() *rsa.PublicKey
 }
 
