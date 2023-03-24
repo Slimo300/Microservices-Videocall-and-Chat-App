@@ -12,7 +12,7 @@ import (
 	"github.com/Slimo300/chat-tokenservice/internal/handlers"
 	repolayer "github.com/Slimo300/chat-tokenservice/internal/repo"
 	mockrepo "github.com/Slimo300/chat-tokenservice/internal/repo/mock"
-	"github.com/Slimo300/chat-tokenservice/pkg/pb"
+	"github.com/Slimo300/chat-tokenservice/pkg/client/pb"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"

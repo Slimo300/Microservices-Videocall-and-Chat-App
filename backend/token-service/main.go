@@ -11,7 +11,7 @@ import (
 	"github.com/Slimo300/chat-tokenservice/internal/config"
 	"github.com/Slimo300/chat-tokenservice/internal/handlers"
 	"github.com/Slimo300/chat-tokenservice/internal/repo/redis"
-	"github.com/Slimo300/chat-tokenservice/pkg/pb"
+	"github.com/Slimo300/chat-tokenservice/pkg/client/pb"
 	"google.golang.org/grpc"
 )
 
