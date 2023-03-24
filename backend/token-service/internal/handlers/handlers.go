@@ -1,4 +1,4 @@
-package server
+package handlers
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
-	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo"
+	"github.com/Slimo300/chat-tokenservice/internal/repo"
+	"github.com/Slimo300/chat-tokenservice/pkg/pb"
 	"github.com/golang-jwt/jwt"
 )
 

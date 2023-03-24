@@ -8,15 +8,16 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
-	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo/redis"
-	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/server"
+	"github.com/Slimo300/chat-tokenservice/internal/config"
+	"github.com/Slimo300/chat-tokenservice/internal/handlers"
+	"github.com/Slimo300/chat-tokenservice/internal/repo/redis"
+	"github.com/Slimo300/chat-tokenservice/pkg/pb"
 	"google.golang.org/grpc"
 )
 
 func main() {
 
-	config, err := loadConfig()
+	config, err := config.LoadConfigFromEnvironment()
 	if err != nil {
 		log.Fatalf("Couldn't read configuration: %v", err)
 	}
@@ -31,7 +32,7 @@ func main() {
 		log.Fatal("could not connect to redis")
 	}
 
-	s, err := server.NewTokenService(repo,
+	s, err := handlers.NewTokenService(repo,
 		config.RefreshTokenSecret,
 		config.RefreshDuration,
 		config.AccessDuration,

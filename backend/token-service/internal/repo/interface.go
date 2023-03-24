@@ -8,6 +8,9 @@ import (
 
 type TokenValue string
 
+const TOKEN_VALID TokenValue = "1"
+const TOKEN_BLACKLISTED TokenValue = "2"
+
 func StringToTokenValue(s string) TokenValue {
 	switch s {
 	case "1":
@@ -18,9 +21,6 @@ func StringToTokenValue(s string) TokenValue {
 		panic("Inalid conversion to TokenValue from string")
 	}
 }
-
-const TOKEN_VALID TokenValue = "1"
-const TOKEN_BLACKLISTED TokenValue = "2"
 
 type TokenRepository interface {
 	SaveToken(token string, expiration time.Duration) error
@@ -33,5 +33,5 @@ type TokenRepository interface {
 }
 
 var TokenBlacklistedError = errors.New("Token Blacklisted")
-var TooManyTokensFoundError = errors.New("Too many tokens")
+var TooManyTokensFoundError = errors.New("Too many tokens found")
 var TokenNotFoundError = errors.New("Token not found")

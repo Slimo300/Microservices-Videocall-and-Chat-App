@@ -5,11 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo"
+	"github.com/Slimo300/chat-tokenservice/internal/repo"
 	"github.com/go-redis/redis"
 )
 
@@ -40,7 +39,6 @@ func (rdb *redisTokenRepository) GetPrivateKey() (*rsa.PrivateKey, error) {
 
 	var privateKey rsa.PrivateKey
 	if err := json.Unmarshal([]byte(res), &privateKey); err != nil {
-		log.Println("Private key: ", res)
 		return nil, err
 	}
 

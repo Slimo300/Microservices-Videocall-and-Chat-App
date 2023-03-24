@@ -1,4 +1,4 @@
-package server_test
+package handlers_test
 
 import (
 	"context"
@@ -9,10 +9,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
-	repolayer "github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo"
-	mockrepo "github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo/mock"
-	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/server"
+	"github.com/Slimo300/chat-tokenservice/internal/handlers"
+	repolayer "github.com/Slimo300/chat-tokenservice/internal/repo"
+	mockrepo "github.com/Slimo300/chat-tokenservice/internal/repo/mock"
+	"github.com/Slimo300/chat-tokenservice/pkg/pb"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -23,7 +23,7 @@ var PrivateKey *rsa.PrivateKey
 var RefreshSecret string
 
 var repo *mockrepo.MockTokenRepository
-var service *server.TokenService
+var service *handlers.TokenService
 
 func TestMain(m *testing.M) {
 	// generate key
@@ -39,7 +39,7 @@ func TestMain(m *testing.M) {
 	repo.On("SaveToken", mock.AnythingOfType("string"), time.Hour*24).Return(nil)
 	repo.On("GetPrivateKey").Return(priv, nil)
 
-	service, err = server.NewTokenService(repo, RefreshSecret, time.Hour*24, time.Minute*20)
+	service, err = handlers.NewTokenService(repo, RefreshSecret, time.Hour*24, time.Minute*20)
 	if err != nil {
 		log.Fatal("Couldn't create token service")
 	}
