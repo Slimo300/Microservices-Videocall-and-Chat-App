@@ -17,7 +17,7 @@ WORKDIR /
 
 USER nonroot:nonroot
 
-ARG configFile=/config/docker-conf.yaml
+ARG configFile=/configs/docker-conf.yaml
 ARG certDir=/cert
 ARG templateDir=/backend/user-service/templates
 
