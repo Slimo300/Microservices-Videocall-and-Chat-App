@@ -19,10 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	TokenService_NewPairFromUserID_FullMethodName  = "/pb.TokenService/NewPairFromUserID"
-	TokenService_NewPairFromRefresh_FullMethodName = "/pb.TokenService/NewPairFromRefresh"
-	TokenService_DeleteUserToken_FullMethodName    = "/pb.TokenService/DeleteUserToken"
-	TokenService_GetPublicKey_FullMethodName       = "/pb.TokenService/GetPublicKey"
+	TokenService_NewPairFromUserID_FullMethodName  = "/tokens.TokenService/NewPairFromUserID"
+	TokenService_NewPairFromRefresh_FullMethodName = "/tokens.TokenService/NewPairFromRefresh"
+	TokenService_DeleteUserToken_FullMethodName    = "/tokens.TokenService/DeleteUserToken"
+	TokenService_GetPublicKey_FullMethodName       = "/tokens.TokenService/GetPublicKey"
 )
 
 // TokenServiceClient is the client API for TokenService service.
@@ -195,7 +195,7 @@ func _TokenService_GetPublicKey_Handler(srv interface{}, ctx context.Context, de
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var TokenService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "pb.TokenService",
+	ServiceName: "tokens.TokenService",
 	HandlerType: (*TokenServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

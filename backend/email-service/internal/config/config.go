@@ -16,7 +16,7 @@ type Config struct {
 
 	Origin string `mapstructure:"origin"`
 
-	EmailFrom string `mapstructure:"origin"`
+	EmailFrom string `mapstructure:"emailFrom"`
 	SMTPHost  string `mapstructure:"smtpHost"`
 	SMTPPort  int    `mapstructure:"smtpPort"`
 	SMTPUser  string `mapstructure:"smtpUser"`

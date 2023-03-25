@@ -6,6 +6,7 @@ import (
 
 	"github.com/Slimo300/chat-emailservice/pkg/client/pb"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type emailClient struct {
@@ -43,7 +44,7 @@ func (e *emailClient) SendResetPasswordEmail(ctx context.Context, data *pb.Email
 // NewGRPCEmailClient returns new email client with established grpc connection
 func NewGRPCEmailClient(address string) (EmailClient, error) {
 
-	conn, err := grpc.Dial(address, grpc.WithInsecure())
+	conn, err := grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}

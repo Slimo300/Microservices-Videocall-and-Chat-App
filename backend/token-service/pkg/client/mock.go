@@ -5,7 +5,7 @@ package client
 import (
 	context "context"
 
-	pb "github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
+	pb "github.com/Slimo300/chat-tokenservice/pkg/client/pb"
 	mock "github.com/stretchr/testify/mock"
 
 	rsa "crypto/rsa"

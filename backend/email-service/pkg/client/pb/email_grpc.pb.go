@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	EmailService_SendVerificationEmail_FullMethodName  = "/pb.EmailService/SendVerificationEmail"
-	EmailService_SendResetPasswordEmail_FullMethodName = "/pb.EmailService/SendResetPasswordEmail"
+	EmailService_SendVerificationEmail_FullMethodName  = "/emails.EmailService/SendVerificationEmail"
+	EmailService_SendResetPasswordEmail_FullMethodName = "/emails.EmailService/SendResetPasswordEmail"
 )
 
 // EmailServiceClient is the client API for EmailService service.
@@ -129,7 +129,7 @@ func _EmailService_SendResetPasswordEmail_Handler(srv interface{}, ctx context.C
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var EmailService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "pb.EmailService",
+	ServiceName: "emails.EmailService",
 	HandlerType: (*EmailServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

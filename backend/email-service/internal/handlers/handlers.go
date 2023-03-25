@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"text/template"
 
-	"github.com/Slimo300/chat-emailservice/pkg/pb"
+	"github.com/Slimo300/chat-emailservice/pkg/client/pb"
 	"github.com/k3a/html2text"
 	"gopkg.in/gomail.v2"
 )
@@ -55,6 +55,7 @@ func NewEmailService(emailDir, emailFrom, host string, port int, user, pass, ori
 		SMTPDialer: d,
 		Templates:  templateCache,
 		EmailFrom:  emailFrom,
+		Origin:     origin,
 	}, nil
 }
 

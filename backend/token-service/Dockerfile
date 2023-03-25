@@ -4,11 +4,11 @@ FROM golang:1.19-buster AS build
 
 WORKDIR /app
 
-COPY backend/token-service/go.mod ./
-COPY backend/token-service/go.sum ./
+COPY go.mod ./
+COPY go.sum ./
 RUN go mod download
 
-COPY  backend/token-service/. ./
+COPY  . ./
 RUN CGO_ENABLED=0 go build -o tokenservice
 
 FROM gcr.io/distroless/base-debian10

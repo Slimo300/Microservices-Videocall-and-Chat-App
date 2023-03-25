@@ -7,47 +7,48 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"reflect"
 	"syscall"
 	"time"
 
 	"github.com/Shopify/sarama"
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/database/orm"
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/handlers"
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/routes"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/kafka"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
+	"github.com/Slimo300/chat-groupservice/internal/config"
+	"github.com/Slimo300/chat-groupservice/internal/database/orm"
+	"github.com/Slimo300/chat-groupservice/internal/handlers"
+	"github.com/Slimo300/chat-groupservice/internal/routes"
+	"github.com/Slimo300/chat-tokenservice/pkg/client"
 )
 
 func main() {
 
-	config, err := configuration.LoadConfig(os.Getenv("CHAT_CONFIG"))
+	conf, err := config.LoadConfigFromEnvironment()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Couldn't read config")
 	}
 
-	db, err := orm.Setup(config.GroupService.DBType, config.GroupService.DBAddress)
+	db, err := orm.Setup(conf.DBAddress)
 	if err != nil {
 		log.Fatal(err)
 	}
-	storage, err := storage.NewS3Storage(config.S3Bucket, config.Origin)
+	storage, err := storage.NewS3Storage(conf.S3Bucket, conf.Origin)
 	if err != nil {
 		log.Fatalf("Error connecting to AWS S3: %v", err)
 	}
-	authService, err := auth.NewGRPCTokenClient(config.AuthAddress)
+	tokenClient, err := client.NewGRPCTokenClient(conf.TokenServiceAddress)
 	if err != nil {
 		log.Fatalf("Couldn't connect to grpc auth server: %v", err)
 	}
 
-	conf := sarama.NewConfig()
-	conf.ClientID = "groupsService"
-	conf.Version = sarama.V2_3_0_0
-	conf.Producer.Return.Successes = true
-	client, err := sarama.NewClient(config.BrokersAddresses, conf)
+	brokerConf := sarama.NewConfig()
+	brokerConf.ClientID = "groupsService"
+	brokerConf.Version = sarama.V2_3_0_0
+	brokerConf.Producer.Return.Successes = true
+	client, err := sarama.NewClient([]string{conf.BrokerAddress}, brokerConf)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -71,29 +72,27 @@ func main() {
 	server := handlers.Server{
 		DB:           db,
 		Storage:      storage,
-		TokenService: authService,
+		TokenClient:  tokenClient,
 		Emitter:      emitter,
 		Listener:     listener,
 		MaxBodyBytes: 4194304,
 	}
-	handler := routes.Setup(&server, config.Origin)
+	handler := routes.Setup(&server, conf.Origin)
 
 	go server.RunListener()
 
 	httpServer := &http.Server{
 		Handler: handler,
-		Addr:    fmt.Sprintf(":%s", config.GroupService.HTTPPort),
+		Addr:    fmt.Sprintf(":%s", conf.HTTPPort),
 	}
 	httpsServer := &http.Server{
 		Handler: handler,
-		Addr:    fmt.Sprintf(":%s", config.GroupService.HTTPSPort),
+		Addr:    fmt.Sprintf(":%s", conf.HTTPSPort),
 	}
 
 	errChan := make(chan error)
 
-	go func() {
-		errChan <- httpsServer.ListenAndServeTLS(config.Certificate, config.PrivKeyFile)
-	}()
+	go startHTTPSServer(httpsServer, conf.CertDir, errChan)
 	go func() { errChan <- httpServer.ListenAndServe() }()
 
 	quit := make(chan os.Signal, 1)
@@ -113,4 +112,20 @@ func main() {
 		log.Fatal(err)
 	}
 
+}
+
+func startHTTPSServer(httpsServer *http.Server, certDir string, errChan chan<- error) {
+	cert := filepath.Join(certDir, "cert.pem")
+	if _, err := os.Stat(cert); err != nil {
+		log.Printf("Couldn't start https server. No cert.pem or key.pem in %s\n", certDir)
+		return
+	}
+	key := filepath.Join(certDir, "key.pem")
+	if _, err := os.Stat(key); err != nil {
+		log.Printf("Couldn't start https server. No cert.pem or key.pem in %s\n", certDir)
+		return
+	}
+
+	log.Printf("HTTPS Server starting on: %s", httpsServer.Addr)
+	errChan <- httpsServer.ListenAndServeTLS(cert, key)
 }

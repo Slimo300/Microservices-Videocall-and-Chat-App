@@ -32,6 +32,8 @@ ENV SMTP_PORT=
 ENV SMTP_USER=
 # SMTP Password
 ENV SMTP_PASS=
+# Template Directory
+ENV TEMPLATE_DIR=/etc/templates
 
 EXPOSE 9000
 

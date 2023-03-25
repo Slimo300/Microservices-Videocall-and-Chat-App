@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
+	"github.com/Slimo300/chat-tokenservice/pkg/client/pb"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"

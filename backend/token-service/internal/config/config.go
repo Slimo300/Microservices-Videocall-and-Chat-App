@@ -12,14 +12,14 @@ import (
 
 // Config holds token service configuration
 type Config struct {
-	GRPCPort string
+	GRPCPort string `mapstructure:"grpcPort"`
 
-	RedisAddress  string
-	RedisPassword string
+	RedisAddress  string `mapstructure:"redisAddress"`
+	RedisPassword string `mapstructure:"redisPassword"`
 
-	AccessDuration     time.Duration
-	RefreshDuration    time.Duration
-	RefreshTokenSecret string
+	AccessDuration     time.Duration `mapstructure:"accessDuration"`
+	RefreshDuration    time.Duration `mapstructure:"refreshDuration"`
+	RefreshTokenSecret string        `mapstructure:"secret"`
 }
 
 // LoadConfigFromEnvironment loads token service from environment variables and returns an error

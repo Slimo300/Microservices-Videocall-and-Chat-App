@@ -10,7 +10,7 @@ import (
 
 	"github.com/Slimo300/chat-emailservice/internal/config"
 	"github.com/Slimo300/chat-emailservice/internal/handlers"
-	"github.com/Slimo300/chat-emailservice/pkg/pb"
+	"github.com/Slimo300/chat-emailservice/pkg/client/pb"
 	"google.golang.org/grpc"
 )
 

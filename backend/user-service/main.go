@@ -7,28 +7,29 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
 	"github.com/Shopify/sarama"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/configuration"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/kafka"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
-	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/database/orm"
-	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/email"
-	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/handlers"
-	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/routes"
+	emails "github.com/Slimo300/chat-emailservice/pkg/client"
+	tokens "github.com/Slimo300/chat-tokenservice/pkg/client"
+	"github.com/Slimo300/chat-userservice/internal/config"
+	"github.com/Slimo300/chat-userservice/internal/database/orm"
+	"github.com/Slimo300/chat-userservice/internal/handlers"
+	"github.com/Slimo300/chat-userservice/internal/routes"
 )
 
 func main() {
 
-	config, err := configuration.LoadConfig(os.Getenv("CHAT_CONFIG"))
+	conf, err := config.LoadConfigFromEnvironment()
 	if err != nil {
 		log.Fatalf("Error when loading configuration: %v", err)
 	}
 	// Setting up MySQL connection
-	db, err := orm.Setup(config.UserService.DBType, config.UserService.DBAddress, orm.WithConfig(orm.DBConfig{
+	db, err := orm.Setup(conf.DBAddress, orm.WithConfig(orm.DBConfig{
 		VerificationCodeDuration: 24 * time.Hour,
 		ResetCodeDuration:        10 * time.Minute,
 	}))
@@ -37,17 +38,17 @@ func main() {
 	}
 
 	// connecting to authentication server
-	tokenService, err := auth.NewGRPCTokenClient(config.AuthAddress)
+	tokenClient, err := tokens.NewGRPCTokenClient(conf.TokenServiceAddress)
 	if err != nil {
 		log.Fatalf("Error when connecting to token service: %v", err)
 	}
 
 	// kafka broker setup
-	conf := sarama.NewConfig()
-	conf.ClientID = "userService"
-	conf.Version = sarama.V2_3_0_0
-	conf.Producer.Return.Successes = true
-	client, err := sarama.NewClient(config.BrokersAddresses, conf)
+	brokerConf := sarama.NewConfig()
+	brokerConf.ClientID = "userService"
+	brokerConf.Version = sarama.V2_3_0_0
+	brokerConf.Producer.Return.Successes = true
+	client, err := sarama.NewClient([]string{conf.BrokerAddress}, brokerConf)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -58,41 +59,38 @@ func main() {
 	}
 
 	// Setup for handling image uploads to s3 and email sending
-	storage, err := storage.NewS3Storage(config.S3Bucket, config.Origin)
+	storage, err := storage.NewS3Storage(conf.S3Bucket, conf.Origin)
 	if err != nil {
 		log.Fatal(err)
 	}
-	emailService, err := email.NewSMTPService(config.EmailTemplateDir, config.EmailFrom, config.SMTPHost, config.SMTPPort, config.SMTPUser, config.SMTPPass)
+	emailClient, err := emails.NewGRPCEmailClient(conf.EmailServiceAddress)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	server := &handlers.Server{
-		Origin:       config.Origin,
 		DB:           db,
-		TokenService: tokenService,
+		TokenClient:  tokenClient,
+		EmailClient:  emailClient,
 		Emitter:      emitter,
 		ImageStorage: storage,
-		EmailService: emailService,
 		MaxBodyBytes: 4194304,
-		Domain:       config.Domain,
+		Domain:       conf.Domain,
 	}
-	handler := routes.Setup(server, config.Origin)
+	handler := routes.Setup(server, conf.Origin)
 
 	httpServer := &http.Server{
 		Handler: handler,
-		Addr:    fmt.Sprintf(":%s", config.UserService.HTTPPort),
+		Addr:    fmt.Sprintf(":%s", conf.HTTPPort),
 	}
 	httpsServer := &http.Server{
 		Handler: handler,
-		Addr:    fmt.Sprintf(":%s", config.UserService.HTTPSPort),
+		Addr:    fmt.Sprintf(":%s", conf.HTTPSPort),
 	}
 
 	errChan := make(chan error)
 
-	go func() {
-		errChan <- httpsServer.ListenAndServeTLS(config.Certificate, config.PrivKeyFile)
-	}()
+	go startHTTPSServer(httpsServer, conf.CertDir, errChan)
 	go func() { errChan <- httpServer.ListenAndServe() }()
 
 	quit := make(chan os.Signal, 1)
@@ -112,4 +110,22 @@ func main() {
 		log.Fatal(err)
 	}
 
+}
+
+func startHTTPSServer(httpsServer *http.Server, certDir string, errChan chan<- error) {
+	cert := filepath.Join(certDir, "cert.pem")
+	log.Println(cert)
+	if _, err := os.Stat(cert); err != nil {
+		log.Printf("Couldn't start https server. No cert.pem or key.pem in %s\n", certDir)
+		return
+	}
+
+	key := filepath.Join(certDir, "key.pem")
+	if _, err := os.Stat(key); err != nil {
+		log.Printf("Couldn't start https server. No cert.pem or key.pem in %s\n", certDir)
+		return
+	}
+
+	log.Printf("HTTPS Server starting on: %s", httpsServer.Addr)
+	errChan <- httpsServer.ListenAndServeTLS(cert, key)
 }

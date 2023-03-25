@@ -34,31 +34,6 @@ services:
     networks:
       - chatnet
 
-  redis:
-    image: docker.io/bitnami/redis:latest
-    hostname: redis
-    container_name: redis
-    volumes:
-      - "redis_data:/bitnami/redis/data"
-    environment:
-      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG
-      - REDIS_PASSWORD=redis
-    networks:
-      - chatnet
-  tokenservice:
-    build:
-      context: .
-      dockerfile: backend/token-service/Dockerfile
-    ports:
-      - "9000:9000"
-    container_name: tokenservice
-    hostname: tokenservice
-    networks: 
-      - chatnet
-    depends_on:
-      - redis
-    restart: on-failure
-
   groupmysql:
     image: mysql
     container_name: groupmysql
@@ -73,9 +48,7 @@ services:
       MYSQL_PASSWORD: password12
       MYSQL_ROOT_PASSWORD: password123
   groupservice:
-    build:
-      context: .
-      dockerfile: backend/group-service/Dockerfile
+    build: backend/group-service
     container_name: groupservice
     hostname: groupservice
     networks: 
@@ -85,11 +58,21 @@ services:
     environment:
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      MYSQL_ADDRESS: chat:password12@tcp(groupmysql:3306)/chatapp
+      HTTP_PORT: 8080
+      HTTPS_PORT: 8090
+      TOKEN_SERVICE_ADDRESS: tokenservice:9000
+      ORIGIN: http://localhost:3000
+      BROKER_ADDRESS: kafka:9092
+      S3_BUCKET: ${S3_BUCKET}
+      CERT_DIR: /cert
     depends_on:
       - kafka
       - tokenservice
       - groupmysql
     restart: on-failure
+    volumes:
+      - ${PWD}/cert:/cert
 
   messagemysql:
     image: mysql
@@ -105,9 +88,7 @@ services:
       MYSQL_PASSWORD: password12
       MYSQL_ROOT_PASSWORD: password123
   messageservice:
-    build:
-      context: .
-      dockerfile: backend/message-service/Dockerfile
+    build: backend/message-service
     container_name: messageservice
     hostname: messageservice
     networks: 
@@ -117,10 +98,128 @@ services:
     environment:
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      MYSQL_ADDRESS: chat:password12@tcp(messagemysql:3306)/chatapp
+      HTTP_PORT: 8080
+      HTTPS_PORT: 8090
+      TOKEN_SERVICE_ADDRESS: tokenservice:9000
+      ORIGIN: http://localhost:3000
+      BROKER_ADDRESS: kafka:9092
+      S3_BUCKET: ${S3_BUCKET}
+      CERT_DIR: /cert
     depends_on:
       - kafka
       - tokenservice
       - messagemysql
+    restart: on-failure
+    volumes:
+      - ${PWD}/cert:/cert
+
+  wsmysql:
+    image: mysql
+    container_name: wsmysql
+    hostname: wsmysql
+    networks:
+      - chatnet
+    volumes:
+      - wsmysql_data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: chatapp
+      MYSQL_USER: chat
+      MYSQL_PASSWORD: password12
+      MYSQL_ROOT_PASSWORD: password123
+  wsservice:
+    build: backend/ws-service
+    container_name: wsservice
+    hostname: wsservice
+    environment:
+      MYSQL_ADDRESS: chat:password12@tcp(wsmysql:3306)/chatapp
+      HTTP_PORT: 8080
+      HTTPS_PORT: 8090
+      TOKEN_SERVICE_ADDRESS: tokenservice:9000
+      ORIGIN: http://localhost:3000
+      BROKER_ADDRESS: kafka:9092
+      CERT_DIR: /cert
+    networks: 
+      - chatnet
+    ports:
+      - "8084:8080"
+    depends_on:
+      - kafka
+      - tokenservice
+      - wsmysql
+    restart: on-failure
+    volumes:
+      - ${PWD}/cert:/cert
+
+  elasticsearch:
+    image: docker.io/bitnami/elasticsearch:8
+    hostname: elastic
+    networks:
+      - chatnet 
+    volumes:
+      - "elasticsearch_data:/bitnami/elasticsearch"
+  searchservice:
+    build: backend/search-service
+    container_name: searchservice
+    hostname: searchservice
+    networks:
+      - chatnet
+    ports:
+      - "8085:8080"
+    environment:
+      ES_ADDRESS: "http://elastic:9200"
+      ES_USER:
+      ES_PASSWORD:
+      HTTP_PORT: 8080
+      HTTPS_PORT: 8090
+      TOKEN_SERVICE_ADDRESS: tokenservice:9000
+      ORIGIN: http://localhost:3000
+      BROKER_ADDRESS: kafka:9092
+      S3_BUCKET: ${S3_BUCKET}
+      CERT_DIR: /cert
+    depends_on:
+      - kafka
+      - tokenservice
+      - elasticsearch
+    restart: on-failure
+    volumes:
+      - ${PWD}/cert:/cert
+
+  react:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: frontend
+    hostname: frontend
+    ports:
+      - "3000:80"
+
+  redis:
+    image: docker.io/bitnami/redis:latest
+    hostname: redis
+    container_name: redis
+    volumes:
+      - "redis_data:/bitnami/redis/data"
+    environment:
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG
+      - REDIS_PASSWORD=redis
+    networks:
+      - chatnet
+  tokenservice:
+    build: backend/token-service
+    environment:
+      GRPC_PORT: 9000
+      REDIS_ADDRESS: redis:6379
+      REDIS_PASSWORD: redis
+      REFRESH_SECRET: secret
+      REFRESH_DURATION: 86400s
+      ACCESS_DURATION: 1200s
+    container_name: tokenservice
+    hostname: tokenservice
+    networks: 
+      - chatnet
+    depends_on:
+      - redis
     restart: on-failure
 
   usermysql:
@@ -137,14 +236,22 @@ services:
       MYSQL_PASSWORD: password12
       MYSQL_ROOT_PASSWORD: password123
   userservice:
-    build:
-      context: .
-      dockerfile: backend/user-service/Dockerfile
+    build: backend/user-service
     container_name: userservice
     hostname: userservice
     environment:
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      MYSQL_ADDRESS: chat:password12@tcp(usermysql:3306)/chatapp
+      HTTP_PORT: 8080
+      HTTPS_PORT: 8090
+      TOKEN_SERVICE_ADDRESS: tokenservice:9000
+      EMAIL_SERVICE_ADDRESS: emailservice:9000
+      ORIGIN: http://localhost:3000
+      DOMAIN: localhost
+      BROKER_ADDRESS: kafka:9092
+      S3_BUCKET: ${S3_BUCKET}
+      CERT_DIR: /cert
     networks: 
       - chatnet
     ports:
@@ -152,69 +259,27 @@ services:
     depends_on:
       - kafka
       - tokenservice
+      - emailservice
       - usermysql
     restart: on-failure
-
-  wsmysql:
-    image: mysql
-    container_name: wsmysql
-    hostname: wsmysql
-    networks:
-      - chatnet
     volumes:
-      - wsmysql_data:/var/lib/mysql
+      - ${PWD}/cert:/cert
+
+  emailservice:
+    build: backend/email-service
+    container_name: emailservice
+    hostname: emailservice
     environment:
-      MYSQL_DATABASE: chatapp
-      MYSQL_USER: chat
-      MYSQL_PASSWORD: password12
-      MYSQL_ROOT_PASSWORD: password123
-  wsservice:
-    build:
-      context: .
-      dockerfile: backend/ws-service/Dockerfile
-    container_name: wsservice
-    hostname: wsservice
-    networks: 
-      - chatnet
-    ports:
-      - "8084:8080"
-    depends_on:
-      - kafka
-      - tokenservice
-      - wsmysql
-    restart: on-failure
-
-  elasticsearch:
-    image: docker.io/bitnami/elasticsearch:8
-    hostname: elastic
-    networks:
-      - chatnet 
-    volumes:
-      - "elasticsearch_data:/bitnami/elasticsearch"
-  searchservice:
-    build:
-      context: .
-      dockerfile: backend/search-service/Dockerfile
-    container_name: searchservice
-    hostname: searchservice
+      GRPC_PORT: 9000
+      ORIGIN: http://localhost:3000
+      EMAIL_FROM: MicroChat@mail.com
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
     networks:
       - chatnet
-    ports:
-      - "8085:8080"
-    depends_on:
-      - kafka
-      - tokenservice
-      - elasticsearch
     restart: on-failure
-
-  react:
-    build:
-      context: .
-      dockerfile: frontend/Dockerfile
-    container_name: frontend
-    hostname: frontend
-    ports:
-      - "3000:80"
 
 volumes:
   zookeeper_data:

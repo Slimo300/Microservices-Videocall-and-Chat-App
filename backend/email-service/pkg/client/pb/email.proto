@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package pb;
+package emails;
 option go_package="/pb";
 
 service EmailService {
