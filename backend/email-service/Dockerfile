@@ -33,7 +33,7 @@ ENV SMTP_USER=
 # SMTP Password
 ENV SMTP_PASS=
 # Template Directory
-ENV TEMPLATE_DIR=/etc/templates
+ENV TEMPLATE_DIR=/templates
 
 EXPOSE 9000
 
