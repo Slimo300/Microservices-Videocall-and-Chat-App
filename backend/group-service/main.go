@@ -7,20 +7,15 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"path/filepath"
-	"reflect"
 	"syscall"
 	"time"
 
-	"github.com/Shopify/sarama"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/kafka"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
 	"github.com/Slimo300/chat-groupservice/internal/config"
 	"github.com/Slimo300/chat-groupservice/internal/database/orm"
+	"github.com/Slimo300/chat-groupservice/internal/eventprocessor"
 	"github.com/Slimo300/chat-groupservice/internal/handlers"
 	"github.com/Slimo300/chat-groupservice/internal/routes"
+	"github.com/Slimo300/chat-groupservice/internal/storage"
 	"github.com/Slimo300/chat-tokenservice/pkg/client"
 )
 
@@ -44,42 +39,16 @@ func main() {
 		log.Fatalf("Couldn't connect to grpc auth server: %v", err)
 	}
 
-	brokerConf := sarama.NewConfig()
-	brokerConf.ClientID = "groupsService"
-	brokerConf.Version = sarama.V2_3_0_0
-	brokerConf.Producer.Return.Successes = true
-	client, err := sarama.NewClient([]string{conf.BrokerAddress}, brokerConf)
+	emiter, listener, err := kafkaSetup([]string{conf.BrokerAddress})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error setting up kafka: %v", err)
 	}
 
-	emitter, err := kafka.NewKafkaEventEmiter(client)
-	if err != nil {
-		log.Fatal(err)
-	}
-	mapper := msgqueue.NewDynamicEventMapper()
-	if err := mapper.RegisterTypes(
-		reflect.TypeOf(events.UserRegisteredEvent{}),
-		reflect.TypeOf(events.UserPictureModifiedEvent{}),
-	); err != nil {
-		log.Fatal(err)
-	}
-	listener, err := kafka.NewKafkaEventListener(client, mapper, kafka.KafkaTopic{Name: "users"})
-	if err != nil {
-		log.Fatal(err)
-	}
+	eventProcessor := eventprocessor.NewEventProcessor(db, listener)
+	go eventProcessor.ProcessEvents()
 
-	server := handlers.Server{
-		DB:           db,
-		Storage:      storage,
-		TokenClient:  tokenClient,
-		Emitter:      emitter,
-		Listener:     listener,
-		MaxBodyBytes: 4194304,
-	}
-	handler := routes.Setup(&server, conf.Origin)
-
-	go server.RunListener()
+	server := handlers.NewServer(db, storage, tokenClient, emiter)
+	handler := routes.Setup(server, conf.Origin)
 
 	httpServer := &http.Server{
 		Handler: handler,
@@ -112,20 +81,4 @@ func main() {
 		log.Fatal(err)
 	}
 
-}
-
-func startHTTPSServer(httpsServer *http.Server, certDir string, errChan chan<- error) {
-	cert := filepath.Join(certDir, "cert.pem")
-	if _, err := os.Stat(cert); err != nil {
-		log.Printf("Couldn't start https server. No cert.pem or key.pem in %s\n", certDir)
-		return
-	}
-	key := filepath.Join(certDir, "key.pem")
-	if _, err := os.Stat(key); err != nil {
-		log.Printf("Couldn't start https server. No cert.pem or key.pem in %s\n", certDir)
-		return
-	}
-
-	log.Printf("HTTPS Server starting on: %s", httpsServer.Addr)
-	errChan <- httpsServer.ListenAndServeTLS(cert, key)
 }

@@ -59,11 +59,10 @@ func (s *MembersTestSuite) SetupSuite() {
 	db.On("DeleteGroup", s.IDs["userOK"], s.IDs["groupOK"]).
 		Return(models.Group{ID: s.IDs["groupOK"]}, nil)
 
-	emitter := new(mockqueue.MockEmitter)
-	emitter.On("Emit", mock.Anything).Return(nil)
+	emiter := new(mockqueue.MockEmitter)
+	emiter.On("Emit", mock.Anything).Return(nil)
 
-	s.server = handlers.NewServer(db, nil, nil)
-	s.server.Emitter = emitter
+	s.server = handlers.NewServer(db, nil, nil, emiter)
 }
 
 func (s *MembersTestSuite) TestGrantPriv() {

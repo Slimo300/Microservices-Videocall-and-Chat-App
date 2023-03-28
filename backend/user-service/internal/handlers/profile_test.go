@@ -10,10 +10,10 @@ import (
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
 	mockqueue "github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/mock"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
 	mockdb "github.com/Slimo300/chat-userservice/internal/database/mock"
 	"github.com/Slimo300/chat-userservice/internal/handlers"
 	"github.com/Slimo300/chat-userservice/internal/models"
+	"github.com/Slimo300/chat-userservice/internal/storage"
 	limits "github.com/gin-contrib/size"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

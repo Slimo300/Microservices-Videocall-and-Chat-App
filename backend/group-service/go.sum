@@ -47,8 +47,6 @@ github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-2023022617185
 github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20230226171856-6155e6862233/go.mod h1:GPFcoQIeRHM/6yxyVfbs/Wyysdf3PcnEZmuHiHp3OFg=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230226231353-a01ab2acbc4e h1:HWVnx7rBrboaUfZdj0AzymYNjFa4CKS8TefedG96RWU=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230226231353-a01ab2acbc4e/go.mod h1:4B7YKdejTwNIP9R3qL9NpQI9jg/xlnIh8nks4Xj1Ssg=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20230226231353-a01ab2acbc4e h1:VZI08PIpwcH9KH84EPDtp2ooaNXnzOb9I/MqZ8DLZZ0=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20230226231353-a01ab2acbc4e/go.mod h1:GkPzqscE9NKIdkUjwOXwJ3dPJtIZl/h1lWfTZWMvVn8=
 github.com/Slimo300/chat-tokenservice v0.0.0-20230325105518-c17eca6ac729 h1:1I9hy+FS623npcKAWpT/lVqMnmO9lHh44VJSDmaR0Gs=
 github.com/Slimo300/chat-tokenservice v0.0.0-20230325105518-c17eca6ac729/go.mod h1:bHBL9aT656wD+H+7iGDCuqbPp9DqR28aP6o998VL6F4=
 github.com/aws/aws-sdk-go v1.44.180 h1:VLZuAHI9fa/3WME5JjpVjcPCNfpGHVMiHx8sLHWhMgI=

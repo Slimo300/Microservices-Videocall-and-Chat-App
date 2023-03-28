@@ -7,18 +7,14 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"path/filepath"
-	"reflect"
 	"syscall"
 	"time"
 
-	"github.com/Shopify/sarama"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/kafka"
 	"github.com/Slimo300/chat-wsservice/internal/cache"
 	"github.com/Slimo300/chat-wsservice/internal/config"
 	"github.com/Slimo300/chat-wsservice/internal/database"
+	"github.com/Slimo300/chat-wsservice/internal/eventprocessor"
 	"github.com/Slimo300/chat-wsservice/internal/handlers"
 	"github.com/Slimo300/chat-wsservice/internal/routes"
 	"github.com/Slimo300/chat-wsservice/internal/ws"
@@ -42,52 +38,29 @@ func main() {
 		log.Fatalf("Error when connecting to token service: %v", err)
 	}
 
-	brokerConf := sarama.NewConfig()
-	brokerConf.ClientID = "websocketService"
-	brokerConf.Version = sarama.V2_3_0_0
-	brokerConf.Producer.Return.Successes = true
-	client, err := sarama.NewClient([]string{conf.BrokerAddress}, brokerConf)
+	emiter, listener, err := kafkaSetup([]string{conf.BrokerAddress})
 	if err != nil {
-		log.Fatal(err)
-	}
-
-	emitter, err := kafka.NewKafkaEventEmiter(client)
-	if err != nil {
-		log.Fatal(err)
-	}
-	mapper := msgqueue.NewDynamicEventMapper()
-	if err := mapper.RegisterTypes(
-		reflect.TypeOf(events.GroupDeletedEvent{}),
-		reflect.TypeOf(events.MemberCreatedEvent{}),
-		reflect.TypeOf(events.MemberDeletedEvent{}),
-		reflect.TypeOf(events.MemberUpdatedEvent{}),
-		reflect.TypeOf(events.MessageDeletedEvent{}),
-		reflect.TypeOf(events.InviteSentEvent{}),
-		reflect.TypeOf(events.InviteRespondedEvent{}),
-	); err != nil {
-		log.Fatal(err)
-	}
-	listener, err := kafka.NewKafkaEventListener(client, mapper, kafka.KafkaTopic{Name: "messages"}, kafka.KafkaTopic{Name: "groups"})
-	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error setting up kafka: %v", err)
 	}
 
 	messageChan := make(chan *ws.Message)
 	actionChan := make(chan msgqueue.Event)
+
+	eventProcessor := eventprocessor.NewEventProcessor(db, listener, actionChan)
+	go eventProcessor.ProcessEvents()
+
 	server := &handlers.Server{
 		DB:          db,
 		CodeCache:   cache.NewCache(5 * time.Second),
 		TokenClient: tokenClient,
-		Emitter:     emitter,
+		Emitter:     emiter,
 		Listener:    listener,
 		Hub:         ws.NewHub(messageChan, actionChan, conf.Origin),
 		MessageChan: messageChan,
-		EventChan:   actionChan,
 	}
+
 	go server.RunHub()
 	handler := routes.Setup(server, conf.Origin)
-
-	go server.RunListener()
 
 	httpServer := &http.Server{
 		Handler: handler,
@@ -120,20 +93,4 @@ func main() {
 		log.Fatal(err)
 	}
 
-}
-
-func startHTTPSServer(httpsServer *http.Server, certDir string, errChan chan<- error) {
-	cert := filepath.Join(certDir, "cert.pem")
-	if _, err := os.Stat(cert); err != nil {
-		log.Printf("Couldn't start https server. No cert.pem or key.pem in %s\n", certDir)
-		return
-	}
-	key := filepath.Join(certDir, "key.pem")
-	if _, err := os.Stat(key); err != nil {
-		log.Printf("Couldn't start https server. No cert.pem or key.pem in %s\n", certDir)
-		return
-	}
-
-	log.Printf("HTTPS Server starting on: %s", httpsServer.Addr)
-	errChan <- httpsServer.ListenAndServeTLS(cert, key)
 }

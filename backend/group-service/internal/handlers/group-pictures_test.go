@@ -8,9 +8,9 @@ import (
 	"testing"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
 	dbmock "github.com/Slimo300/chat-groupservice/internal/database/mock"
 	"github.com/Slimo300/chat-groupservice/internal/handlers"
+	"github.com/Slimo300/chat-groupservice/internal/storage"
 	limits "github.com/gin-contrib/size"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -50,7 +50,7 @@ func (s *GroupPicturesTestSuite) SetupSuite() {
 	storage.On("DeleteFile", mock.Anything).Return(nil)
 	storage.On("UploadFile", mock.Anything, mock.Anything).Return(nil)
 
-	s.server = handlers.NewServer(db, storage, nil)
+	s.server = handlers.NewServer(db, storage, nil, nil)
 }
 
 func (s *GroupPicturesTestSuite) TestDeleteGroupProfilePicture() {

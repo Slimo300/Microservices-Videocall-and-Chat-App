@@ -8,10 +8,10 @@ import (
 	"testing"
 
 	mockqueue "github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/mock"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
 	mockdb "github.com/Slimo300/chat-groupservice/internal/database/mock"
 	"github.com/Slimo300/chat-groupservice/internal/handlers"
 	"github.com/Slimo300/chat-groupservice/internal/models"
+	"github.com/Slimo300/chat-groupservice/internal/storage"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
@@ -45,14 +45,13 @@ func (s *GroupTestSuite) SetupSuite() {
 	db.On("CreateGroup", s.IDs["user1"], "New Group").Return(models.Group{Name: "New Group", Members: []models.Member{{ID: s.IDs["member"]}}}, nil)
 
 	// Handlers don't handle emitter errors so there is no need to mock one
-	emitter := new(mockqueue.MockEmitter)
-	emitter.On("Emit", mock.Anything).Return(nil)
+	emiter := new(mockqueue.MockEmitter)
+	emiter.On("Emit", mock.Anything).Return(nil)
 
 	storage := new(storage.MockStorage)
 	storage.On("DeleteFile", mock.Anything).Return(nil)
 
-	s.server = handlers.NewServer(db, storage, nil)
-	s.server.Emitter = emitter
+	s.server = handlers.NewServer(db, storage, nil, emiter)
 }
 
 func (s *GroupTestSuite) TestGetUserGroups() {

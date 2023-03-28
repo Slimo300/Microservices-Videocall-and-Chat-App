@@ -7,19 +7,17 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 	"time"
 
-	"github.com/Shopify/sarama"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/kafka"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
 	emails "github.com/Slimo300/chat-emailservice/pkg/client"
 	tokens "github.com/Slimo300/chat-tokenservice/pkg/client"
+
 	"github.com/Slimo300/chat-userservice/internal/config"
 	"github.com/Slimo300/chat-userservice/internal/database/orm"
 	"github.com/Slimo300/chat-userservice/internal/handlers"
 	"github.com/Slimo300/chat-userservice/internal/routes"
+	"github.com/Slimo300/chat-userservice/internal/storage"
 )
 
 func main() {
@@ -43,19 +41,9 @@ func main() {
 		log.Fatalf("Error when connecting to token service: %v", err)
 	}
 
-	// kafka broker setup
-	brokerConf := sarama.NewConfig()
-	brokerConf.ClientID = "userService"
-	brokerConf.Version = sarama.V2_3_0_0
-	brokerConf.Producer.Return.Successes = true
-	client, err := sarama.NewClient([]string{conf.BrokerAddress}, brokerConf)
+	emiter, err := kafkaSetup([]string{conf.BrokerAddress})
 	if err != nil {
-		log.Fatal(err)
-	}
-
-	emitter, err := kafka.NewKafkaEventEmiter(client)
-	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error setting up kafka: %v", err)
 	}
 
 	// Setup for handling image uploads to s3 and email sending
@@ -72,7 +60,7 @@ func main() {
 		DB:           db,
 		TokenClient:  tokenClient,
 		EmailClient:  emailClient,
-		Emitter:      emitter,
+		Emitter:      emiter,
 		ImageStorage: storage,
 		MaxBodyBytes: 4194304,
 		Domain:       conf.Domain,
@@ -110,22 +98,4 @@ func main() {
 		log.Fatal(err)
 	}
 
-}
-
-func startHTTPSServer(httpsServer *http.Server, certDir string, errChan chan<- error) {
-	cert := filepath.Join(certDir, "cert.pem")
-	log.Println(cert)
-	if _, err := os.Stat(cert); err != nil {
-		log.Printf("Couldn't start https server. No cert.pem or key.pem in %s\n", certDir)
-		return
-	}
-
-	key := filepath.Join(certDir, "key.pem")
-	if _, err := os.Stat(key); err != nil {
-		log.Printf("Couldn't start https server. No cert.pem or key.pem in %s\n", certDir)
-		return
-	}
-
-	log.Printf("HTTPS Server starting on: %s", httpsServer.Addr)
-	errChan <- httpsServer.ListenAndServeTLS(cert, key)
 }

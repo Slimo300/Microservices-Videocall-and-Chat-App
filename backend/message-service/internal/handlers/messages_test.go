@@ -76,7 +76,6 @@ func (s *MessageTestSuite) SetupSuite() {
 		nil,
 		mockEmit,
 		nil,
-		nil,
 	)
 }
 

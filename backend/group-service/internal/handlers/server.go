@@ -4,27 +4,30 @@ import (
 	"net/http"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/storage"
+
 	"github.com/Slimo300/chat-groupservice/internal/database"
+	"github.com/Slimo300/chat-groupservice/internal/storage"
 	tokens "github.com/Slimo300/chat-tokenservice/pkg/client"
 	"github.com/gin-gonic/gin"
 )
 
+const MAX_BODY_BYTES = 4194304
+
 type Server struct {
 	DB           database.DBLayer
-	Storage      storage.FileStorage
+	Storage      storage.StorageLayer
 	TokenClient  tokens.TokenClient
 	MaxBodyBytes int64
 	Emitter      msgqueue.EventEmiter
-	Listener     msgqueue.EventListener
 }
 
-func NewServer(db database.DBLayer, storage storage.FileStorage, tokenClient tokens.TokenClient) *Server {
+func NewServer(db database.DBLayer, storage storage.StorageLayer, tokenClient tokens.TokenClient, emiter msgqueue.EventEmiter) *Server {
 	return &Server{
 		DB:           db,
 		Storage:      storage,
-		MaxBodyBytes: 4194304,
+		MaxBodyBytes: MAX_BODY_BYTES,
 		TokenClient:  tokenClient,
+		Emitter:      emiter,
 	}
 }
 

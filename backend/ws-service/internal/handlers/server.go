@@ -19,7 +19,6 @@ type Server struct {
 	Emitter     msgqueue.EventEmiter
 	Listener    msgqueue.EventListener
 	MessageChan <-chan *ws.Message
-	EventChan   chan<- msgqueue.Event
 }
 
 func (s *Server) RunHub() {

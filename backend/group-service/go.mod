@@ -7,8 +7,8 @@ require (
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20230226171856-6155e6862233
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20230226171856-6155e6862233
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230226231353-a01ab2acbc4e
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/storage v0.0.0-20230226231353-a01ab2acbc4e
 	github.com/Slimo300/chat-tokenservice v0.0.0-20230325105518-c17eca6ac729
+	github.com/aws/aws-sdk-go v1.44.180
 	github.com/gin-contrib/size v0.0.0-20220829131622-0fc0bc875336
 	github.com/gin-gonic/gin v1.9.0
 	github.com/google/uuid v1.3.0
@@ -19,7 +19,6 @@ require (
 )
 
 require (
-	github.com/aws/aws-sdk-go v1.44.180 // indirect
 	github.com/bytedance/sonic v1.8.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

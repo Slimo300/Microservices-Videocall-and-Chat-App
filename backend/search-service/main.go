@@ -7,19 +7,15 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"path/filepath"
-	"reflect"
 	"syscall"
 	"time"
 
-	"github.com/Shopify/sarama"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/kafka"
 	"github.com/Slimo300/chat-searchservice/internal/config"
 	"github.com/Slimo300/chat-searchservice/internal/database/elastic"
+	"github.com/Slimo300/chat-searchservice/internal/eventprocessor"
 	"github.com/Slimo300/chat-searchservice/internal/handlers"
 	"github.com/Slimo300/chat-searchservice/internal/routes"
+
 	tokens "github.com/Slimo300/chat-tokenservice/pkg/client"
 )
 
@@ -34,23 +30,7 @@ func main() {
 		log.Fatalf("Error connecting to token service: %v", err)
 	}
 
-	brokerConf := sarama.NewConfig()
-	brokerConf.ClientID = "searchService"
-	brokerConf.Version = sarama.V2_3_0_0
-	client, err := sarama.NewClient([]string{conf.BrokerAddress}, brokerConf)
-	if err != nil {
-		log.Fatalf("Error when connecting to kafka: %v", err)
-	}
-
-	mapper := msgqueue.NewDynamicEventMapper()
-	if err := mapper.RegisterTypes(
-		reflect.TypeOf(events.UserRegisteredEvent{}),
-		reflect.TypeOf(events.UserPictureModifiedEvent{}),
-	); err != nil {
-		log.Fatalf("Error when registering types by mapper: %v", err)
-	}
-
-	listener, err := kafka.NewKafkaEventListener(client, mapper, kafka.KafkaTopic{Name: "users"})
+	listener, err := kafkaSetup([]string{conf.BrokerAddress})
 	if err != nil {
 		log.Fatalf("Error creating kafka listener: %v", err)
 	}
@@ -60,12 +40,14 @@ func main() {
 		log.Fatal(err)
 	}
 
+	eventProcessor := eventprocessor.NewEventProcessor(listener, es)
+	go eventProcessor.ProcessEvents()
+
 	server := handlers.Server{
 		DB:          es,
 		Listener:    listener,
 		TokenClient: tokenClient,
 	}
-	go server.RunListener()
 
 	handler := routes.Setup(&server, conf.Origin)
 
@@ -99,20 +81,4 @@ func main() {
 	case err := <-errChan:
 		log.Fatal(err)
 	}
-}
-
-func startHTTPSServer(httpsServer *http.Server, certDir string, errChan chan<- error) {
-	cert := filepath.Join(certDir, "cert.pem")
-	if _, err := os.Stat(cert); err != nil {
-		log.Printf("Couldn't start https server. No cert.pem or key.pem in %s\n", certDir)
-		return
-	}
-	key := filepath.Join(certDir, "key.pem")
-	if _, err := os.Stat(key); err != nil {
-		log.Printf("Couldn't start https server. No cert.pem or key.pem in %s\n", certDir)
-		return
-	}
-
-	log.Printf("HTTPS Server starting on: %s", httpsServer.Addr)
-	errChan <- httpsServer.ListenAndServeTLS(cert, key)
 }

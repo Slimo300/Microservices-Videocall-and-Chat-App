@@ -64,12 +64,10 @@ func (s *InvitesTestSuite) SetupSuite() {
 	db.On("AnswerInvite", s.IDs["userOK"], s.IDs["inviteAnswered"], mock.Anything).
 		Return(nil, nil, nil, apperrors.NewForbidden("invite already answered"))
 
-	s.server = handlers.NewServer(db, nil, nil)
+	emiter := new(mockqueue.MockEmitter)
+	emiter.On("Emit", mock.Anything).Return(nil)
 
-	emitter := new(mockqueue.MockEmitter)
-	emitter.On("Emit", mock.Anything).Return(nil)
-	s.server.Emitter = emitter
-
+	s.server = handlers.NewServer(db, nil, nil, emiter)
 }
 
 func (s *InvitesTestSuite) TestGetUserInvites() {
