@@ -19,6 +19,9 @@ spec:
         ports:
         - containerPort: 80
           name: http
+        env:
+        - name: API_URL
+          value: api.chatapp.example
 ---
 apiVersion: v1
 kind: Service

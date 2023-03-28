@@ -23,6 +23,15 @@ spec:
           name: http
         - containerPort: 8090
           name: https
+        env:
+        - name: MYSQL_ADDRESS
+          value: chat:password12@tcp(wsmysql:3306)/chatapp
+        - name: TOKEN_SERVICE_ADDRESS
+          value: tokenservice:9000
+        - name: ORIGIN
+          value: http://www.chatapp.example
+        - name: BROKER_ADDRESS
+          value: kafka:9092
 ---
 apiVersion: v1
 kind: Service

@@ -88,7 +88,7 @@ Secret (only AWS and redis need to be base64 encoded)
 to base64 encode on Linux distributions you can use: 
 
 ```sh
-echo "YOUR_SECRET" -n | base64
+echo -n "YOUR_SECRET" | base64
 ```
 
 5. Run

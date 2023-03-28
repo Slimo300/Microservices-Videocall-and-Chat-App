@@ -23,9 +23,22 @@ spec:
           name: http
         - containerPort: 8090
           name: https
+        env:
+        - name: MYSQL_ADDRESS
+          value: chat:password12@tcp(messagemysql:3306)/chatapp
+        - name: TOKEN_SERVICE_ADDRESS
+          value: tokenservice:9000
+        - name: EMAIL_SERVICE_ADDRESS
+          value: emailservice:9000
+        - name: ORIGIN
+          value: http://www.chatapp.example
+        - name: DOMAIN
+          value: chatapp.example
+        - name: BROKER_ADDRESS
+          value: kafka:9092
         envFrom:
         - secretRef:
-            name: awskey
+            name: awssecrets
 ---
 apiVersion: v1
 kind: Service

@@ -1,46 +1,40 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: tokensdeployment
+  name: emailsdeployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      chat/app: tokens
+      chat/app: emails
       chat/tier: api
   template:
     metadata:
       labels:
-        chat/app: tokens
+        chat/app: emails
         chat/tier: api
     spec:
       containers:
-      - name: tokenservice
+      - name: emailservice
         imagePullPolicy: Never
-        image: chat/tokenservice
+        image: chat/emailservice
         ports:
         - containerPort: 9000
           name: grpc
         env:
-        - name: REDIS_ADDRESS
-          value: redis:6379
-        - name: REFRESH_DURATION
-          value: 86400s
-        - name: ACCESS_DURATION
-          value: 1200s
+        - name: ORIGIN
+          value: http://www.chatapp.example
         envFrom:
         - secretRef:
-            name: refreshsecret
-        - secretRef:
-            name: redispass
+            name: smtpcreds
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: tokenservice
+  name: emailservice
 spec:
   selector:
-    chat/app: tokens
+    chat/app: emails
     chat/tier: api
   ports:
   - port: 9000
