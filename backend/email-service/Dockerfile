@@ -21,7 +21,7 @@ COPY --chown=nonroot:nonroot ./templates/ ./templates/
 # GRPC port for communication with other services
 ENV GRPC_PORT=9000
 # API address for email links
-ENV ORIGIN=http://api.chatapp.example
+ENV ORIGIN=http://localhost:3000
 # What email address will be shown as sender
 ENV EMAIL_FROM=MicroChat@mail.com
 # SMTP Host on which provider accepts connections
