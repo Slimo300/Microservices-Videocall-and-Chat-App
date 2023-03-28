@@ -175,7 +175,6 @@ services:
       TOKEN_SERVICE_ADDRESS: tokenservice:9000
       ORIGIN: http://localhost:3000
       BROKER_ADDRESS: kafka:9092
-      S3_BUCKET: ${S3_BUCKET}
       CERT_DIR: /cert
     depends_on:
       - kafka
@@ -186,9 +185,7 @@ services:
       - ${PWD}/cert:/cert
 
   react:
-    build:
-      context: .
-      dockerfile: frontend/Dockerfile
+    build: frontend
     container_name: frontend
     hostname: frontend
     ports:

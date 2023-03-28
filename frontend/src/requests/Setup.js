@@ -1,15 +1,20 @@
-export const groupsService = 'http://localhost:8081/groups';
-export const messageService = 'http://localhost:8082/messages';
-export const userService = 'http://localhost:8083/users';
-export const wsService = 'http://localhost:8084/ws'
-export const wsServiceWebsocket = 'ws://localhost:8084/ws';
-export const searchService = 'http://localhost:8085/search';
-// export const groupsService = 'http://api.chatapp.example/groups';
-// export const messageService = 'http://api.chatapp.example/messages';
-// export const userService = 'http://api.chatapp.example/users';
-// export const wsService = 'http://api.chatapp.example/ws'
-// export const wsServiceWebsocket = 'ws://api.chatapp.example/ws';
-// export const searchService = 'http://api.chatapp.example/search';
+
+const PROTOCOL = window._env_.USE_TLS==="true"?"https":"http"
+const WS_PROTOCOL = window._env_.USE_TLS==="true"?"wss":"ws"
+
+const API_URL = window._env_.API_URL
+const GROUPS_ADDRESS = API_URL!=="" ? API_URL : window._env_.GROUPS_SERVICE
+const MESSAGES_ADDRESS = API_URL!=="" ? API_URL : window._env_.MESSAGES_SERVICE
+const USERS_ADDRESS = API_URL!=="" ? API_URL : window._env_.USERS_SERVICE
+const WS_ADDRESS = API_URL!=="" ? API_URL : window._env_.WS_SERVICE
+const SEARCH_ADDRESS = API_URL!=="" ? API_URL : window._env_.SEARCH_SERVICE
+
+export const groupsService = PROTOCOL+'://'+GROUPS_ADDRESS+'/groups';
+export const messageService = PROTOCOL+'://'+MESSAGES_ADDRESS+'/messages';
+export const userService = PROTOCOL+'://'+USERS_ADDRESS+'/users';
+export const wsService = PROTOCOL+'://'+WS_ADDRESS+'/ws'
+export const wsServiceWebsocket = WS_PROTOCOL+'://'+WS_ADDRESS+'/ws';
+export const searchService = PROTOCOL+'://'+SEARCH_ADDRESS+'/search';
 
 let axiosObject = require('axios').default;
 axiosObject.defaults.headers.common['Content-Type'] = "application/json";
