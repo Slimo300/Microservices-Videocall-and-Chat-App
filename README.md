@@ -19,70 +19,35 @@ such as Cloud Native Development, Event Sourcing, etc. This application consists
 
 ## How to setup?
 
-In order to setup this project you'll need a couple of things first: 
+1. Using minikube 
 
-1. configuration file - every microservice starts with loading config file from file $CHAT_CONFIG/config.yaml. CHAT_CONFIG is an environment describing config file location
-The way how config file should look can be seen in config-template.yaml
+In order to setup this project you'll first need to provide configuration to files awsSecrets.yaml and smtpCreds.yaml in folder deploy/secrets_templates: 
 
-Because I wanted to test this app in different environments (local, docker, kubernetes) they are all looking for different config file
-- when started locally services will look for config.yaml (in container runtime other names are also changed to this)
-- when using docker (or docker-compose) it will look for docker-conf.yaml (Dockerfile default). Can be changed when building 
-```sh
-    docker build -f backend/user-service/Dockerfile --build-arg configFile=otherFile.yaml .
-```
-- when starting kubernetes it looks for kube-conf.yaml
-It can be changed by changing deploy/deploy/sh file
-
-2. certificate and private key - since all REST services start both http and https servers its gonna need this project requires certificate and private key in pem format to enable TLS. certificate and private key files should be specified in config file and in Dockerfiles
-
-To generate such cert (it won't be signed by CA so it will be useless in browser but will be good enough to start project) you can use:
-```sh
-go run %GOROOT%/src/crypto/tls/generate_cert.go --host=<HOSTNAME>
-```
-You can also check your GOROOT by typing
-```sh
-go env | grep GOROOT
-```
-
-3. private key for token service with which all of access tokens will be signed
-There is a tool for generating one in backend/cmd folder. Just run this and move result where you want it to be
-```sh 
-go run generate_key.go
-``` 
-
-4. to run it in kubernetes environment the app needs secrets defined for MYSQL databases, AWS Credentials and Redis password
-
+awsSecrets.yaml stores AWS keys and name of S3 bucket to store files pictures sent to app either as profile pictures or messages
 ```yaml
 apiVersion: v1
 kind: Secret
 metadata:
-  name: awskey
+  name: awssecrets
 type: Opaque
 data:
-  AWS_ACCESS_KEY_ID: <BASE64_ENCODED_KEY>
-  AWS_SECRET_ACCESS_KEY: <BASE64_ENCODED_SECRET>
+  AWS_ACCESS_KEY_ID: <BASE64_AWS_ACCESS_KEY_ID>
+  AWS_SECRET_ACCESS_KEY: <BASE64_AWS_SECRET_ACCESS_KEY>
+  S3_BUCKET: <S3_BUCKET_NAME>
 ```
-```yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: mysqlcreds
-  labels:
-    chat/tier: database
-data:
-  MYSQL_DATABASE: <MYSQL_DB>
-  MYSQL_USER: <MYSQL_USER>
-  MYSQL_PASSWORD: <MYSQL_PASS>
-  MYSQL_ROOT_PASSWORD: <MYSQL_ROOT_PASS>
-```
+
+smtpCreds.yaml stores SMTP credentials of SMTP provider to send verification and reset password email by email-service
 ```yaml
 apiVersion: v1
 kind: Secret
 metadata:
-  name: redispass
+  name: smtpcreds
 type: Opaque
 data:
-  REDIS_PASSWORD: <REDIS_PASS>
+  SMTP_HOST: <SMTP_HOST>
+  SMTP_PORT: <SMTP_PORT>
+  SMTP_USER: <SMTP_USER>
+  SMTP_PASS: <SMTP_PASS>
 ```
 Secret (only AWS and redis need to be base64 encoded)
 to base64 encode on Linux distributions you can use: 
@@ -91,12 +56,7 @@ to base64 encode on Linux distributions you can use:
 echo -n "YOUR_SECRET" | base64
 ```
 
-5. Run
-```sh
-docker-compose up -d --build
-```
-
-or in Minikube
+After that rename secrets_templates directory to secrets and run
 
 ```sh
 minikube start
@@ -104,4 +64,24 @@ minikube enable addons ingress
 source deploy/deploy.sh
 ```
 
-Yeah, this setup needs to change
+2. Using docker-compose 
+
+Setup with docker-compose is similar to that of minikube but instead of setting values in secrets you have to set them 
+as environment variables: 
+
+```bash
+export AWS_ACCESS_KEY_ID=<AWS_ACCESS_KEY_ID>
+export AWS_SECRET_ACCESS_KEY=<AWS_SECRET_ACCESS_KEY>
+export S3_BUCKET=<S3_BUCKET>
+
+export SMTP_HOST=<SMTP_HOST>
+export SMTP_PORT=<SMTP_PORT>
+export SMTP_USER=<SMTP_USER>
+export SMTP_PASS=<SMTP_PASS>
+```
+
+After that just run:
+
+```bash
+docker-compose up -d
+```

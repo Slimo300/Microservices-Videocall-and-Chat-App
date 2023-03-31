@@ -27,7 +27,7 @@ spec:
         env:
           - name: REDIS_PASSWORD
             valueFrom:
-              secretKeyRef:
+              configMapKeyRef:
                 name: redispass
                 key: REDIS_PASSWORD
   volumeClaimTemplates:
