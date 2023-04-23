@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: redis
+  name: tokenredis
 spec:
-  serviceName: redis
+  serviceName: tokenredis
   replicas: 1
   selector:
     matchLabels:
@@ -24,12 +24,9 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /bitnami/redis/data
-        env:
-          - name: REDIS_PASSWORD
-            valueFrom:
-              configMapKeyRef:
-                name: redispass
-                key: REDIS_PASSWORD
+        envFrom:
+        - configMapRef:
+            name: redispass
   volumeClaimTemplates:
   - metadata:
       name: data
@@ -44,7 +41,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis
+  name: tokenredis
 spec:
   clusterIP: None
   selector:

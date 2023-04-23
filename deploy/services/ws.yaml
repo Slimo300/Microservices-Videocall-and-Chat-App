@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: wsdeployment
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       chat/app: ws
@@ -14,6 +14,16 @@ spec:
         chat/app: ws
         chat/tier: api
     spec:
+      initContainers:
+        - name: wsredis-test
+          image: busybox:1.31
+          command: ['sh', '-c', 'echo -e "Checking for the availability of Redis Server deployment"; while ! nc -z wsredis 6379; do sleep 1; printf "-"; done; echo -e "  >> Redis Server has started";']
+        - name: tokenservice-test
+          image: busybox:1.31
+          command: ['sh', '-c', 'echo -e "Checking for the availability of Token service deployment"; while ! nc -z tokenservice 9000; do sleep 1; printf "-"; done; echo -e "  >> Token Service has started";']
+        - name: kafka-test
+          image: busybox:1.31
+          command: ['sh', '-c', 'echo -e "Checking for the availability of Kafka broker"; while ! nc -z kafka 9092; do sleep 1; printf "-"; done; echo -e "  >> Kafka has started";']
       containers:
       - name: api
         imagePullPolicy: Never
@@ -24,8 +34,13 @@ spec:
         - containerPort: 8090
           name: https
         env:
-        - name: MYSQL_ADDRESS
-          value: chat:password12@tcp(wsmysql:3306)/chatapp
+        - name: DB_ADDRESS
+          value: wsredis:6379
+        - name: DB_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: redispass
+              key: REDIS_PASSWORD
         - name: TOKEN_SERVICE_ADDRESS
           value: tokenservice:9000
         - name: ORIGIN

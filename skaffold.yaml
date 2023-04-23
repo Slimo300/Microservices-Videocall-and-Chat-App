@@ -1,0 +1,49 @@
+apiVersion: skaffold/v4beta4
+kind: Config
+metadata:
+  name: microserviceschatapp
+build:
+  artifacts:
+    - image: chat/emailservice
+      context: backend/email-service
+      docker:
+        dockerfile: Dockerfile
+    - image: chat/frontend
+      context: frontend
+      docker:
+        dockerfile: Dockerfile
+    - image: chat/groupservice
+      context: backend/group-service
+      docker:
+        dockerfile: Dockerfile
+    - image: chat/messageservice
+      context: backend/message-service
+      docker:
+        dockerfile: Dockerfile
+    - image: chat/searchservice
+      context: backend/search-service
+      docker:
+        dockerfile: Dockerfile
+    - image: chat/tokenservice
+      context: backend/token-service
+      docker:
+        dockerfile: Dockerfile
+    - image: chat/userservice
+      context: backend/user-service
+      docker:
+        dockerfile: Dockerfile
+    - image: chat/wsservice
+      context: backend/ws-service
+      docker:
+        dockerfile: Dockerfile
+manifests:
+  rawYaml:
+    - deploy/frontend.yaml
+    - deploy/ingress.yaml
+    - deploy/dbs/*
+    - deploy/secrets/*
+    - deploy/services/*
+  helm:
+    releases:
+      - name: kafka
+        chartPath: bitnami/kafka

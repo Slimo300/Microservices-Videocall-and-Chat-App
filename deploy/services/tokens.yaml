@@ -14,6 +14,10 @@ spec:
         chat/app: tokens
         chat/tier: api
     spec:
+      initContainers:
+        - name: init-cont
+          image: busybox:1.31
+          command: ['sh', '-c', 'echo -e "Checking for the availability of Redis Server deployment"; while ! nc -z tokenredis 6379; do sleep 1; printf "-"; done; echo -e "  >> Redis Server has started";']
       containers:
       - name: tokenservice
         imagePullPolicy: Never
@@ -23,7 +27,7 @@ spec:
           name: grpc
         env:
         - name: REDIS_ADDRESS
-          value: redis:6379
+          value: tokenredis:6379
         - name: REFRESH_DURATION
           value: 86400s
         - name: ACCESS_DURATION

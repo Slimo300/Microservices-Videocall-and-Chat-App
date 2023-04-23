@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: wsmysql
+  name: wsredis
 spec:
-  serviceName: wsmysql
+  serviceName: wsredis
   replicas: 1
   selector:
     matchLabels:
@@ -16,17 +16,17 @@ spec:
         chat/tier: database
     spec:
       containers:
-      - name: wsmysql
-        image: mysql
+      - name: redis
+        image: bitnami/redis:latest
         ports:
-        - containerPort: 3306
-          name: mysql
-        envFrom:
-        - configMapRef:
-            name: mysqlcreds
+        - containerPort: 6379
+          name: redis
         volumeMounts:
         - name: data
-          mountPath: /var/lib/mysql
+          mountPath: /bitnami/redis/data
+        envFrom:
+        - configMapRef:
+            name: redispass
   volumeClaimTemplates:
   - metadata:
       name: data
@@ -41,13 +41,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: wsmysql
+  name: wsredis
 spec:
   clusterIP: None
   selector:
     chat/app: ws
     chat/tier: database
   ports:
-  - port: 3306
-    targetPort: 3306
-    name: mysql
+  - port: 6379
+    targetPort: 6379
+    name: redis
