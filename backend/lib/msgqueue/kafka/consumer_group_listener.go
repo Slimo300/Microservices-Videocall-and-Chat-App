@@ -105,6 +105,7 @@ func (c *consumerGroupEventListener) Listen(topics ...string) (<-chan msgqueue.E
 			if err := consumer.Consume(context.TODO(), topics, groupConsumer); err != nil {
 				return
 			}
+			groupConsumer.ready = make(chan bool)
 		}
 	}()
 
