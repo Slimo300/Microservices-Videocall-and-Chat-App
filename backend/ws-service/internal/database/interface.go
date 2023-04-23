@@ -10,5 +10,8 @@ type DBLayer interface {
 
 	NewMember(event events.MemberCreatedEvent) error
 	DeleteMember(event events.MemberDeletedEvent) error
-	DeleteGroupMembers(event events.GroupDeletedEvent) error
+	DeleteGroup(event events.GroupDeletedEvent) error
+
+	NewAccessCode(userID uuid.UUID, accessCode string) error
+	CheckAccessCode(accessCode string) (uuid.UUID, error)
 }

@@ -37,7 +37,7 @@ func (p *EventProcessor) ProcessEvents(eventNames ...string) {
 		case evt := <-received:
 			switch e := evt.(type) {
 			case *events.GroupDeletedEvent:
-				if err := p.DB.DeleteGroupMembers(*e); err != nil {
+				if err := p.DB.DeleteGroup(*e); err != nil {
 					log.Printf("Listener DeleteGroup error: %s", err.Error())
 				}
 				p.HubChan <- evt

@@ -11,7 +11,9 @@ import (
 
 // Config holds user service configuration
 type Config struct {
-	DBAddress string `mapstructure:"dbAddress"`
+	DBAddress  string `mapstructure:"dbAddress"`
+	DBPassword string `mapstructure:"dbPassword"`
+
 	HTTPPort  string `mapstructure:"httpPort"`
 	HTTPSPort string `mapstructure:"httpsPort"`
 
@@ -28,9 +30,13 @@ type Config struct {
 // if any of them is missing
 func LoadConfigFromEnvironment() (conf Config, err error) {
 
-	conf.DBAddress = os.Getenv("MYSQL_ADDRESS")
+	conf.DBAddress = os.Getenv("DB_ADDRESS")
 	if conf.DBAddress == "" {
-		return Config{}, errors.New("Environment variable MYSQL_ADDRESS not set")
+		return Config{}, errors.New("Environment variable DB_PASSWORD not set")
+	}
+	conf.DBPassword = os.Getenv("DB_PASSWORD")
+	if conf.DBPassword == "" {
+		return Config{}, errors.New("Environment variable DB_PASSWORD not set")
 	}
 
 	conf.HTTPPort = os.Getenv("HTTP_PORT")

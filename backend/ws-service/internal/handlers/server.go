@@ -6,7 +6,6 @@ import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
 	tokens "github.com/Slimo300/chat-tokenservice/pkg/client"
-	"github.com/Slimo300/chat-wsservice/internal/cache"
 	"github.com/Slimo300/chat-wsservice/internal/database"
 	"github.com/Slimo300/chat-wsservice/internal/ws"
 )
@@ -15,7 +14,6 @@ type Server struct {
 	DB          database.DBLayer
 	Hub         *ws.WSHub
 	TokenClient tokens.TokenClient
-	CodeCache   cache.AccessCodeCache
 	Emitter     msgqueue.EventEmiter
 	Listener    msgqueue.EventListener
 	MessageChan <-chan *ws.Message

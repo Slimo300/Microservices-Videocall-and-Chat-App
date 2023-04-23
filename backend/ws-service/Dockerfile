@@ -20,7 +20,9 @@ USER nonroot:nonroot
 COPY --from=build app/wsservice /wsservice
 
 # Database address for storing user information
-ENV MYSQL_ADDRESS=
+ENV DB_ADDRESS=
+# Database password
+ENV DB_PASSWORD=
 # Port for HTTP traffic
 ENV HTTP_PORT=8080
 # Port for HTTPS traffic

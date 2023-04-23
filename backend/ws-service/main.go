@@ -11,9 +11,8 @@ import (
 	"time"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
-	"github.com/Slimo300/chat-wsservice/internal/cache"
 	"github.com/Slimo300/chat-wsservice/internal/config"
-	"github.com/Slimo300/chat-wsservice/internal/database"
+	"github.com/Slimo300/chat-wsservice/internal/database/redis"
 	"github.com/Slimo300/chat-wsservice/internal/eventprocessor"
 	"github.com/Slimo300/chat-wsservice/internal/handlers"
 	"github.com/Slimo300/chat-wsservice/internal/routes"
@@ -29,7 +28,7 @@ func main() {
 		log.Fatalf("Error when loading configuration: %v", err)
 	}
 
-	db, err := database.Setup(conf.DBAddress)
+	db, err := redis.Setup(conf.DBAddress, conf.DBPassword)
 	if err != nil {
 		log.Fatalf("Error when connecting to database: %v", err)
 	}
@@ -51,7 +50,6 @@ func main() {
 
 	server := &handlers.Server{
 		DB:          db,
-		CodeCache:   cache.NewCache(5 * time.Second),
 		TokenClient: tokenClient,
 		Emitter:     emiter,
 		Listener:    listener,

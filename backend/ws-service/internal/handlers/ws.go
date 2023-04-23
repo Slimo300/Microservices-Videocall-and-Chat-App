@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/Slimo300/chat-wsservice/internal/ws"
 	"github.com/gin-gonic/gin"
@@ -18,23 +17,18 @@ func (s *Server) ServeWebSocket(c *gin.Context) {
 		return
 	}
 
-	user, err := s.CodeCache.Read(accessCode)
+	userID, err := s.DB.CheckAccessCode(accessCode)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "access code not found"})
+		c.JSON(http.StatusUnauthorized, gin.H{"err": "connection not authorized"})
 		return
 	}
-	if user.Deadline.Unix() < time.Now().Unix() {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "access code invalidated"})
-		return
-	}
-	s.CodeCache.Delete(accessCode)
 
-	groups, err := s.DB.GetUserGroups(user.ID)
+	groups, err := s.DB.GetUserGroups(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
 	}
-	ws.ServeWebSocket(c.Writer, c.Request, *s.Hub, groups, user.ID)
+	ws.ServeWebSocket(c.Writer, c.Request, *s.Hub, groups, userID)
 }
 
 func (s *Server) GetAuthCode(c *gin.Context) {
@@ -47,33 +41,10 @@ func (s *Server) GetAuthCode(c *gin.Context) {
 	}
 
 	newCode := randstr.String(10)
-	s.CodeCache.Set(newCode, userUID)
+	if err := s.DB.NewAccessCode(userUID, newCode); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": "internal server error"})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{"accessCode": newCode})
 }
-
-// func (s *Server) AuthWS() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		authToken := c.Query("authToken")
-// 		if authToken == "" {
-// 			c.JSON(http.StatusBadRequest, gin.H{"err": "no auth token provided"})
-// 			return
-// 		}
-// 		accessToken, err := jwt.ParseWithClaims(authToken, &jwt.StandardClaims{},
-// 			func(t *jwt.Token) (interface{}, error) {
-// 				return s.TokenService.GetPublicKey(), nil
-// 			})
-// 		if err != nil {
-// 			c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
-// 			return
-// 		}
-// 		userID := accessToken.Claims.(*jwt.StandardClaims).Subject
-// 		if userID == "" {
-// 			c.JSON(http.StatusUnauthorized, gin.H{"err": "Invalid token"})
-// 			return
-// 		}
-
-// 		c.Set("userID", userID)
-// 		c.Next()
-// 	}
-// }
