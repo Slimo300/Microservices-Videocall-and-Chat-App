@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/Shopify/sarama v1.37.2
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20230226171856-6155e6862233
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230226231353-a01ab2acbc4e
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230423202522-585c8b9db4ea
 	github.com/Slimo300/chat-tokenservice v0.0.0-20230325105518-c17eca6ac729
 	github.com/elastic/go-elasticsearch/v8 v8.5.0
 	github.com/gin-gonic/gin v1.9.0

@@ -41,7 +41,7 @@ func main() {
 	}
 
 	eventProcessor := eventprocessor.NewEventProcessor(listener, es)
-	go eventProcessor.ProcessEvents()
+	go eventProcessor.ProcessEvents("users")
 
 	server := handlers.Server{
 		DB:          es,

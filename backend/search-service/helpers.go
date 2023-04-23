@@ -49,7 +49,7 @@ func kafkaSetup(brokerAddresses []string) (msgqueue.EventListener, error) {
 		return nil, err
 	}
 
-	listener, err := kafka.NewKafkaEventListener(client, mapper, kafka.KafkaTopic{Name: "users"})
+	listener, err := kafka.NewConsumerGroupEventListener(client, "search-service", mapper, nil)
 	if err != nil {
 		return nil, err
 	}

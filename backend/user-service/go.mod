@@ -6,7 +6,7 @@ require (
 	github.com/Shopify/sarama v1.37.2
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20230226171856-6155e6862233
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20230226171856-6155e6862233
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230226231353-a01ab2acbc4e
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230423202522-585c8b9db4ea
 	github.com/Slimo300/chat-emailservice v0.0.0-20230324204055-643e861125f2
 	github.com/Slimo300/chat-tokenservice v0.0.0-20230324204500-f90f1a6de3b9
 	github.com/aws/aws-sdk-go v1.44.140

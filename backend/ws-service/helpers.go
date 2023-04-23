@@ -57,7 +57,8 @@ func kafkaSetup(brokerAddreses []string) (msgqueue.EventEmiter, msgqueue.EventLi
 	); err != nil {
 		log.Fatal(err)
 	}
-	listener, err := kafka.NewKafkaEventListener(client, mapper, kafka.KafkaTopic{Name: "messages"}, kafka.KafkaTopic{Name: "groups"})
+
+	listener, err := kafka.NewBroadcastEventListener(client, mapper, nil)
 	if err != nil {
 		return nil, nil, err
 	}

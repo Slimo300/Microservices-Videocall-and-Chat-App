@@ -45,7 +45,7 @@ func main() {
 	}
 
 	eventProcessor := eventprocessor.NewEventProcessor(db, listener)
-	go eventProcessor.ProcessEvents()
+	go eventProcessor.ProcessEvents("users")
 
 	server := handlers.NewServer(db, storage, tokenClient, emiter)
 	handler := routes.Setup(server, conf.Origin)

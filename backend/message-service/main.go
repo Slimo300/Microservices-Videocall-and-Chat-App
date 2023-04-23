@@ -48,7 +48,7 @@ func main() {
 	}
 
 	eventProcessor := eventprocessor.NewEventProcessor(listener, db, storage)
-	go eventProcessor.ProcessEvents()
+	go eventProcessor.ProcessEvents("wsmessages", "groups")
 
 	server := handlers.NewServer(db, tokenClient, emiter, storage)
 	handler := routes.Setup(server, conf.Origin)

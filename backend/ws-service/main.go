@@ -46,7 +46,7 @@ func main() {
 	actionChan := make(chan msgqueue.Event)
 
 	eventProcessor := eventprocessor.NewEventProcessor(db, listener, actionChan)
-	go eventProcessor.ProcessEvents()
+	go eventProcessor.ProcessEvents("groups", "messages")
 
 	server := &handlers.Server{
 		DB:          db,

@@ -22,7 +22,7 @@ func NewEventProcessor(listener msgqueue.EventListener, db database.DBLayer) *Ev
 	}
 }
 
-func (p *EventProcessor) ProcessEvents() {
+func (p *EventProcessor) ProcessEvents(eventNames ...string) {
 
 	eventChan, errorChan, err := p.Listener.Listen()
 	if err != nil {
