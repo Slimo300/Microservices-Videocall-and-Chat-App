@@ -3,7 +3,6 @@ module github.com/Slimo300/MicroservicesChatApp/backend/lib/email
 go 1.20
 
 require (
-	github.com/Slimo300/chat-emailservice v0.0.0-20230327094559-8ada4785daf5
 	github.com/stretchr/testify v1.8.2
 	google.golang.org/grpc v1.55.0
 	google.golang.org/protobuf v1.30.0

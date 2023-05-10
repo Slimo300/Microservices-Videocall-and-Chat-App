@@ -5,7 +5,7 @@ package email
 import (
 	context "context"
 
-	pb "github.com/Slimo300/chat-emailservice/pkg/client/pb"
+	pb "github.com/Slimo300/MicroservicesChatApp/backend/lib/email/pb"
 	mock "github.com/stretchr/testify/mock"
 )
 

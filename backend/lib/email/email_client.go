@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/Slimo300/chat-emailservice/pkg/client/pb"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/email/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

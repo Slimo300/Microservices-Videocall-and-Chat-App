@@ -3,7 +3,7 @@ package email
 import (
 	"context"
 
-	"github.com/Slimo300/chat-emailservice/pkg/client/pb"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/email/pb"
 )
 
 // EmailClient wraps Email Service Client and exposes its functionality
