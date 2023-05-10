@@ -1,13 +1,13 @@
-module github.com/Slimo300/chat-groupservice
+module github.com/Slimo300/MicroservicesChatApp/backend/group-service
 
 go 1.19
 
 require (
 	github.com/Shopify/sarama v1.37.2
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20230226171856-6155e6862233
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230510182501-d4e045810294
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20230226171856-6155e6862233
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230423202522-585c8b9db4ea
-	github.com/Slimo300/chat-tokenservice v0.0.0-20230325105518-c17eca6ac729
 	github.com/aws/aws-sdk-go v1.44.180
 	github.com/gin-contrib/size v0.0.0-20220829131622-0fc0bc875336
 	github.com/gin-gonic/gin v1.9.0
@@ -33,7 +33,7 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/goccy/go-json v0.10.0 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
-	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
@@ -70,12 +70,12 @@ require (
 	github.com/ugorji/go/codec v1.2.9 // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/crypto v0.5.0 // indirect
-	golang.org/x/net v0.7.0 // indirect
-	golang.org/x/sys v0.5.0 // indirect
-	golang.org/x/text v0.7.0 // indirect
-	google.golang.org/genproto v0.0.0-20221227171554-f9683d7f8bef // indirect
-	google.golang.org/grpc v1.52.0 // indirect
-	google.golang.org/protobuf v1.28.1 // indirect
+	golang.org/x/net v0.8.0 // indirect
+	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/text v0.8.0 // indirect
+	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4 // indirect
+	google.golang.org/grpc v1.55.0 // indirect
+	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

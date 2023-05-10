@@ -10,13 +10,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Slimo300/chat-searchservice/internal/config"
-	"github.com/Slimo300/chat-searchservice/internal/database/elastic"
-	"github.com/Slimo300/chat-searchservice/internal/eventprocessor"
-	"github.com/Slimo300/chat-searchservice/internal/handlers"
-	"github.com/Slimo300/chat-searchservice/internal/routes"
+	"github.com/Slimo300/MicroservicesChatApp/backend/search-service/config"
+	"github.com/Slimo300/MicroservicesChatApp/backend/search-service/database/elastic"
+	"github.com/Slimo300/MicroservicesChatApp/backend/search-service/eventprocessor"
+	"github.com/Slimo300/MicroservicesChatApp/backend/search-service/handlers"
+	"github.com/Slimo300/MicroservicesChatApp/backend/search-service/routes"
 
-	tokens "github.com/Slimo300/chat-tokenservice/pkg/client"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 )
 
 func main() {
@@ -25,7 +25,7 @@ func main() {
 		log.Fatalf("Couln't load config: %v", err)
 	}
 
-	tokenClient, err := tokens.NewGRPCTokenClient(conf.TokenServiceAddress)
+	tokenClient, err := auth.NewGRPCTokenClient(conf.TokenServiceAddress)
 	if err != nil {
 		log.Fatalf("Error connecting to token service: %v", err)
 	}

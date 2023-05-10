@@ -10,14 +10,14 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Slimo300/chat-messageservice/internal/config"
-	"github.com/Slimo300/chat-messageservice/internal/database/orm"
-	"github.com/Slimo300/chat-messageservice/internal/eventprocessor"
-	"github.com/Slimo300/chat-messageservice/internal/handlers"
-	"github.com/Slimo300/chat-messageservice/internal/routes"
-	"github.com/Slimo300/chat-messageservice/internal/storage"
+	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/config"
+	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/database/orm"
+	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/eventprocessor"
+	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/handlers"
+	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/routes"
+	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/storage"
 
-	tokens "github.com/Slimo300/chat-tokenservice/pkg/client"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 )
 
 func main() {
@@ -37,7 +37,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	tokenClient, err := tokens.NewGRPCTokenClient(conf.TokenServiceAddress)
+	tokenClient, err := auth.NewGRPCTokenClient(conf.TokenServiceAddress)
 	if err != nil {
 		log.Fatalf("Couldn't connect to grpc auth server: %v", err)
 	}

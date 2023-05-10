@@ -10,14 +10,14 @@ import (
 	"syscall"
 	"time"
 
-	emails "github.com/Slimo300/chat-emailservice/pkg/client"
-	tokens "github.com/Slimo300/chat-tokenservice/pkg/client"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/email"
 
-	"github.com/Slimo300/chat-userservice/internal/config"
-	"github.com/Slimo300/chat-userservice/internal/database/orm"
-	"github.com/Slimo300/chat-userservice/internal/handlers"
-	"github.com/Slimo300/chat-userservice/internal/routes"
-	"github.com/Slimo300/chat-userservice/internal/storage"
+	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/config"
+	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/database/orm"
+	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/handlers"
+	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/routes"
+	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/storage"
 )
 
 func main() {
@@ -36,7 +36,7 @@ func main() {
 	}
 
 	// connecting to authentication server
-	tokenClient, err := tokens.NewGRPCTokenClient(conf.TokenServiceAddress)
+	tokenClient, err := auth.NewGRPCTokenClient(conf.TokenServiceAddress)
 	if err != nil {
 		log.Fatalf("Error when connecting to token service: %v", err)
 	}
@@ -51,7 +51,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	emailClient, err := emails.NewGRPCEmailClient(conf.EmailServiceAddress)
+	emailClient, err := email.NewGRPCEmailClient(conf.EmailServiceAddress)
 	if err != nil {
 		log.Fatal(err)
 	}

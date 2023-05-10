@@ -6,9 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Shopify/sarama"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/kafka"
+
+	"github.com/Shopify/sarama"
 )
 
 // startHTTPSServer starts HTTPS server if SSL certificate is provided

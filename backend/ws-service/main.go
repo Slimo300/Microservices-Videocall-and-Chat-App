@@ -11,14 +11,14 @@ import (
 	"time"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
-	"github.com/Slimo300/chat-wsservice/internal/config"
-	"github.com/Slimo300/chat-wsservice/internal/database/redis"
-	"github.com/Slimo300/chat-wsservice/internal/eventprocessor"
-	"github.com/Slimo300/chat-wsservice/internal/handlers"
-	"github.com/Slimo300/chat-wsservice/internal/routes"
-	"github.com/Slimo300/chat-wsservice/internal/ws"
+	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/config"
+	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/database/redis"
+	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/eventprocessor"
+	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/handlers"
+	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/routes"
+	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/ws"
 
-	tokens "github.com/Slimo300/chat-tokenservice/pkg/client"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 )
 
 func main() {
@@ -32,7 +32,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error when connecting to database: %v", err)
 	}
-	tokenClient, err := tokens.NewGRPCTokenClient(conf.TokenServiceAddress)
+	tokenClient, err := auth.NewGRPCTokenClient(conf.TokenServiceAddress)
 	if err != nil {
 		log.Fatalf("Error when connecting to token service: %v", err)
 	}

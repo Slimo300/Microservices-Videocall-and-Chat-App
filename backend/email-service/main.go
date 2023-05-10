@@ -8,9 +8,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/Slimo300/chat-emailservice/internal/config"
-	"github.com/Slimo300/chat-emailservice/internal/handlers"
-	"github.com/Slimo300/chat-emailservice/pkg/client/pb"
+	"github.com/Slimo300/MicroservicesChatApp/backend/email-service/config"
+	"github.com/Slimo300/MicroservicesChatApp/backend/email-service/handlers"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/email/pb"
 	"google.golang.org/grpc"
 )
 

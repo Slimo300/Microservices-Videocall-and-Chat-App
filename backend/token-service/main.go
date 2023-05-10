@@ -8,10 +8,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/Slimo300/chat-tokenservice/internal/config"
-	"github.com/Slimo300/chat-tokenservice/internal/handlers"
-	"github.com/Slimo300/chat-tokenservice/internal/repo/redis"
-	"github.com/Slimo300/chat-tokenservice/pkg/client/pb"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
+	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/config"
+	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/handlers"
+	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo/redis"
 	"google.golang.org/grpc"
 )
 

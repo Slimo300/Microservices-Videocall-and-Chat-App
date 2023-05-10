@@ -10,13 +10,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Slimo300/chat-groupservice/internal/config"
-	"github.com/Slimo300/chat-groupservice/internal/database/orm"
-	"github.com/Slimo300/chat-groupservice/internal/eventprocessor"
-	"github.com/Slimo300/chat-groupservice/internal/handlers"
-	"github.com/Slimo300/chat-groupservice/internal/routes"
-	"github.com/Slimo300/chat-groupservice/internal/storage"
-	"github.com/Slimo300/chat-tokenservice/pkg/client"
+	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/config"
+	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/database/orm"
+	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/eventprocessor"
+	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/handlers"
+	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/routes"
+	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/storage"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 )
 
 func main() {
@@ -34,7 +34,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error connecting to AWS S3: %v", err)
 	}
-	tokenClient, err := client.NewGRPCTokenClient(conf.TokenServiceAddress)
+	tokenClient, err := auth.NewGRPCTokenClient(conf.TokenServiceAddress)
 	if err != nil {
 		log.Fatalf("Couldn't connect to grpc auth server: %v", err)
 	}
