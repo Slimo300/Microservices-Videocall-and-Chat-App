@@ -25,7 +25,7 @@ spec:
           image: busybox:1.31
           command: ['sh', '-c', 'echo -e "Checking for the availability of Kafka broker"; while ! nc -z kafka 9092; do sleep 1; printf "-"; done; echo -e "  >> Kafka has started";']
       containers:
-      - name: api
+      - name: message-service
         imagePullPolicy: Never
         image: chat/messageservice
         ports:

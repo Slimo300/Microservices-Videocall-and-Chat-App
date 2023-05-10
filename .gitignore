@@ -1,4 +1,5 @@
 commands.sh
+start.sh
 cert/
 deploy/secrets
 TODO

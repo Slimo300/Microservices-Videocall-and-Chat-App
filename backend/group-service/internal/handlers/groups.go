@@ -58,12 +58,14 @@ func (s *Server) CreateGroup(c *gin.Context) {
 		return
 	}
 
-	_ = s.Emitter.Emit(events.MemberCreatedEvent{
+	if err = s.Emitter.Emit(events.MemberCreatedEvent{
 		ID:      group.Members[0].ID,
 		GroupID: group.ID,
 		UserID:  userUID,
 		Creator: true,
-	})
+	}); err != nil {
+		panic(err)
+	}
 
 	c.JSON(http.StatusCreated, group)
 }

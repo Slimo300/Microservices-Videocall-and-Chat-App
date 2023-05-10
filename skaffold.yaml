@@ -38,11 +38,11 @@ build:
         dockerfile: Dockerfile
 manifests:
   rawYaml:
-    - deploy/frontend.yaml
-    - deploy/ingress.yaml
-    - deploy/dbs/*
     - deploy/secrets/*
+    - deploy/frontend.yaml
+    - deploy/dbs/*
     - deploy/services/*
+    - deploy/ingress.yaml
   helm:
     releases:
       - name: kafka
