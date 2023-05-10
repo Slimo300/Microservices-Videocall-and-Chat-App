@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/Slimo300/chat-tokenservice/pkg/client/pb"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
 )
 
 type gRPCTokenAuthClient struct {
