@@ -155,7 +155,6 @@ func (consumer *groupConsumer) Setup(sarama.ConsumerGroupSession) error {
 }
 
 func (consumer *groupConsumer) Cleanup(sarama.ConsumerGroupSession) error {
-	close(consumer.results)
 	return nil
 }
 
