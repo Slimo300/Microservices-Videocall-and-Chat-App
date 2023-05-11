@@ -38,7 +38,7 @@ spec:
           name: https
         env:
         - name: MYSQL_ADDRESS
-          value: chat:password12@tcp(messagemysql:3306)/chatapp
+          value: chat:password12@tcp(usermysql:3306)/chatapp
         - name: TOKEN_SERVICE_ADDRESS
           value: tokenservice:9000
         - name: EMAIL_SERVICE_ADDRESS

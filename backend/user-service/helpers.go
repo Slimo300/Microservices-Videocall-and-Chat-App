@@ -41,7 +41,7 @@ func kafkaSetup(brokerAddresses []string) (msgqueue.EventEmiter, error) {
 		return nil, err
 	}
 
-	emiter, err := kafka.NewKafkaEventEmiter(client)
+	emiter, err := kafka.NewKafkaEventEmiter(client, log.New(os.Stdout, "[ emiter ]: ", log.Flags()))
 	if err != nil {
 		return nil, err
 	}

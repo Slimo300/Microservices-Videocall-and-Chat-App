@@ -6,16 +6,24 @@ import {Logout} from '../requests/Users';
 import { StorageContext, actionTypes } from '../ChatStorage';
 import Invite from './Invite';
 
-const Navigation = (props) => {
+const Navigation = ({ws, toggleProfile, setWs}) => {
 
     const [state, dispatch] = useContext(StorageContext);
 
     const logout = async () => {
-        let response = await Logout();
+        try {
+            await Logout();
+        } catch (err) {
+        }
         window.localStorage.clear();
         dispatch({type: actionTypes.LOGOUT});
-        props.ws.close();
-        if (response.status !== 200) alert(response.data.message);
+        try {
+            ws.close();
+        } catch (err) {
+
+        }
+        // setWs changes state and triggers nav rerender
+        setWs({});
     };
 
     let menu;
@@ -32,7 +40,7 @@ const Navigation = (props) => {
         menu = (
             <div className="collapse navbar-collapse" id="navbarCollapse">
                 <ul className="navbar-nav mr-auto">
-                    <button type='button' className="navbar-brand order-1 btn btn-dark text-primary" onClick={props.toggleProfile}>Profile</button>
+                    <button type='button' className="navbar-brand order-1 btn btn-dark text-primary" onClick={toggleProfile}>Profile</button>
                 </ul>
 
                 <div className="btn-group">

@@ -28,6 +28,8 @@ spec:
         env:
         - name: REDIS_ADDRESS
           value: tokenredis:6379
+        - name: REDIS_PASSWORD
+          value: redis
         - name: REFRESH_DURATION
           value: 86400s
         - name: ACCESS_DURATION
@@ -35,8 +37,6 @@ spec:
         envFrom:
         - secretRef:
             name: refreshsecret
-        - configMapRef:
-            name: redispass
 ---
 apiVersion: v1
 kind: Service

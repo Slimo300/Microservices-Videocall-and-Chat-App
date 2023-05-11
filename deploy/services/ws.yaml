@@ -37,10 +37,7 @@ spec:
         - name: DB_ADDRESS
           value: wsredis:6379
         - name: DB_PASSWORD
-          valueFrom:
-            configMapKeyRef:
-              name: redispass
-              key: REDIS_PASSWORD
+          value: redis
         - name: TOKEN_SERVICE_ADDRESS
           value: tokenservice:9000
         - name: ORIGIN

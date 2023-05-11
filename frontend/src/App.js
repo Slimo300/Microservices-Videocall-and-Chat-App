@@ -24,7 +24,7 @@ function App() {
       <div >
         <ChatStorage>
         <Router>
-          <Navigation toggleProfile={toggleProfileShow} ws={ws} />
+          <Navigation toggleProfile={toggleProfileShow} ws={ws} setWs={setWs} />
           <main>
             <Routes>
               <Route path="/" element={<Main profileShow={profileShow} toggleProfile={toggleProfileShow} ws={ws} setWs={setWs}/>}/>

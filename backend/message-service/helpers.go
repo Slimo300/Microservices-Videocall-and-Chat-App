@@ -41,7 +41,7 @@ func kafkaSetup(brokerAddresses []string) (msgqueue.EventEmiter, msgqueue.EventL
 		return nil, nil, err
 	}
 
-	emiter, err := kafka.NewKafkaEventEmiter(client)
+	emiter, err := kafka.NewKafkaEventEmiter(client, log.New(os.Stdout, "[ emiter ]: ", log.Flags()))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -57,6 +57,7 @@ func kafkaSetup(brokerAddresses []string) (msgqueue.EventEmiter, msgqueue.EventL
 	}
 	listener, err := kafka.NewConsumerGroupEventListener(client, "message-service", mapper, &kafka.ListenerOptions{
 		SetPartitions: map[string]int32{"groups": 2},
+		Logger:        log.New(os.Stdout, "[listener]: ", log.Flags()),
 	})
 	if err != nil {
 		return nil, nil, err

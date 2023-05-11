@@ -34,15 +34,18 @@ spec:
         - containerPort: 8090
           name: https
         env:
+        - name: ES_ADDRESS
+          value: http://elastic:9200
+        - name: ES_USER
+          value: ""
+        - name: ES_PASS
+          value: ""
         - name: TOKEN_SERVICE_ADDRESS
           value: tokenservice:9000
         - name: ORIGIN
           value: http://www.chatapp.example
         - name: BROKER_ADDRESS
           value: kafka:9092
-        envFrom:
-        - configMapRef:
-            name: escreds
 ---
 apiVersion: v1
 kind: Service

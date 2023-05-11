@@ -1,3 +1,4 @@
+
 const PROTOCOL = window._env_.USE_TLS==="true"?"https":"http"
 const WS_PROTOCOL = window._env_.USE_TLS==="true"?"wss":"ws"
 
@@ -20,15 +21,19 @@ axiosObject.defaults.headers.common['Content-Type'] = "application/json";
 
 
 async function refreshAccessToken() {
-    let response = await axiosObject.post(userService+"/refresh", {}, {
-        withCredentials: true,
+
+  let response;
+
+  try {
+    response = await axiosObject.post(userService+"/refresh", {}, {
+      withCredentials: true,
     })
-    if (response.data.accessToken) {
-      console.log(response.data.accessToken);
-      localStorage.setItem("token", response.data.accessToken);
-    } else {
-      localStorage.removeItem("token");
-    }
+    
+    window.localStorage.setItem("token", response.data.accessToken);
+  
+  } catch (err) {
+    window.localStorage.clear();
+  }
 }
 
 // Request interceptor for API calls
@@ -53,10 +58,17 @@ axiosObject.interceptors.request.use(
 
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
+
+      console.log("interceptor: before refreshing token");
       
       await refreshAccessToken();
 
-      let access_token = window.localStorage.getItem("token");
+      console.log("interceptor: After refresh")
+
+      const access_token = window.localStorage.getItem("token");
+
+      if (access_token === null) return Promise.reject(error);
+
       axiosObject.defaults.headers.common['Authorization'] = 'Bearer ' + access_token;
       return axiosObject(originalRequest);
     }

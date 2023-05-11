@@ -45,11 +45,6 @@ func (s *Server) SignOutUser(c *gin.Context) {
 		return
 	}
 
-	if refresh == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "No token to invalidate"})
-		return
-	}
-
 	if err := s.TokenClient.DeleteUserToken(context.TODO(), refresh); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return

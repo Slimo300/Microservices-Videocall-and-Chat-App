@@ -26,7 +26,7 @@ func (p *EventProcessor) ProcessEvents(eventNames ...string) {
 
 	eventChan, errorChan, err := p.Listener.Listen()
 	if err != nil {
-		log.Fatalf("Listener couldn't launch: %v", err)
+		log.Println(err)
 	}
 
 	for {

@@ -41,7 +41,7 @@ func kafkaSetup(brokerAddreses []string) (msgqueue.EventEmiter, msgqueue.EventLi
 		return nil, nil, err
 	}
 
-	emiter, err := kafka.NewKafkaEventEmiter(client)
+	emiter, err := kafka.NewKafkaEventEmiter(client, log.New(os.Stdout, "[ emiter ]: ", log.Flags()))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -58,7 +58,9 @@ func kafkaSetup(brokerAddreses []string) (msgqueue.EventEmiter, msgqueue.EventLi
 		log.Fatal(err)
 	}
 
-	listener, err := kafka.NewBroadcastEventListener(client, mapper, nil)
+	listener, err := kafka.NewBroadcastEventListener(client, mapper, &kafka.ListenerOptions{
+		Logger: log.New(os.Stdout, "[listener]: ", log.Flags()),
+	})
 	if err != nil {
 		return nil, nil, err
 	}

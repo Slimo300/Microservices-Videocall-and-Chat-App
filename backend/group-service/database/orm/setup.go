@@ -22,9 +22,7 @@ func Setup(dbaddress string) (*Database, error) {
 		return nil, err
 	}
 
-	if err := db.AutoMigrate(&models.User{}, &models.Group{}, &models.Member{}, &models.Invite{}); err != nil {
-		return nil, err
-	}
+	_ = db.AutoMigrate(&models.User{}, &models.Group{}, &models.Member{}, &models.Invite{})
 
 	return &Database{DB: db}, nil
 }

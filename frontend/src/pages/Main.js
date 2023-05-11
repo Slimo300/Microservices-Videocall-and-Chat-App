@@ -34,8 +34,17 @@ const AuthMain = (props) => {
     // Getting user data, groups and invites and setting websocket connection
     useEffect(() => {
         const fetchData = async () => {
-            const userResult = await GetUser();
-            dispatch({type: actionTypes.LOGIN, payload: userResult.data});
+            try {
+                const userResult = await GetUser();
+                dispatch({type: actionTypes.LOGIN, payload: userResult.data});
+            } catch(err) {
+                if (err.response.status == 401) {
+                    dispatch({type: actionTypes.LOGOUT});
+                    // setWs changes state and triggers nav rerender
+                    props.setWs({});
+                }
+            }
+
             const groupsResult = await GetGroups();
             if (groupsResult.status === 200) {
                 dispatch({type: actionTypes.ADD_GROUPS, payload: groupsResult.data});
