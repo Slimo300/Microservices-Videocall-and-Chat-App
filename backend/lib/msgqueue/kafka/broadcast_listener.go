@@ -2,6 +2,7 @@ package kafka
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/Shopify/sarama"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
@@ -15,6 +16,7 @@ type ListenerOptions struct {
 	Decoder       *msgqueue.Decoder // default: msgqueue.jsonDecoder
 	Offset        *int64            // default: sarama.OffsetNewest
 	SetPartitions map[string]int32  // allows to set number of partitions for a topic, maps 'topic' -> no. of partitions
+	Logger        *log.Logger       // allows to log to specific source
 }
 
 type broadcastEventListener struct {
@@ -23,6 +25,7 @@ type broadcastEventListener struct {
 
 	decoder msgqueue.Decoder
 	offset  int64
+	logger  *log.Logger
 }
 
 func (b *broadcastEventListener) applyOptions(options *ListenerOptions) {
@@ -82,6 +85,10 @@ func (b *broadcastEventListener) Listen(topics ...string) (<-chan msgqueue.Event
 					if err := b.decoder.Decode(msg.Value, &body); err != nil {
 						errors <- fmt.Errorf("Could not unmarshal message: %s", err.Error())
 						continue
+					}
+
+					if b.logger != nil {
+						b.logger.Printf("Received %s\n", body.EventName)
 					}
 
 					evt, err := b.mapper.MapEvent(body.EventName, body.Payload)

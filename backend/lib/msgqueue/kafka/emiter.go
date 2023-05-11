@@ -9,7 +9,7 @@ import (
 
 type kafkaEventEmiter struct {
 	producer sarama.SyncProducer
-	Encoder  msgqueue.Encoder
+	encoder  msgqueue.Encoder
 }
 
 type kafkaMessage struct {
@@ -26,13 +26,13 @@ func NewKafkaEventEmiter(client sarama.Client) (msgqueue.EventEmiter, error) {
 
 	return &kafkaEventEmiter{
 		producer: producer,
-		Encoder:  msgqueue.NewJSONEncoder(),
+		encoder:  msgqueue.NewJSONEncoder(),
 	}, nil
 }
 
 // Emit sends a new Event to kafka
 func (k *kafkaEventEmiter) Emit(event msgqueue.Event) error {
-	messageBody, err := k.Encoder.Encode(kafkaMessage{
+	messageBody, err := k.encoder.Encode(kafkaMessage{
 		EventName: event.EventName(),
 		Payload:   event,
 	})

@@ -33,7 +33,7 @@ func MustAuth(auth TokenClient) gin.HandlerFunc {
 				return auth.GetPublicKey(), nil
 			})
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"err": err.Error()})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"err": "Invalid token"})
 			return
 		}
 		userID := accessToken.Claims.(*jwt.StandardClaims).Subject

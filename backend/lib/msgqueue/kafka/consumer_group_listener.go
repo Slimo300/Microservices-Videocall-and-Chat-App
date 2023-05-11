@@ -3,6 +3,7 @@ package kafka
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/Shopify/sarama"
@@ -17,6 +18,7 @@ type consumerGroupEventListener struct {
 
 	decoder msgqueue.Decoder
 	offset  int64
+	logger  *log.Logger
 }
 
 func (c *consumerGroupEventListener) applyOptions(options *ListenerOptions) error {
@@ -36,6 +38,10 @@ func (c *consumerGroupEventListener) applyOptions(options *ListenerOptions) erro
 		if err := c.setPartitions(options.SetPartitions); err != nil {
 			return err
 		}
+	}
+
+	if options.Logger != nil {
+		c.logger = options.Logger
 	}
 
 	return nil
@@ -118,6 +124,10 @@ func (c *consumerGroupEventListener) Listen(topics ...string) (<-chan msgqueue.E
 			if err := c.decoder.Decode(msg.Value, &body); err != nil {
 				errors <- fmt.Errorf("Could not unmarshal message: %s", err.Error())
 				continue
+			}
+
+			if c.logger != nil {
+				c.logger.Printf("Received %s", body.EventName)
 			}
 
 			evt, err := c.mapper.MapEvent(body.EventName, body.Payload)
