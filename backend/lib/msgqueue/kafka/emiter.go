@@ -1,6 +1,7 @@
 package kafka
 
 import (
+	"log"
 	"strings"
 
 	"github.com/Shopify/sarama"
@@ -10,6 +11,7 @@ import (
 type kafkaEventEmiter struct {
 	producer sarama.SyncProducer
 	encoder  msgqueue.Encoder
+	logger   *log.Logger
 }
 
 type kafkaMessage struct {
@@ -18,7 +20,7 @@ type kafkaMessage struct {
 }
 
 // NewKafkaEventEmiter creates kafka emiter
-func NewKafkaEventEmiter(client sarama.Client) (msgqueue.EventEmiter, error) {
+func NewKafkaEventEmiter(client sarama.Client, logger *log.Logger) (msgqueue.EventEmiter, error) {
 	producer, err := sarama.NewSyncProducerFromClient(client)
 	if err != nil {
 		return nil, err
@@ -27,6 +29,7 @@ func NewKafkaEventEmiter(client sarama.Client) (msgqueue.EventEmiter, error) {
 	return &kafkaEventEmiter{
 		producer: producer,
 		encoder:  msgqueue.NewJSONEncoder(),
+		logger:   logger,
 	}, nil
 }
 
@@ -41,6 +44,10 @@ func (k *kafkaEventEmiter) Emit(event msgqueue.Event) error {
 	}
 
 	topic := strings.Split(event.EventName(), ".")[0]
+
+	if k.logger != nil {
+		k.logger.Printf("Emiting: %s\n", event.EventName())
+	}
 
 	_, _, err = k.producer.SendMessage(&sarama.ProducerMessage{
 		Topic: topic,
