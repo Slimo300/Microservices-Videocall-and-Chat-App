@@ -10,7 +10,7 @@ import (
 
 // NewMember sets new member in format <USER_ID>:<GROUP_ID>
 func (db *DB) NewMember(event events.MemberCreatedEvent) error {
-	return db.Set(fmt.Sprintf("%s:%s", event.UserID.String(), event.GroupID.String()), true, db.AccessCodeTTL).Err()
+	return db.Set(fmt.Sprintf("%s:%s", event.UserID.String(), event.GroupID.String()), true, 0).Err()
 }
 
 // DeleteMember deletes given member if he exists
