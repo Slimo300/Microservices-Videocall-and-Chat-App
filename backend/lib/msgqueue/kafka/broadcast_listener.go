@@ -1,6 +1,7 @@
 package kafka
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
@@ -63,6 +64,10 @@ func NewBroadcastEventListener(client sarama.Client, mapper msgqueue.EventMapper
 
 // Listen listens for specified topics and sends them through channel
 func (b *broadcastEventListener) Listen(topics ...string) (<-chan msgqueue.Event, <-chan error, error) {
+
+	if len(topics) == 0 {
+		return nil, nil, errors.New("Listen called with no topics provided")
+	}
 
 	results := make(chan msgqueue.Event)
 	errors := make(chan error)

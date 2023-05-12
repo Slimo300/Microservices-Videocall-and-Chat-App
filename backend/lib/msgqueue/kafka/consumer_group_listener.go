@@ -2,6 +2,7 @@ package kafka
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -92,6 +93,10 @@ func NewConsumerGroupEventListener(client sarama.Client, groupID string, mapper 
 
 // Listen listens for specified topics and sends them through channel
 func (c *consumerGroupEventListener) Listen(topics ...string) (<-chan msgqueue.Event, <-chan error, error) {
+
+	if len(topics) == 0 {
+		return nil, nil, errors.New("Listen called with no topics provided")
+	}
 
 	results := make(chan msgqueue.Event)
 	errors := make(chan error)
