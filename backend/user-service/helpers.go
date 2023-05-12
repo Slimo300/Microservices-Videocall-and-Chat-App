@@ -33,7 +33,7 @@ func startHTTPSServer(httpsServer *http.Server, certDir string, errChan chan<- e
 func kafkaSetup(brokerAddresses []string) (msgqueue.EventEmiter, error) {
 
 	brokerConf := sarama.NewConfig()
-	brokerConf.ClientID = "groupsService"
+	brokerConf.ClientID = "usersService"
 	brokerConf.Version = sarama.V2_3_0_0
 	brokerConf.Producer.Return.Successes = true
 	client, err := sarama.NewClient(brokerAddresses, brokerConf)

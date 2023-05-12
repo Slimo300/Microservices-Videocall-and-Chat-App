@@ -26,7 +26,7 @@ func NewEventProcessor(db database.DBLayer, listener msgqueue.EventListener) *Ev
 func (p *EventProcessor) ProcessEvents(eventNames ...string) {
 	received, errors, err := p.Listener.Listen(eventNames...)
 	if err != nil {
-		log.Println(err)
+		log.Fatalf("Error when starting listening to kafka: %v", err)
 	}
 
 	for {

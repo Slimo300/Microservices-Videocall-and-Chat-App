@@ -15,7 +15,7 @@ type EventProcessor struct {
 }
 
 // NewEventProcessor is a constructor for EventProcessor type
-func NewEventProcessor(listener msgqueue.EventListener, db database.DBLayer) *EventProcessor {
+func NewEventProcessor(db database.DBLayer, listener msgqueue.EventListener) *EventProcessor {
 	return &EventProcessor{
 		DB:       db,
 		Listener: listener,
@@ -24,14 +24,14 @@ func NewEventProcessor(listener msgqueue.EventListener, db database.DBLayer) *Ev
 
 func (p *EventProcessor) ProcessEvents(eventNames ...string) {
 
-	eventChan, errorChan, err := p.Listener.Listen()
+	received, errors, err := p.Listener.Listen(eventNames...)
 	if err != nil {
-		log.Println(err)
+		log.Fatalf("Error when starting listening to kafka: %v", err)
 	}
 
 	for {
 		select {
-		case evt := <-eventChan:
+		case evt := <-received:
 			switch e := evt.(type) {
 			case *events.UserRegisteredEvent:
 				if err := p.DB.AddUser(*e); err != nil {
@@ -41,8 +41,10 @@ func (p *EventProcessor) ProcessEvents(eventNames ...string) {
 				if err := p.DB.UpdateProfilePicture(*e); err != nil {
 					log.Printf("Updating profile picture url returned error: %v", err)
 				}
+			default:
+				log.Println("Unsupported event type")
 			}
-		case err = <-errorChan:
+		case err = <-errors:
 			log.Printf("Error from listener: %v", err)
 		}
 	}

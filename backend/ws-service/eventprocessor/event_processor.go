@@ -29,7 +29,7 @@ func (p *EventProcessor) ProcessEvents(eventNames ...string) {
 
 	received, errors, err := p.Listener.Listen(eventNames...)
 	if err != nil {
-		log.Fatal("Error creating listener")
+		log.Fatalf("Error when starting listening to kafka: %v", err)
 	}
 
 	for {

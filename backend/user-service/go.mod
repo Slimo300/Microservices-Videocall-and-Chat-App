@@ -8,7 +8,7 @@ require (
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230510162540-9420dd998030
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/email v0.0.0-20230510191507-66e3624e3c1a
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20230226171856-6155e6862233
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230511171905-f70b2553e29f
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230512171330-407207b7b6eb
 	github.com/aws/aws-sdk-go v1.44.140
 	github.com/gin-contrib/size v0.0.0-20220829131622-0fc0bc875336
 	github.com/gin-gonic/gin v1.9.0

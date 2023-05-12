@@ -57,6 +57,10 @@ github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230511150
 github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230511150556-a8ef33dcd0b2/go.mod h1:4B7YKdejTwNIP9R3qL9NpQI9jg/xlnIh8nks4Xj1Ssg=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230511171905-f70b2553e29f h1:Vg2NOcbsn6d+4/hES2oh4VLDga+iouQKjIyJePVIvkY=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230511171905-f70b2553e29f/go.mod h1:4B7YKdejTwNIP9R3qL9NpQI9jg/xlnIh8nks4Xj1Ssg=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230511175918-7cd5fac03a43 h1:Zqri+yPqy+r/vXzF4MinSdKCrOhWeWru2T/Yx9/VpDU=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230511175918-7cd5fac03a43/go.mod h1:4B7YKdejTwNIP9R3qL9NpQI9jg/xlnIh8nks4Xj1Ssg=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230512171330-407207b7b6eb h1:1qrDLU67/ff7wvkPIqxdmv5k6pv6ap4wG+Ic6nikMaY=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230512171330-407207b7b6eb/go.mod h1:4B7YKdejTwNIP9R3qL9NpQI9jg/xlnIh8nks4Xj1Ssg=
 github.com/aws/aws-sdk-go v1.44.100 h1:7I86bWNQB+HGDT5z/dJy61J7qgbgLoZ7O51C9eL6hrA=
 github.com/aws/aws-sdk-go v1.44.100/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4oIKwKHZo=
 github.com/bytedance/sonic v1.5.0/go.mod h1:ED5hyg4y6t3/9Ku1R6dU/4KyJ48DZ4jPhfY1O2AihPM=

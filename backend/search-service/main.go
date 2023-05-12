@@ -40,7 +40,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	eventProcessor := eventprocessor.NewEventProcessor(listener, es)
+	log.Println("Initializng new event processor")
+
+	eventProcessor := eventprocessor.NewEventProcessor(es, listener)
 	go eventProcessor.ProcessEvents("users")
 
 	server := handlers.Server{
