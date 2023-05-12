@@ -41,6 +41,10 @@ func (b *broadcastEventListener) applyOptions(options *ListenerOptions) {
 	if options.Offset != nil {
 		b.offset = *options.Offset
 	}
+
+	if options.Logger != nil {
+		b.logger = options.Logger
+	}
 }
 
 // Returns new broadcastEventListener
