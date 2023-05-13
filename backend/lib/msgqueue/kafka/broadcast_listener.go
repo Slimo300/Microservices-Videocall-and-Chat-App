@@ -14,10 +14,14 @@ const OffsetOldest = sarama.OffsetOldest
 
 // ListenerOptions allows to change default configuration of listener
 type ListenerOptions struct {
-	Decoder       *msgqueue.Decoder // default: msgqueue.jsonDecoder
-	Offset        *int64            // default: sarama.OffsetNewest
-	SetPartitions map[string]int32  // allows to set number of partitions for a topic, maps 'topic' -> no. of partitions
-	Logger        *log.Logger       // allows to log to specific source
+	// default: msgqueue.jsonDecoder
+	Decoder *msgqueue.Decoder
+	// default: OffsetNewest (-1), 0 leaves default option, to start from first message written use OffsetOldest or -2
+	Offset int64
+	// allows to set number of partitions for a topic, maps 'topic' -> no. of partitions
+	SetPartitions map[string]int32
+	// allows to log to specific source
+	Logger *log.Logger
 }
 
 type broadcastEventListener struct {
@@ -38,8 +42,8 @@ func (b *broadcastEventListener) applyOptions(options *ListenerOptions) {
 		b.decoder = *options.Decoder
 	}
 
-	if options.Offset != nil {
-		b.offset = *options.Offset
+	if options.Offset != 0 {
+		b.offset = options.Offset
 	}
 
 	if options.Logger != nil {

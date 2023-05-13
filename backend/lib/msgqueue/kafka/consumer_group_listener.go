@@ -31,8 +31,8 @@ func (c *consumerGroupEventListener) applyOptions(options *ListenerOptions) erro
 		c.decoder = *options.Decoder
 	}
 
-	if options.Offset != nil {
-		c.offset = *options.Offset
+	if options.Offset != 0 {
+		c.offset = options.Offset
 	}
 
 	if options.SetPartitions != nil {
