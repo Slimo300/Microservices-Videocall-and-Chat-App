@@ -31,22 +31,39 @@ func startHTTPSServer(httpsServer *http.Server, certDir string, errChan chan<- e
 }
 
 // kafkaSetup starts kafka EventEmiter and EventListener
-func kafkaSetup(brokerAddreses []string) (msgqueue.EventEmiter, msgqueue.EventListener, error) {
+func kafkaSetup(brokerAddreses []string) (emiter msgqueue.EventEmiter, dbListener msgqueue.EventListener, hubListener msgqueue.EventListener, err error) {
 	brokerConf := sarama.NewConfig()
 	brokerConf.ClientID = "websocketService"
 	brokerConf.Version = sarama.V2_3_0_0
 	brokerConf.Producer.Return.Successes = true
 	client, err := sarama.NewClient(brokerAddreses, brokerConf)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
-	emiter, err := kafka.NewKafkaEventEmiter(client, log.New(os.Stdout, "[ emiter ]: ", log.Flags()))
+	// initializing emiter
+	emiter, err = kafka.NewKafkaEventEmiter(client, log.New(os.Stdout, "[ emiter ]: ", log.Flags()))
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
-	mapper := msgqueue.NewDynamicEventMapper()
-	if err := mapper.RegisterTypes(
+
+	// initializing dbListener
+	dbListenerMapper := msgqueue.NewDynamicEventMapper()
+	if err := dbListenerMapper.RegisterTypes(
+		reflect.TypeOf(events.GroupDeletedEvent{}),
+		reflect.TypeOf(events.MemberCreatedEvent{}),
+		reflect.TypeOf(events.MemberDeletedEvent{}),
+	); err != nil {
+		return nil, nil, nil, err
+	}
+
+	dbListener, err = kafka.NewConsumerGroupEventListener(client, "ws-service", dbListenerMapper, &kafka.ListenerOptions{
+		Logger: log.New(os.Stdout, "[DB listener]: ", log.Flags()),
+	})
+
+	// initializing hubListener
+	hubListenerMapper := msgqueue.NewDynamicEventMapper()
+	if err := hubListenerMapper.RegisterTypes(
 		reflect.TypeOf(events.GroupDeletedEvent{}),
 		reflect.TypeOf(events.MemberCreatedEvent{}),
 		reflect.TypeOf(events.MemberDeletedEvent{}),
@@ -55,15 +72,15 @@ func kafkaSetup(brokerAddreses []string) (msgqueue.EventEmiter, msgqueue.EventLi
 		reflect.TypeOf(events.InviteSentEvent{}),
 		reflect.TypeOf(events.InviteRespondedEvent{}),
 	); err != nil {
-		log.Fatal(err)
+		return nil, nil, nil, err
 	}
 
-	listener, err := kafka.NewBroadcastEventListener(client, mapper, &kafka.ListenerOptions{
-		Logger: log.New(os.Stdout, "[listener]: ", log.Flags()),
+	hubListener, err = kafka.NewBroadcastEventListener(client, hubListenerMapper, &kafka.ListenerOptions{
+		Logger: log.New(os.Stdout, "[Hub listener]: ", log.Flags()),
 	})
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
-	return emiter, listener, nil
+	return emiter, dbListener, hubListener, nil
 }

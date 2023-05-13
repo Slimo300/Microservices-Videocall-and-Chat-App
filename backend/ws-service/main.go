@@ -37,7 +37,7 @@ func main() {
 		log.Fatalf("Error when connecting to token service: %v", err)
 	}
 
-	emiter, listener, err := kafkaSetup([]string{conf.BrokerAddress})
+	emiter, dbListener, hubListener, err := kafkaSetup([]string{conf.BrokerAddress})
 	if err != nil {
 		log.Fatalf("Error setting up kafka: %v", err)
 	}
@@ -45,14 +45,16 @@ func main() {
 	messageChan := make(chan *ws.Message)
 	actionChan := make(chan msgqueue.Event)
 
-	eventProcessor := eventprocessor.NewEventProcessor(db, listener, actionChan)
-	go eventProcessor.ProcessEvents("groups", "messages")
+	dbEventProcessor := eventprocessor.NewDBEventProcessor(dbListener, db)
+	go dbEventProcessor.ProcessEvents("groups")
+
+	hubEventProcessor := eventprocessor.NewHubEventProcessor(hubListener, actionChan)
+	go hubEventProcessor.ProcessEvents("groups", "messages")
 
 	server := &handlers.Server{
 		DB:          db,
 		TokenClient: tokenClient,
 		Emitter:     emiter,
-		Listener:    listener,
 		Hub:         ws.NewHub(messageChan, actionChan, conf.Origin),
 		MessageChan: messageChan,
 	}

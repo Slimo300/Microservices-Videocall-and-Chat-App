@@ -80,11 +80,6 @@ func (h *WSHub) Run() {
 				if _, ok := client.groups[msg.Group]; ok {
 					client.send <- msg
 				}
-				// for _, gr := range client.groups {
-				// 	if gr == msg.Group {
-				// 		client.send <- msg
-				// 	}
-				// }
 			}
 		}
 	}
