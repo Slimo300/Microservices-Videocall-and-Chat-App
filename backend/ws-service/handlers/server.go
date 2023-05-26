@@ -31,13 +31,14 @@ func (s *Server) ListenToHub() {
 		}
 
 		if err := s.Emitter.Emit(events.MessageSentEvent{
-			ID:      msg.ID,
-			GroupID: msg.Group,
-			UserID:  msg.User,
-			Nick:    msg.Nick,
-			Posted:  msg.When,
-			Text:    msg.Message,
-			Files:   files,
+			ID:        msg.ID,
+			GroupID:   msg.Group,
+			UserID:    msg.User,
+			Nick:      msg.Nick,
+			Posted:    msg.When,
+			Text:      msg.Message,
+			Files:     files,
+			ServiceID: s.Hub.ServiceID,
 		}); err != nil {
 			log.Printf("Error when sending message to broker %v: %v", msg, err)
 		}

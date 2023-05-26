@@ -49,7 +49,7 @@ func main() {
 	go dbEventProcessor.ProcessEvents("groups")
 
 	hubEventProcessor := eventprocessor.NewHubEventProcessor(hubListener, actionChan)
-	go hubEventProcessor.ProcessEvents("groups", "messages")
+	go hubEventProcessor.ProcessEvents("groups", "messages", "wsmessages")
 
 	server := &handlers.Server{
 		DB:          db,

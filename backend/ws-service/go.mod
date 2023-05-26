@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/Shopify/sarama v1.37.2
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230510182501-d4e045810294
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20230226171856-6155e6862233
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20230526213820-3ed8c950e685
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230512171330-407207b7b6eb
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-redis/redis v6.15.9+incompatible

@@ -17,6 +17,7 @@ const (
 )
 
 type WSHub struct {
+	ServiceID         uuid.UUID
 	upgrader          *websocket.Upgrader
 	actionServerChan  <-chan msgqueue.Event
 	messageServerChan chan<- *Message
@@ -36,6 +37,7 @@ func NewHub(messageChan chan<- *Message, actionChan <-chan msgqueue.Event, origi
 		}}
 
 	return &WSHub{
+		ServiceID:         uuid.New(),
 		upgrader:          upgrader,
 		messageServerChan: messageChan,
 		actionServerChan:  actionChan,
@@ -65,6 +67,8 @@ func (h *WSHub) Run() {
 				h.inviteResponded(*e)
 			case *events.MessageDeletedEvent:
 				h.messageDeleted(*e)
+			case *events.MessageSentEvent:
+				h.messageSent(*e)
 			default:
 				log.Println("Unsupported Event Type: ", event.EventName())
 			}
@@ -76,6 +80,7 @@ func (h *WSHub) Run() {
 		case msg := <-h.forward:
 			msg.Prepare()
 			h.messageServerChan <- msg
+
 			for client := range h.clients {
 				if _, ok := client.groups[msg.Group]; ok {
 					client.send <- msg

@@ -71,6 +71,7 @@ func kafkaSetup(brokerAddreses []string) (emiter msgqueue.EventEmiter, dbListene
 		reflect.TypeOf(events.MessageDeletedEvent{}),
 		reflect.TypeOf(events.InviteSentEvent{}),
 		reflect.TypeOf(events.InviteRespondedEvent{}),
+		reflect.TypeOf(events.MessageSentEvent{}),
 	); err != nil {
 		return nil, nil, nil, err
 	}

@@ -4,6 +4,31 @@ import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 )
 
+func (h *WSHub) messageSent(event events.MessageSentEvent) {
+
+	if event.ServiceID == h.ServiceID {
+		return
+	}
+
+	var files []MessageFile
+	for _, file := range event.Files {
+		files = append(files, MessageFile{Key: file.Key, Ext: file.Extension})
+	}
+
+	for client := range h.clients {
+		if _, ok := client.groups[event.GroupID]; ok {
+			client.send <- &Message{
+				ID:      event.ID,
+				Group:   event.GroupID,
+				User:    event.UserID,
+				Nick:    event.Nick,
+				Message: event.Text,
+				When:    event.Posted,
+			}
+		}
+	}
+}
+
 // Deletes group from every user that is subscribed to it and sends information via websocket to user
 func (h *WSHub) groupDeleted(event events.GroupDeletedEvent) {
 	for client := range h.clients {
