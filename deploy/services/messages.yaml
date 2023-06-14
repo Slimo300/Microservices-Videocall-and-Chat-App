@@ -39,7 +39,7 @@ spec:
         - name: TOKEN_SERVICE_ADDRESS
           value: tokenservice:9000
         - name: ORIGIN
-          value: http://www.chatapp.example
+          value: https://www.chatapp.example
         - name: BROKER_ADDRESS
           value: kafka:9092
         envFrom:

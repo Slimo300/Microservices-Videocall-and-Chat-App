@@ -52,4 +52,8 @@ spec:
             name: frontend
             port:
               number: 80
-    
+  tls:
+  - hosts:
+      - www.chatapp.example
+      - api.chatapp.example
+    secretName: chatapp-tls

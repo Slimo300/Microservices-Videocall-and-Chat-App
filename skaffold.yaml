@@ -8,10 +8,6 @@ build:
       context: backend/email-service
       docker:
         dockerfile: Dockerfile
-    - image: chat/frontend
-      context: frontend
-      docker:
-        dockerfile: Dockerfile
     - image: chat/groupservice
       context: backend/group-service
       docker:
@@ -36,14 +32,21 @@ build:
       context: backend/ws-service
       docker:
         dockerfile: Dockerfile
+    - image: chat/frontend
+      context: frontend
+      docker:
+        dockerfile: Dockerfile
 manifests:
   rawYaml:
     - deploy/secrets/*
-    - deploy/frontend.yaml
     - deploy/dbs/*
     - deploy/services/*
     - deploy/ingress.yaml
+    - deploy/cert-manager/*
   helm:
     releases:
       - name: kafka
         chartPath: bitnami/kafka
+        version: 20.0.6
+      - name: cert-manager
+        chartPath: jetstack/cert-manager

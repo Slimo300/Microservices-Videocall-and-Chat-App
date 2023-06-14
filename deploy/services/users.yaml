@@ -44,7 +44,7 @@ spec:
         - name: EMAIL_SERVICE_ADDRESS
           value: emailservice:9000
         - name: ORIGIN
-          value: http://www.chatapp.example
+          value: https://www.chatapp.example
         - name: DOMAIN
           value: chatapp.example
         - name: BROKER_ADDRESS
