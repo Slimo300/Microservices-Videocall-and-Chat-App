@@ -1,4 +1,4 @@
-import axiosObject, {wsService, wsServiceWebsocket} from "./Setup";
+import axiosObject, {webrtcService, webrtcServiceWebsocket, wsService, wsServiceWebsocket} from "./Setup";
 
 
 export async function GetWebsocket() {
@@ -18,4 +18,26 @@ export async function GetWebsocket() {
         console.log(ev)
     }
     return socket;
+}
+
+export async function GetWebRTCAccessCode(groupID) {
+
+    let response = await axiosObject.get(webrtcService+"/"+groupID+"/accessCode");
+
+    return response.data.accessCode
+    
+}
+
+export function GetWebRTCWebsocket(groupID, accessCode) {
+    let ws = new WebSocket(webrtcServiceWebsocket+"/"+groupID+"/ws?accessCode="+accessCode);
+    
+    ws.onclose = function(evt) {
+        window.alert("Websocket has closed");
+    };
+
+    ws.onerror = function(evt) {
+        console.log(evt);
+    };
+
+    return ws;
 }

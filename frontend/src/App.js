@@ -10,6 +10,7 @@ import EmailVerification from "./pages/VerifyAccount";
 import Page404 from "./pages/404";
 import SignInForm from './pages/Login';
 import ResetPassword from "./pages/ResetPassword";
+import ConferenceWsWrapper from "./pages/Call";
 
 function App() {
   
@@ -32,6 +33,7 @@ function App() {
               <Route path="/register" element={<RegisterForm/>}/>
               <Route path="/verify-account/:code" element={<EmailVerification />}/>
               <Route path="/reset-password/:code" element={<ResetPassword />}/>
+              <Route path="/call/:id" element={<ConferenceWsWrapper />} />
               <Route path="*" element={<Page404 />}/>
             </Routes>
           </main>

@@ -1,0 +1,18 @@
+body {
+  background-color: #4834d4;
+  background: radial-gradient(#402ebb 0%, #0c0c0c 95%);
+}
+
+#localModal {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  bottom: 0px;
+  right: 15px;
+  background-color: royalblue;
+}
+
+.buttonWrapper {
+  padding-top: 1px;
+  justify-self: space-between;
+}

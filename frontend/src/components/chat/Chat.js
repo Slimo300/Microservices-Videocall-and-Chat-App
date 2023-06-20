@@ -1,4 +1,6 @@
 import React, {useEffect, useState } from "react";
+import {Navigate} from "react-router-dom";
+
 import GroupMenu from "./GroupMenu";
 import { ModalAddUser } from "../modals/AddUser";
 import { ModalDeleteGroup } from "../modals/DeleteGroup";
@@ -7,6 +9,10 @@ import { ModalGroupOptions } from "../modals/GroupOptions";
 import { ModalLeaveGroup } from "../modals/LeaveGroup";
 import { ChatBox } from "./Chat-Box";
 import ChatInput from "./Chat-Input";
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faUsers } from '@fortawesome/free-solid-svg-icons'
+import { GetWebRTCAccessCode } from "../../requests/Ws";
 
 const Chat = (props) => {
 
@@ -56,6 +62,16 @@ const Chat = (props) => {
 
     // function for sending message when submit
 
+    const JoinCall = async () => {
+        try {
+            let accessCode = await GetWebRTCAccessCode(props.group.ID);
+            window.open("https://www.chatapp.example/call/"+props.group.ID+"?accessCode="+accessCode, "_blank"); // 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'
+
+        } catch(err) {
+            alert(err);
+        }
+    }
+
     let load;
     if (props.group.ID === undefined) {
         load = <h1 className="text-center">Select a group to chat!</h1>;
@@ -64,6 +80,9 @@ const Chat = (props) => {
             <div className="col-xl-8 col-lg-8 col-md-8 col-sm-9 col-9">
                 <div className="selected-user row">
                     <span className="mr-auto mt-4">To: <span className="name">{props.group.name}</span></span>
+                    <button className="btn btn-primary mt-3 mr-1 mb-3" type="button" onClick={JoinCall}>
+                        <FontAwesomeIcon icon={faUsers} />
+                    </button>
                     <div className="dropdown">
                         <button className="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Settings

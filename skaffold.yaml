@@ -32,6 +32,10 @@ build:
       context: backend/ws-service
       docker:
         dockerfile: Dockerfile
+    - image: chat/webrtcservice
+      context: backend/webrtc-service
+      docker:
+        dockerfile: Dockerfile
     - image: chat/frontend
       context: frontend
       docker:

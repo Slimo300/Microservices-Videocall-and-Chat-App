@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webrtcredis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      chat/app: webrtc
+      chat/tier: database
+  template:
+    metadata:
+      labels:
+        chat/app: webrtc
+        chat/tier: database
+    spec:
+      containers:
+      - name: redis
+        image: bitnami/redis:latest
+        ports:
+        - containerPort: 6379
+          name: redis
+        env:
+          - name: REDIS_PASSWORD
+            value: redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webrtcredis
+spec:
+  clusterIP: None
+  selector:
+    chat/app: webrtc
+    chat/tier: database
+  ports:
+  - port: 6379
+    targetPort: 6379
+    name: redis

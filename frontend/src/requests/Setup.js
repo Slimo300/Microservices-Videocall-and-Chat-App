@@ -6,15 +6,18 @@ const API_URL = window._env_.API_URL
 const GROUPS_ADDRESS = API_URL!=="" ? API_URL : window._env_.GROUPS_SERVICE
 const MESSAGES_ADDRESS = API_URL!=="" ? API_URL : window._env_.MESSAGES_SERVICE
 const USERS_ADDRESS = API_URL!=="" ? API_URL : window._env_.USERS_SERVICE
-const WS_ADDRESS = API_URL!=="" ? API_URL : window._env_.WS_SERVICE
 const SEARCH_ADDRESS = API_URL!=="" ? API_URL : window._env_.SEARCH_SERVICE
+const WS_ADDRESS = API_URL!=="" ? API_URL : window._env_.WS_SERVICE
+const WEBRTC_ADDRESS = API_URL!=="" ? API_URL : window._env_.WEBRTC_SERVICE
 
 export const groupsService = PROTOCOL+'://'+GROUPS_ADDRESS+'/groups';
 export const messageService = PROTOCOL+'://'+MESSAGES_ADDRESS+'/messages';
 export const userService = PROTOCOL+'://'+USERS_ADDRESS+'/users';
+export const searchService = PROTOCOL+'://'+SEARCH_ADDRESS+'/search';
 export const wsService = PROTOCOL+'://'+WS_ADDRESS+'/ws'
 export const wsServiceWebsocket = WS_PROTOCOL+'://'+WS_ADDRESS+'/ws';
-export const searchService = PROTOCOL+'://'+SEARCH_ADDRESS+'/search';
+export const webrtcService = PROTOCOL+'://'+WEBRTC_ADDRESS+'/video-call'
+export const webrtcServiceWebsocket = WS_PROTOCOL+'://'+WEBRTC_ADDRESS+'/video-call';
 
 let axiosObject = require('axios').default;
 axiosObject.defaults.headers.common['Content-Type'] = "application/json";
