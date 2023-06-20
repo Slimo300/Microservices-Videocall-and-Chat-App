@@ -47,8 +47,7 @@ func main() {
 		log.Fatalf("Couldn't establish s3 session: %v", err)
 	}
 
-	eventProcessor := eventprocessor.NewEventProcessor(listener, db, storage)
-	go eventProcessor.ProcessEvents("wsmessages", "groups")
+	go eventprocessor.NewEventProcessor(listener, db, storage).ProcessEvents("wsmessages", "groups")
 
 	server := handlers.NewServer(db, tokenClient, emiter, storage)
 	handler := routes.Setup(server, conf.Origin)
@@ -57,14 +56,9 @@ func main() {
 		Handler: handler,
 		Addr:    fmt.Sprintf(":%s", conf.HTTPPort),
 	}
-	httpsServer := &http.Server{
-		Handler: handler,
-		Addr:    fmt.Sprintf(":%s", conf.HTTPSPort),
-	}
 
 	errChan := make(chan error)
 
-	go startHTTPSServer(httpsServer, conf.CertDir, errChan)
 	go func() { errChan <- httpServer.ListenAndServe() }()
 
 	quit := make(chan os.Signal, 1)
@@ -75,9 +69,6 @@ func main() {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		if err := httpServer.Shutdown(ctx); err != nil {
-			log.Fatalf("Server forced to shutdown: %v\n", err)
-		}
-		if err := httpsServer.Shutdown(ctx); err != nil {
 			log.Fatalf("Server forced to shutdown: %v\n", err)
 		}
 	case err := <-errChan:

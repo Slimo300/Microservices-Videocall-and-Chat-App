@@ -14,10 +14,7 @@ type Config struct {
 	DBAddress  string `mapstructure:"dbAddress"`
 	DBPassword string `mapstructure:"dbPassword"`
 
-	HTTPPort  string `mapstructure:"httpPort"`
-	HTTPSPort string `mapstructure:"httpsPort"`
-
-	CertDir string `mapstructure:"certDir"`
+	HTTPPort string `mapstructure:"httpPort"`
 
 	TokenServiceAddress string `mapstructure:"tokenServiceAddress"`
 
@@ -44,11 +41,6 @@ func LoadConfigFromEnvironment() (conf Config, err error) {
 		return Config{}, errors.New("Environment variable HTTP_PORT not set")
 	}
 
-	conf.HTTPSPort = os.Getenv("HTTPS_PORT")
-	if conf.HTTPSPort == "" {
-		return Config{}, errors.New("Environment variable HTTPS_PORT not set")
-	}
-
 	conf.TokenServiceAddress = os.Getenv("TOKEN_SERVICE_ADDRESS")
 	if conf.TokenServiceAddress == "" {
 		return Config{}, errors.New("Environment variable TOKEN_ADDRESS not set")
@@ -62,11 +54,6 @@ func LoadConfigFromEnvironment() (conf Config, err error) {
 	conf.BrokerAddress = os.Getenv("BROKER_ADDRESS")
 	if conf.BrokerAddress == "" {
 		return Config{}, errors.New("Environment variable BROKER_ADDRESS not set")
-	}
-
-	conf.CertDir = os.Getenv("CERT_DIR")
-	if conf.CertDir == "" {
-		return Config{}, errors.New("Environment variable CERT_DIR not set")
 	}
 
 	return

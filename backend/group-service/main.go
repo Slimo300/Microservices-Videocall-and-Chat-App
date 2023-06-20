@@ -44,8 +44,7 @@ func main() {
 		log.Fatalf("Error setting up kafka: %v", err)
 	}
 
-	eventProcessor := eventprocessor.NewEventProcessor(db, listener)
-	go eventProcessor.ProcessEvents("users")
+	go eventprocessor.NewEventProcessor(db, listener).ProcessEvents("users")
 
 	server := handlers.NewServer(db, storage, tokenClient, emiter)
 	handler := routes.Setup(server, conf.Origin)
@@ -54,14 +53,9 @@ func main() {
 		Handler: handler,
 		Addr:    fmt.Sprintf(":%s", conf.HTTPPort),
 	}
-	httpsServer := &http.Server{
-		Handler: handler,
-		Addr:    fmt.Sprintf(":%s", conf.HTTPSPort),
-	}
 
 	errChan := make(chan error)
 
-	go startHTTPSServer(httpsServer, conf.CertDir, errChan)
 	go func() { errChan <- httpServer.ListenAndServe() }()
 
 	quit := make(chan os.Signal, 1)
@@ -72,9 +66,6 @@ func main() {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		if err := httpServer.Shutdown(ctx); err != nil {
-			log.Fatalf("Server forced to shutdown: %v\n", err)
-		}
-		if err := httpsServer.Shutdown(ctx); err != nil {
 			log.Fatalf("Server forced to shutdown: %v\n", err)
 		}
 	case err := <-errChan:

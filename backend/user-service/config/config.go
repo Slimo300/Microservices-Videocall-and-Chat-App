@@ -13,9 +13,6 @@ import (
 type Config struct {
 	DBAddress string `mapstructure:"dbAddress"`
 	HTTPPort  string `mapstructure:"httpPort"`
-	HTTPSPort string `mapstructure:"httpsPort"`
-
-	CertDir string `mapstructure:"certDir"`
 
 	TokenServiceAddress string `mapstructure:"tokenAddress"`
 	EmailServiceAddress string `mapstructure:"emailAddress"`
@@ -39,11 +36,6 @@ func LoadConfigFromEnvironment() (conf Config, err error) {
 	conf.HTTPPort = os.Getenv("HTTP_PORT")
 	if conf.HTTPPort == "" {
 		return Config{}, errors.New("Environment variable HTTP_PORT not set")
-	}
-
-	conf.HTTPSPort = os.Getenv("HTTPS_PORT")
-	if conf.HTTPSPort == "" {
-		return Config{}, errors.New("Environment variable HTTPS_PORT not set")
 	}
 
 	conf.TokenServiceAddress = os.Getenv("TOKEN_SERVICE_ADDRESS")
@@ -74,11 +66,6 @@ func LoadConfigFromEnvironment() (conf Config, err error) {
 	conf.S3Bucket = os.Getenv("S3_BUCKET")
 	if conf.S3Bucket == "" {
 		return Config{}, errors.New("Environment variable S3_BUCKET not set")
-	}
-
-	conf.CertDir = os.Getenv("CERT_DIR")
-	if conf.CertDir == "" {
-		return Config{}, errors.New("Environment variable CERT_DIR not set")
 	}
 
 	return

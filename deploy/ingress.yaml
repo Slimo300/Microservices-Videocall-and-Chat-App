@@ -42,6 +42,13 @@ spec:
             name: wsservice
             port:
               number: 8080
+      - path: /video-call
+        pathType: Prefix
+        backend:
+          service:
+            name: webrtcservice
+            port:
+              number: 8080
   - host: www.chatapp.example
     http:
       paths:

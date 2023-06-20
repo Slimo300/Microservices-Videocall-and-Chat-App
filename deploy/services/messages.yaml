@@ -31,8 +31,6 @@ spec:
         ports:
         - containerPort: 8080
           name: http
-        - containerPort: 8090
-          name: https
         env:
         - name: MYSQL_ADDRESS
           value: chat:password12@tcp(messagemysql:3306)/chatapp
@@ -58,6 +56,3 @@ spec:
   - port: 8080
     targetPort: 8080
     name: http
-  - port: 8090
-    targetPort: 8090
-    name: https

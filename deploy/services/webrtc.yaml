@@ -1,63 +1,55 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: usersdeployment
+  name: webrtcdeployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      chat/app: users
+      chat/app: webrtc
       chat/tier: api
   template:
     metadata:
       labels:
-        chat/app: users
+        chat/app: webrtc
         chat/tier: api
     spec:
       initContainers:
-        - name: db-test
+        - name: webrtcredis-test
           image: busybox:1.31
-          command: ['sh', '-c', 'echo -e "Checking for the availability of MySQL Server deployment"; while ! nc -z usermysql 3306; do sleep 1; printf "-"; done; echo -e "  >> MySQL DB Server has started";']
+          command: ['sh', '-c', 'echo -e "Checking for the availability of Redis Server deployment"; while ! nc -z webrtcredis 6379; do sleep 1; printf "-"; done; echo -e "  >> Redis Server has started";']
         - name: tokenservice-test
           image: busybox:1.31
           command: ['sh', '-c', 'echo -e "Checking for the availability of Token service deployment"; while ! nc -z tokenservice 9000; do sleep 1; printf "-"; done; echo -e "  >> Token Service has started";']
-        - name: emailservice-test
-          image: busybox:1.31
-          command: ['sh', '-c', 'echo -e "Checking for the availability of Email service deployment"; while ! nc -z emailservice 9000; do sleep 1; printf "-"; done; echo -e "  >> Email Service has started";']
         - name: kafka-test
           image: busybox:1.31
           command: ['sh', '-c', 'echo -e "Checking for the availability of Kafka broker"; while ! nc -z kafka 9092; do sleep 1; printf "-"; done; echo -e "  >> Kafka has started";']
       containers:
-      - name: user-service
+      - name: webrtc-service
         imagePullPolicy: Never
-        image: chat/userservice
+        image: chat/webrtcservice
         ports:
         - containerPort: 8080
           name: http
         env:
-        - name: MYSQL_ADDRESS
-          value: chat:password12@tcp(usermysql:3306)/chatapp
+        - name: DB_ADDRESS
+          value: webrtcredis:6379
+        - name: DB_PASSWORD
+          value: redis
         - name: TOKEN_SERVICE_ADDRESS
           value: tokenservice:9000
-        - name: EMAIL_SERVICE_ADDRESS
-          value: emailservice:9000
         - name: ORIGIN
           value: https://www.chatapp.example
-        - name: DOMAIN
-          value: chatapp.example
         - name: BROKER_ADDRESS
           value: kafka:9092
-        envFrom:
-        - secretRef:
-            name: awssecrets
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: userservice
+  name: webrtcservice
 spec:
   selector:
-    chat/app: users
+    chat/app: webrtc
     chat/tier: api
   ports:
   - port: 8080
