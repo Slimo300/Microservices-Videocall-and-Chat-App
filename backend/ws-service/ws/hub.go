@@ -119,7 +119,7 @@ func ServeWebSocket(w http.ResponseWriter, req *http.Request, h WSHub, groups []
 		send:   make(chan Sender, messageBufferSize),
 		hub:    h,
 		groups: groupsMap,
-		ticker: *time.NewTicker(KEEP_ALIVE_INTERVAL),
+		ticker: time.NewTicker(KEEP_ALIVE_INTERVAL),
 	}
 
 	h.Join(client)

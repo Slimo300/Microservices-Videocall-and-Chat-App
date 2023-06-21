@@ -16,7 +16,7 @@ type client struct {
 	send   chan Sender
 	hub    WSHub
 	groups map[uuid.UUID]struct{}
-	ticker time.Ticker
+	ticker *time.Ticker
 }
 
 // read reads messages received by socket
@@ -44,7 +44,7 @@ func (c *client) write() {
 			if err := msg.Send(c.socket); err != nil {
 				log.Printf("Error when sending message through socket: %v\n", err)
 			}
-			c.ticker.Reset(1)
+			c.ticker.Reset(KEEP_ALIVE_INTERVAL)
 		case <-c.ticker.C:
 			if err := c.socket.WriteMessage(websocket.PingMessage, []byte("KeepAlive")); err != nil {
 				log.Printf("Error pinging client: %v\n", err)
