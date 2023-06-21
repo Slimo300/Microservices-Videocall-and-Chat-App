@@ -4,14 +4,10 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"sync"
-	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/pion/webrtc/v3"
 )
-
-const PING_INTERVAL = 50 * time.Second
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
@@ -19,14 +15,14 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func ConnectRoom(r *Room, w http.ResponseWriter, req *http.Request) {
+func (r *Room) ConnectRoom(w http.ResponseWriter, req *http.Request) {
 	conn, err := upgrader.Upgrade(w, req, nil)
 	if err != nil {
 		log.Printf("Upgrader error: %v\n", err)
 		return
 	}
 
-	ws := &threadSafeWriter{Conn: conn, Mutex: sync.Mutex{}}
+	ws := newThreadSafeWriter(conn)
 	defer ws.Close()
 
 	peerConnection, err := webrtc.NewPeerConnection(webrtc.Configuration{})
@@ -75,7 +71,7 @@ func ConnectRoom(r *Room, w http.ResponseWriter, req *http.Request) {
 		switch pcs {
 		case webrtc.PeerConnectionStateFailed:
 			if err := peerConnection.Close(); err != nil {
-				log.Print(err)
+				log.Printf("Error closing failed connection: %v", err)
 			}
 		case webrtc.PeerConnectionStateClosed:
 			r.SignalPeerConnections()

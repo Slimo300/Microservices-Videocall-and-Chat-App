@@ -40,5 +40,5 @@ func (s *Server) ServeWebSocket(c *gin.Context) {
 		s.Rooms[groupID] = room
 	}
 
-	w.ConnectRoom(room, c.Writer, c.Request)
+	room.ConnectRoom(c.Writer, c.Request)
 }
