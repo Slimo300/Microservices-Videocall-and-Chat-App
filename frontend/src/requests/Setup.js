@@ -1,14 +1,13 @@
+const PROTOCOL = window._env_.USE_TLS==="true"?"https":"http";
+const WS_PROTOCOL = window._env_.USE_TLS==="true"?"wss":"ws";
 
-const PROTOCOL = window._env_.USE_TLS==="true"?"https":"http"
-const WS_PROTOCOL = window._env_.USE_TLS==="true"?"wss":"ws"
-
-const API_URL = window._env_.API_URL
-const GROUPS_ADDRESS = API_URL!=="" ? API_URL : window._env_.GROUPS_SERVICE
-const MESSAGES_ADDRESS = API_URL!=="" ? API_URL : window._env_.MESSAGES_SERVICE
-const USERS_ADDRESS = API_URL!=="" ? API_URL : window._env_.USERS_SERVICE
-const SEARCH_ADDRESS = API_URL!=="" ? API_URL : window._env_.SEARCH_SERVICE
-const WS_ADDRESS = API_URL!=="" ? API_URL : window._env_.WS_SERVICE
-const WEBRTC_ADDRESS = API_URL!=="" ? API_URL : window._env_.WEBRTC_SERVICE
+const API_URL = window._env_.API_URL;
+const GROUPS_ADDRESS = API_URL!=="" ? API_URL : window._env_.GROUPS_SERVICE;
+const MESSAGES_ADDRESS = API_URL!=="" ? API_URL : window._env_.MESSAGES_SERVICE;
+const USERS_ADDRESS = API_URL!=="" ? API_URL : window._env_.USERS_SERVICE;
+const SEARCH_ADDRESS = API_URL!=="" ? API_URL : window._env_.SEARCH_SERVICE;
+const WS_ADDRESS = API_URL!=="" ? API_URL : window._env_.WS_SERVICE;
+const WEBRTC_ADDRESS = API_URL!=="" ? API_URL : window._env_.WEBRTC_SERVICE;
 
 export const groupsService = PROTOCOL+'://'+GROUPS_ADDRESS+'/groups';
 export const messageService = PROTOCOL+'://'+MESSAGES_ADDRESS+'/messages';

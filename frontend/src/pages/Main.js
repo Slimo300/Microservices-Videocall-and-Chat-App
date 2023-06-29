@@ -38,7 +38,7 @@ const AuthMain = (props) => {
                 const userResult = await GetUser();
                 dispatch({type: actionTypes.LOGIN, payload: userResult.data});
             } catch(err) {
-                if (err.response.status == 401) {
+                if (err.response.status === 401) {
                     dispatch({type: actionTypes.LOGOUT});
                     // setWs changes state and triggers nav rerender
                     props.setWs({});
@@ -62,14 +62,13 @@ const AuthMain = (props) => {
 
     if (props.ws !== undefined) props.ws.onmessage = (e) => {
         const msgJSON = JSON.parse(e.data);
-        console.log(msgJSON);
+        
         if (msgJSON.type !== undefined) {
             switch (msgJSON.type) {
                 case "DELETE_GROUP":
                     dispatch({type: actionTypes.DELETE_GROUP, payload: msgJSON.payload});
                     break;
                 case "UPDATE_MEMBER":
-                    console.log("UPDATE_MEMBER");
                     dispatch({type: actionTypes.UPDATE_MEMBER, payload: msgJSON.payload});
                     break;
                 case "DELETE_MEMBER":
@@ -93,10 +92,8 @@ const AuthMain = (props) => {
             return;
         }
         if (msgJSON.groupID === current.ID) { // add message to state
-            console.log("current: ", current.ID);
             dispatch({type: actionTypes.ADD_MESSAGE, payload: {message: msgJSON, current: true}})
         } else {
-            console.log("Not current: ", current.ID);
             dispatch({type: actionTypes.ADD_MESSAGE, payload: {message: msgJSON, current: false}})
         }
     }

@@ -1,13 +1,8 @@
-import React, { useState, useMemo } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { Navigate } from "react-router-dom";
 import { ModalForgotPassword } from "../components/modals/ForgotPassword";
-import {Login} from "../requests/Users";
-
-function useQuery() {
-  const { search } = useLocation();
-
-  return useMemo(() => new URLSearchParams(search), [search]);
-}
+import { Login } from "../requests/Users";
+import useQuery from "../hooks/useQuery";
 
 const SignInForm = () => {
 

@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import {NavLink, withRouter} from 'react-router-dom';
+import {NavLink} from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
 import {Logout} from '../requests/Users';
@@ -28,7 +28,7 @@ const Navigation = ({ws, toggleProfile, setWs, location}) => {
 
     let menu;
 
-    if (window.location.pathname.match("\/call\/*")){
+    if (window.location.pathname.match("/call/*")){
         return null;
     }
 

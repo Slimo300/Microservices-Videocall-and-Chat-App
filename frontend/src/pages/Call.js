@@ -1,152 +1,200 @@
-import React, {useEffect, useState, useMemo, useRef} from 'react';
-import {  useParams, useLocation, Navigate } from "react-router-dom";
+import React, {useEffect, useState, useRef} from 'react';
+import {  useParams, Navigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMicrophone, faVideo } from '@fortawesome/free-solid-svg-icons';
 
+import useQuery from '../hooks/useQuery';
 import "../Call.css";
 import { GetWebRTCWebsocket } from '../requests/Ws';
+import mockVideo from "../videos/mock.webm";
 
-const ConferenceWsWrapper = () => {
 
-    const [ws, setWs] = useState({});
+const VideoConference = () => {
+
     const { id } = useParams();
-
-    function useQuery() {
-        const { search } = useLocation();
-      
-        return useMemo(() => new URLSearchParams(search), [search]);
-    }
     const accessCode = useQuery().get("accessCode");
+    const mocking = useQuery().get("mock");
+
+    const peerConnection = useRef(new RTCPeerConnection());
+    const ws = useRef(null);
+    const localVideo = useRef(null);
+
+    const [fatal, setFatal] = useState(false);
+
+    const [RTCStreams, setRTCStreams] = useState({});
+    const [userStream, setUserStream] = useState(null);
+
+    const [audioState, setAudioState] = useState(true);
+    const [audioTrack, setAudioTrack] = useState(null);
+    const [audioSender, setAudioSender] = useState(null);
+
+    const [videoState, setVideoState] = useState(true);
+    const [videoTrack, setVideoTrack] = useState(null);
+    const [videoSender, setVideoSender] = useState(null);
+
+    const toggleAudio = () => {
+        if (!audioState) {
+            let audioSender = peerConnection.current.addTrack(audioTrack, userStream);
+            setAudioSender(audioSender);
+        } else {
+            peerConnection.current.removeTrack(audioSender);
+        }
+        setAudioState(!audioState);
+    };
+
+    const toggleVideo = () => {
+        if (!videoState) {
+            let videoSender = peerConnection.current.addTrack(videoTrack, userStream);
+            setVideoSender(videoSender);
+        } else {
+            peerConnection.current.removeTrack(videoSender);
+        }
+        setVideoState(!videoState);
+    };
 
     useEffect(() => {
-        let ws = GetWebRTCWebsocket(id, accessCode);
-        setWs(ws);
-    }, []);
-
-    console.log(ws);
-
-    if (ws && ws.readyState && ws.readyState === ws.CLOSED) {
-        console.log("NOT FOUND WS")
-        return <Navigate to="/not-found" />
-    }
+        const startStream = async () => {
+            if (mocking) {
+                const video = document.createElement("video");
+                video.src = mockVideo;
+                video.volume = 0.1;
+                video.oncanplay = () => {
+                    let stream = video.captureStream();
+                    video.play();
+                    setUserStream(stream);
+                }
+            } else {
+                let stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+                setUserStream(stream);
+            }
+        };
         
-    if (window.localStorage.getItem("token") === null) {
-        console.log("NOT FOUND TOKEN")
-        return <Navigate to="/not-found" />
-    }
-    return (
-        <VideoConference ws={ws} />
-    )
-}
-
-const VideoConference = ( {ws} ) => {
-
-    const [streams, setStreams] = useState({});
-    const [userStream, setUserStream] = useState({});
-
-    const mediaVideo = useRef();
+        if (!window.localStorage.getItem("token")) {
+            setFatal(true);
+            return;
+        }
+        startStream();
+    }, [mocking]);
 
     useEffect(() => {
-        const startConnection = async () => {
-            let stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
-            mediaVideo.current.srcObject = stream;
-            setUserStream(stream);
-            let peerConnection = new RTCPeerConnection();
+        if (!userStream) return;
 
-            peerConnection.ontrack = function (event) {
-                let streamID = event.streams[0].id;
-                if (streams[streamID] === undefined) {
-                    let newStreams = streams;
-                    newStreams[streamID] = event.streams[0];
-                    setStreams(newStreams);
+        peerConnection.current.ontrack = (event) => {
+            setRTCStreams(streams => {
+                if (!streams[event.streams[0].id]) {
+                    streams[event.streams[0].id] = event.streams[0];
                 }
+                return streams;
+            });
 
-                event.track.onmute = function(event) {
-                    // TODO: if video is muted display user.png
-                }
-
-                event.streams[0].onremovetrack = ({track}) => {
-                    if (!event.streams[0].active) {
-                        let newStreams = streams;
-                        delete newStreams[event.streams[0].id];
-                        setStreams(newStreams);
-
-                        return;
-                    }
-                    // TODO: if video is removed displayed 
-                }
+            event.track.onmute = (event) => {
+                // TODO: if video is muted display user.png
             }
-
-            peerConnection.onicecandidate = e => {
-                if (!e.candidate) {
-                    return;
+            event.streams[0].onremovetrack = ({track}) => {
+                if (!event.streams[0].active) {
+                    setRTCStreams(streams => {
+                        delete streams[event.streams[0].id];
+                        return streams;
+                    });
                 }
-                ws.send(JSON.stringify({event: "candidate", data: JSON.stringify(e.candidate)}));
+                // TODO: if video is removed display user.png
             }
+        };
 
-            ws.onmessage = function(evt) {
-                let msg = JSON.parse(evt.data);
-                if (!msg) {
-                    return console.log("failed to parse msg");
-                }
+        localVideo.current.srcObject = userStream;
 
-                switch(msg.event) {
-                    case "offer":
-                        let offer = JSON.parse(msg.data);
-                        if (!offer) {
-                            return console.log("Failed to parse message");
-                        }
-                        peerConnection.setRemoteDescription(offer);
-                        peerConnection.createAnswer().then(answer => {
-                            peerConnection.setLocalDescription(answer);
-                            ws.send(JSON.stringify({event: "answer", data: JSON.stringify(answer)}));
-                        });
+        let newAudioTrack = userStream.getAudioTracks()[0];
+        let newAudioSender = peerConnection.current.addTrack(newAudioTrack, userStream);
+        console.log("track sent");
+        setAudioTrack(newAudioTrack);
+        setAudioSender(newAudioSender);
 
-                        return;
-                    case "candidate":
-                        let candidate = JSON.parse(msg.data);
-                        if (!candidate) {
-                            return console.log("Failed to parse candidate");
-                        }
+        let newVideoTrack = userStream.getVideoTracks()[0];
+        let newVideoSender = peerConnection.current.addTrack(newVideoTrack, userStream);
+        console.log("track sent");
+        setVideoTrack(newVideoTrack);
+        setVideoSender(newVideoSender);
 
-                        peerConnection.addIceCandidate(candidate);                }
-            }
-
-            
+        try {
+            ws.current = GetWebRTCWebsocket(id, accessCode);
+        } catch(err) {
+            alert(err);
+            setTimeout(() => setFatal(true), 3000);
+            return;
         }
 
-        startConnection();
-    }, []);
+        peerConnection.current.onicecandidate = (event) => {
+            if (!event.candidate) return;
+            ws.current.send(JSON.stringify({event: "candidate", data: JSON.stringify(event.candidate)}));
+        };
+
+        ws.current.onmessage = (event) => {
+            let msg = JSON.parse(event.data);
+            if (!msg) {
+                return console.log("failed to parse msg");
+            }
+    
+            switch(msg.event) {
+                case "offer":
+                    console.log("received offer");
+                    let offer = JSON.parse(msg.data);
+                    if (!offer) {
+                        return console.log("Failed to parse message");
+                    }
+                    peerConnection.current.setRemoteDescription(offer);
+                    peerConnection.current.createAnswer().then(answer => {
+                        peerConnection.current.setLocalDescription(answer);
+                        ws.current.send(JSON.stringify({event: "answer", data: JSON.stringify(answer)}));
+                        console.log("answer sent");
+                    });
+    
+                    return;
+                case "candidate":
+                    console.log("received ICE candidate");
+                    let candidate = JSON.parse(msg.data);
+                    if (!candidate) {
+                        return console.log("Failed to parse candidate");
+                    }
+    
+                    peerConnection.current.addIceCandidate(candidate);
+                    break;
+                default:
+                    console.log("Unexpected websocket event: ", msg.event);
+            }
+        };
+
+    }, [userStream, accessCode, id]);
+
+
+    if (fatal) return <Navigate to="/not-found" />;
 
     return (
-        
         <div>
             <div id="localModal" className="d-flex row justify-content-center"> 
-                <video id="localVideo" width="300" height="240" ref={mediaVideo} autoPlay muted></video>
+                <video id="localVideo" width="300" height="240" ref={localVideo} autoPlay muted></video>
                 <div className="buttonWrapper d-flex column">
-                    <button className="btn btn-primary" id="microphoneBtn" type="button">
+                    <button className="btn btn-primary" id="microphoneBtn" type="button" onClick={toggleAudio}>
                         <FontAwesomeIcon icon={faMicrophone} />
                     </button>
-                    <button className="btn btn-primary" id="cameraBtn" type="button">
+                    <button className="btn btn-primary" id="cameraBtn" type="button" onClick={toggleVideo}>
                         <FontAwesomeIcon icon={faVideo} />
                     </button>
                 </div>
             </div>
             <div id="remoteVideos">
-                {Object.keys(streams).forEach((key, index) => {
-                    return <PeerVideo stream={streams[key]} />
+                {Object.keys(RTCStreams).map(streamID => {
+                    return <PeerVideo stream={RTCStreams[streamID]} />
                 })}
             </div>
         </div>
     )
 };
 
-
-
 const PeerVideo = ({stream}) => {
     return (
-        <video width={240} height={200} src={stream} autoPlay />
+        <video width={240} height={200} srcObject={stream} autoPlay />
     )
 }
 
-export default ConferenceWsWrapper;
+
+export default VideoConference;
