@@ -15,7 +15,7 @@ services:
     networks:
       - chatnet
   kafka:
-    image: docker.io/bitnami/kafka:3.3
+    image: docker.io/bitnami/kafka:3.0.1
     hostname: kafka
     container_name: kafka
     ports:
@@ -33,6 +33,22 @@ services:
       - zookeeper
     networks:
       - chatnet
+  
+  emailservice:
+    build: backend/email-service
+    container_name: emailservice
+    hostname: emailservice
+    environment:
+      GRPC_PORT: 9000
+      ORIGIN: http://localhost:3000
+      EMAIL_FROM: MicroChat@mail.com
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+    networks:
+      - chatnet
+    restart: on-failure
 
   groupmysql:
     image: mysql
@@ -60,19 +76,15 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       MYSQL_ADDRESS: chat:password12@tcp(groupmysql:3306)/chatapp
       HTTP_PORT: 8080
-      HTTPS_PORT: 8090
       TOKEN_SERVICE_ADDRESS: tokenservice:9000
       ORIGIN: http://localhost:3000
       BROKER_ADDRESS: kafka:9092
       S3_BUCKET: ${S3_BUCKET}
-      CERT_DIR: /cert
     depends_on:
       - kafka
       - tokenservice
       - groupmysql
     restart: on-failure
-    volumes:
-      - ${PWD}/cert:/cert
 
   messagemysql:
     image: mysql
@@ -100,56 +112,15 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       MYSQL_ADDRESS: chat:password12@tcp(messagemysql:3306)/chatapp
       HTTP_PORT: 8080
-      HTTPS_PORT: 8090
       TOKEN_SERVICE_ADDRESS: tokenservice:9000
       ORIGIN: http://localhost:3000
       BROKER_ADDRESS: kafka:9092
       S3_BUCKET: ${S3_BUCKET}
-      CERT_DIR: /cert
     depends_on:
       - kafka
       - tokenservice
       - messagemysql
     restart: on-failure
-    volumes:
-      - ${PWD}/cert:/cert
-
-  wsmysql:
-    image: mysql
-    container_name: wsmysql
-    hostname: wsmysql
-    networks:
-      - chatnet
-    volumes:
-      - wsmysql_data:/var/lib/mysql
-    environment:
-      MYSQL_DATABASE: chatapp
-      MYSQL_USER: chat
-      MYSQL_PASSWORD: password12
-      MYSQL_ROOT_PASSWORD: password123
-  wsservice:
-    build: backend/ws-service
-    container_name: wsservice
-    hostname: wsservice
-    environment:
-      MYSQL_ADDRESS: chat:password12@tcp(wsmysql:3306)/chatapp
-      HTTP_PORT: 8080
-      HTTPS_PORT: 8090
-      TOKEN_SERVICE_ADDRESS: tokenservice:9000
-      ORIGIN: http://localhost:3000
-      BROKER_ADDRESS: kafka:9092
-      CERT_DIR: /cert
-    networks: 
-      - chatnet
-    ports:
-      - "8084:8080"
-    depends_on:
-      - kafka
-      - tokenservice
-      - wsmysql
-    restart: on-failure
-    volumes:
-      - ${PWD}/cert:/cert
 
   elasticsearch:
     image: docker.io/bitnami/elasticsearch:8
@@ -171,32 +142,21 @@ services:
       ES_USER:
       ES_PASSWORD:
       HTTP_PORT: 8080
-      HTTPS_PORT: 8090
       TOKEN_SERVICE_ADDRESS: tokenservice:9000
       ORIGIN: http://localhost:3000
       BROKER_ADDRESS: kafka:9092
-      CERT_DIR: /cert
     depends_on:
       - kafka
       - tokenservice
       - elasticsearch
     restart: on-failure
-    volumes:
-      - ${PWD}/cert:/cert
 
-  react:
-    build: frontend
-    container_name: frontend
-    hostname: frontend
-    ports:
-      - "3000:80"
-
-  redis:
+  tokenredis:
     image: docker.io/bitnami/redis:latest
-    hostname: redis
-    container_name: redis
+    hostname: tokenredis
+    container_name: tokenredis
     volumes:
-      - "redis_data:/bitnami/redis/data"
+      - "tokenredis_data:/bitnami/redis/data"
     environment:
       - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG
       - REDIS_PASSWORD=redis
@@ -206,17 +166,19 @@ services:
     build: backend/token-service
     environment:
       GRPC_PORT: 9000
-      REDIS_ADDRESS: redis:6379
+      REDIS_ADDRESS: tokenredis:6379
       REDIS_PASSWORD: redis
       REFRESH_SECRET: secret
       REFRESH_DURATION: 86400s
       ACCESS_DURATION: 1200s
     container_name: tokenservice
     hostname: tokenservice
+    ports:
+      - "9000:9000"
     networks: 
       - chatnet
     depends_on:
-      - redis
+      - tokenredis
     restart: on-failure
 
   usermysql:
@@ -241,14 +203,12 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       MYSQL_ADDRESS: chat:password12@tcp(usermysql:3306)/chatapp
       HTTP_PORT: 8080
-      HTTPS_PORT: 8090
       TOKEN_SERVICE_ADDRESS: tokenservice:9000
       EMAIL_SERVICE_ADDRESS: emailservice:9000
       ORIGIN: http://localhost:3000
       DOMAIN: localhost
       BROKER_ADDRESS: kafka:9092
       S3_BUCKET: ${S3_BUCKET}
-      CERT_DIR: /cert
     networks: 
       - chatnet
     ports:
@@ -259,31 +219,86 @@ services:
       - emailservice
       - usermysql
     restart: on-failure
-    volumes:
-      - ${PWD}/cert:/cert
 
-  emailservice:
-    build: backend/email-service
-    container_name: emailservice
-    hostname: emailservice
+  wsredis:
+    image: docker.io/bitnami/redis:latest
+    hostname: wsredis
+    container_name: wsredis
+    volumes:
+      - "wsredis_data:/bitnami/redis/data"
     environment:
-      GRPC_PORT: 9000
-      ORIGIN: http://localhost:3000
-      EMAIL_FROM: MicroChat@mail.com
-      SMTP_HOST: ${SMTP_HOST}
-      SMTP_PORT: ${SMTP_PORT}
-      SMTP_USER: ${SMTP_USER}
-      SMTP_PASS: ${SMTP_PASS}
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG
+      - REDIS_PASSWORD=redis
     networks:
       - chatnet
+  wsservice:
+    build: backend/ws-service
+    container_name: wsservice
+    hostname: wsservice
+    environment:
+      DB_ADDRESS: wsredis:6379
+      DB_PASSWORD: redis
+      HTTP_PORT: 8080
+      TOKEN_SERVICE_ADDRESS: tokenservice:9000
+      ORIGIN: http://localhost:3000
+      BROKER_ADDRESS: kafka:9092
+    networks: 
+      - chatnet
+    ports:
+      - "8084:8080"
+    depends_on:
+      - kafka
+      - tokenservice
+      - wsredis
     restart: on-failure
+
+
+
+  webrtcredis:
+    image: docker.io/bitnami/redis:latest
+    hostname: webrtcredis
+    container_name: webrtcredis
+    volumes:
+      - "webrtcredis_data:/bitnami/redis/data"
+    environment:
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG
+      - REDIS_PASSWORD=redis
+    ports:
+      - "6379:6379"
+    networks:
+      - chatnet
+  # webrtcservice:
+  #   build: backend/webrtc-service
+  #   container_name: webrtcservice
+  #   hostname: webrtcservice
+  #   environment:
+  #     DB_ADDRESS: webrtcredis:6379
+  #     DB_PASSWORD: redis
+  #     HTTP_PORT: 8080
+  #     TOKEN_SERVICE_ADDRESS: tokenservice:9000
+  #     ORIGIN: http://localhost:3000
+  #     BROKER_ADDRESS: kafka:9092
+  #   networks: 
+  #     - chatnet
+  #   ports:
+  #     - "8084:8080"
+  #   depends_on:
+  #     - kafka
+  #     - tokenservice
+  #     - webrtcredis
+  #   restart: on-failure
+
+  # react:
+  #   build: frontend
+  #   container_name: frontend
+  #   hostname: frontend
+  #   ports:
+  #     - "3000:80"
 
 volumes:
   zookeeper_data:
     driver: local
   kafka_data:
-    driver: local
-  redis_data:
     driver: local
   groupmysql_data:
     driver: local
@@ -291,7 +306,11 @@ volumes:
     driver: local
   usermysql_data:
     driver: local
-  wsmysql_data:
+  tokenredis_data:
+    driver: local
+  wsredis_data:
+    driver: local
+  webrtcredis_data:
     driver: local
   elasticsearch_data:
     driver: local
