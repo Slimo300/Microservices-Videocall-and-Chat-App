@@ -33,11 +33,11 @@ func (s *Server) ServeWebSocket(c *gin.Context) {
 	}
 
 	// check if room for group exists
-	room, ok := s.Rooms[groupID]
+	room, ok := s.Relay[groupID]
 	if !ok {
 		room = &w.Room{}
 		room.TrackLocals = make(map[string]*webrtc.TrackLocalStaticRTP)
-		s.Rooms[groupID] = room
+		s.Relay[groupID] = room
 	}
 
 	room.ConnectRoom(c.Writer, c.Request)

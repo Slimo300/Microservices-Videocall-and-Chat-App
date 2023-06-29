@@ -9,6 +9,23 @@ import (
 	"github.com/pion/webrtc/v3"
 )
 
+type RoomsRelay map[string]*Room
+
+func NewRoomsRelay() RoomsRelay {
+	relay := make(RoomsRelay)
+	go relay.dispatchKeyFrame()
+
+	return relay
+}
+
+func (r RoomsRelay) dispatchKeyFrame() {
+	for range time.NewTicker(3 * time.Second).C {
+		for _, room := range r {
+			room.DispatchKeyFrame()
+		}
+	}
+}
+
 type Room struct {
 	// lock for peerConnections and trackLocals
 	ListLock        sync.RWMutex

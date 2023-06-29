@@ -14,7 +14,8 @@ const PING_INTERVAL = 50 * time.Second
 type threadSafeWriter struct {
 	*websocket.Conn
 	sync.Mutex
-	ticker *time.Ticker
+	ticker    *time.Ticker
+	closeChan chan struct{}
 }
 
 func (t *threadSafeWriter) WriteJSON(v interface{}) error {
@@ -27,19 +28,27 @@ func (t *threadSafeWriter) WriteJSON(v interface{}) error {
 func newThreadSafeWriter(conn *websocket.Conn) *threadSafeWriter {
 
 	ticker := time.NewTicker(PING_INTERVAL)
-	ws := &threadSafeWriter{Conn: conn, Mutex: sync.Mutex{}, ticker: ticker}
+	defer ticker.Stop()
+	ws := &threadSafeWriter{Conn: conn, Mutex: sync.Mutex{}, ticker: ticker, closeChan: make(chan struct{})}
 
 	go func() {
-		for range ticker.C {
+		select {
+		case <-ticker.C:
 			ws.Lock()
 			if err := ws.WriteMessage(websocket.PingMessage, []byte("keepAlive")); err != nil {
 				log.Println("Error pinging websocket")
 				return
 			}
 			ws.Unlock()
+		case <-ws.closeChan:
+			return
 		}
-		ticker.Stop()
 	}()
 
 	return ws
+}
+
+func (t *threadSafeWriter) Close() {
+	t.closeChan <- struct{}{}
+	t.Conn.Close()
 }

@@ -21,7 +21,7 @@ import (
 
 func main() {
 
-	conf, err := config.LoadConfigFromEnvironment()
+	conf, err := config.LoadConfigFromFile("./config.yaml")
 	if err != nil {
 		log.Fatalf("Error reading configuration: %v", err)
 	}
@@ -49,7 +49,7 @@ func main() {
 	server := &handlers.Server{
 		DB:          db,
 		TokenClient: tokenClient,
-		Rooms:       make(map[string]*webrtc.Room),
+		Relay:       webrtc.NewRoomsRelay(),
 	}
 
 	handler := server.Setup(conf.Origin)
