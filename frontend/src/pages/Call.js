@@ -1,7 +1,7 @@
 import React, {useEffect, useState, useRef} from 'react';
 import {  useParams, Navigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMicrophone, faVideo } from '@fortawesome/free-solid-svg-icons';
+import { faMicrophone, faVideo, faShareFromSquare, faPhoneSlash } from '@fortawesome/free-solid-svg-icons';
 
 import useQuery from '../hooks/useQuery';
 import "../Call.css";
@@ -17,39 +17,33 @@ const VideoConference = () => {
 
     const peerConnection = useRef(new RTCPeerConnection());
     const ws = useRef(null);
-    const localVideo = useRef(null);
 
     const [fatal, setFatal] = useState(false);
+    const [ended, setEnded] = useState(false);
 
     const [RTCStreams, setRTCStreams] = useState({});
     const [userStream, setUserStream] = useState(null);
 
-    const [audioState, setAudioState] = useState(true);
-    const [audioTrack, setAudioTrack] = useState(null);
-    const [audioSender, setAudioSender] = useState(null);
-
-    const [videoState, setVideoState] = useState(true);
-    const [videoTrack, setVideoTrack] = useState(null);
-    const [videoSender, setVideoSender] = useState(null);
+    const audio = useRef({});
+    const video = useRef({});
 
     const toggleAudio = () => {
-        if (!audioState) {
-            let audioSender = peerConnection.current.addTrack(audioTrack, userStream);
-            setAudioSender(audioSender);
+        if (!audio.current.state) {
+            console.log("adding track");
+            audio.current.sender = peerConnection.current.addTrack(audio.current.track, userStream);
         } else {
-            peerConnection.current.removeTrack(audioSender);
+            console.log("removing track");
+            peerConnection.current.removeTrack(audio.current.sender);
         }
-        setAudioState(!audioState);
+        audio.current.state = !audio.current.state;
     };
-
     const toggleVideo = () => {
-        if (!videoState) {
-            let videoSender = peerConnection.current.addTrack(videoTrack, userStream);
-            setVideoSender(videoSender);
+        if (!video.current.state) {
+            video.current.sender = peerConnection.current.addTrack(video.current.track, userStream);
         } else {
-            peerConnection.current.removeTrack(videoSender);
+            peerConnection.current.removeTrack(video.current.sender);
         }
-        setVideoState(!videoState);
+        video.current.state = !video.current.state;
     };
 
     useEffect(() => {
@@ -80,40 +74,41 @@ const VideoConference = () => {
         if (!userStream) return;
 
         peerConnection.current.ontrack = (event) => {
+            console.log("New track received: ", event.track);
             setRTCStreams(streams => {
                 if (!streams[event.streams[0].id]) {
                     streams[event.streams[0].id] = event.streams[0];
                 }
-                return streams;
+                return {...streams};
             });
 
             event.track.onmute = (event) => {
                 // TODO: if video is muted display user.png
+                console.log("Track muted");
             }
             event.streams[0].onremovetrack = ({track}) => {
+                console.log("Track removed");
                 if (!event.streams[0].active) {
                     setRTCStreams(streams => {
                         delete streams[event.streams[0].id];
-                        return streams;
+                        return {...streams};
                     });
                 }
                 // TODO: if video is removed display user.png
             }
         };
 
-        localVideo.current.srcObject = userStream;
+        peerConnection.current.onnegotiationneeded = (event) => {
+            console.log("negotiation needed: ", event);
+        };
 
-        let newAudioTrack = userStream.getAudioTracks()[0];
-        let newAudioSender = peerConnection.current.addTrack(newAudioTrack, userStream);
-        console.log("track sent");
-        setAudioTrack(newAudioTrack);
-        setAudioSender(newAudioSender);
+        audio.current.track = userStream.getAudioTracks()[0];
+        audio.current.sender = peerConnection.current.addTrack(audio.current.track, userStream);
+        audio.current.state = true;
 
-        let newVideoTrack = userStream.getVideoTracks()[0];
-        let newVideoSender = peerConnection.current.addTrack(newVideoTrack, userStream);
-        console.log("track sent");
-        setVideoTrack(newVideoTrack);
-        setVideoSender(newVideoSender);
+        video.current.track = userStream.getVideoTracks()[0];
+        video.current.sender = peerConnection.current.addTrack(video.current.track, userStream);
+        video.current.state = true;
 
         try {
             ws.current = GetWebRTCWebsocket(id, accessCode);
@@ -165,34 +160,91 @@ const VideoConference = () => {
 
     }, [userStream, accessCode, id]);
 
+    const EndCall = () => {
+        peerConnection.current.close()
+        ws.current.close();
+        userStream.getTracks().forEach((track) => {
+            track.stop();
+        })
+        Object.keys(RTCStreams).forEach((key) => {
+            RTCStreams[key].getTracks().forEach((track) => {
+                track.stop();
+            })
+        });
+
+        setEnded(true);
+        setUserStream(null);
+        setRTCStreams(null);
+    };
+
+    const MockPeer = () => {
+        const newStream = userStream.clone();
+        setRTCStreams(streams => {
+            streams[newStream.id] = newStream;
+            return {...streams};
+        });
+    };
+
+    const PrintTracks = () => {
+        let res = {};
+        Object.keys(RTCStreams).forEach((key) => {
+            let tracks = RTCStreams[key].getTracks();
+            res[key] = tracks;
+        })
+        console.log(res);
+    };
 
     if (fatal) return <Navigate to="/not-found" />;
+    if (ended) return (
+        <div className="container mt-4 pt-4">
+        <div className="mt-5 d-flex justify-content-center">
+          <div className="mt-5 row">
+          <div className="display-1 mb-4 text-center text-primary">Call ended</div>
+          </div>
+        </div>
+        </div>
+    );
 
     return (
         <div>
-            <div id="localModal" className="d-flex row justify-content-center"> 
-                <video id="localVideo" width="300" height="240" ref={localVideo} autoPlay muted></video>
-                <div className="buttonWrapper d-flex column">
-                    <button className="btn btn-primary" id="microphoneBtn" type="button" onClick={toggleAudio}>
-                        <FontAwesomeIcon icon={faMicrophone} />
-                    </button>
-                    <button className="btn btn-primary" id="cameraBtn" type="button" onClick={toggleVideo}>
-                        <FontAwesomeIcon icon={faVideo} />
-                    </button>
-                </div>
+            <div id="toolbar" className='d-flex justify-content-around rounded p-1'>
+                <button className='btn btn-danger' onClick={PrintTracks}>Tracks</button>
+                <button className='btn btn-danger' onClick={MockPeer}>Mock Peer</button>
+                <button className="btn btn-secondary shadow rounded-circle" id="microphoneBtn" type="button" onClick={toggleAudio}>
+                    <FontAwesomeIcon icon={faMicrophone} size='xl'/>
+                </button>
+                <button className="btn btn-secondary shadow rounded-circle" id="cameraBtn" type="button" onClick={toggleVideo}>
+                    <FontAwesomeIcon icon={faVideo} size='xl'/>
+                </button>
+                <button className="btn btn-secondary shadow rounded-circle" id="shareScreenBtn" type="button" onClick={toggleVideo}>
+                    <FontAwesomeIcon icon={faShareFromSquare} size='xl'/>
+                </button>
+                <button className="btn btn-danger shadow rounded-circle" id="endCallBtn" type="button" onClick={EndCall}>
+                    <FontAwesomeIcon icon={faPhoneSlash} size='xl' />
+                </button>
             </div>
-            <div id="remoteVideos">
+            <div id="remoteVideos" className='d-flex flex-wrap justify-content-center align-items-center'>
+                {userStream?<PeerVideo stream={userStream} muted={true} />:null}
                 {Object.keys(RTCStreams).map(streamID => {
+                    console.log(RTCStreams);
                     return <PeerVideo stream={RTCStreams[streamID]} />
                 })}
-            </div>
+            </div> 
         </div>
     )
 };
 
-const PeerVideo = ({stream}) => {
+const PeerVideo = ({stream, muted}) => {
+    const video = useRef(null);
+    useEffect(() => {
+        video.current.srcObject = stream;
+    });
+
     return (
-        <video width={240} height={200} srcObject={stream} autoPlay />
+        <div id={"stream-"+stream.id} className='peer m-1'>
+            <p className='white-text peer-header'>{stream.id}</p>
+            <video id={"media-"+stream.id} ref={video} className='peer-video' autoPlay muted={muted} />
+        </div>
     )
 }
 

@@ -63,7 +63,7 @@ const AuthMain = (props) => {
     if (props.ws !== undefined) props.ws.onmessage = (e) => {
         const msgJSON = JSON.parse(e.data);
         
-        if (msgJSON.type !== undefined) {
+        if (msgJSON.type) {
             switch (msgJSON.type) {
                 case "DELETE_GROUP":
                     dispatch({type: actionTypes.DELETE_GROUP, payload: msgJSON.payload});
