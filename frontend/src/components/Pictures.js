@@ -1,5 +1,5 @@
-import group from "../images/group.jpg";
-import user from "../images/user.png";
+import group from "../statics/images/group.jpg";
+import user from "../statics/images/user.png";
 
 export const UserPicture = (props) => {
     return (
