@@ -46,7 +46,7 @@ const MessageContent = (props) => {
     let isDeleted = props.message.text === "" && props.message.files.length === 0;
     let hasText = props.message.text !== "";
     if (isDeleted) {
-        messageText=<div style={{"font-style": "italic"}}>Message deleted</div>
+        messageText=<div className="italic">Message deleted</div>
     }
     let messageHolderClassName = (props.side==="right")?"d-flex flex-row align-items-center justify-content-end":"d-flex flex-row align-items-center justify-content-start"
 

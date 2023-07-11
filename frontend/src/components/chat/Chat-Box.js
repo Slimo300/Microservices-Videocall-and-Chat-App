@@ -4,7 +4,7 @@ import { LoadMessages } from "../../requests/Messages";
 import { actionTypes } from "../../ChatStorage";
 import Message from "./Message";
 
-export const ChatBox = (props) => {
+export const ChatBox = ({ group, user }) => {
 
     const [allMessagesFlag, setAllMessagesFlag] = useState(false);
     const [, dispatch] = useContext(StorageContext);
@@ -17,14 +17,13 @@ export const ChatBox = (props) => {
         }
         return "";
     };
-
     const loadMessages = async() => {
-        let messages = await LoadMessages(props.group.ID.toString(), props.group.messages.length);
+        let messages = await LoadMessages(group.ID.toString(), group.messages.length);
         if (messages.status === 204) {
             setAllMessagesFlag(true);
             return;
         }
-        dispatch({type: actionTypes.ADD_MESSAGES, payload: {messages: messages.data, groupID: props.group.ID}}); 
+        dispatch({type: actionTypes.ADD_MESSAGES, payload: {messages: messages.data, groupID: group.ID}}); 
     };
 
     // Date of the last message in chat-box
@@ -45,16 +44,16 @@ export const ChatBox = (props) => {
     }
 
     return (
-        <div className="d-flex flex-column col p-0" style={{'height': '60vh'}}>
+        <div className="d-flex flex-column col p-0 vh-60">
             {!allMessagesFlag?<div className="text-center align-top"><p className="text-primary" style={{cursor: "pointer"}} onClick={loadMessages}>Load more messages</p></div>:null}         
-            <ul className="d-flex flex-column-reverse col p-0" style={{'overflow-y': 'auto'}}>
-                {props.group.messages===undefined?null:props.group.messages.map((item) => {
+            <ul className="d-flex flex-column-reverse col p-0 overflower">
+                {group.messages===undefined?null:group.messages.map((item) => {
                 return <div key={item.ID} className="d-flex flex-column justify-content-end">
-                        <Message message={item} user={props.user.ID} picture={GetMemberPicture(props.group, item.userID)} />
+                        <Message message={item} user={user.ID} picture={GetMemberPicture(group, item.userID)} />
                         {shouldDisplayDate(new Date(item.created), lastMessageDate)?<NewDate time={dateToDisplay} />:null}
                     </div>})}
-                {props.group.messages[props.group.messages.length-1]===undefined?null:<div className="d-flex flex-column justify-content-end">
-                    <NewDate time={props.group.messages[props.group.messages.length-1].created} />
+                {group.messages[group.messages.length-1]===undefined?null:<div className="d-flex flex-column justify-content-end">
+                    <NewDate time={group.messages[group.messages.length-1].created} />
                 </div>}
             </ul>
         </div>

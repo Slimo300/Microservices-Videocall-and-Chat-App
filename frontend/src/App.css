@@ -5,6 +5,22 @@
 /* ------------------ Color Pallet ------------------ */
 
 
+.overflower {
+    overflow-y: auto;
+}
+
+.italic {
+    font-style: italic;
+}
+
+.vh-85 {
+    height: 85vh;
+}
+
+.vh-60 {
+    height: 60vh;
+}
+
 /*************** 2.Mixins ***************/
 
 

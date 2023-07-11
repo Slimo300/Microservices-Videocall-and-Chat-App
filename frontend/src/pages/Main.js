@@ -120,7 +120,7 @@ const AuthMain = ({ ws, setWs, profileShow, toggleProfile}) => {
                     <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                         <div className="card m-0">
                             <div className="row no-gutters">
-                                <div className="col-xl-4 col-lg-4 col-md-4 col-sm-3 col-3" style={{height: '85vh', 'overflow-y': 'scroll'}}>
+                                <div className="col-xl-4 col-lg-4 col-md-4 col-sm-3 col-3 vh-85">
                                     <button className="btn btn-primary mt-3 ml-3" onClick={toggleCreateGroup}><FontAwesomeIcon icon={faPlus} className="mr-3"/>New Group</button>
                                     <hr />
                                     <div className="users-container h-auto">
