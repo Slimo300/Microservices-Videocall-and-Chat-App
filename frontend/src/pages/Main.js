@@ -21,7 +21,7 @@ const Main = (props) => {
     );
 }
 
-const AuthMain = (props) => {
+const AuthMain = ({ ws, setWs, profileShow, toggleProfile}) => {
 
     const [state, dispatch] = useContext(StorageContext);
     const [current, setCurrent] = useState({}); // current group
@@ -41,7 +41,7 @@ const AuthMain = (props) => {
                 if (err.response.status === 401) {
                     dispatch({type: actionTypes.LOGOUT});
                     // setWs changes state and triggers nav rerender
-                    props.setWs({});
+                    setWs({});
                 }
             }
 
@@ -49,18 +49,18 @@ const AuthMain = (props) => {
             if (groupsResult.status === 200) {
                 dispatch({type: actionTypes.ADD_GROUPS, payload: groupsResult.data});
             }
-            const invitesResult = await GetInvites(state.invites.length);
+            const invitesResult = await GetInvites(0);
             if (invitesResult.status === 200) {
                 dispatch({type: actionTypes.ADD_INVITES, payload: invitesResult.data});
             }
             let websocket = await GetWebsocket();
-            props.setWs(websocket);
+            setWs(websocket);
         };
 
         fetchData();
-    }, [dispatch]);
+    }, [dispatch, setWs]);
 
-    if (props.ws !== undefined) props.ws.onmessage = (e) => {
+    if (ws) ws.onmessage = (e) => {
         const msgJSON = JSON.parse(e.data);
         
         if (msgJSON.type) {
@@ -129,14 +129,14 @@ const AuthMain = (props) => {
                                         </ul>
                                     </div>
                                 </div>
-                                <Chat group={current} ws={props.ws} user={state.user} setCurrent={setCurrent}/>
+                                <Chat group={current} ws={ws} user={state.user} setCurrent={setCurrent}/>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
           <ModalCreateGroup show={createGrShow} toggle={toggleCreateGroup}/>
-          <ModalUserProfile show={props.profileShow} toggle={props.toggleProfile} user={state.user} />
+          <ModalUserProfile show={profileShow} toggle={toggleProfile} user={state.user} />
         </div>
     )
 }
