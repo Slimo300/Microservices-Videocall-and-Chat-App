@@ -40,7 +40,7 @@ export const ChatBox = ({ group, user }) => {
 
         if (previousMessageTime === 0) return false;
         
-        return (previousMessageTime - currentMessageTime) > 3600000;
+        return (previousMessageTime - currentMessageTime) > 3600*1000;
     }
 
     return (
@@ -48,13 +48,13 @@ export const ChatBox = ({ group, user }) => {
             {!allMessagesFlag?<div className="text-center align-top"><p className="text-primary" style={{cursor: "pointer"}} onClick={loadMessages}>Load more messages</p></div>:null}         
             <ul className="d-flex flex-column-reverse col p-0 overflower">
                 {group.messages===undefined?null:group.messages.map((item) => {
-                return <div key={item.ID} className="d-flex flex-column justify-content-end">
+                return <div key={item.messageID} className="d-flex flex-column justify-content-end">
                         <Message message={item} user={user.ID} picture={GetMemberPicture(group, item.userID)} />
                         {shouldDisplayDate(new Date(item.created), lastMessageDate)?<NewDate time={dateToDisplay} />:null}
                     </div>})}
-                {group.messages[group.messages.length-1]===undefined?null:<div className="d-flex flex-column justify-content-end">
+                {group.messages[group.messages.length-1]?<div className="d-flex flex-column justify-content-end">
                     <NewDate time={group.messages[group.messages.length-1].created} />
-                </div>}
+                </div>:null}
             </ul>
         </div>
     );
