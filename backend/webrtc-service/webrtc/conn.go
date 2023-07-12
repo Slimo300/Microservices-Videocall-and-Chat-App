@@ -50,8 +50,6 @@ func (r *Room) ConnectRoom(w http.ResponseWriter, req *http.Request) {
 	r.ListLock.Unlock()
 
 	peerConnection.OnICECandidate(func(i *webrtc.ICECandidate) {
-		log.Println("New ICE Candidate to send")
-
 		if i == nil {
 			return
 		}
@@ -92,9 +90,11 @@ func (r *Room) ConnectRoom(w http.ResponseWriter, req *http.Request) {
 		for {
 			i, _, err := tr.Read(buf)
 			if err != nil {
+				log.Println("track remote read err")
 				return
 			}
 			if _, err = trackLocal.Write(buf[:i]); err != nil {
+				log.Println("track local write err")
 				return
 			}
 		}
@@ -115,7 +115,6 @@ func (r *Room) ConnectRoom(w http.ResponseWriter, req *http.Request) {
 
 		switch message.Event {
 		case "candidate":
-			log.Printf("New ICE Candidate received")
 			candidate := webrtc.ICECandidateInit{}
 			if err := json.Unmarshal([]byte(message.Data), &candidate); err != nil {
 				log.Printf("Error unmarshaling candidate: %v\n", err)

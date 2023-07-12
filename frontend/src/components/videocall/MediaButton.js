@@ -11,13 +11,10 @@ const MediaButton = ({activeIcon, inactiveIcon, isActive, mediaRef, ws}) => {
 
         if (!active) {
             mediaRef.current.sender.replaceTrack(mediaRef.current.track);
-            mediaRef.current.sender.direction = "sendonly";
         } else {
             mediaRef.current.sender.replaceTrack(null);
-            mediaRef.current.sender.direction = "inactive";
         }
-
-        ws.current.send(JSON.stringify({event: "renegotiate"}));
+        
         setActive(!active);
     }
 

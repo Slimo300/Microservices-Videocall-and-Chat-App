@@ -2,6 +2,7 @@ package webrtc
 
 import (
 	"encoding/json"
+	"log"
 	"sync"
 	"time"
 
@@ -74,6 +75,7 @@ func (r *Room) RemoveTrack(t *webrtc.TrackLocalStaticRTP) {
 
 // signalPeerConnections updates each PeerConnection so that it is getting all the expected media tracks
 func (r *Room) SignalPeerConnections() {
+	log.Println("Syncing connections")
 	r.ListLock.Lock()
 	defer func() {
 		r.ListLock.Unlock()
