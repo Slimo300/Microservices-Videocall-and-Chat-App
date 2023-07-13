@@ -6,7 +6,7 @@ import PeerVideo from "./PeerVideo";
 import MediaButton from "./MediaButton";
 import ScreenShareButton from "./ScreenShareButton";
 
-const CallScreen = ({ws, peerConnection, stream, video, audio, RTCStreams, setRTCStreams }) => {
+const CallScreen = ({endSession, dataChannel, stream, video, audio, RTCStreams}) => {
 
     const [ended, setEnded] = useState(false);
     const [userStream, setUserStream] = useState(null);
@@ -15,21 +15,27 @@ const CallScreen = ({ws, peerConnection, stream, video, audio, RTCStreams, setRT
         setUserStream(stream);
     }, [stream]);
 
+    useEffect(() => {
+        if (!userStream ) return;
+
+        if (dataChannel) dataChannel.onmessage = e => {
+            console.log("Message received: %v", e.data);
+        };
+    }, [dataChannel, userStream]);
+
+    
+    if (dataChannel) dataChannel.onmessage = e => {
+        console.log("Message received: %v", e.data);
+    }
+
     const EndCall = () => {
-        peerConnection.current.close()
-        ws.current.close();
+        endSession();
         userStream.getTracks().forEach((track) => {
             track.stop();
-        })
-        Object.keys(RTCStreams).forEach((key) => {
-            RTCStreams[key].getTracks().forEach((track) => {
-                track.stop();
-            })
         });
 
         setEnded(true);
         setUserStream(null);
-        setRTCStreams(null);
     };
 
 
@@ -46,8 +52,8 @@ const CallScreen = ({ws, peerConnection, stream, video, audio, RTCStreams, setRT
     return (
         <div>
             <div id="toolbar" className='d-flex justify-content-around rounded p-1'>
-                <MediaButton isActive={true} mediaRef={audio} ws={ws} activeIcon={faMicrophone} inactiveIcon={faMicrophoneSlash} />
-                <MediaButton isActive={true} mediaRef={video} ws={ws} activeIcon={faVideo} inactiveIcon={faVideoSlash} />
+                <MediaButton isActive={true} mediaRef={audio} activeIcon={faMicrophone} inactiveIcon={faMicrophoneSlash} />
+                <MediaButton isActive={true} mediaRef={video} activeIcon={faVideo} inactiveIcon={faVideoSlash} />
                 
                 <ScreenShareButton video={video} userStream={userStream} setUserStream={setUserStream}/>
                 <button className="btn btn-danger shadow rounded-circle" type="button" onClick={EndCall}>
@@ -55,9 +61,9 @@ const CallScreen = ({ws, peerConnection, stream, video, audio, RTCStreams, setRT
                 </button>
             </div>
             <div className='d-flex flex-wrap justify-content-center align-items-center'>
-                {userStream?<PeerVideo stream={userStream} isUser={true} />:null}
+                {userStream?<PeerVideo dataChannel={dataChannel} stream={userStream} isUser={true} />:null}
                 {Object.keys(RTCStreams).map(streamID => {
-                    return <PeerVideo key={streamID} stream={RTCStreams[streamID]} />
+                    return <PeerVideo dataChannel={dataChannel} key={streamID} stream={RTCStreams[streamID]} />
                 })}
             </div> 
         </div>

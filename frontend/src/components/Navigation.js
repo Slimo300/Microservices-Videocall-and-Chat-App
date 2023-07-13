@@ -6,7 +6,7 @@ import {Logout} from '../requests/Users';
 import { StorageContext, actionTypes } from '../ChatStorage';
 import Invite from './Invite';
 
-const Navigation = ({ws, toggleProfile, setWs, location}) => {
+const Navigation = ({ws, toggleProfile, setWs}) => {
 
     const [state, dispatch] = useContext(StorageContext);
 

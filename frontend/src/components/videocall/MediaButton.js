@@ -1,14 +1,10 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const MediaButton = ({activeIcon, inactiveIcon, isActive, mediaRef, ws}) => {
+const MediaButton = ({activeIcon, inactiveIcon, isActive, mediaRef}) => {
     const [active, setActive] = useState(isActive);
 
     const ToggleButton = () => {
-        if (!ws.current) {
-            console.error("ws cannot be undefined");
-        }
-
         if (!active) {
             mediaRef.current.sender.replaceTrack(mediaRef.current.track);
         } else {

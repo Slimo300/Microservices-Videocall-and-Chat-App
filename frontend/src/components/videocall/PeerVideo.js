@@ -2,13 +2,18 @@ import React, {useRef, useState, useEffect} from "react";
 
 import mutedUser from "../../statics/images/video-user.png";
 
-const PeerVideo = ({stream, isUser}) => {
+const PeerVideo = ({stream, isUser, dataChannel}) => {
     const video = useRef(null);
     const [muted, setMuted] = useState(false);
 
     useEffect(() => {
         if (video.current) video.current.srcObject = stream;
     });
+
+    if (dataChannel) dataChannel.onmessage = e => {
+        console.log("Message received: %v", e.data);
+    }
+
 
     return (
         <div className='peer m-1'>

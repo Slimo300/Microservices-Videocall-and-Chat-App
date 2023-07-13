@@ -37,6 +37,7 @@ const AuthMain = ({ ws, setWs, profileShow, toggleProfile}) => {
             try {
                 const userResult = await GetUser();
                 dispatch({type: actionTypes.LOGIN, payload: userResult.data});
+                localStorage.setItem("username", userResult.data.username);
             } catch(err) {
                 if (err.response.status === 401) {
                     dispatch({type: actionTypes.LOGOUT});

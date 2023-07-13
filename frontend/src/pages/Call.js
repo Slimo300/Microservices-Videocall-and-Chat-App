@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, {useEffect, useState, useRef, useCallback} from 'react';
 import {  useParams, Navigate } from "react-router-dom";
 
 import useQuery from '../hooks/useQuery';
@@ -18,6 +18,8 @@ const VideoConference = () => {
     const ws = useRef(null);
     const audio = useRef({});
     const video = useRef({});
+
+    const [dataChannel, setDataChannel] = useState(null);
 
     const [fatal, setFatal] = useState(false);
 
@@ -49,6 +51,25 @@ const VideoConference = () => {
                     }
                 }
             };
+
+            peerConnection.current.ondatachannel = e => {
+                e.channel.onopen = evt => {
+                    console.log("Data channel openned");
+                    e.channel.send(JSON.stringify({
+                        "type": "NewUser",
+                        "data": {
+                            "username": localStorage.getItem("username"),
+                            "streamID": stream.id,
+                        },
+                    }));
+                };
+
+                e.channel.onmessage = evt => {
+                    console.log("Message received", JSON.parse(evt.data));
+                }
+        
+                setDataChannel(e.channel);
+            }
     
             audio.current.track = stream.getAudioTracks()[0];
             audio.current.sender = peerConnection.current.addTrack(audio.current.track, stream);
@@ -110,13 +131,26 @@ const VideoConference = () => {
 
         startCall();
 
-       
     }, [accessCode, id, mocking]);
+
+    const EndSession = useCallback(() => {
+        peerConnection.current.close();
+        ws.current.close();
+        dataChannel.current.close();
+
+        Object.keys(RTCStreams).forEach((key) => {
+            RTCStreams[key].getTracks().forEach((track) => {
+                track.stop();
+            })
+        });
+
+        setRTCStreams(null);
+    }, [dataChannel, peerConnection, ws, RTCStreams])
 
     if (fatal) return <Navigate to="/not-found" />;
 
     return (
-        <CallScreen ws={ws} peerConnection={peerConnection} stream={userStream} video={video} audio={audio} RTCStreams={RTCStreams} setRTCStreams={setRTCStreams}/>
+        <CallScreen dataChannel={dataChannel} endSession={EndSession} stream={userStream} video={video} audio={audio} RTCStreams={RTCStreams} setRTCStreams={setRTCStreams}/>
     )
 };
 
