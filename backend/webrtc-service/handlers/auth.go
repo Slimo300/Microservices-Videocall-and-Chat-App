@@ -21,7 +21,7 @@ func (s *Server) GetAuthCode(c *gin.Context) {
 	}
 
 	// Check if user belongs to a group
-	if !s.DB.IsUserMember(userID, groupID) {
+	if _, err := s.DB.GetMember(userID, groupID); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid group ID"})
 		return
 	}

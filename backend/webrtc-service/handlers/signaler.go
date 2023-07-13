@@ -1,34 +1,43 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 
 	w "github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/webrtc"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	"github.com/pion/webrtc/v3"
 )
+
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
 
 func (s *Server) ServeWebSocket(c *gin.Context) {
 
 	accessCode := c.Query("accessCode")
 	if accessCode == "" {
-		log.Println("Access Code Invalid")
 		c.JSON(http.StatusBadRequest, gin.H{"err": "no access code provided"})
 		return
 	}
 
 	reqGroupID := c.Param("groupID")
 	if reqGroupID == "" {
-		log.Println("reqGroupID invalid")
 		c.JSON(http.StatusBadRequest, gin.H{"err": "no group id provided"})
 		return
 	}
 
-	groupID, err := s.DB.CheckAccessCode(accessCode)
+	userID, groupID, err := s.DB.CheckAccessCode(accessCode)
 	if err != nil || groupID != reqGroupID {
-		log.Printf("ReqGroupID: %s, groupID: %s, Err: %v", reqGroupID, groupID, err)
 		c.JSON(http.StatusBadRequest, gin.H{"err": "connection not authorized"})
+		return
+	}
+
+	username, err := s.DB.GetMember(userID, groupID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": "internal server error"})
 		return
 	}
 
@@ -40,5 +49,11 @@ func (s *Server) ServeWebSocket(c *gin.Context) {
 		s.Relay[groupID] = room
 	}
 
-	room.ConnectRoom(c.Writer, c.Request)
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": "internal server error"})
+		return
+	}
+
+	room.ConnectRoom(conn, username)
 }

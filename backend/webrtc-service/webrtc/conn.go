@@ -15,13 +15,7 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func (r *Room) ConnectRoom(w http.ResponseWriter, req *http.Request) {
-	conn, err := upgrader.Upgrade(w, req, nil)
-	if err != nil {
-		log.Printf("Upgrader error: %v\n", err)
-		return
-	}
-	defer log.Println("Client exited")
+func (r *Room) ConnectRoom(conn *websocket.Conn, username string) {
 
 	ws := newThreadSafeWriter(conn)
 	defer ws.Close()

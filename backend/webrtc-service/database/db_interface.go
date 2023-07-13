@@ -5,16 +5,12 @@ import (
 )
 
 type DBLayer interface {
-	IsUserMember(userID string, groupID string) bool
+	GetMember(userID string, groupID string) (string, error)
 
 	NewMember(evt events.MemberCreatedEvent) error
 	DeleteMember(evt events.MemberDeletedEvent) error
 	DeleteGroup(evt events.GroupDeletedEvent) error
 
-	// CheckGroupSession(groupID string) (bool, error)
-	// AddGroupSession(groupID string) error
-	// DeleteGroupSession(groupID string) error
-
-	NewAccessCode(userID string, accessCode string) error
-	CheckAccessCode(accessCode string) (string, error)
+	NewAccessCode(groupID, userID, accessCode string) error
+	CheckAccessCode(accessCode string) (string, string, error)
 }
