@@ -12,7 +12,7 @@ import { ChatBox } from "./Chat-Box";
 import ChatInput from "./Chat-Input";
 import { GetWebRTCAccessCode } from "../../requests/Ws";
 
-const Chat = (props) => {
+const Chat = ({group, user, ws, setCurrent}) => {
 
     const [member, setMember] = useState({});
 
@@ -44,26 +44,26 @@ const Chat = (props) => {
     useEffect(()=>{
         (
             async () => {
-                if (props.group.ID === undefined) {
+                if (group.ID === undefined) {
                     return
                 }
-                for (let i = 0; i < props.group.Members.length; i++) {
-                    if (props.group.Members[i].userID === props.user.ID ) {
-                        setMember(props.group.Members[i]);
+                for (let i = 0; i < group.Members.length; i++) {
+                    if (group.Members[i].userID === user.ID ) {
+                        setMember(group.Members[i]);
                         return;
                     }
                 }
                 throw new Error("No member matches user");
             }
         )();
-    }, [props.group, props.user.ID]);
+    }, [group, user.ID]);
 
     // function for sending message when submit
 
     const JoinCall = async () => {
         try {
-            let accessCode = await GetWebRTCAccessCode(props.group.ID);
-            window.open(window._env_.APP_HOST+"/call/"+props.group.ID+"?accessCode="+accessCode, "_blank"); // 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'
+            let accessCode = await GetWebRTCAccessCode(group.ID);
+            window.open(window._env_.APP_HOST+"/call/"+group.ID+"?accessCode="+accessCode+"&username="+user.username, "_blank", 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'); // 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'
 
         } catch(err) {
             alert(err);
@@ -72,8 +72,8 @@ const Chat = (props) => {
 
     const MockJoinCall = async () => {
         try {
-            let accessCode = await GetWebRTCAccessCode(props.group.ID);
-            window.open(window._env_.APP_HOST+"/call/"+props.group.ID+"?accessCode="+accessCode+"&mock=true", "_blank"); // 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'
+            let accessCode = await GetWebRTCAccessCode(group.ID);
+            window.open(window._env_.APP_HOST+"/call/"+group.ID+"?accessCode="+accessCode+"&username="+user.username+"&mock=true", "_blank", 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'); // 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'
 
         } catch(err) {
             alert(err);
@@ -81,13 +81,13 @@ const Chat = (props) => {
     }
 
     let load;
-    if (props.group.ID === undefined) {
+    if (group.ID === undefined) {
         load = <h1 className="text-center">Select a group to chat!</h1>;
     } else {
         load = (
             <div className="col-xl-8 col-lg-8 col-md-8 col-sm-9 col-9">
                 <div className="selected-user row">
-                    <span className="mr-auto mt-4">To: <span className="name">{props.group.name}</span></span>
+                    <span className="mr-auto mt-4">To: <span className="name">{group.name}</span></span>
                     <button className="btn btn-primary mt-3 mr-1 mb-3" type="button" onClick={MockJoinCall}>
                         <FontAwesomeIcon icon={faJedi} />
                     </button>
@@ -102,14 +102,14 @@ const Chat = (props) => {
                     </div>
                 </div>
                 <div className="chat-container d-flex flex-column justify-content-end" style={{'height': '80vh'}}>
-                    <ChatBox group={props.group} user={props.user} />
-                    <ChatInput ws={props.ws} group={props.group} user={props.user}/>
+                    <ChatBox group={group} user={user} />
+                    <ChatInput ws={ws} group={group} user={user}/>
                 </div>
-                <ModalDeleteGroup show={delGrShow} toggle={toggleDelGroup} group={props.group} setCurrent={props.setCurrent}/>
-                <ModalLeaveGroup show={leaveGrShow} toggle={toggleLeaveGroup} member={member} group={props.group} setCurrent={props.setCurrent}/>
-                <ModalAddUser show={addUserShow} toggle={toggleAddUser} group={props.group}/>
-                <ModalMembers show={membersShow} toggle={toggleMembers} group={props.group} member={member} />
-                <ModalGroupOptions show={optionsShow} toggle={toggleOptions} group={props.group} />
+                <ModalDeleteGroup show={delGrShow} toggle={toggleDelGroup} group={group} setCurrent={setCurrent}/>
+                <ModalLeaveGroup show={leaveGrShow} toggle={toggleLeaveGroup} member={member} group={group} setCurrent={setCurrent}/>
+                <ModalAddUser show={addUserShow} toggle={toggleAddUser} group={group}/>
+                <ModalMembers show={membersShow} toggle={toggleMembers} group={group} member={member} />
+                <ModalGroupOptions show={optionsShow} toggle={toggleOptions} group={group} />
             </div>
         );
     }
