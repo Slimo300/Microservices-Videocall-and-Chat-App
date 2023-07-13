@@ -9,5 +9,5 @@ import (
 type Server struct {
 	TokenClient auth.TokenClient
 	DB          database.DBLayer
-	Relay       webrtc.RoomsRelay
+	Relay       *webrtc.RoomsRelay
 }

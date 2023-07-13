@@ -43,6 +43,13 @@ func (r *Room) ConnectRoom(conn *websocket.Conn, username string) {
 	})
 	r.ListLock.Unlock()
 
+	dataChannel, err := peerConnection.CreateDataChannel("", nil)
+	if err != nil {
+		log.Printf("Couldn't create dataChannel: %v", err)
+		return
+	}
+	r.DataHandler.AddChannel(username, dataChannel)
+
 	peerConnection.OnICECandidate(func(i *webrtc.ICECandidate) {
 		if i == nil {
 			return

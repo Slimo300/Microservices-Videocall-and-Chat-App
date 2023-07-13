@@ -16,8 +16,8 @@ func (db *DB) CheckAccessCode(accessCode string) (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
-	userID := strings.Split(res, "")[0]
-	groupID := strings.Split(res, "")[1]
+	userID := strings.Split(res, ":")[0]
+	groupID := strings.Split(res, ":")[1]
 
 	return userID, groupID, nil
 }

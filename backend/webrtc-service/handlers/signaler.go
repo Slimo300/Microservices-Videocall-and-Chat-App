@@ -3,10 +3,8 @@ package handlers
 import (
 	"net/http"
 
-	w "github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/webrtc"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/pion/webrtc/v3"
 )
 
 var upgrader = websocket.Upgrader{
@@ -41,13 +39,14 @@ func (s *Server) ServeWebSocket(c *gin.Context) {
 		return
 	}
 
+	room := s.Relay.GetRoom(groupID)
 	// check if room for group exists
-	room, ok := s.Relay[groupID]
-	if !ok {
-		room = &w.Room{}
-		room.TrackLocals = make(map[string]*webrtc.TrackLocalStaticRTP)
-		s.Relay[groupID] = room
-	}
+	// room, ok := s.Relay[groupID]
+	// if !ok {
+	// 	room = &w.Room{}
+	// 	room.TrackLocals = make(map[string]*webrtc.TrackLocalStaticRTP)
+	// 	s.Relay[groupID] = room
+	// }
 
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {

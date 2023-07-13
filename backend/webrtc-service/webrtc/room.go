@@ -10,21 +10,37 @@ import (
 	"github.com/pion/webrtc/v3"
 )
 
-type RoomsRelay map[string]*Room
-
-func NewRoomsRelay() RoomsRelay {
-	relay := make(RoomsRelay)
-	go relay.dispatchKeyFrame()
-
-	return relay
+type RoomsRelay struct {
+	rooms      map[string]*Room
+	relayMutex sync.Mutex
 }
 
-func (r RoomsRelay) dispatchKeyFrame() {
-	for range time.NewTicker(3 * time.Second).C {
-		for _, room := range r {
+func NewRoomsRelay() *RoomsRelay {
+	return &RoomsRelay{
+		rooms:      map[string]*Room{},
+		relayMutex: sync.Mutex{},
+	}
+}
+
+func (r *RoomsRelay) GetRoom(groupID string) *Room {
+	r.relayMutex.Lock()
+	defer r.relayMutex.Unlock()
+
+	room, ok := r.rooms[groupID]
+	if !ok {
+		room = &Room{}
+		room.TrackLocals = make(map[string]*webrtc.TrackLocalStaticRTP)
+		room.DataHandler = NewMetadataSignaler()
+		r.rooms[groupID] = room
+	}
+
+	go func() {
+		for range time.NewTicker(3 * time.Second).C {
 			room.DispatchKeyFrame()
 		}
-	}
+	}()
+
+	return room
 }
 
 type Room struct {
@@ -32,6 +48,7 @@ type Room struct {
 	ListLock        sync.RWMutex
 	PeerConnections []peerConnectionState
 	TrackLocals     map[string]*webrtc.TrackLocalStaticRTP
+	DataHandler     *MetadataSignaler
 }
 
 type websocketMessage struct {
