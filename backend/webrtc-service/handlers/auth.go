@@ -30,7 +30,7 @@ func (s *Server) GetAuthCode(c *gin.Context) {
 
 	// Generate auth code and insert it to database
 	accessCode := randstr.String(10)
-	if err := s.DB.NewAccessCode(groupID, accessCode); err != nil {
+	if err := s.DB.NewAccessCode(groupID, userID, accessCode); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": "internal server error"})
 		return
 	}
