@@ -38,24 +38,33 @@ func (ms *MetadataSignaler) AddChannel(username string, channel *webrtc.DataChan
 		var message dataChannelMessage
 		if err := json.Unmarshal(msg.Data, &message); err != nil {
 			log.Printf("Error unmarshalling dataChannelMessage: %v", err)
+			return
 		}
 
 		switch message.Type {
+
 		case "NewUser":
-			var messageBody newUserMessage
-			if err := json.Unmarshal(message.Data, &messageBody); err != nil {
-				log.Printf("Error unmarshaling newUserMessage: %v", err)
+			username, userOk := message.Data["username"]
+			streamID, streamOk := message.Data["streamID"]
+
+			if !userOk || !streamOk {
+				log.Printf("Error unmarshaling message")
+				return
 			}
 
-			ms.HandleNewUser(channel, messageBody, msg.Data)
+			ms.HandleNewUser(channel, newUserMessage{Username: username, StreamID: streamID}, msg.Data)
 
 		case "TrackModified":
-			var messageBody trackModifiedMessage
-			if err := json.Unmarshal(message.Data, &messageBody); err != nil {
-				log.Printf("Error unmarshaling newUserMessage: %v", err)
+			streamID, streamOk := message.Data["streamID"]
+			trackID, trackOk := message.Data["trackID"]
+			isMuted, isMutedOk := message.Data["isActive"]
+
+			if !streamOk || !trackOk || !isMutedOk {
+				log.Printf("Error unmarshaling message")
+				return
 			}
 
-			ms.HandleTrackModified(messageBody, msg.Data)
+			ms.HandleTrackModified(trackModifiedMessage{StreamID: streamID, TrackID: trackID, IsMuted: isMuted}, msg.Data)
 		}
 	})
 
@@ -68,26 +77,29 @@ func (ms *MetadataSignaler) HandleNewUser(newUserChannel *webrtc.DataChannel, ne
 
 	// send to all data channel info about new user, also send it to him
 	for _, dc := range ms.dataChannels {
-		dc.SendText(string(originalMsg))
+		if err := dc.SendText(string(originalMsg)); err != nil {
+			log.Printf("Error sending msg: %v", err)
+		}
 	}
 
 	// send to new user info about users already in session
 	for username, streamID := range ms.userStreams {
-		msgBody, err := json.Marshal(newUserMessage{
-			Username: username,
-			StreamID: streamID,
-		})
-		if err != nil {
-			log.Printf("Error marshaling msgBody: %v", err)
-		}
 
 		msg, err := json.Marshal(dataChannelMessage{
 			Type: "NewUser",
-			Data: msgBody,
+			Data: map[string]string{
+				"username": username,
+				"streamID": streamID,
+			},
 		})
+		if err != nil {
+			log.Printf("Error marshaling message: %v", err)
+			return
+		}
 
 		if err := newUserChannel.SendText(string(msg)); err != nil {
 			log.Printf("Couldn't send message: %v", err)
+			return
 		}
 	}
 
@@ -109,14 +121,16 @@ func (ms *MetadataSignaler) HandleTrackModified(trackMessage trackModifiedMessag
 
 	for username, dc := range ms.dataChannels {
 		if username != modifier {
-			dc.SendText(string(originalMessage))
+			if err := dc.SendText(string(originalMessage)); err != nil {
+				log.Printf("Error sending message: %v", err)
+			}
 		}
 	}
 }
 
 type dataChannelMessage struct {
-	Type string `json:"type"`
-	Data []byte `json:"data"`
+	Type string            `json:"type"`
+	Data map[string]string `json:"data"`
 }
 
 type newUserMessage struct {
@@ -127,5 +141,5 @@ type newUserMessage struct {
 type trackModifiedMessage struct {
 	StreamID string `json:"streamID"`
 	TrackID  string `json:"trackID"`
-	IsMuted  bool   `json:"isMuted"`
+	IsMuted  string `json:"isMuted"`
 }
