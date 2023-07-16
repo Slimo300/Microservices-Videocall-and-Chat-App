@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef, useCallback} from 'react';
+import React, {useEffect, useState, useRef, useCallback, useReducer} from 'react';
 import {  useParams, Navigate } from "react-router-dom";
 
 import useQuery from '../hooks/useQuery';
@@ -6,6 +6,7 @@ import "../Call.css";
 import { GetWebRTCWebsocket } from '../requests/Ws';
 import CallScreen from '../components/videocall/CallScreen';
 import StartCall from '../components/videocall/StartCall';
+import { RTCStreamsReducer, actionTypes } from '../components/videocall/RTCStreams';
 
 
 const VideoConference = () => {
@@ -23,7 +24,8 @@ const VideoConference = () => {
 
     const [fatal, setFatal] = useState(false);
 
-    const [RTCStreams, setRTCStreams] = useState({});
+    const [RTCStreams, dispatch] = useReducer(RTCStreamsReducer, []);
+
     const [userStream, setUserStream] = useState(null);
 
     useEffect(() => {
@@ -33,28 +35,15 @@ const VideoConference = () => {
             setUserStream(stream);
 
             peerConnection.current.ontrack = (event) => {
-                console.log("New track received: ", event.track);
-                setRTCStreams(streams => {
-                    if (!streams[event.streams[0].id]) {
-                        streams[event.streams[0].id] = event.streams[0];
-                    }
-                    return {...streams};
-                });
+                dispatch({type: actionTypes.NEW_STREAM, payload: event.streams[0]});
     
                 event.streams[0].onremovetrack = () => {
-                    console.log("Track removed");
-                    if (!event.streams[0].active) {
-                        setRTCStreams(streams => {
-                            delete streams[event.streams[0].id];
-                            return {...streams};
-                        });
-                    }
+                    dispatch({type: actionTypes.DELETE_STREAM, payload: event.streams[0].id});
                 }
             };
 
             peerConnection.current.ondatachannel = e => {
                 e.channel.onopen = evt => {
-                    console.log("Data channel openned");
                     e.channel.send(JSON.stringify({
                         "type": "NewUser",
                         "data": {
@@ -65,7 +54,16 @@ const VideoConference = () => {
                 };
 
                 e.channel.onmessage = evt => {
-                    console.log("Message received", JSON.parse(evt.data));
+                    const msgJSON = JSON.parse(evt.data);
+
+                    switch (msgJSON.type) {
+                        case "NewUser":
+                            if (msgJSON.data.streamID === stream.id) return;
+                            dispatch({type: actionTypes.SET_USERNAME, payload: msgJSON.data});
+                            break
+                        default:
+                            console.error("Unsupported message type: ", msgJSON.type);
+                    }
                 }
         
                 setDataChannel(e.channel);
@@ -136,21 +134,15 @@ const VideoConference = () => {
     const EndSession = useCallback(() => {
         peerConnection.current.close();
         ws.current.close();
-        dataChannel.current.close();
 
-        Object.keys(RTCStreams).forEach((key) => {
-            RTCStreams[key].getTracks().forEach((track) => {
-                track.stop();
-            })
-        });
+        dispatch({type: actionTypes.END_SESSION});
 
-        setRTCStreams(null);
-    }, [dataChannel, peerConnection, ws, RTCStreams])
+    }, [peerConnection, ws]);
 
     if (fatal) return <Navigate to="/not-found" />;
 
     return (
-        <CallScreen dataChannel={dataChannel} endSession={EndSession} stream={userStream} video={video} audio={audio} RTCStreams={RTCStreams} setRTCStreams={setRTCStreams}/>
+        <CallScreen dataChannel={dataChannel} endSession={EndSession} stream={userStream} video={video} audio={audio} RTCStreams={RTCStreams} />
     )
 };
 

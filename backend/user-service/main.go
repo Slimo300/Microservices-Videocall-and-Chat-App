@@ -47,10 +47,10 @@ func main() {
 	}
 
 	// Setup for handling image uploads to s3 and email sending
-	storage, err := storage.NewS3Storage(conf.S3Bucket, conf.Origin)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// storage, err := storage.NewS3Storage(conf.S3Bucket, conf.Origin)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 	emailClient, err := email.NewGRPCEmailClient(conf.EmailServiceAddress)
 	if err != nil {
 		log.Fatal(err)
@@ -61,7 +61,7 @@ func main() {
 		TokenClient:  tokenClient,
 		EmailClient:  emailClient,
 		Emitter:      emiter,
-		ImageStorage: storage,
+		ImageStorage: new(storage.MockStorage),
 		MaxBodyBytes: 4194304,
 		Domain:       conf.Domain,
 	}

@@ -15,19 +15,6 @@ const CallScreen = ({endSession, dataChannel, stream, video, audio, RTCStreams})
         setUserStream(stream);
     }, [stream]);
 
-    useEffect(() => {
-        if (!userStream ) return;
-
-        if (dataChannel) dataChannel.onmessage = e => {
-            console.log("Message received: %v", e.data);
-        };
-    }, [dataChannel, userStream]);
-
-    
-    if (dataChannel) dataChannel.onmessage = e => {
-        console.log("Message received: %v", e.data);
-    }
-
     const EndCall = () => {
         endSession();
         userStream.getTracks().forEach((track) => {
@@ -61,10 +48,10 @@ const CallScreen = ({endSession, dataChannel, stream, video, audio, RTCStreams})
                 </button>
             </div>
             <div className='d-flex flex-wrap justify-content-center align-items-center'>
-                {userStream?<PeerVideo dataChannel={dataChannel} stream={userStream} isUser={true} />:null}
-                {Object.keys(RTCStreams).map(streamID => {
-                    return <PeerVideo dataChannel={dataChannel} key={streamID} stream={RTCStreams[streamID]} />
-                })}
+                {userStream?<PeerVideo stream={userStream} isUser={true} username={localStorage.getItem("username")} />:null}
+                {RTCStreams?RTCStreams.map(item => {
+                    return <PeerVideo key={item.stream.id} stream={item.stream} username={item.username} />
+                }):null}
             </div> 
         </div>
     );

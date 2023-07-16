@@ -76,7 +76,10 @@ func (ms *MetadataSignaler) HandleNewUser(newUserChannel *webrtc.DataChannel, ne
 	defer ms.signalerLock.Unlock()
 
 	// send to all data channel info about new user, also send it to him
-	for _, dc := range ms.dataChannels {
+	for username, dc := range ms.dataChannels {
+		if username == newUserMsg.Username {
+			continue
+		}
 		if err := dc.SendText(string(originalMsg)); err != nil {
 			log.Printf("Error sending msg: %v", err)
 		}
