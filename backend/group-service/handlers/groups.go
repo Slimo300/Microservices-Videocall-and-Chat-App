@@ -58,10 +58,20 @@ func (s *Server) CreateGroup(c *gin.Context) {
 		return
 	}
 
+	user, err := s.DB.GetUser(userUID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
+		return
+	}
+
 	if err = s.Emitter.Emit(events.MemberCreatedEvent{
 		ID:      group.Members[0].ID,
 		GroupID: group.ID,
 		UserID:  userUID,
+		User: events.User{
+			UserName: user.UserName,
+			Picture:  user.Picture,
+		},
 		Creator: true,
 	}); err != nil {
 		panic(err)

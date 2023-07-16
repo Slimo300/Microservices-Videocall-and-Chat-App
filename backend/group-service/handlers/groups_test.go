@@ -42,6 +42,8 @@ func (s *GroupTestSuite) SetupSuite() {
 	}, nil)
 	db.On("GetUserGroups", s.IDs["user2"]).Return([]models.Group{}, nil)
 
+	db.On("GetUser", mock.Anything).Return(models.User{}, nil)
+
 	db.On("CreateGroup", s.IDs["user1"], "New Group").Return(models.Group{Name: "New Group", Members: []models.Member{{ID: s.IDs["member"]}}}, nil)
 
 	// Handlers don't handle emitter errors so there is no need to mock one
