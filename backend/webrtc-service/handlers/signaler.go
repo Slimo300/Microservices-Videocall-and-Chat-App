@@ -5,6 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+
+	w "github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/webrtc"
 )
 
 var upgrader = websocket.Upgrader{
@@ -39,14 +41,29 @@ func (s *Server) ServeWebSocket(c *gin.Context) {
 		return
 	}
 
+	streamID := c.Query("streamID")
+	if streamID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "streamID not specified"})
+		return
+	}
+
+	enabled := true
+	notEnabled := false
+
+	userData := w.UserConnData{
+		Username:     username,
+		StreamID:     streamID,
+		AudioEnabled: &enabled,
+	}
+
+	videoEnabled := c.Query("videoEnabled")
+	if videoEnabled == "true" {
+		userData.VideoEnabled = &enabled
+	} else {
+		userData.VideoEnabled = &notEnabled
+	}
+
 	room := s.Relay.GetRoom(groupID)
-	// check if room for group exists
-	// room, ok := s.Relay[groupID]
-	// if !ok {
-	// 	room = &w.Room{}
-	// 	room.TrackLocals = make(map[string]*webrtc.TrackLocalStaticRTP)
-	// 	s.Relay[groupID] = room
-	// }
 
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
@@ -54,5 +71,5 @@ func (s *Server) ServeWebSocket(c *gin.Context) {
 		return
 	}
 
-	room.ConnectRoom(conn, username)
+	room.ConnectRoom(conn, userData)
 }

@@ -10,45 +10,11 @@ import (
 	"github.com/pion/webrtc/v3"
 )
 
-type RoomsRelay struct {
-	rooms      map[string]*Room
-	relayMutex sync.Mutex
-}
-
-func NewRoomsRelay() *RoomsRelay {
-	return &RoomsRelay{
-		rooms:      map[string]*Room{},
-		relayMutex: sync.Mutex{},
-	}
-}
-
-func (r *RoomsRelay) GetRoom(groupID string) *Room {
-	r.relayMutex.Lock()
-	defer r.relayMutex.Unlock()
-
-	room, ok := r.rooms[groupID]
-	if !ok {
-		room = &Room{}
-		room.TrackLocals = make(map[string]*webrtc.TrackLocalStaticRTP)
-		room.DataHandler = NewMetadataSignaler()
-		r.rooms[groupID] = room
-	}
-
-	go func() {
-		for range time.NewTicker(3 * time.Second).C {
-			room.DispatchKeyFrame()
-		}
-	}()
-
-	return room
-}
-
 type Room struct {
 	// lock for peerConnections and trackLocals
-	ListLock        sync.RWMutex
-	PeerConnections []peerConnectionState
-	TrackLocals     map[string]*webrtc.TrackLocalStaticRTP
-	DataHandler     *MetadataSignaler
+	ListLock    sync.RWMutex
+	Clients     []client
+	TrackLocals map[string]*webrtc.TrackLocalStaticRTP
 }
 
 type websocketMessage struct {
@@ -56,9 +22,69 @@ type websocketMessage struct {
 	Data  string `json:"data"`
 }
 
-type peerConnectionState struct {
+type client struct {
 	peerConnection *webrtc.PeerConnection
 	websocket      *threadSafeWriter
+	userData       UserConnData
+}
+
+func (r *Room) AddClient(peerConnection *webrtc.PeerConnection, ws *threadSafeWriter, userData UserConnData) {
+
+	r.ListLock.Lock()
+
+	data, err := json.Marshal(userData)
+	if err != nil {
+		log.Printf("Error marshaling userData: %v", err)
+	}
+
+	for _, client := range r.Clients {
+		client.websocket.WriteJSON(&websocketMessage{
+			Event: "newUser",
+			Data:  string(data),
+		})
+
+		clientData, err := json.Marshal(client.userData)
+		if err != nil {
+			log.Printf("Error marshaling userData: %v", err)
+		}
+
+		ws.WriteJSON(&websocketMessage{
+			Event: "newUser",
+			Data:  string(clientData),
+		})
+	}
+
+	r.Clients = append(r.Clients, client{
+		peerConnection: peerConnection,
+		websocket:      ws,
+		userData:       userData,
+	})
+
+	r.ListLock.Unlock()
+}
+
+func (r *Room) ToggleVideoMute(streamID string, videoEnabled bool) {
+	r.ListLock.Lock()
+	defer r.ListLock.Unlock()
+
+	data, err := json.Marshal(UserConnData{
+		StreamID:     streamID,
+		VideoEnabled: &videoEnabled,
+	})
+	if err != nil {
+		log.Printf("Error marshaling data: %v", err)
+	}
+
+	for _, client := range r.Clients {
+		if client.userData.StreamID == streamID {
+			client.userData.VideoEnabled = &videoEnabled
+		} else {
+			client.websocket.WriteJSON(&websocketMessage{
+				Event: "toggleVideoMute",
+				Data:  string(data),
+			})
+		}
+	}
 }
 
 // Add to list of tracks and fire renegotation for all PeerConnections
@@ -100,16 +126,16 @@ func (r *Room) SignalPeerConnections() {
 	}()
 
 	attemptSync := func() (tryAgain bool) {
-		for i := range r.PeerConnections {
-			if r.PeerConnections[i].peerConnection.ConnectionState() == webrtc.PeerConnectionStateClosed {
-				r.PeerConnections = append(r.PeerConnections[:i], r.PeerConnections[i+1:]...)
+		for i := range r.Clients {
+			if r.Clients[i].peerConnection.ConnectionState() == webrtc.PeerConnectionStateClosed {
+				r.Clients = append(r.Clients[:i], r.Clients[i+1:]...)
 				return true // We modified the slice, start from the beginning
 			}
 
 			// map of sender we already are sending, so we don't double send
 			existingSenders := map[string]bool{}
 
-			for _, sender := range r.PeerConnections[i].peerConnection.GetSenders() {
+			for _, sender := range r.Clients[i].peerConnection.GetSenders() {
 				if sender.Track() == nil {
 					continue
 				}
@@ -118,14 +144,14 @@ func (r *Room) SignalPeerConnections() {
 
 				// If we have a RTPSender that doesn't map to a existing track remove and signal
 				if _, ok := r.TrackLocals[sender.Track().ID()]; !ok {
-					if err := r.PeerConnections[i].peerConnection.RemoveTrack(sender); err != nil {
+					if err := r.Clients[i].peerConnection.RemoveTrack(sender); err != nil {
 						return true
 					}
 				}
 			}
 
 			// Don't receive videos we are sending, make sure we don't have loopback
-			for _, receiver := range r.PeerConnections[i].peerConnection.GetReceivers() {
+			for _, receiver := range r.Clients[i].peerConnection.GetReceivers() {
 				if receiver.Track() == nil {
 					continue
 				}
@@ -136,18 +162,18 @@ func (r *Room) SignalPeerConnections() {
 			// Add all track we aren't sending yet to the PeerConnection
 			for trackID := range r.TrackLocals {
 				if _, ok := existingSenders[trackID]; !ok {
-					if _, err := r.PeerConnections[i].peerConnection.AddTrack(r.TrackLocals[trackID]); err != nil {
+					if _, err := r.Clients[i].peerConnection.AddTrack(r.TrackLocals[trackID]); err != nil {
 						return true
 					}
 				}
 			}
 
-			offer, err := r.PeerConnections[i].peerConnection.CreateOffer(nil)
+			offer, err := r.Clients[i].peerConnection.CreateOffer(nil)
 			if err != nil {
 				return true
 			}
 
-			if err = r.PeerConnections[i].peerConnection.SetLocalDescription(offer); err != nil {
+			if err = r.Clients[i].peerConnection.SetLocalDescription(offer); err != nil {
 				return true
 			}
 
@@ -156,7 +182,7 @@ func (r *Room) SignalPeerConnections() {
 				return true
 			}
 
-			if err = r.PeerConnections[i].websocket.WriteJSON(&websocketMessage{
+			if err = r.Clients[i].websocket.WriteJSON(&websocketMessage{
 				Event: "offer",
 				Data:  string(offerString),
 			}); err != nil {
@@ -188,13 +214,13 @@ func (r *Room) DispatchKeyFrame() {
 	r.ListLock.Lock()
 	defer r.ListLock.Unlock()
 
-	for i := range r.PeerConnections {
-		for _, receiver := range r.PeerConnections[i].peerConnection.GetReceivers() {
+	for i := range r.Clients {
+		for _, receiver := range r.Clients[i].peerConnection.GetReceivers() {
 			if receiver.Track() == nil {
 				continue
 			}
 
-			_ = r.PeerConnections[i].peerConnection.WriteRTCP([]rtcp.Packet{
+			_ = r.Clients[i].peerConnection.WriteRTCP([]rtcp.Packet{
 				&rtcp.PictureLossIndication{
 					MediaSSRC: uint32(receiver.Track().SSRC()),
 				},

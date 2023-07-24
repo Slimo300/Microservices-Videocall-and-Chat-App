@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-const PING_INTERVAL = 50 * time.Second
+const PING_INTERVAL = 55 * time.Second
 
 // Helper to make Gorilla Websockets threadsafe
 type threadSafeWriter struct {

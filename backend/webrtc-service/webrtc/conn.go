@@ -15,7 +15,14 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func (r *Room) ConnectRoom(conn *websocket.Conn, username string) {
+type UserConnData struct {
+	Username     string `json:"username,omitempty"`
+	StreamID     string `json:"streamID,omitempty"`
+	VideoEnabled *bool  `json:"videoEnabled,omitempty"`
+	AudioEnabled *bool  `json:"audioEnabled,omitempty"`
+}
+
+func (r *Room) ConnectRoom(conn *websocket.Conn, userData UserConnData) {
 
 	ws := newThreadSafeWriter(conn)
 	defer ws.Close()
@@ -36,19 +43,7 @@ func (r *Room) ConnectRoom(conn *websocket.Conn, username string) {
 		}
 	}
 
-	r.ListLock.Lock()
-	r.PeerConnections = append(r.PeerConnections, peerConnectionState{
-		peerConnection: peerConnection,
-		websocket:      ws,
-	})
-	r.ListLock.Unlock()
-
-	dataChannel, err := peerConnection.CreateDataChannel("", nil)
-	if err != nil {
-		log.Printf("Couldn't create dataChannel: %v", err)
-		return
-	}
-	r.DataHandler.AddChannel(username, dataChannel)
+	r.AddClient(peerConnection, ws, userData)
 
 	peerConnection.OnICECandidate(func(i *webrtc.ICECandidate) {
 		if i == nil {
@@ -138,6 +133,21 @@ func (r *Room) ConnectRoom(conn *websocket.Conn, username string) {
 				log.Printf("Error setting remote description: %v\n", err)
 				return
 			}
+		case "renegotiate":
+			log.Printf("Renegotiation needed")
+			r.SignalPeerConnections()
+		case "videoMute":
+			log.Printf("Video mute toggled")
+
+			videoMuted := struct {
+				VideoEnabled bool `json:"videoEnabled"`
+			}{}
+
+			if err := json.Unmarshal([]byte(message.Data), &videoMuted); err != nil {
+				log.Printf("Error unmarshaling mute message")
+			}
+
+			r.ToggleVideoMute(userData.StreamID, videoMuted.VideoEnabled)
 		}
 	}
 
