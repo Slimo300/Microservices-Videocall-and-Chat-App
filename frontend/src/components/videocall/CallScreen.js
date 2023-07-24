@@ -5,8 +5,9 @@ import { faMicrophone, faMicrophoneSlash, faVideo, faVideoSlash, faPhoneSlash } 
 import PeerVideo from "./PeerVideo";
 import MediaButton from "./MediaButton";
 import ScreenShareButton from "./ScreenShareButton";
+// import { actionTypes } from "./RTCStreams";
 
-const CallScreen = ({endSession, dataChannel, stream, video, audio, RTCStreams}) => {
+const CallScreen = ({CallHandler, peerConnection, ws, dispatch, stream, video, audio, RTCStreams}) => {
 
     const [ended, setEnded] = useState(false);
     const [userStream, setUserStream] = useState(null);
@@ -16,15 +17,18 @@ const CallScreen = ({endSession, dataChannel, stream, video, audio, RTCStreams})
     }, [stream]);
 
     const EndCall = () => {
-        endSession();
-        userStream.getTracks().forEach((track) => {
-            track.stop();
-        });
+        // peerConnection.current.close();
+        // ws.current.close();
+
+        // dispatch({type: actionTypes.END_SESSION});
+        // userStream.getTracks().forEach((track) => {
+        //     track.stop();
+        // });
+
+        CallHandler.EndCall();
 
         setEnded(true);
-        setUserStream(null);
     };
-
 
     if (ended) return (
         <div className="container mt-4 pt-4">
@@ -48,9 +52,9 @@ const CallScreen = ({endSession, dataChannel, stream, video, audio, RTCStreams})
                 </button>
             </div>
             <div className='d-flex flex-wrap justify-content-center align-items-center'>
-                {userStream?<PeerVideo stream={userStream} isUser={true} username={localStorage.getItem("username")} />:null}
+                {userStream?<PeerVideo stream={userStream} isUser={true} username={localStorage.getItem("username")} isVideoMuted={false} />:null}
                 {RTCStreams?RTCStreams.map(item => {
-                    return <PeerVideo key={item.stream.id} stream={item.stream} username={item.username} />
+                    return <PeerVideo key={item.stream.id} stream={item.stream} username={item.username} isVideoMuted={false} />
                 }):null}
             </div> 
         </div>

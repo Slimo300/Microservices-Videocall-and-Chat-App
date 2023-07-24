@@ -1,6 +1,6 @@
 import mockVideo from "../../statics/videos/mock.webm";
 
-const StartCall = async (mocking) => {
+const StartCall = async (mocking, initVideo) => {
 
     let stream;
 
@@ -11,7 +11,7 @@ const StartCall = async (mocking) => {
         stream = video.captureStream();
         await video.play();
     } else {
-        stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+        stream = await navigator.mediaDevices.getUserMedia({video: initVideo, audio: true});
     }
 
     return stream;
