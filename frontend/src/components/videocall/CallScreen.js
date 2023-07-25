@@ -1,30 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMicrophone, faMicrophoneSlash, faVideo, faVideoSlash, faPhoneSlash } from "@fortawesome/free-solid-svg-icons";
+import { faMicrophone, faMicrophoneSlash, faVideo, faVideoSlash, faPhoneSlash, faShareFromSquare } from "@fortawesome/free-solid-svg-icons";
 
 import PeerVideo from "./PeerVideo";
-import MediaButton from "./MediaButton";
-import ScreenShareButton from "./ScreenShareButton";
-// import { actionTypes } from "./RTCStreams";
+// import MediaButton from "./MediaButton";
+import { AUDIO_ACTIVE, VIDEO_ACTIVE, VIDEO_SCREENSHARE } from "../../pages/Call";
 
-const CallScreen = ({CallHandler, peerConnection, ws, dispatch, stream, video, audio, RTCStreams}) => {
+const CallScreen = ({CallHandler, userStream, videoState, audioState, RTCStreams}) => {
 
     const [ended, setEnded] = useState(false);
-    const [userStream, setUserStream] = useState(null);
-
-    useEffect(() => {
-        setUserStream(stream);
-    }, [stream]);
 
     const EndCall = () => {
-        // peerConnection.current.close();
-        // ws.current.close();
-
-        // dispatch({type: actionTypes.END_SESSION});
-        // userStream.getTracks().forEach((track) => {
-        //     track.stop();
-        // });
-
         CallHandler.EndCall();
 
         setEnded(true);
@@ -43,10 +29,19 @@ const CallScreen = ({CallHandler, peerConnection, ws, dispatch, stream, video, a
     return (
         <div>
             <div id="toolbar" className='d-flex justify-content-around rounded p-1'>
-                <MediaButton isActive={true} mediaRef={audio} activeIcon={faMicrophone} inactiveIcon={faMicrophoneSlash} />
-                <MediaButton isActive={true} mediaRef={video} activeIcon={faVideo} inactiveIcon={faVideoSlash} />
                 
-                <ScreenShareButton video={video} userStream={userStream} setUserStream={setUserStream}/>
+                <button className={"btn shadow rounded-circle "+(audioState===AUDIO_ACTIVE?"btn-secondary":"btn-danger")} type="button" onClick={CallHandler.ToggleAudio}>
+                    <FontAwesomeIcon icon={audioState===AUDIO_ACTIVE?faMicrophone:faMicrophoneSlash} size='xl'/>
+                </button>
+
+                <button className={"btn shadow rounded-circle "+(videoState===VIDEO_ACTIVE?"btn-secondary":"btn-danger")} type="button" onClick={CallHandler.ToggleVideo}>
+                    <FontAwesomeIcon icon={videoState===VIDEO_ACTIVE?faVideo:faVideoSlash} size='xl'/>
+                </button>
+
+                <button className={"btn shadow rounded-circle "+(videoState===VIDEO_SCREENSHARE?"btn-secondary":"btn-danger")} type="button" onClick={CallHandler.ToggleScreenShare}>
+                    <FontAwesomeIcon icon={faShareFromSquare} size='xl'/>
+                </button>
+
                 <button className="btn btn-danger shadow rounded-circle" type="button" onClick={EndCall}>
                     <FontAwesomeIcon icon={faPhoneSlash} size='xl' />
                 </button>

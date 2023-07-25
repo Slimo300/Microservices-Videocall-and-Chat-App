@@ -21,8 +21,10 @@ const PeerVideo = ({stream, username, isUser, isVideoMuted}) => {
                     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
                     const videoTrack = canvas.captureStream().getVideoTracks()[0];
+                    const audioTrack = stream.getAudioTracks()[0];
 
-                    video.current.srcObject = new MediaStream([stream.getAudioTracks()[0], videoTrack]);
+                    if (audioTrack) video.current.srcObject = new MediaStream([audioTrack, videoTrack]);
+                    else video.current.srcObject = new MediaStream([videoTrack]);
                 };
 
                 return;

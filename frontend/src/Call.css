@@ -40,15 +40,18 @@
   z-index: 0;
 }
 
-.peer-header {
+.peer-footer {
   width: 100%;
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
   z-index: 1;
   transition: 0.3s;
+  margin-bottom: 1%;
+  color: whitesmoke;
+  text-align: center;
 }
 
-.peer-header:hover {
-  background-color: royalblue;
+.peer-footer:hover {
+  background-color: navy;
 }
