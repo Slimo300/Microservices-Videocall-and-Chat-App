@@ -50,8 +50,27 @@
   margin-bottom: 1%;
   color: whitesmoke;
   text-align: center;
+
+  background-color: navy;
+  opacity: 0.5;
 }
 
 .peer-footer:hover {
-  background-color: navy;
+  opacity: 1;
+}
+
+.mute-symbol {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  margin: 1%;
+  transition: 0.1s;
+  color: whitesmoke;
+  background-color: darkslategray;
+  opacity: 0.5;
+}
+
+.mute-symbol:hover {
+  opacity: 1;
 }

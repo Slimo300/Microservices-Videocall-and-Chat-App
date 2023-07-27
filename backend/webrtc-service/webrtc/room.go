@@ -31,6 +31,7 @@ type client struct {
 func (r *Room) AddClient(peerConnection *webrtc.PeerConnection, ws *threadSafeWriter, userData UserConnData) {
 
 	r.ListLock.Lock()
+	defer r.ListLock.Unlock()
 
 	data, err := json.Marshal(userData)
 	if err != nil {
@@ -38,8 +39,9 @@ func (r *Room) AddClient(peerConnection *webrtc.PeerConnection, ws *threadSafeWr
 	}
 
 	for _, client := range r.Clients {
+		// send client info about new user
 		client.websocket.WriteJSON(&websocketMessage{
-			Event: "newUser",
+			Event: "user_info",
 			Data:  string(data),
 		})
 
@@ -48,8 +50,9 @@ func (r *Room) AddClient(peerConnection *webrtc.PeerConnection, ws *threadSafeWr
 			log.Printf("Error marshaling userData: %v", err)
 		}
 
+		// send new user info about client
 		ws.WriteJSON(&websocketMessage{
-			Event: "newUser",
+			Event: "user_info",
 			Data:  string(clientData),
 		})
 	}
@@ -60,27 +63,34 @@ func (r *Room) AddClient(peerConnection *webrtc.PeerConnection, ws *threadSafeWr
 		userData:       userData,
 	})
 
-	r.ListLock.Unlock()
 }
 
-func (r *Room) ToggleVideoMute(streamID string, videoEnabled bool) {
+func (r *Room) ToggleMute(streamID string, videoEnabled, audioEnabled *bool) {
 	r.ListLock.Lock()
 	defer r.ListLock.Unlock()
 
 	data, err := json.Marshal(UserConnData{
 		StreamID:     streamID,
-		VideoEnabled: &videoEnabled,
+		VideoEnabled: videoEnabled,
+		AudioEnabled: audioEnabled,
 	})
 	if err != nil {
 		log.Printf("Error marshaling data: %v", err)
 	}
+	log.Println(string(data))
 
-	for _, client := range r.Clients {
-		if client.userData.StreamID == streamID {
-			client.userData.VideoEnabled = &videoEnabled
+	for i := range r.Clients {
+		if r.Clients[i].userData.StreamID == streamID {
+			if videoEnabled != nil {
+				r.Clients[i].userData.VideoEnabled = videoEnabled
+			}
+			if audioEnabled != nil {
+				log.Println("Setting audio")
+				r.Clients[i].userData.AudioEnabled = audioEnabled
+			}
 		} else {
-			client.websocket.WriteJSON(&websocketMessage{
-				Event: "toggleVideoMute",
+			r.Clients[i].websocket.WriteJSON(&websocketMessage{
+				Event: "mute",
 				Data:  string(data),
 			})
 		}

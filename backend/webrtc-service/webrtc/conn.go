@@ -136,18 +136,20 @@ func (r *Room) ConnectRoom(conn *websocket.Conn, userData UserConnData) {
 		case "renegotiate":
 			log.Printf("Renegotiation needed")
 			r.SignalPeerConnections()
-		case "videoMute":
-			log.Printf("Video mute toggled")
+		case "mute":
+			log.Printf("mute toggled!!!!!!!!!!!!!!!")
 
-			videoMuted := struct {
-				VideoEnabled bool `json:"videoEnabled"`
+			muteInfo := struct {
+				VideoEnabled *bool `json:"videoEnabled,omitempty"`
+				AudioEnabled *bool `json:"audioEnabled,omitempty"`
 			}{}
 
-			if err := json.Unmarshal([]byte(message.Data), &videoMuted); err != nil {
+			if err := json.Unmarshal([]byte(message.Data), &muteInfo); err != nil {
 				log.Printf("Error unmarshaling mute message")
 			}
+			log.Println(*muteInfo.AudioEnabled)
 
-			r.ToggleVideoMute(userData.StreamID, videoMuted.VideoEnabled)
+			r.ToggleMute(userData.StreamID, muteInfo.VideoEnabled, muteInfo.AudioEnabled)
 		}
 	}
 

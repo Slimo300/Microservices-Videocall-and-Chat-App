@@ -27,7 +27,6 @@ func (r *RoomsRelay) GetRoom(groupID string) *Room {
 	if !ok {
 		room = &Room{}
 		room.TrackLocals = make(map[string]*webrtc.TrackLocalStaticRTP)
-		// room.DataHandler = NewMetadataSignaler()
 		r.rooms[groupID] = room
 	}
 

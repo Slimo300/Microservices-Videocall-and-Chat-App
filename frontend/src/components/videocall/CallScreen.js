@@ -3,8 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMicrophone, faMicrophoneSlash, faVideo, faVideoSlash, faPhoneSlash, faShareFromSquare } from "@fortawesome/free-solid-svg-icons";
 
 import PeerVideo from "./PeerVideo";
-// import MediaButton from "./MediaButton";
-import { AUDIO_ACTIVE, VIDEO_ACTIVE, VIDEO_SCREENSHARE } from "../../pages/Call";
+import { AUDIO_ACTIVE, AUDIO_INACTIVE, VIDEO_ACTIVE, VIDEO_INACTIVE, VIDEO_SCREENSHARE } from "../../pages/Call";
 
 const CallScreen = ({CallHandler, userStream, videoState, audioState, RTCStreams}) => {
 
@@ -29,7 +28,7 @@ const CallScreen = ({CallHandler, userStream, videoState, audioState, RTCStreams
     return (
         <div>
             <div id="toolbar" className='d-flex justify-content-around rounded p-1'>
-                
+
                 <button className={"btn shadow rounded-circle "+(audioState===AUDIO_ACTIVE?"btn-secondary":"btn-danger")} type="button" onClick={CallHandler.ToggleAudio}>
                     <FontAwesomeIcon icon={audioState===AUDIO_ACTIVE?faMicrophone:faMicrophoneSlash} size='xl'/>
                 </button>
@@ -38,7 +37,7 @@ const CallScreen = ({CallHandler, userStream, videoState, audioState, RTCStreams
                     <FontAwesomeIcon icon={videoState===VIDEO_ACTIVE?faVideo:faVideoSlash} size='xl'/>
                 </button>
 
-                <button className={"btn shadow rounded-circle "+(videoState===VIDEO_SCREENSHARE?"btn-secondary":"btn-danger")} type="button" onClick={CallHandler.ToggleScreenShare}>
+                <button className={"btn shadow rounded-circle "+(videoState!==VIDEO_SCREENSHARE?"btn-secondary":"btn-danger")} type="button" onClick={CallHandler.ToggleScreenShare}>
                     <FontAwesomeIcon icon={faShareFromSquare} size='xl'/>
                 </button>
 
@@ -47,9 +46,9 @@ const CallScreen = ({CallHandler, userStream, videoState, audioState, RTCStreams
                 </button>
             </div>
             <div className='d-flex flex-wrap justify-content-center align-items-center'>
-                {userStream?<PeerVideo stream={userStream} isUser={true} username={localStorage.getItem("username")} isVideoMuted={false} />:null}
+                {userStream?<PeerVideo stream={userStream} username={localStorage.getItem("username")} isVideoMuted={videoState===VIDEO_INACTIVE} isAudioMuted={audioState===AUDIO_INACTIVE} isUser={true} />:null}
                 {RTCStreams?RTCStreams.map(item => {
-                    return <PeerVideo key={item.stream.id} stream={item.stream} username={item.username} isVideoMuted={false} />
+                    return <PeerVideo key={item.stream.id} stream={item.stream} username={item.username} isVideoMuted={!item.videoEnabled} isAudioMuted={!item.audioEnabled} isUser={false} />
                 }):null}
             </div> 
         </div>

@@ -100,14 +100,21 @@ const VideoConference = () => {
         
                         peerConnection.current.addIceCandidate(candidate);
                         break;
-                    case "newUser":
+                    case "user_info":
                         let userData = JSON.parse(msg.data);
                         if (!userData) {
                             return console.log("Failed to parse newUser message");
                         }
 
                         console.log(userData);
-                        dispatch({type: actionTypes.SET_USERNAME, payload: userData});
+                        dispatch({type: actionTypes.SET_USER_INFO, payload: userData});
+                        break;
+                    case "mute":
+                        let data = JSON.parse(msg.data);
+                        if (!data) {
+                            return console.log("Failed to parse mute message")
+                        }
+                        dispatch({type: actionTypes.TOGGLE_MUTE, payload: data});
                         break;
                     default:
                         console.log("Unexpected websocket event: ", msg.event);
@@ -137,6 +144,7 @@ const VideoConference = () => {
                     ws.current.send(JSON.stringify({event: "renegotiate"}));
                 } else {
                     audioSender.current.replaceTrack(track);
+                    ws.current.send(JSON.stringify({event: "mute", data: JSON.stringify({audioEnabled: true})}));
                 }
                 return stream;
             })
@@ -151,6 +159,8 @@ const VideoConference = () => {
                 return stream;
             })
             audioSender.current.replaceTrack(null);
+            ws.current.send(JSON.stringify({event: "mute", data: JSON.stringify({audioEnabled: false})}));
+
             setAudioState(AUDIO_INACTIVE);
         }
     }, [audioState]);
@@ -171,6 +181,7 @@ const VideoConference = () => {
                     videoSender.current = peerConnection.current.addTrack(track, stream);
                     ws.current.send(JSON.stringify({event: "renegotiate"}));
                 } else {
+                    ws.current.send(JSON.stringify({event: "mute", data: JSON.stringify({videoEnabled: true})}));
                     videoSender.current.replaceTrack(track);
                 }
                 return stream;
@@ -187,6 +198,7 @@ const VideoConference = () => {
             });
     
             videoSender.current.replaceTrack(null);
+            ws.current.send(JSON.stringify({event: "mute", data: JSON.stringify({videoEnabled: false})}));
 
             setVideoState(VIDEO_INACTIVE);
         }
@@ -208,6 +220,9 @@ const VideoConference = () => {
                     ws.current.send(JSON.stringify({event: "renegotiate"}));
                 } else {
                     videoSender.current.replaceTrack(track);
+                    if (videoState === VIDEO_INACTIVE) {
+                        ws.current.send(JSON.stringify({event: "mute", data: JSON.stringify({videoEnabled: true})}));
+                    }
                 }
                 return stream;
             });
@@ -233,6 +248,8 @@ const VideoConference = () => {
             });
     
             videoSender.current.replaceTrack(track);
+            
+            ws.current.send(JSON.stringify({event: "mute", data: JSON.stringify({videoEnabled: true})}));
             setVideoState(videoPrevState);
         }
     }, [videoState, videoPrevState]);
