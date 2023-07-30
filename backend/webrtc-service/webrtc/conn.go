@@ -147,7 +147,6 @@ func (r *Room) ConnectRoom(conn *websocket.Conn, userData UserConnData) {
 			if err := json.Unmarshal([]byte(message.Data), &muteInfo); err != nil {
 				log.Printf("Error unmarshaling mute message")
 			}
-			log.Println(*muteInfo.AudioEnabled)
 
 			r.ToggleMute(userData.StreamID, muteInfo.VideoEnabled, muteInfo.AudioEnabled)
 		}

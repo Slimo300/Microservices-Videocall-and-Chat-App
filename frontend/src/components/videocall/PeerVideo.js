@@ -4,7 +4,7 @@ import { faMicrophoneSlash } from "@fortawesome/free-solid-svg-icons";
 
 import mutedUser from "../../statics/images/video-user.png";
 
-const PeerVideo = ({stream, username, isVideoMuted, isAudioMuted,isUser}) => {
+const PeerVideo = ({stream, username, isVideoMuted, isAudioMuted, isUser}) => {
     const video = useRef(null);
 
     useEffect(() => {
@@ -12,6 +12,7 @@ const PeerVideo = ({stream, username, isVideoMuted, isAudioMuted,isUser}) => {
             if (!video.current || !(stream instanceof MediaStream)) return;
 
             if (stream.getVideoTracks().length === 0 || isVideoMuted) {
+                console.log(isVideoMuted);
                 let canvas = document.createElement("canvas");
                 canvas.width = 400;
                 canvas.height = 300;

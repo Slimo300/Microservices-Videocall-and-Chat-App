@@ -144,8 +144,8 @@ const VideoConference = () => {
                     ws.current.send(JSON.stringify({event: "renegotiate"}));
                 } else {
                     audioSender.current.replaceTrack(track);
-                    ws.current.send(JSON.stringify({event: "mute", data: JSON.stringify({audioEnabled: true})}));
                 }
+                ws.current.send(JSON.stringify({event: "mute", data: JSON.stringify({audioEnabled: true})}));
                 return stream;
             })
 
@@ -181,9 +181,9 @@ const VideoConference = () => {
                     videoSender.current = peerConnection.current.addTrack(track, stream);
                     ws.current.send(JSON.stringify({event: "renegotiate"}));
                 } else {
-                    ws.current.send(JSON.stringify({event: "mute", data: JSON.stringify({videoEnabled: true})}));
                     videoSender.current.replaceTrack(track);
                 }
+                ws.current.send(JSON.stringify({event: "mute", data: JSON.stringify({videoEnabled: true})}));
                 return stream;
             });
     
@@ -220,15 +220,18 @@ const VideoConference = () => {
                     ws.current.send(JSON.stringify({event: "renegotiate"}));
                 } else {
                     videoSender.current.replaceTrack(track);
-                    if (videoState === VIDEO_INACTIVE) {
-                        ws.current.send(JSON.stringify({event: "mute", data: JSON.stringify({videoEnabled: true})}));
-                    }
+                }
+                if (videoState === VIDEO_INACTIVE) {
+                    ws.current.send(JSON.stringify({event: "mute", data: JSON.stringify({videoEnabled: true})}));
                 }
                 return stream;
             });
     
-            setVideoPrevState(videoState);
-            setVideoState(VIDEO_SCREENSHARE);
+            setVideoState(videoState => {
+                setVideoPrevState(videoState);
+
+                return VIDEO_SCREENSHARE;
+            });
 
         } else {
             let track = null;
