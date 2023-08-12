@@ -27,25 +27,33 @@ func (t *threadSafeWriter) WriteJSON(v interface{}) error {
 
 func newThreadSafeWriter(conn *websocket.Conn) *threadSafeWriter {
 
-	ticker := time.NewTicker(PING_INTERVAL)
-	defer ticker.Stop()
-	ws := &threadSafeWriter{Conn: conn, Mutex: sync.Mutex{}, ticker: ticker, closeChan: make(chan struct{})}
+	t := &threadSafeWriter{Conn: conn, Mutex: sync.Mutex{}, ticker: time.NewTicker(PING_INTERVAL), closeChan: make(chan struct{})}
+
+	t.SetPongHandler(func(string) error {
+		log.Println("PONG")
+		return nil
+	})
 
 	go func() {
-		select {
-		case <-ticker.C:
-			ws.Lock()
-			if err := ws.WriteMessage(websocket.PingMessage, []byte("keepAlive")); err != nil {
-				log.Println("Error pinging websocket")
+		defer log.Println("Out of goroutine")
+		for {
+			select {
+			case <-t.ticker.C:
+				t.Lock()
+				log.Println("PING")
+				if err := t.WriteMessage(websocket.PingMessage, nil); err != nil {
+					log.Println("Error pinging websocket")
+					return
+				}
+				t.Unlock()
+			case <-t.closeChan:
+				t.ticker.Stop()
 				return
 			}
-			ws.Unlock()
-		case <-ws.closeChan:
-			return
 		}
 	}()
 
-	return ws
+	return t
 }
 
 func (t *threadSafeWriter) Close() {
