@@ -1,3 +1,5 @@
+import React from "react";
+
 import group from "../statics/images/group.jpg";
 import user from "../statics/images/user.png";
 

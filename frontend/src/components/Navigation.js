@@ -2,9 +2,11 @@ import React, { useContext } from 'react';
 import {NavLink} from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
+
 import {Logout} from '../requests/Users';
 import { StorageContext, actionTypes } from '../ChatStorage';
 import Invite from './Invite';
+import logo from "../statics/images/relrelcom-logo1.png";
 
 const Navigation = ({ws, toggleProfile, setWs}) => {
 
@@ -64,7 +66,9 @@ const Navigation = ({ws, toggleProfile, setWs}) => {
 
     return (
         <nav className="navbar navbar-expand-md navbar-dark bg-dark mb-4">
-            <NavLink className="navbar-brand" to="/" >ChatApp</NavLink>
+            <NavLink className="navbar-brand" to="/" >
+                <img src={logo} alt="Logo" width="200" height="55" className="d-inline-block align-text-top" />
+            </NavLink>
             <div className="collapse navbar-collapse" id="navbarCollapse">
                 {menu}
             </div>

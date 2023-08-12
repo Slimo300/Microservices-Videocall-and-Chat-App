@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const PROTOCOL = window._env_.USE_TLS==="true"?"https":"http";
 const WS_PROTOCOL = window._env_.USE_TLS==="true"?"wss":"ws";
 
@@ -18,9 +20,8 @@ export const wsServiceWebsocket = WS_PROTOCOL+'://'+WS_ADDRESS+'/ws';
 export const webrtcService = PROTOCOL+'://'+WEBRTC_ADDRESS+'/video-call'
 export const webrtcServiceWebsocket = WS_PROTOCOL+'://'+WEBRTC_ADDRESS+'/video-call';
 
-let axiosObject = require('axios').default;
+let axiosObject = axios.create();
 axiosObject.defaults.headers.common['Content-Type'] = "application/json";
-
 
 async function refreshAccessToken() {
 
@@ -60,12 +61,8 @@ axiosObject.interceptors.request.use(
 
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-
-      console.log("interceptor: before refreshing token");
       
       await refreshAccessToken();
-
-      console.log("interceptor: After refresh")
 
       const access_token = window.localStorage.getItem("token");
 

@@ -36,7 +36,7 @@ export function GetWebRTCWebsocket(groupID, accessCode, streamID, videoEnabled) 
     };
 
     socket.onclose = (evt) => {
-        window.alert("Websocket has closed");
+        window.alert(evt.code, evt.reason,);
     };
 
     socket.onerror = (evt) => {

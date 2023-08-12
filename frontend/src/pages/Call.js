@@ -2,7 +2,6 @@ import React, {useEffect, useState, useRef, useReducer, useCallback, useMemo} fr
 import {  useParams, Navigate } from "react-router-dom";
 
 import useQuery from '../hooks/useQuery';
-import "../Call.css";
 import { GetWebRTCWebsocket } from '../requests/Ws';
 import CallScreen from '../components/videocall/CallScreen';
 import StartCall from '../components/videocall/StartCall';
