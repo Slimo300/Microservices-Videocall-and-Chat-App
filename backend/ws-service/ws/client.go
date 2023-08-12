@@ -46,7 +46,7 @@ func (c *client) write() {
 			}
 			c.ticker.Reset(KEEP_ALIVE_INTERVAL)
 		case <-c.ticker.C:
-			if err := c.socket.WriteMessage(websocket.PingMessage, []byte("KeepAlive")); err != nil {
+			if err := c.socket.WriteMessage(websocket.PingMessage, nil); err != nil {
 				log.Printf("Error pinging client: %v\n", err)
 			}
 		}
