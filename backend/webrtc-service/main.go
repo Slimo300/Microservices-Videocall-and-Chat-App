@@ -21,7 +21,7 @@ import (
 
 func main() {
 
-	conf, err := config.LoadConfigFromFile("./config.yaml")
+	conf, err := config.LoadConfigFromEnvironment()
 	if err != nil {
 		log.Fatalf("Error reading configuration: %v", err)
 	}

@@ -42,14 +42,14 @@ func main() {
 		log.Fatalf("Couldn't connect to grpc auth server: %v", err)
 	}
 
-	// storage, err := storage.NewS3Storage(conf.S3Bucket, conf.Origin)
-	// if err != nil {
-	// 	log.Fatalf("Couldn't establish s3 session: %v", err)
-	// }
+	storage, err := storage.NewS3Storage(conf.S3Bucket, conf.Origin)
+	if err != nil {
+		log.Fatalf("Couldn't establish s3 session: %v", err)
+	}
 
-	go eventprocessor.NewEventProcessor(listener, db, new(storage.MockStorage)).ProcessEvents("wsmessages", "groups")
+	go eventprocessor.NewEventProcessor(listener, db, storage).ProcessEvents("wsmessages", "groups")
 
-	server := handlers.NewServer(db, tokenClient, emiter, new(storage.MockStorage))
+	server := handlers.NewServer(db, tokenClient, emiter, storage)
 	handler := routes.Setup(server, conf.Origin)
 
 	httpServer := &http.Server{

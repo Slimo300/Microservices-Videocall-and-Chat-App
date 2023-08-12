@@ -30,10 +30,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// storage, err := storage.NewS3Storage(conf.S3Bucket, conf.Origin)
-	// if err != nil {
-	// 	log.Fatalf("Error connecting to AWS S3: %v", err)
-	// }
+
+	storage, err := storage.NewS3Storage(conf.S3Bucket, conf.Origin)
+	if err != nil {
+		log.Fatalf("Error connecting to AWS S3: %v", err)
+	}
+
 	tokenClient, err := auth.NewGRPCTokenClient(conf.TokenServiceAddress)
 	if err != nil {
 		log.Fatalf("Couldn't connect to grpc auth server: %v", err)
@@ -46,7 +48,7 @@ func main() {
 
 	go eventprocessor.NewEventProcessor(db, listener).ProcessEvents("users")
 
-	server := handlers.NewServer(db, new(storage.MockStorage), tokenClient, emiter)
+	server := handlers.NewServer(db, storage, tokenClient, emiter)
 	handler := routes.Setup(server, conf.Origin)
 
 	httpServer := &http.Server{

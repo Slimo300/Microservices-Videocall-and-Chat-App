@@ -1,6 +1,0 @@
-dbAddress: localhost:6379
-dbPassword: redis
-httpPort: 8086
-tokenServiceAddress: localhost:9000
-origin: http://localhost:3000
-brokerAddress: localhost:9093 
