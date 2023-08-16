@@ -4,10 +4,10 @@ metadata:
   name: cert
   namespace: default
 spec:
-  secretName: chatapp-tls
+  secretName: relrel-tls
   issuerRef:
     name: clusterissuer
     kind: ClusterIssuer
   dnsNames:
-    - www.chatapp.example
-    - api.chatapp.example
+    - www.relrel.com
+    - api.relrel.com

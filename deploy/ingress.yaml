@@ -4,7 +4,7 @@ metadata:
   name: chatapp
 spec:
   rules:
-  - host: api.chatapp.example
+  - host: api.relrel.com
     http:
       paths:
       - path: /groups
@@ -49,7 +49,7 @@ spec:
             name: webrtcservice
             port:
               number: 8080
-  - host: www.chatapp.example
+  - host: www.relrel.com
     http:
       paths:
       - path: /
@@ -61,6 +61,6 @@ spec:
               number: 80
   tls:
   - hosts:
-      - www.chatapp.example
-      - api.chatapp.example
-    secretName: chatapp-tls
+      - www.relrel.com
+      - api.relrel.com
+    secretName: relrel-tls
