@@ -20,6 +20,31 @@ type TokenClient interface {
 	GetPublicKey() *rsa.PublicKey
 }
 
+func MustAuthWithKey(key *rsa.PublicKey) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		accessHeader := strings.Split(c.GetHeader("Authorization"), " ")[1]
+		if accessHeader == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"err": "user not authenticated"})
+			return
+		}
+		accessToken, err := jwt.ParseWithClaims(accessHeader, &jwt.StandardClaims{},
+			func(t *jwt.Token) (interface{}, error) {
+				return key, nil
+			})
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"err": "Invalid token"})
+			return
+		}
+		userID := accessToken.Claims.(*jwt.StandardClaims).Subject
+		if userID == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"err": "Invalid token"})
+			return
+		}
+		c.Set("userID", userID)
+		c.Next()
+	}
+}
+
 // MustAuth is a Gin middleware to wrap methods that need authorization
 func MustAuth(auth TokenClient) gin.HandlerFunc {
 	return func(c *gin.Context) {
