@@ -36,6 +36,7 @@ async function refreshAccessToken() {
   
   } catch (err) {
     window.localStorage.clear();
+    window.dispatchEvent(new Event("logout"));
   }
 }
 

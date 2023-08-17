@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import {NavLink} from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
@@ -6,7 +6,7 @@ import { faBell } from '@fortawesome/free-solid-svg-icons';
 import {Logout} from '../requests/Users';
 import { StorageContext, actionTypes } from '../ChatStorage';
 import Invite from './Invite';
-import logo from "../statics/images/relrelcom-logo1.png";
+import logo from "../statics/images/logo.png";
 
 const Navigation = ({ws, toggleProfile, setWs}) => {
 
@@ -27,6 +27,23 @@ const Navigation = ({ws, toggleProfile, setWs}) => {
         // setWs changes state and triggers nav rerender
         setWs({});
     };
+
+    useEffect(() => {      
+        if (dispatch && setWs) {
+            window.addEventListener("logout", () => {
+                window.localStorage.clear();
+                dispatch({ type: actionTypes.LOGOUT });
+                setWs(ws => {
+                    try {
+                        ws.close()
+                        return null;
+                    } catch (err) {
+                        console.log(err);
+                    }
+                })
+            });
+        }  
+    }, [dispatch, setWs]);
 
     let menu;
 
