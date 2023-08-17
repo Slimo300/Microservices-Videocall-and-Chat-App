@@ -18,9 +18,6 @@ spec:
         - name: wsredis-test
           image: busybox:1.31
           command: ['sh', '-c', 'echo -e "Checking for the availability of Redis Server deployment"; while ! nc -z wsredis 6379; do sleep 1; printf "-"; done; echo -e "  >> Redis Server has started";']
-        - name: tokenservice-test
-          image: busybox:1.31
-          command: ['sh', '-c', 'echo -e "Checking for the availability of Token service deployment"; while ! nc -z tokenservice 9000; do sleep 1; printf "-"; done; echo -e "  >> Token Service has started";']
         - name: kafka-test
           image: busybox:1.31
           command: ['sh', '-c', 'echo -e "Checking for the availability of Kafka broker"; while ! nc -z kafka 9092; do sleep 1; printf "-"; done; echo -e "  >> Kafka has started";']
@@ -36,12 +33,17 @@ spec:
           value: wsredis:6379
         - name: DB_PASSWORD
           value: redis
-        - name: TOKEN_SERVICE_ADDRESS
-          value: tokenservice:9000
         - name: ORIGIN
           value: https://www.relrel.com
         - name: BROKER_ADDRESS
           value: kafka:9092
+        volumeMounts:
+          - name: public-key
+            mountPath: /rsa
+      volumes:
+        - name: public-key
+          configMap:
+            name: public-key
 ---
 apiVersion: v1
 kind: Service
