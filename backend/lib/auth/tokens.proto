@@ -8,7 +8,6 @@ service TokenService {
     rpc NewPairFromUserID(UserID) returns (TokenPair) {}
     rpc NewPairFromRefresh(RefreshToken) returns (TokenPair) {}
     rpc DeleteUserToken(RefreshToken) returns (Msg) {}
-    rpc GetPublicKey(Empty) returns (PublicKey) {}
 }
 message UserID {
     string ID = 1;
@@ -29,8 +28,3 @@ message Msg {
 }
 
 message Empty {}
-
-message PublicKey {
-    bytes publicKey = 1;
-    string error = 2;
-}

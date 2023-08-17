@@ -5,7 +5,6 @@ go 1.20
 require (
 	github.com/gin-gonic/gin v1.9.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/google/uuid v1.3.0
 	github.com/stretchr/testify v1.8.2
 	google.golang.org/grpc v1.55.0
 	google.golang.org/protobuf v1.30.0
