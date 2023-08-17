@@ -24,7 +24,7 @@ func Setup(server *handlers.Server, origin string) *gin.Engine {
 	api.POST("/login", server.SignIn)
 	api.POST("/refresh", server.RefreshToken)
 
-	apiAuth := api.Use(auth.MustAuth(server.TokenClient))
+	apiAuth := api.Use(auth.MustAuthWithKey(server.TokenKey))
 
 	apiAuth.POST("/signout", server.SignOutUser)
 

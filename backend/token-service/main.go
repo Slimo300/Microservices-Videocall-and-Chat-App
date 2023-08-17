@@ -1,6 +1,9 @@
 package main
 
 import (
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"log"
 	"net"
@@ -15,7 +18,28 @@ import (
 	"google.golang.org/grpc"
 )
 
+func readPrivateKey() (*rsa.PrivateKey, error) {
+
+	bytePrivKey, err := os.ReadFile("/rsa/private.key")
+	if err != nil {
+		return nil, err
+	}
+	block, _ := pem.Decode(bytePrivKey)
+	key, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return key, nil
+
+}
+
 func main() {
+
+	privateKey, err := readPrivateKey()
+	if err != nil {
+		log.Fatalf("Error reading private key: %v", err)
+	}
 
 	config, err := config.LoadConfigFromEnvironment()
 	if err != nil {
@@ -33,6 +57,7 @@ func main() {
 	}
 
 	s, err := handlers.NewTokenService(repo,
+		privateKey,
 		config.RefreshTokenSecret,
 		config.RefreshDuration,
 		config.AccessDuration,

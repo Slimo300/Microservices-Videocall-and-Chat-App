@@ -52,7 +52,7 @@ func (srv TokenService) GenerateAccessToken(userID string) (string, error) {
 		Subject:   userID,
 	})
 
-	tokenString, err := token.SignedString(&srv.accessTokenPrivateKey)
+	tokenString, err := token.SignedString(srv.accessTokenPrivateKey)
 	if err != nil {
 		log.Println("Failed to sign access token string: ", err)
 		return "", err

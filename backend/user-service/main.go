@@ -2,6 +2,9 @@ package main
 
 import (
 	"context"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"log"
 	"net/http"
@@ -20,7 +23,27 @@ import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/storage"
 )
 
+func readPublicKey() (*rsa.PublicKey, error) {
+
+	bytePubKey, err := os.ReadFile("/rsa/public.key")
+	if err != nil {
+		return nil, err
+	}
+	block, _ := pem.Decode(bytePubKey)
+	key, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return key.(*rsa.PublicKey), nil
+
+}
+
 func main() {
+	pubkey, err := readPublicKey()
+	if err != nil {
+		log.Fatalf("Error reading public key: %v", err)
+	}
 
 	conf, err := config.LoadConfigFromEnvironment()
 	if err != nil {
@@ -61,6 +84,7 @@ func main() {
 		TokenClient:  tokenClient,
 		EmailClient:  emailClient,
 		Emitter:      emiter,
+		TokenKey:     pubkey,
 		ImageStorage: new(storage.MockStorage),
 		MaxBodyBytes: 4194304,
 		Domain:       conf.Domain,

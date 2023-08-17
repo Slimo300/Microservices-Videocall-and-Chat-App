@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/Shopify/sarama v1.37.2
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20230226171856-6155e6862233
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230510162540-9420dd998030
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230816135307-2c36441760ed
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/email v0.0.0-20230510191507-66e3624e3c1a
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20230226171856-6155e6862233
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230512171330-407207b7b6eb

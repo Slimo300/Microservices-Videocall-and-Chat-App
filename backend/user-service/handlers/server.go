@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"crypto/rsa"
+
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/database"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/storage"
 
@@ -14,6 +16,7 @@ type Server struct {
 	DB           database.DBLayer
 	Emitter      msgqueue.EventEmiter
 	ImageStorage storage.StorageLayer
+	TokenKey     *rsa.PublicKey
 	TokenClient  auth.TokenClient
 	EmailClient  email.EmailClient
 	MaxBodyBytes int64

@@ -39,7 +39,7 @@ func TestMain(m *testing.M) {
 	repo.On("SaveToken", mock.AnythingOfType("string"), time.Hour*24).Return(nil)
 	repo.On("GetPrivateKey").Return(priv, nil)
 
-	service, err = handlers.NewTokenService(repo, RefreshSecret, time.Hour*24, time.Minute*20)
+	service, err = handlers.NewTokenService(repo, priv, RefreshSecret, time.Hour*24, time.Minute*20)
 	if err != nil {
 		log.Fatal("Couldn't create token service")
 	}
