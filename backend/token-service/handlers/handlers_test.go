@@ -33,11 +33,8 @@ func TestMain(m *testing.M) {
 	}
 	PrivateKey = priv
 
-	RefreshSecret = "secret"
-
 	repo = new(mockrepo.MockTokenRepository)
 	repo.On("SaveToken", mock.AnythingOfType("string"), time.Hour*24).Return(nil)
-	repo.On("GetPrivateKey").Return(priv, nil)
 
 	service, err = handlers.NewTokenService(repo, priv, RefreshSecret, time.Hour*24, time.Minute*20)
 	if err != nil {

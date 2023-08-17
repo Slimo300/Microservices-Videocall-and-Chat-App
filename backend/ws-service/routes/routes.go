@@ -13,7 +13,7 @@ func Setup(server *handlers.Server, origin string) *gin.Engine {
 	engine.Use(CORSMiddleware(origin))
 
 	api := engine.Group("/ws")
-	api.Use(auth.MustAuth(server.TokenClient))
+	api.Use(auth.MustAuthWithKey(server.PublicKey))
 	api.GET("/accessCode", server.GetAuthCode)
 
 	engine.GET("/ws", server.ServeWebSocket)

@@ -14,8 +14,6 @@ type Config struct {
 	DBAddress string `mapstructure:"dbAddress"`
 	HTTPPort  string `mapstructure:"httpPort"`
 
-	TokenServiceAddress string `mapstructure:"tokenServiceAddress"`
-
 	Origin string `mapstructure:"origin"`
 
 	BrokerAddress string `mapstructure:"brokerAddress"`
@@ -34,11 +32,6 @@ func LoadConfigFromEnvironment() (conf Config, err error) {
 	conf.HTTPPort = os.Getenv("HTTP_PORT")
 	if conf.HTTPPort == "" {
 		return Config{}, errors.New("Environment variable HTTP_PORT not set")
-	}
-
-	conf.TokenServiceAddress = os.Getenv("TOKEN_SERVICE_ADDRESS")
-	if conf.TokenServiceAddress == "" {
-		return Config{}, errors.New("Environment variable TOKEN_ADDRESS not set")
 	}
 
 	conf.Origin = os.Getenv("ORIGIN")

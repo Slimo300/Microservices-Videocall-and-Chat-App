@@ -2,6 +2,9 @@ package main
 
 import (
 	"context"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,7 +13,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
 	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/config"
 	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/database/redis"
@@ -19,6 +21,21 @@ import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/webrtc"
 )
 
+func getPublicKey() (*rsa.PublicKey, error) {
+
+	bytePubKey, err := os.ReadFile("/rsa/public.key")
+	if err != nil {
+		return nil, err
+	}
+	block, _ := pem.Decode(bytePubKey)
+	key, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return key.(*rsa.PublicKey), nil
+}
+
 func main() {
 
 	conf, err := config.LoadConfigFromEnvironment()
@@ -26,9 +43,9 @@ func main() {
 		log.Fatalf("Error reading configuration: %v", err)
 	}
 
-	tokenClient, err := auth.NewGRPCTokenClient(conf.TokenServiceAddress)
+	pubKey, err := getPublicKey()
 	if err != nil {
-		log.Fatalf("Error when connecting to token service: %v", err)
+		log.Fatalf("Error reading public key: %v", err)
 	}
 
 	db, err := redis.Setup(conf.DBAddress, conf.DBPassword)
@@ -47,9 +64,9 @@ func main() {
 	go eventprocessor.NewRelayEventProcessor(relayListener, relayChan).ProcessEvents("groups", "webrtc")
 
 	server := &handlers.Server{
-		DB:          db,
-		TokenClient: tokenClient,
-		Relay:       webrtc.NewRoomsRelay(),
+		DB:        db,
+		PublicKey: pubKey,
+		Relay:     webrtc.NewRoomsRelay(),
 	}
 
 	handler := server.Setup(conf.Origin)

@@ -17,17 +17,17 @@ const (
 )
 
 type WSHub struct {
-	ServiceID         uuid.UUID
-	upgrader          *websocket.Upgrader
-	actionServerChan  <-chan msgqueue.Event
-	messageServerChan chan<- *Message
-	forward           chan *Message
-	join              chan *client
-	leave             chan *client
-	clients           map[*client]bool
+	serviceID uuid.UUID
+	upgrader  *websocket.Upgrader
+	emiter    msgqueue.EventEmiter
+	eventChan <-chan msgqueue.Event
+	forward   chan *Message
+	join      chan *client
+	leave     chan *client
+	clients   map[*client]bool
 }
 
-func NewHub(messageChan chan<- *Message, actionChan <-chan msgqueue.Event, origin string) *WSHub {
+func NewHub(eventChan <-chan msgqueue.Event, emiter msgqueue.EventEmiter, origin string) *WSHub {
 
 	upgrader := &websocket.Upgrader{
 		ReadBufferSize:  socketBufferSize,
@@ -37,21 +37,20 @@ func NewHub(messageChan chan<- *Message, actionChan <-chan msgqueue.Event, origi
 		}}
 
 	return &WSHub{
-		ServiceID:         uuid.New(),
-		upgrader:          upgrader,
-		messageServerChan: messageChan,
-		actionServerChan:  actionChan,
-		forward:           make(chan *Message),
-		join:              make(chan *client),
-		leave:             make(chan *client),
-		clients:           make(map[*client]bool),
+		serviceID: uuid.New(),
+		upgrader:  upgrader,
+		eventChan: eventChan,
+		forward:   make(chan *Message),
+		join:      make(chan *client),
+		leave:     make(chan *client),
+		clients:   make(map[*client]bool),
 	}
 }
 
 func (h *WSHub) Run() {
 	for {
 		select {
-		case event := <-h.actionServerChan:
+		case event := <-h.eventChan:
 			switch e := event.(type) {
 			case *events.GroupDeletedEvent:
 				h.groupDeleted(*e)
@@ -78,8 +77,14 @@ func (h *WSHub) Run() {
 			delete(h.clients, client)
 			close(client.send)
 		case msg := <-h.forward:
-			msg.Prepare()
-			h.messageServerChan <- msg
+			msg.ID = uuid.New()
+			msg.When = time.Now()
+
+			go func() {
+				if err := h.EmitMessage(msg); err != nil {
+					log.Printf("Error emiting message: %v", err)
+				}
+			}()
 
 			for client := range h.clients {
 				if _, ok := client.groups[msg.Group]; ok {
@@ -88,6 +93,29 @@ func (h *WSHub) Run() {
 			}
 		}
 	}
+}
+
+func (h *WSHub) EmitMessage(msg *Message) error {
+
+	var files []events.File
+	for _, f := range msg.Files {
+		files = append(files, events.File{Key: f.Key, Extension: f.Ext})
+	}
+
+	if err := h.emiter.Emit(events.MessageSentEvent{
+		ID:        msg.ID,
+		GroupID:   msg.Group,
+		UserID:    msg.User,
+		Nick:      msg.Nick,
+		Posted:    msg.When,
+		Text:      msg.Message,
+		Files:     files,
+		ServiceID: h.serviceID,
+	}); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (h *WSHub) Join(c *client) {

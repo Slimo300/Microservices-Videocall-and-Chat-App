@@ -12,7 +12,7 @@ func Setup(server *handlers.Server, origin string) *gin.Engine {
 	engine.Use(CORSMiddleware(origin))
 
 	api := engine.Group("/messages")
-	apiAuth := api.Use(auth.MustAuth(server.TokenClient))
+	apiAuth := api.Use(auth.MustAuthWithKey(server.PublicKey))
 
 	apiAuth.GET("/group/:groupID/messages", server.GetGroupMessages)
 	apiAuth.DELETE("/group/:groupID/messages/:messageID", server.DeleteMessageForEveryone)

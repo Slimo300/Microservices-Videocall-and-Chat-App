@@ -15,7 +15,7 @@ func Setup(server *handlers.Server, origin string) *gin.Engine {
 
 	api := engine.Group("/groups")
 	api.Use(limits.RequestSizeLimiter(server.MaxBodyBytes))
-	apiAuth := api.Use(tokens.MustAuth(server.TokenClient))
+	apiAuth := api.Use(tokens.MustAuthWithKey(server.PublicKey))
 
 	apiAuth.GET("/group", server.GetUserGroups)
 	apiAuth.POST("/group", server.CreateGroup)

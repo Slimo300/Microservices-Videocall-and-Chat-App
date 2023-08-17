@@ -1,14 +1,15 @@
 package handlers
 
 import (
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
+	"crypto/rsa"
+
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/search-service/database"
 )
 
 type Server struct {
-	DB          database.DBLayer
-	Listener    msgqueue.EventListener
-	TokenClient auth.TokenClient
+	DB        database.DBLayer
+	Listener  msgqueue.EventListener
+	PublicKey *rsa.PublicKey
 }

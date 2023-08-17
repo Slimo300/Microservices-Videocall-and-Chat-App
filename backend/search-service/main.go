@@ -2,6 +2,9 @@ package main
 
 import (
 	"context"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"log"
 	"net/http"
@@ -15,9 +18,22 @@ import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/search-service/eventprocessor"
 	"github.com/Slimo300/MicroservicesChatApp/backend/search-service/handlers"
 	"github.com/Slimo300/MicroservicesChatApp/backend/search-service/routes"
-
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 )
+
+func getPublicKey() (*rsa.PublicKey, error) {
+
+	bytePubKey, err := os.ReadFile("/rsa/public.key")
+	if err != nil {
+		return nil, err
+	}
+	block, _ := pem.Decode(bytePubKey)
+	key, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return key.(*rsa.PublicKey), nil
+}
 
 func main() {
 	conf, err := config.LoadConfigFromEnvironment()
@@ -25,9 +41,9 @@ func main() {
 		log.Fatalf("Couln't load config: %v", err)
 	}
 
-	tokenClient, err := auth.NewGRPCTokenClient(conf.TokenServiceAddress)
+	pubKey, err := getPublicKey()
 	if err != nil {
-		log.Fatalf("Error connecting to token service: %v", err)
+		log.Fatalf("Error reading public key: %v", err)
 	}
 
 	listener, err := kafkaSetup([]string{conf.BrokerAddress})
@@ -46,9 +62,9 @@ func main() {
 	go eventProcessor.ProcessEvents("users")
 
 	server := handlers.Server{
-		DB:          es,
-		Listener:    listener,
-		TokenClient: tokenClient,
+		PublicKey: pubKey,
+		DB:        es,
+		Listener:  listener,
 	}
 
 	handler := routes.Setup(&server, conf.Origin)

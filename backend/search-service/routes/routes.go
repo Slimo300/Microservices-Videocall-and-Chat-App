@@ -11,7 +11,7 @@ func Setup(server *handlers.Server, origin string) *gin.Engine {
 	engine := gin.Default()
 
 	engine.Use(CORSMiddleware(origin))
-	engine.Use(tokens.MustAuth(server.TokenClient))
+	engine.Use(tokens.MustAuthWithKey(server.PublicKey))
 
 	engine.GET("/search/:name", server.SearchUsers)
 

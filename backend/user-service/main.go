@@ -36,7 +36,6 @@ func readPublicKey() (*rsa.PublicKey, error) {
 	}
 
 	return key.(*rsa.PublicKey), nil
-
 }
 
 func main() {

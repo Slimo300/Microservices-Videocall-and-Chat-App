@@ -6,7 +6,7 @@ import (
 
 func (h *WSHub) messageSent(event events.MessageSentEvent) {
 
-	if event.ServiceID == h.ServiceID {
+	if event.ServiceID == h.serviceID {
 		return
 	}
 

@@ -1,8 +1,6 @@
 package redis
 
 import (
-	"crypto/rsa"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -29,33 +27,6 @@ func NewRedisTokenRepository(address, password string) (repo.TokenRepository, er
 	return &redisTokenRepository{
 		Client: client,
 	}, nil
-}
-
-func (rdb *redisTokenRepository) GetPrivateKey() (*rsa.PrivateKey, error) {
-	res, err := rdb.Get("privateKey").Result()
-	if err != nil {
-		return nil, err
-	}
-
-	var privateKey rsa.PrivateKey
-	if err := json.Unmarshal([]byte(res), &privateKey); err != nil {
-		return nil, err
-	}
-
-	return &privateKey, redis.Nil
-}
-
-func (rdb *redisTokenRepository) SetPrivateKey(key *rsa.PrivateKey) error {
-	byteKey, err := json.Marshal(key)
-	if err != nil {
-		return err
-	}
-
-	if err := rdb.Set("privateKey", byteKey, 0).Err(); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (rdb *redisTokenRepository) SaveToken(token string, expiration time.Duration) error {

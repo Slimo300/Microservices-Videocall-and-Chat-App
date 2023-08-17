@@ -21,22 +21,6 @@ type TokenService struct {
 func NewTokenService(repo repo.TokenRepository, privKey *rsa.PrivateKey, refreshSecret string,
 	refreshDuration, accessDuration time.Duration) (*TokenService, error) {
 
-	// privKey, err := repo.GetPrivateKey()
-	// if err != nil && err != redis.Nil {
-	// 	return nil, err
-	// }
-
-	// if err == redis.Nil {
-	// 	privKey, err = rsa.GenerateKey(rand.Reader, 2048)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-
-	// 	if err = repo.SetPrivateKey(privKey); err != nil {
-	// 		return nil, err
-	// 	}
-	// }
-
 	return &TokenService{
 		repo:                  repo,
 		refreshTokenSecret:    refreshSecret,

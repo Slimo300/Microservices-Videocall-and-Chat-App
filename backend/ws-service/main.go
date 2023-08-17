@@ -2,6 +2,9 @@ package main
 
 import (
 	"context"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"log"
 	"net/http"
@@ -17,9 +20,22 @@ import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/handlers"
 	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/routes"
 	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/ws"
-
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 )
+
+func getPublicKey() (*rsa.PublicKey, error) {
+
+	bytePubKey, err := os.ReadFile("/rsa/public.key")
+	if err != nil {
+		return nil, err
+	}
+	block, _ := pem.Decode(bytePubKey)
+	key, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return key.(*rsa.PublicKey), nil
+}
 
 func main() {
 
@@ -32,9 +48,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error when connecting to database: %v", err)
 	}
-	tokenClient, err := auth.NewGRPCTokenClient(conf.TokenServiceAddress)
+
+	pubKey, err := getPublicKey()
 	if err != nil {
-		log.Fatalf("Error when connecting to token service: %v", err)
+		log.Fatalf("Error when reading public key: %v", err)
 	}
 
 	emiter, dbListener, hubListener, err := kafkaSetup([]string{conf.BrokerAddress})
@@ -42,21 +59,18 @@ func main() {
 		log.Fatalf("Error setting up kafka: %v", err)
 	}
 
-	messageChan := make(chan *ws.Message)
-	actionChan := make(chan msgqueue.Event)
+	eventChan := make(chan msgqueue.Event)
 
 	go eventprocessor.NewDBEventProcessor(dbListener, db).ProcessEvents("groups")
-	go eventprocessor.NewHubEventProcessor(hubListener, actionChan).ProcessEvents("groups", "messages", "wsmessages")
+	go eventprocessor.NewHubEventProcessor(hubListener, eventChan).ProcessEvents("groups", "messages", "wsmessages")
 
 	server := &handlers.Server{
-		DB:          db,
-		TokenClient: tokenClient,
-		Emitter:     emiter,
-		Hub:         ws.NewHub(messageChan, actionChan, conf.Origin),
-		MessageChan: messageChan,
+		DB:        db,
+		PublicKey: pubKey,
+		Hub:       ws.NewHub(eventChan, emiter, conf.Origin),
 	}
 
-	go server.RunHub()
+	go server.Hub.Run()
 	handler := routes.Setup(server, conf.Origin)
 
 	httpServer := &http.Server{

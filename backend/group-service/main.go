@@ -2,6 +2,9 @@ package main
 
 import (
 	"context"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"log"
 	"net/http"
@@ -16,14 +19,33 @@ import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/handlers"
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/routes"
 	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/storage"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 )
+
+func getPublicKey() (*rsa.PublicKey, error) {
+
+	bytePubKey, err := os.ReadFile("/rsa/public.key")
+	if err != nil {
+		return nil, err
+	}
+	block, _ := pem.Decode(bytePubKey)
+	key, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return key.(*rsa.PublicKey), nil
+}
 
 func main() {
 
 	conf, err := config.LoadConfigFromEnvironment()
 	if err != nil {
 		log.Fatal("Couldn't read config")
+	}
+
+	pubKey, err := getPublicKey()
+	if err != nil {
+		log.Fatalf("Error reading public key: %v", err)
 	}
 
 	db, err := orm.Setup(conf.DBAddress)
@@ -36,11 +58,6 @@ func main() {
 		log.Fatalf("Error connecting to AWS S3: %v", err)
 	}
 
-	tokenClient, err := auth.NewGRPCTokenClient(conf.TokenServiceAddress)
-	if err != nil {
-		log.Fatalf("Couldn't connect to grpc auth server: %v", err)
-	}
-
 	emiter, listener, err := kafkaSetup([]string{conf.BrokerAddress})
 	if err != nil {
 		log.Fatalf("Error setting up kafka: %v", err)
@@ -48,7 +65,7 @@ func main() {
 
 	go eventprocessor.NewEventProcessor(db, listener).ProcessEvents("users")
 
-	server := handlers.NewServer(db, storage, tokenClient, emiter)
+	server := handlers.NewServer(db, storage, pubKey, emiter)
 	handler := routes.Setup(server, conf.Origin)
 
 	httpServer := &http.Server{

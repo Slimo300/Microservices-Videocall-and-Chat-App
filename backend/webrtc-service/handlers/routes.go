@@ -13,7 +13,7 @@ func (server *Server) Setup(origin string) http.Handler {
 	engine.Use(CORSMiddleware(origin))
 
 	api := engine.Group("/video-call")
-	api.Use(auth.MustAuth(server.TokenClient))
+	api.Use(auth.MustAuthWithKey(server.PublicKey))
 	api.GET("/:groupID/accessCode", server.GetAuthCode)
 
 	engine.GET("/video-call/:groupID/ws", server.ServeWebSocket)

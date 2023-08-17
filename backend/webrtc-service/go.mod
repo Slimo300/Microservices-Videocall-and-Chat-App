@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/Shopify/sarama v1.38.1
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230513103457-6f1365c2fcab
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230817171543-188c87c4b1a5
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20230513103457-6f1365c2fcab
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230513103457-6f1365c2fcab
 	github.com/Slimo300/MicroservicesChatApp/backend/ws-service v0.0.0-20230513103457-6f1365c2fcab

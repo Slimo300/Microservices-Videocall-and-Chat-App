@@ -2,6 +2,9 @@ package main
 
 import (
 	"context"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"log"
 	"net/http"
@@ -16,15 +19,33 @@ import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/handlers"
 	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/routes"
 	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/storage"
-
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 )
+
+func getPublicKey() (*rsa.PublicKey, error) {
+
+	bytePubKey, err := os.ReadFile("/rsa/public.key")
+	if err != nil {
+		return nil, err
+	}
+	block, _ := pem.Decode(bytePubKey)
+	key, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return key.(*rsa.PublicKey), nil
+}
 
 func main() {
 
 	conf, err := config.LoadConfigFromEnvironment()
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	pubKey, err := getPublicKey()
+	if err != nil {
+		log.Fatalf("Error reading public key: %v", err)
 	}
 
 	db, err := orm.Setup(conf.DBAddress)
@@ -37,11 +58,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	tokenClient, err := auth.NewGRPCTokenClient(conf.TokenServiceAddress)
-	if err != nil {
-		log.Fatalf("Couldn't connect to grpc auth server: %v", err)
-	}
-
 	storage, err := storage.NewS3Storage(conf.S3Bucket, conf.Origin)
 	if err != nil {
 		log.Fatalf("Couldn't establish s3 session: %v", err)
@@ -49,7 +65,7 @@ func main() {
 
 	go eventprocessor.NewEventProcessor(listener, db, storage).ProcessEvents("wsmessages", "groups")
 
-	server := handlers.NewServer(db, tokenClient, emiter, storage)
+	server := handlers.NewServer(db, pubKey, emiter, storage)
 	handler := routes.Setup(server, conf.Origin)
 
 	httpServer := &http.Server{

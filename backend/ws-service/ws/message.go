@@ -30,11 +30,6 @@ type MessageFile struct {
 	Ext string `json:"ext"`
 }
 
-func (m *Message) Prepare() {
-	m.ID = uuid.New()
-	m.When = time.Now()
-}
-
 // Send sends itself through websocket connection
 func (m *Message) Send(ws *websocket.Conn) error {
 	if err := ws.WriteJSON(m); err != nil {
