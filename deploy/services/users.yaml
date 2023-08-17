@@ -42,7 +42,7 @@ spec:
         - name: EMAIL_SERVICE_ADDRESS
           value: emailservice:9000
         - name: ORIGIN
-          value: https://www.chatapp.example
+          value: https://www.relrel.com
         - name: DOMAIN
           value: chatapp.example
         - name: BROKER_ADDRESS
@@ -50,6 +50,13 @@ spec:
         envFrom:
         - secretRef:
             name: awssecrets
+        volumeMounts:
+          - name: public-key
+            mountPath: /rsa
+      volumes:
+        - name: public-key
+          configMap:
+            name: public-key
 ---
 apiVersion: v1
 kind: Service

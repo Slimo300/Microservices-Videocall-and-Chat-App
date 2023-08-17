@@ -37,6 +37,13 @@ spec:
         envFrom:
         - secretRef:
             name: refreshsecret
+        volumeMounts:
+          - name: private-key
+            mountPath: /rsa
+      volumes:
+        - name: private-key
+          configMap:
+            name: private-key
 ---
 apiVersion: v1
 kind: Service
