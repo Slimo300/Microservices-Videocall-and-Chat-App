@@ -44,7 +44,7 @@ spec:
         - name: ORIGIN
           value: https://www.relrel.com
         - name: DOMAIN
-          value: chatapp.example
+          value: relrel.com
         - name: BROKER_ADDRESS
           value: kafka:9092
         envFrom:
