@@ -4,7 +4,7 @@
 // 	protoc        v3.6.1
 // source: email.proto
 
-package pb
+package email
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
