@@ -1,7 +1,7 @@
 package routes
 
 import (
-	tokens "github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/search-service/handlers"
 	"github.com/gin-gonic/gin"
@@ -11,7 +11,7 @@ func Setup(server *handlers.Server, origin string) *gin.Engine {
 	engine := gin.Default()
 
 	engine.Use(CORSMiddleware(origin))
-	engine.Use(tokens.MustAuthWithKey(server.PublicKey))
+	engine.Use(auth.MustAuthWithKey(server.PublicKey))
 
 	engine.GET("/search/:name", server.SearchUsers)
 
