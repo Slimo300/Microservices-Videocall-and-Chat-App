@@ -10,7 +10,7 @@ import (
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/email-service/config"
 	"github.com/Slimo300/MicroservicesChatApp/backend/email-service/handlers"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/email/pb"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/email"
 	"google.golang.org/grpc"
 )
 
@@ -37,7 +37,7 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
-	pb.RegisterEmailServiceServer(grpcServer, s)
+	email.RegisterEmailServiceServer(grpcServer, s)
 
 	errChan := make(chan error)
 	quit := make(chan os.Signal, 1)

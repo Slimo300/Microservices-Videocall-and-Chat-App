@@ -6,18 +6,18 @@ import (
 	"net/http"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
-	emailspb "github.com/Slimo300/MicroservicesChatApp/backend/lib/email/pb"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/email"
 	"github.com/gin-gonic/gin"
 )
 
 func (s *Server) ForgotPassword(c *gin.Context) {
-	email := c.Query("email")
-	if !isEmailValid(email) {
+	queryEmail := c.Query("email")
+	if !isEmailValid(queryEmail) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "not a valid email address"})
 		return
 	}
 
-	user, resetCode, err := s.DB.NewResetPasswordCode(email)
+	user, resetCode, err := s.DB.NewResetPasswordCode(queryEmail)
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
@@ -28,7 +28,7 @@ func (s *Server) ForgotPassword(c *gin.Context) {
 
 	if user != nil && resetCode != nil {
 		go func() {
-			if err := s.EmailClient.SendResetPasswordEmail(context.TODO(), &emailspb.EmailData{
+			if _, err := s.EmailClient.SendResetPasswordEmail(context.TODO(), &email.EmailData{
 				Email: user.Email,
 				Name:  user.UserName,
 				Code:  resetCode.ResetCode,

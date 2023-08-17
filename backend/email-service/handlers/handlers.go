@@ -9,14 +9,14 @@ import (
 	"path/filepath"
 	"text/template"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/email/pb"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/email"
 	"github.com/k3a/html2text"
 	"gopkg.in/gomail.v2"
 )
 
 // Email Service implements EmailServiceServer interface for grpc connections
 type EmailService struct {
-	*pb.UnimplementedEmailServiceServer
+	*email.UnimplementedEmailServiceServer
 	SMTPDialer *gomail.Dialer
 	Templates  map[string]*template.Template
 	EmailFrom  string
@@ -60,8 +60,8 @@ func NewEmailService(emailDir, emailFrom, host string, port int, user, pass, ori
 }
 
 // SendVerificationEmail sends email with specified data
-func (srv EmailService) SendVerificationEmail(ctx context.Context, data *pb.EmailData) (*pb.Msg, error) {
-	return &pb.Msg{}, srv.SendEmail("verification.page.html", EmailData{
+func (srv EmailService) SendVerificationEmail(ctx context.Context, data *email.EmailData) (*email.Msg, error) {
+	return &email.Msg{}, srv.SendEmail("verification.page.html", EmailData{
 		Subject: "Verification Email",
 		Email:   data.Email,
 		Name:    data.Name,
@@ -71,8 +71,8 @@ func (srv EmailService) SendVerificationEmail(ctx context.Context, data *pb.Emai
 }
 
 // SendResetPasswordEmail sends email with specified data
-func (srv EmailService) SendResetPasswordEmail(ctx context.Context, data *pb.EmailData) (*pb.Msg, error) {
-	return &pb.Msg{}, srv.SendEmail("reset.page.html", EmailData{
+func (srv EmailService) SendResetPasswordEmail(ctx context.Context, data *email.EmailData) (*email.Msg, error) {
+	return &email.Msg{}, srv.SendEmail("reset.page.html", EmailData{
 		Subject: "Reset Password",
 		Email:   data.Email,
 		Name:    data.Name,

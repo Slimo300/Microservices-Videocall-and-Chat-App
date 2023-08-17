@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,7 +25,11 @@ func (s *Server) SignIn(c *gin.Context) {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
-	tokenPair, err := s.TokenClient.NewPairFromUserID(context.TODO(), user.ID)
+	tokenPair, err := s.TokenClient.NewPairFromUserID(context.TODO(), &auth.UserID{ID: user.ID.String()})
+	if tokenPair.Error != "" {
+		c.JSON(http.StatusBadRequest, gin.H{"err": tokenPair.Error})
+		return
+	}
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
@@ -45,7 +50,7 @@ func (s *Server) SignOutUser(c *gin.Context) {
 		return
 	}
 
-	if err := s.TokenClient.DeleteUserToken(context.TODO(), refresh); err != nil {
+	if _, err := s.TokenClient.DeleteUserToken(context.TODO(), &auth.RefreshToken{Token: refresh}); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
 	}
@@ -64,7 +69,11 @@ func (s *Server) RefreshToken(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "No token provided"})
 		return
 	}
-	tokens, err := s.TokenClient.NewPairFromRefresh(context.TODO(), refresh)
+	tokens, err := s.TokenClient.NewPairFromRefresh(context.TODO(), &auth.RefreshToken{Token: refresh})
+	if tokens.Error != "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"err": tokens.Error})
+		return
+	}
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return

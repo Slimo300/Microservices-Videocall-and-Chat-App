@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/handlers"
 	repolayer "github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo"
 	mockrepo "github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo/mock"
@@ -48,7 +48,7 @@ func TestNewPairFromUserID(t *testing.T) {
 
 	userID := uuid.NewString()
 
-	tokens, err := service.NewPairFromUserID(context.Background(), &pb.UserID{ID: userID})
+	tokens, err := service.NewPairFromUserID(context.Background(), &auth.UserID{ID: userID})
 	if err != nil {
 		t.Errorf("Service returned error: %s", err.Error())
 	}
@@ -91,13 +91,13 @@ func TestNewPairFromRefresh(t *testing.T) {
 	testCases := []struct {
 		desc            string
 		token           string
-		checkAssertions func(tokens *pb.TokenPair)
+		checkAssertions func(tokens *auth.TokenPair)
 		prepare         func(m *mock.Mock)
 	}{
 		{
 			desc:  "PairFromRefresh Success",
 			token: token.Token,
-			checkAssertions: func(tokens *pb.TokenPair) {
+			checkAssertions: func(tokens *auth.TokenPair) {
 				assert.NotEmpty(t, tokens.AccessToken)
 				assert.NotEmpty(t, tokens.RefreshToken)
 				assert.Empty(t, tokens.Error)
@@ -131,7 +131,7 @@ func TestNewPairFromRefresh(t *testing.T) {
 		{
 			desc:  "PairFromRefresh InvalidToken",
 			token: "",
-			checkAssertions: func(tokens *pb.TokenPair) {
+			checkAssertions: func(tokens *auth.TokenPair) {
 				assert.Empty(t, tokens.AccessToken)
 				assert.Empty(t, tokens.RefreshToken)
 				assert.NotEmpty(t, tokens.Error)
@@ -141,7 +141,7 @@ func TestNewPairFromRefresh(t *testing.T) {
 		{
 			desc:  "PairFromRefresh Blacklisted",
 			token: token.Token,
-			checkAssertions: func(tokens *pb.TokenPair) {
+			checkAssertions: func(tokens *auth.TokenPair) {
 				assert.Empty(t, tokens.AccessToken)
 				assert.Empty(t, tokens.RefreshToken)
 				assert.Equal(t, repolayer.TokenBlacklistedError.Error(), tokens.Error)
@@ -154,7 +154,7 @@ func TestNewPairFromRefresh(t *testing.T) {
 		{
 			desc:  "PairFromRefresh NotFound",
 			token: token.Token,
-			checkAssertions: func(tokens *pb.TokenPair) {
+			checkAssertions: func(tokens *auth.TokenPair) {
 				assert.Empty(t, tokens.AccessToken)
 				assert.Empty(t, tokens.RefreshToken)
 				assert.Equal(t, repolayer.TokenNotFoundError.Error(), tokens.Error)
@@ -170,7 +170,7 @@ func TestNewPairFromRefresh(t *testing.T) {
 
 			tC.prepare(&repo.Mock)
 
-			tokens, err := service.NewPairFromRefresh(context.Background(), &pb.RefreshToken{Token: tC.token})
+			tokens, err := service.NewPairFromRefresh(context.Background(), &auth.RefreshToken{Token: tC.token})
 			if err != nil {
 				t.Errorf("Service returned error: %v", err.Error())
 			}
@@ -217,7 +217,7 @@ func TestDeleteUserToken(t *testing.T) {
 
 			tC.prepare(&repo.Mock)
 
-			res, err := service.DeleteUserToken(context.Background(), &pb.RefreshToken{Token: token.Token})
+			res, err := service.DeleteUserToken(context.Background(), &auth.RefreshToken{Token: token.Token})
 			if err != nil {
 				t.Errorf("Method returned an error: %v", err.Error())
 			}
@@ -225,17 +225,5 @@ func TestDeleteUserToken(t *testing.T) {
 			assert.Equal(t, tC.expectedResponse, res.Error)
 		})
 	}
-
-}
-
-func TestGetPublicKey(t *testing.T) {
-
-	pubKey, err := service.GetPublicKey(context.Background(), &pb.Empty{})
-	if err != nil {
-		t.Errorf("Service returned error: %v", err.Error())
-	}
-
-	assert.NotEmpty(t, pubKey.PublicKey)
-	assert.Empty(t, pubKey.Error)
 
 }

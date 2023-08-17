@@ -5,8 +5,8 @@ go 1.19
 require (
 	github.com/Shopify/sarama v1.37.2
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20230226171856-6155e6862233
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230816135307-2c36441760ed
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/email v0.0.0-20230510191507-66e3624e3c1a
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230817191947-aeda2093a577
+	github.com/Slimo300/MicroservicesChatApp/backend/lib/email v0.0.0-20230817191947-aeda2093a577
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20230226171856-6155e6862233
 	github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue v0.0.0-20230512171330-407207b7b6eb
 	github.com/aws/aws-sdk-go v1.44.140
@@ -17,6 +17,7 @@ require (
 	github.com/stretchr/testify v1.8.2
 	github.com/thanhpk/randstr v1.0.4
 	golang.org/x/crypto v0.5.0
+	google.golang.org/grpc v1.55.0
 	gorm.io/driver/mysql v1.3.6
 	gorm.io/gorm v1.24.2
 )
@@ -76,7 +77,6 @@ require (
 	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/text v0.8.0 // indirect
 	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4 // indirect
-	google.golang.org/grpc v1.55.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

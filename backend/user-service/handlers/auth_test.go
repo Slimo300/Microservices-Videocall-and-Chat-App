@@ -11,7 +11,6 @@ import (
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
 	mockdb "github.com/Slimo300/MicroservicesChatApp/backend/user-service/database/mock"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/handlers"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/models"
@@ -28,8 +27,6 @@ type AuthTestSuite struct {
 }
 
 func (s *AuthTestSuite) SetupSuite() {
-	s.ids = make(map[string]uuid.UUID)
-	s.ids["userOK"] = uuid.MustParse("f2085c84-dadb-4362-accc-44898dedde7a")
 
 	db := new(mockdb.MockUsersDB)
 	db.On("SignIn", "host@net.pl", "password12").Return(models.User{ID: s.ids["userOK"]}, nil)
@@ -38,24 +35,24 @@ func (s *AuthTestSuite) SetupSuite() {
 
 	tokenClient := new(auth.MockTokenClient)
 
-	tokenClient.On("NewPairFromUserID", mock.Anything, s.ids["userOK"]).Return(&pb.TokenPair{
+	tokenClient.On("NewPairFromUserID", mock.Anything, mock.Anything).Return(&auth.TokenPair{
 		AccessToken:  "validAccessToken",
 		RefreshToken: "validRefreshToken",
 		Error:        "",
 	}, nil)
-	tokenClient.On("DeleteUserToken", mock.Anything, "validRefreshToken").Return(nil)
-	tokenClient.On("DeleteUserToken", mock.Anything, "invalidRefreshToken").Return(errors.New("invalid refresh token"))
-	tokenClient.On("NewPairFromRefresh", mock.Anything, "validRefreshToken").Return(&pb.TokenPair{
+	tokenClient.On("DeleteUserToken", mock.Anything, &auth.RefreshToken{Token: "validRefreshToken"}).Return(&auth.Msg{}, nil)
+	tokenClient.On("DeleteUserToken", mock.Anything, &auth.RefreshToken{Token: "invalidRefreshToken"}).Return(&auth.Msg{}, errors.New("invalid refresh token"))
+	tokenClient.On("NewPairFromRefresh", mock.Anything, &auth.RefreshToken{Token: "validRefreshToken"}).Return(&auth.TokenPair{
 		AccessToken:  "validAccessToken",
 		RefreshToken: "validRefreshToken",
 		Error:        "",
 	}, nil)
-	tokenClient.On("NewPairFromRefresh", mock.Anything, "expiredRefreshToken").Return(&pb.TokenPair{
+	tokenClient.On("NewPairFromRefresh", mock.Anything, &auth.RefreshToken{Token: "expiredRefreshToken"}).Return(&auth.TokenPair{
 		AccessToken:  "",
 		RefreshToken: "",
 		Error:        "Token Expired",
 	}, nil)
-	tokenClient.On("NewPairFromRefresh", mock.Anything, "blacklistedRefreshToken").Return(&pb.TokenPair{
+	tokenClient.On("NewPairFromRefresh", mock.Anything, &auth.RefreshToken{Token: "blacklistedRefreshToken"}).Return(&auth.TokenPair{
 		AccessToken:  "",
 		RefreshToken: "",
 		Error:        "Token Blacklisted",
@@ -199,14 +196,14 @@ func (s *AuthTestSuite) TestRefresh() {
 			desc:               "refreshTokenExpired",
 			withCookie:         true,
 			cookieValue:        "expiredRefreshToken",
-			expectedStatusCode: http.StatusBadRequest,
+			expectedStatusCode: http.StatusUnauthorized,
 			expectedResponse:   gin.H{"err": "Token Expired"},
 		},
 		{
 			desc:               "refreshTokenBlacklisted",
 			withCookie:         true,
 			cookieValue:        "blacklistedRefreshToken",
-			expectedStatusCode: http.StatusForbidden,
+			expectedStatusCode: http.StatusUnauthorized,
 			expectedResponse:   gin.H{"err": "Token Blacklisted"},
 		},
 		{

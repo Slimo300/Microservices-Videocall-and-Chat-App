@@ -17,8 +17,8 @@ type Server struct {
 	Emitter      msgqueue.EventEmiter
 	ImageStorage storage.StorageLayer
 	TokenKey     *rsa.PublicKey
-	TokenClient  auth.TokenClient
-	EmailClient  email.EmailClient
+	TokenClient  auth.TokenServiceClient
+	EmailClient  email.EmailServiceClient
 	MaxBodyBytes int64
 	Domain       string
 }

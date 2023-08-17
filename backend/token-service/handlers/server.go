@@ -4,12 +4,12 @@ import (
 	"crypto/rsa"
 	"time"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo"
 )
 
 type TokenService struct {
-	*pb.UnimplementedTokenServiceServer
+	*auth.UnimplementedTokenServiceServer
 	repo                  repo.TokenRepository
 	refreshTokenSecret    string
 	accessTokenPrivateKey *rsa.PrivateKey

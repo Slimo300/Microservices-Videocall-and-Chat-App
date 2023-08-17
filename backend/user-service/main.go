@@ -15,6 +15,8 @@ import (
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/email"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/config"
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/database/orm"
@@ -58,10 +60,17 @@ func main() {
 	}
 
 	// connecting to authentication server
-	tokenClient, err := auth.NewGRPCTokenClient(conf.TokenServiceAddress)
+	tokenConn, err := grpc.Dial(conf.TokenServiceAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		log.Fatalf("Error when connecting to token service: %v", err)
+		log.Fatalf("Error connecting to token service")
 	}
+	tokenClient := auth.NewTokenServiceClient(tokenConn)
+
+	emailConn, err := grpc.Dial(conf.EmailServiceAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("Error connecting to token service")
+	}
+	emailClient := email.NewEmailServiceClient(emailConn)
 
 	emiter, err := kafkaSetup([]string{conf.BrokerAddress})
 	if err != nil {
@@ -73,10 +82,6 @@ func main() {
 	// if err != nil {
 	// 	log.Fatal(err)
 	// }
-	emailClient, err := email.NewGRPCEmailClient(conf.EmailServiceAddress)
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	server := &handlers.Server{
 		DB:           db,

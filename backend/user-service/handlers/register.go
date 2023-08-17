@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/email/pb"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/email"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/models"
@@ -47,7 +47,7 @@ func (s *Server) RegisterUser(c *gin.Context) {
 	}
 	if user != nil && verificationCode != nil {
 		go func() {
-			if err := s.EmailClient.SendVerificationEmail(context.TODO(), &pb.EmailData{
+			if _, err := s.EmailClient.SendVerificationEmail(context.TODO(), &email.EmailData{
 				Email: user.Email,
 				Name:  user.UserName,
 				Code:  verificationCode.ActivationCode,

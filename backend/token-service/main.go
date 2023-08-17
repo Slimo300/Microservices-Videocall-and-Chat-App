@@ -11,7 +11,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth/pb"
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/config"
 	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/handlers"
 	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo/redis"
@@ -67,7 +67,7 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
-	pb.RegisterTokenServiceServer(grpcServer, s)
+	auth.RegisterTokenServiceServer(grpcServer, s)
 
 	errChan := make(chan error)
 	quit := make(chan os.Signal, 1)
