@@ -38,12 +38,8 @@ cloud.google.com/go/storage v1.14.0/go.mod h1:GrKmX003DSIwi9o29oFT7YDnHYwZoctc3f
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230510182501-d4e045810294 h1:W2WN+qadrfE7b2NNthRFANF+4QopBuCal6qgZYGXNps=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230510182501-d4e045810294/go.mod h1:8Z173Qq/0RA/mmM87dCb4y7o5ftyRKZilOtkYdtXqI0=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230817180420-ad9e40747dbb h1:D+G73UpnUGqVsjS31ljB4nm4dzy7XWRKPcAdvmZEmBA=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230817180420-ad9e40747dbb/go.mod h1:8Z173Qq/0RA/mmM87dCb4y7o5ftyRKZilOtkYdtXqI0=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230817191947-aeda2093a577 h1:yMw3+IDQSlUXgTv/Js69k5riK1MfVUBf9UnS9UM3yiQ=
-github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230817191947-aeda2093a577/go.mod h1:70lAOWrxgocTevJVjflPgF5YGMuQYHePk9iLnhGXELY=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230817195323-cdff9278cb96 h1:TxCgVIBrvTpDtv8iOLdBqXbs8Z9VD1ZHtOlL9BM1wnM=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230817195323-cdff9278cb96/go.mod h1:70lAOWrxgocTevJVjflPgF5YGMuQYHePk9iLnhGXELY=
 github.com/bytedance/sonic v1.5.0/go.mod h1:ED5hyg4y6t3/9Ku1R6dU/4KyJ48DZ4jPhfY1O2AihPM=
 github.com/bytedance/sonic v1.8.0 h1:ea0Xadu+sHlu7x5O3gKhRpQ1IKiMrSiHttPF0ybECuA=
 github.com/bytedance/sonic v1.8.0/go.mod h1:i736AoUSYt75HyZLoJW9ERYxcy6eaN6h4BZXU064P/U=
