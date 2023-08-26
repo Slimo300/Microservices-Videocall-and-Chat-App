@@ -17,27 +17,15 @@ var upgrader = websocket.Upgrader{
 
 func (s *Server) ServeWebSocket(c *gin.Context) {
 
-	accessCode := c.Query("accessCode")
-	if accessCode == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "no access code provided"})
-		return
-	}
-
-	reqGroupID := c.Param("groupID")
-	if reqGroupID == "" {
+	reqMemberID := c.Param("memberID")
+	if reqMemberID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "no group id provided"})
 		return
 	}
 
-	userID, groupID, err := s.DB.CheckAccessCode(accessCode)
-	if err != nil || groupID != reqGroupID {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "connection not authorized"})
-		return
-	}
-
-	username, err := s.DB.GetMember(userID, groupID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": "internal server error"})
+	accessCode := c.Query("accessCode")
+	if accessCode == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "no access code provided"})
 		return
 	}
 
@@ -47,23 +35,31 @@ func (s *Server) ServeWebSocket(c *gin.Context) {
 		return
 	}
 
-	enabled := true
-	notEnabled := false
+	memberID, err := s.DB.CheckAccessCode(accessCode)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "connection not authorized"})
+		return
+	}
+
+	if memberID != reqMemberID {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid access code"})
+		return
+	}
+
+	member, err := s.DB.GetMember(memberID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": "internal server error"})
+		return
+	}
 
 	userData := w.UserConnData{
-		Username:     username,
+		Username:     member.Username,
 		StreamID:     streamID,
-		AudioEnabled: &enabled,
+		AudioEnabled: applyMediaQuery(c.Query("audio")),
+		VideoEnabled: applyMediaQuery(c.Query("video")),
 	}
 
-	videoEnabled := c.Query("videoEnabled")
-	if videoEnabled == "true" {
-		userData.VideoEnabled = &enabled
-	} else {
-		userData.VideoEnabled = &notEnabled
-	}
-
-	room := s.Relay.GetRoom(groupID)
+	room := s.Relay.GetRoom(member.GroupID)
 
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
@@ -72,4 +68,15 @@ func (s *Server) ServeWebSocket(c *gin.Context) {
 	}
 
 	room.ConnectRoom(conn, userData)
+}
+
+func applyMediaQuery(query string) *bool {
+
+	enabled := true
+	notEnabled := false
+
+	if query == "true" {
+		return &enabled
+	}
+	return &notEnabled
 }

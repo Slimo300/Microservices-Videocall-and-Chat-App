@@ -6,6 +6,7 @@ import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
 	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/database"
+	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/models"
 )
 
 // EventProcessor processes traffic from listener and updates state of application
@@ -35,15 +36,22 @@ func (p *DBEventProcessor) ProcessEvents(eventNames ...string) {
 		case evt := <-received:
 			switch e := evt.(type) {
 			case *events.GroupDeletedEvent:
-				if err := p.DB.DeleteGroup(*e); err != nil {
+				if err := p.DB.DeleteGroup(e.ID.String()); err != nil {
 					log.Printf("Listener DeleteGroup error: %s", err.Error())
 				}
 			case *events.MemberCreatedEvent:
-				if err := p.DB.NewMember(*e); err != nil {
+				if err := p.DB.NewMember(models.Member{
+					ID:         e.ID.String(),
+					GroupID:    e.GroupID.String(),
+					UserID:     e.UserID.String(),
+					Username:   e.User.UserName,
+					PictureURL: e.User.Picture,
+					Muting:     false,
+				}); err != nil {
 					log.Printf("Listener NewMember error: %s", err.Error())
 				}
 			case *events.MemberDeletedEvent:
-				if err := p.DB.DeleteMember(*e); err != nil {
+				if err := p.DB.DeleteMember(e.ID.String()); err != nil {
 					log.Printf("Listener DeleteMember error: %s", err.Error())
 				}
 			default:

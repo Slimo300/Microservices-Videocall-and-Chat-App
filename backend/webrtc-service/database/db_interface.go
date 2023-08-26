@@ -1,16 +1,16 @@
 package database
 
 import (
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
+	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/models"
 )
 
 type DBLayer interface {
-	GetMember(userID string, groupID string) (string, error)
+	GetMember(memberID string) (*models.Member, error)
 
-	NewMember(evt events.MemberCreatedEvent) error
-	DeleteMember(evt events.MemberDeletedEvent) error
-	DeleteGroup(evt events.GroupDeletedEvent) error
+	NewMember(member models.Member) error
+	DeleteMember(memberID string) error
+	DeleteGroup(groupID string) error
 
-	NewAccessCode(groupID, userID, accessCode string) error
-	CheckAccessCode(accessCode string) (string, string, error)
+	NewAccessCode(accessCode, memberID string) error
+	CheckAccessCode(accessCode string) (string, error)
 }

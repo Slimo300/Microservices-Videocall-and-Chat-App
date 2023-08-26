@@ -14,9 +14,9 @@ func (server *Server) Setup(origin string) http.Handler {
 
 	api := engine.Group("/video-call")
 	api.Use(auth.MustAuthWithKey(server.PublicKey))
-	api.GET("/:groupID/accessCode", server.GetAuthCode)
+	api.GET("/:memberID/accessCode", server.GetAuthCode)
 
-	engine.GET("/video-call/:groupID/ws", server.ServeWebSocket)
+	engine.GET("/video-call/:memberID/ws", server.ServeWebSocket)
 
 	return engine
 }

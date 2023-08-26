@@ -4,13 +4,11 @@ import (
 	"log"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
-	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/database"
 )
 
 // EventProcessor processes traffic from listener and updates state of application
 type RelayEventProcessor struct {
 	Listener  msgqueue.EventListener
-	DB        database.DBLayer
 	RelayChan chan<- msgqueue.Event
 }
 

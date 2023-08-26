@@ -1,36 +1,82 @@
 package redis
 
 import (
-	"fmt"
-
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
+	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/models"
 )
 
-func (db *DB) GetMember(userID, groupID string) (string, error) {
-	username, err := db.Get(fmt.Sprintf("%s:%s", userID, groupID)).Result()
+func (db *DB) GetMember(memberID string) (*models.Member, error) {
+	member, err := db.HGetAll(memberID).Result()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return username, nil
+	var muting bool
+	if member["muting"] == "true" {
+		muting = true
+	}
+
+	return &models.Member{
+		ID:         memberID,
+		GroupID:    member["groupID"],
+		UserID:     member["userID"],
+		Username:   member["username"],
+		PictureURL: member["pictureURL"],
+		Muting:     muting,
+	}, nil
 }
 
 // NewMember sets new member in format <USER_ID>:<GROUP_ID>
-func (db *DB) NewMember(event events.MemberCreatedEvent) error {
-	return db.Set(fmt.Sprintf("%s:%s", event.UserID.String(), event.GroupID.String()), event.User.UserName, 0).Err()
+func (db *DB) NewMember(member models.Member) error {
+
+	pipe := db.TxPipeline()
+
+	if err := pipe.SAdd(member.GroupID, member.ID).Err(); err != nil {
+		return err
+	}
+
+	if err := pipe.HMSet(member.ID, map[string]interface{}{
+		"groupID":    member.GroupID,
+		"userID":     member.UserID,
+		"username":   member.Username,
+		"pictureURL": member.PictureURL,
+		"muting":     member.Muting,
+	}).Err(); err != nil {
+		return err
+	}
+
+	if _, err := pipe.Exec(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // DeleteMember deletes given member if he exists
-func (db *DB) DeleteMember(event events.MemberDeletedEvent) error {
-	return db.Del(fmt.Sprintf("%s:%s", event.UserID.String(), event.GroupID.String())).Err()
+func (db *DB) DeleteMember(memberID string) error {
+	return db.Del(memberID).Err()
 }
 
 // DeleteGroup deletes all members of a group
-func (db *DB) DeleteGroup(event events.GroupDeletedEvent) error {
-	keys, err := db.Keys(fmt.Sprintf("*:%s", event.ID.String())).Result()
+func (db *DB) DeleteGroup(groupID string) error {
+
+	// Get all members of group
+	members, err := db.SMembers(groupID).Result()
 	if err != nil {
 		return err
 	}
 
-	return db.Del(keys...).Err()
+	pipe := db.TxPipeline()
+
+	if err := pipe.Del(members...).Err(); err != nil {
+		return err
+	}
+	if err := pipe.Del(groupID).Err(); err != nil {
+		return err
+	}
+
+	if _, err := pipe.Exec(); err != nil {
+		return err
+	}
+
+	return nil
 }
