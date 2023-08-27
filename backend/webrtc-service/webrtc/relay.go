@@ -3,8 +3,6 @@ package webrtc
 import (
 	"sync"
 	"time"
-
-	"github.com/pion/webrtc/v3"
 )
 
 type RoomsRelay struct {
@@ -25,14 +23,21 @@ func (r *RoomsRelay) GetRoom(groupID string) *Room {
 
 	room, ok := r.rooms[groupID]
 	if !ok {
-		room = &Room{}
-		room.TrackLocals = make(map[string]*webrtc.TrackLocalStaticRTP)
+		room = NewRoom()
 		r.rooms[groupID] = room
 	}
 
 	go func() {
-		for range time.NewTicker(3 * time.Second).C {
-			room.DispatchKeyFrame()
+		for {
+			select {
+			case <-time.NewTicker(3 * time.Second).C:
+				room.DispatchKeyFrame()
+			case <-room.Done():
+				r.relayMutex.Lock()
+				delete(r.rooms, groupID)
+				r.relayMutex.Unlock()
+				return
+			}
 		}
 	}()
 

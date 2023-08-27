@@ -20,6 +20,7 @@ const VideoConference = () => {
     const accessCode = query.get("accessCode");
     const mocking = query.get("mock");
     const initialVideo = query.get("initialVideo");
+    const initialAudio = query.get("initialAudio");
 
     const peerConnection = useRef(new RTCPeerConnection());
     const ws = useRef(null);
@@ -61,7 +62,7 @@ const VideoConference = () => {
             }
     
             try {
-                ws.current = GetWebRTCWebsocket(id, accessCode, stream.id, initialVideo==="true");
+                ws.current = GetWebRTCWebsocket(id, accessCode, stream.id, initialVideo==="true", initialAudio===false);
             } catch(err) {
                 alert(err);
                 setTimeout(() => setFatal(true), 3000);
@@ -129,7 +130,7 @@ const VideoConference = () => {
 
         startCall();
 
-    }, [accessCode, id, mocking, initialVideo]);
+    }, [accessCode, id, mocking, initialVideo, initialAudio]);
 
     const ToggleAudio = useCallback(async () => {
         if (audioState !== AUDIO_ACTIVE) {

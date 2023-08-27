@@ -96,8 +96,6 @@ func (r *Room) ConnectRoom(conn *websocket.Conn, userData UserConnData) {
 		}
 	})
 
-	r.SignalPeerConnections()
-
 	message := &websocketMessage{}
 	for {
 		_, raw, err := ws.ReadMessage()
@@ -134,11 +132,8 @@ func (r *Room) ConnectRoom(conn *websocket.Conn, userData UserConnData) {
 				return
 			}
 		case "renegotiate":
-			log.Printf("Renegotiation needed")
 			r.SignalPeerConnections()
 		case "mute":
-			log.Printf("mute toggled!!!!!!!!!!!!!!!")
-
 			muteInfo := struct {
 				VideoEnabled *bool `json:"videoEnabled,omitempty"`
 				AudioEnabled *bool `json:"audioEnabled,omitempty"`

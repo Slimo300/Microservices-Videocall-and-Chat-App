@@ -27,8 +27,8 @@ export async function GetWebRTCAccessCode(groupID) {
     
 }
 
-export function GetWebRTCWebsocket(groupID, accessCode, streamID, videoEnabled) {
-    let socket = new WebSocket(webrtcServiceWebsocket+"/"+groupID+"/ws?accessCode="+accessCode+"&streamID="+streamID+"&videoEnabled="+videoEnabled);
+export function GetWebRTCWebsocket(memberID, accessCode, streamID, videoEnabled, audioEnabled) {
+    let socket = new WebSocket(webrtcServiceWebsocket+"/"+memberID+"/ws?accessCode="+accessCode+"&streamID="+streamID+"&video="+videoEnabled+"&audio="+audioEnabled);
     
     socket.onopen = () => {
         let date = new Date();
@@ -36,7 +36,7 @@ export function GetWebRTCWebsocket(groupID, accessCode, streamID, videoEnabled) 
     };
 
     socket.onclose = (evt) => {
-        window.alert(evt.code, evt.reason,);
+        window.alert(evt.code + " : " + evt.reason);
     };
 
     socket.onerror = (evt) => {

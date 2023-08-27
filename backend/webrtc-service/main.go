@@ -38,6 +38,8 @@ func getPublicKey() (*rsa.PublicKey, error) {
 
 func main() {
 
+	log.Println("POD_NAME: ", os.Getenv("POD_NAME"))
+
 	conf, err := config.LoadConfigFromEnvironment()
 	if err != nil {
 		log.Fatalf("Error reading configuration: %v", err)

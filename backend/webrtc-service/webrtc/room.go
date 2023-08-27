@@ -15,6 +15,21 @@ type Room struct {
 	ListLock    sync.RWMutex
 	Clients     []client
 	TrackLocals map[string]*webrtc.TrackLocalStaticRTP
+	closeChan   chan struct{}
+	closed      bool
+}
+
+func NewRoom() *Room {
+	room := &Room{}
+	room.TrackLocals = make(map[string]*webrtc.TrackLocalStaticRTP)
+	room.closeChan = make(chan struct{})
+	room.closed = false
+
+	return room
+}
+
+func (r *Room) Done() <-chan struct{} {
+	return r.closeChan
 }
 
 type websocketMessage struct {
@@ -31,7 +46,10 @@ type client struct {
 func (r *Room) AddClient(peerConnection *webrtc.PeerConnection, ws *threadSafeWriter, userData UserConnData) {
 
 	r.ListLock.Lock()
-	defer r.ListLock.Unlock()
+	defer func() {
+		r.ListLock.Unlock()
+		r.SignalPeerConnections()
+	}()
 
 	data, err := json.Marshal(userData)
 	if err != nil {
@@ -77,7 +95,6 @@ func (r *Room) ToggleMute(streamID string, videoEnabled, audioEnabled *bool) {
 	if err != nil {
 		log.Printf("Error marshaling data: %v", err)
 	}
-	log.Println(string(data))
 
 	for i := range r.Clients {
 		if r.Clients[i].userData.StreamID == streamID {
@@ -85,7 +102,6 @@ func (r *Room) ToggleMute(streamID string, videoEnabled, audioEnabled *bool) {
 				r.Clients[i].userData.VideoEnabled = videoEnabled
 			}
 			if audioEnabled != nil {
-				log.Println("Setting audio")
 				r.Clients[i].userData.AudioEnabled = audioEnabled
 			}
 		} else {
@@ -136,9 +152,20 @@ func (r *Room) SignalPeerConnections() {
 	}()
 
 	attemptSync := func() (tryAgain bool) {
+
+		if len(r.Clients) == 0 && len(r.TrackLocals) == 0 {
+			log.Printf("No clients in room")
+			if !r.closed {
+				close(r.closeChan)
+				r.closed = true
+			}
+			return false
+		}
+
 		for i := range r.Clients {
 			if r.Clients[i].peerConnection.ConnectionState() == webrtc.PeerConnectionStateClosed {
 				r.Clients = append(r.Clients[:i], r.Clients[i+1:]...)
+				log.Printf("Signal: Removing client")
 				return true // We modified the slice, start from the beginning
 			}
 
@@ -155,6 +182,7 @@ func (r *Room) SignalPeerConnections() {
 				// If we have a RTPSender that doesn't map to a existing track remove and signal
 				if _, ok := r.TrackLocals[sender.Track().ID()]; !ok {
 					if err := r.Clients[i].peerConnection.RemoveTrack(sender); err != nil {
+						log.Printf("Signal: client has deleted track. Removing it...")
 						return true
 					}
 				}
@@ -173,6 +201,7 @@ func (r *Room) SignalPeerConnections() {
 			for trackID := range r.TrackLocals {
 				if _, ok := existingSenders[trackID]; !ok {
 					if _, err := r.Clients[i].peerConnection.AddTrack(r.TrackLocals[trackID]); err != nil {
+						log.Printf("Client doesn't have a track that is currently tracked. Adding it...")
 						return true
 					}
 				}
@@ -180,15 +209,18 @@ func (r *Room) SignalPeerConnections() {
 
 			offer, err := r.Clients[i].peerConnection.CreateOffer(nil)
 			if err != nil {
+				log.Printf("Signal: Error creating offer: %v", err)
 				return true
 			}
 
 			if err = r.Clients[i].peerConnection.SetLocalDescription(offer); err != nil {
+				log.Printf("Signal: Error setting local description: %v", err)
 				return true
 			}
 
 			offerString, err := json.Marshal(offer)
 			if err != nil {
+				log.Printf("Signal: Error marshaling offer: %v", err)
 				return true
 			}
 
@@ -196,6 +228,7 @@ func (r *Room) SignalPeerConnections() {
 				Event: "offer",
 				Data:  string(offerString),
 			}); err != nil {
+				log.Printf("Signal: Error writing to websocket: %v", err)
 				return true
 			}
 		}
