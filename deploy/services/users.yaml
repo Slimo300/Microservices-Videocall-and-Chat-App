@@ -20,10 +20,10 @@ spec:
           command: ['sh', '-c', 'echo -e "Checking for the availability of MySQL Server deployment"; while ! nc -z usermysql 3306; do sleep 1; printf "-"; done; echo -e "  >> MySQL DB Server has started";']
         - name: tokenservice-test
           image: busybox:1.31
-          command: ['sh', '-c', 'echo -e "Checking for the availability of Token service deployment"; while ! nc -z tokenservice 9000; do sleep 1; printf "-"; done; echo -e "  >> Token Service has started";']
+          command: ['sh', '-c', 'echo -e "Checking for the availability of Token service deployment"; while ! nc -z token-service 9000; do sleep 1; printf "-"; done; echo -e "  >> Token Service has started";']
         - name: emailservice-test
           image: busybox:1.31
-          command: ['sh', '-c', 'echo -e "Checking for the availability of Email service deployment"; while ! nc -z emailservice 9000; do sleep 1; printf "-"; done; echo -e "  >> Email Service has started";']
+          command: ['sh', '-c', 'echo -e "Checking for the availability of Email service deployment"; while ! nc -z email-service 9000; do sleep 1; printf "-"; done; echo -e "  >> Email Service has started";']
         - name: kafka-test
           image: busybox:1.31
           command: ['sh', '-c', 'echo -e "Checking for the availability of Kafka broker"; while ! nc -z kafka 9092; do sleep 1; printf "-"; done; echo -e "  >> Kafka has started";']
@@ -38,9 +38,9 @@ spec:
         - name: MYSQL_ADDRESS
           value: chat:password12@tcp(usermysql:3306)/chatapp
         - name: TOKEN_SERVICE_ADDRESS
-          value: tokenservice:9000
+          value: token-service:9000
         - name: EMAIL_SERVICE_ADDRESS
-          value: emailservice:9000
+          value: email-service:9000
         - name: ORIGIN
           value: https://www.relrel.com
         - name: DOMAIN
@@ -61,7 +61,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: userservice
+  name: user-service
 spec:
   selector:
     chat/app: users

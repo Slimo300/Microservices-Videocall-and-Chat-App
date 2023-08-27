@@ -11,28 +11,28 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: groupservice
+            name: group-service
             port:
               number: 8080
       - path: /messages
         pathType: Prefix
         backend:
           service:
-            name: messageservice
+            name: message-service
             port:
               number: 8080
       - path: /search
         pathType: Prefix
         backend:
           service:
-            name: searchservice
+            name: search-service
             port:
               number: 8080
       - path: /users
         pathType: Prefix
         backend:
           service:
-            name: userservice
+            name: user-service
             port:
               number: 8080
       - path: /ws
@@ -46,7 +46,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: webrtcservice
+            name: webrtc-service
             port:
               number: 8080
   - host: www.relrel.com
