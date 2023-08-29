@@ -5,7 +5,8 @@ import (
 )
 
 type DBLayer interface {
-	GetMember(memberID string) (*models.Member, error)
+	GetMemberByID(memberID string) (*models.Member, error)
+	GetMemberByGroupAndUserID(groupID, userID string) (*models.Member, error)
 
 	NewMember(member models.Member) error
 	DeleteMember(memberID string) error

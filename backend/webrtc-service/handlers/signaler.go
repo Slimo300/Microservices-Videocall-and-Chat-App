@@ -17,8 +17,8 @@ var upgrader = websocket.Upgrader{
 
 func (s *Server) ServeWebSocket(c *gin.Context) {
 
-	reqMemberID := c.Param("memberID")
-	if reqMemberID == "" {
+	reqGroupID := c.Param("groupID")
+	if reqGroupID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "no group id provided"})
 		return
 	}
@@ -41,14 +41,14 @@ func (s *Server) ServeWebSocket(c *gin.Context) {
 		return
 	}
 
-	if memberID != reqMemberID {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid access code"})
+	member, err := s.DB.GetMemberByID(memberID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": "internal server error"})
 		return
 	}
 
-	member, err := s.DB.GetMember(memberID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": "internal server error"})
+	if member.GroupID != reqGroupID {
+		c.JSON(http.StatusForbidden, gin.H{"err": "Supplied access code is for a wrong group"})
 		return
 	}
 

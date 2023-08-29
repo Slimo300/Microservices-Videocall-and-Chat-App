@@ -6,5 +6,4 @@ type Member struct {
 	UserID     string
 	Username   string
 	PictureURL string
-	Muting     bool
 }

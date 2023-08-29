@@ -38,8 +38,6 @@ func getPublicKey() (*rsa.PublicKey, error) {
 
 func main() {
 
-	log.Println("POD_NAME: ", os.Getenv("POD_NAME"))
-
 	conf, err := config.LoadConfigFromEnvironment()
 	if err != nil {
 		log.Fatalf("Error reading configuration: %v", err)
@@ -55,9 +53,15 @@ func main() {
 		log.Fatalf("Error connecting to database: %v", err)
 	}
 
-	_, dbListener, relayListener, err := kafkaSetup([]string{conf.BrokerAddress})
+	emiter, dbListener, relayListener, err := kafkaSetup([]string{conf.BrokerAddress})
 	if err != nil {
 		log.Fatalf("Error setting up kafka: %v", err)
+	}
+
+	if err := emiter.Emit(ServiceStartedEvent{
+		FQDN: conf.PodName + "." + conf.ServiceName + "." + conf.PodNamespace,
+	}); err != nil {
+		log.Fatalf("Couldn't emit ServiceStartedEvent")
 	}
 
 	relayChan := make(chan msgqueue.Event)

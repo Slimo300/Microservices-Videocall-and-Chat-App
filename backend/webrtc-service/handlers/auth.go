@@ -14,27 +14,22 @@ func (s *Server) GetAuthCode(c *gin.Context) {
 		return
 	}
 
-	memberID := c.Param("memberID")
-	if memberID == "" {
+	groupID := c.Param("groupID")
+	if groupID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "groupID not provided"})
 		return
 	}
 
 	// Check if user belongs to a group
-	member, err := s.DB.GetMember(memberID)
+	member, err := s.DB.GetMemberByGroupAndUserID(groupID, userID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid member ID"})
-		return
-	}
-
-	if member.UserID != userID {
-		c.JSON(http.StatusForbidden, gin.H{"err": "Membership does not belong to authenticated user"})
+		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
 	}
 
 	// Generate auth code and insert it to database
 	accessCode := randstr.String(10)
-	if err := s.DB.NewAccessCode(accessCode, memberID); err != nil {
+	if err := s.DB.NewAccessCode(accessCode, member.ID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": "internal server error"})
 		return
 	}

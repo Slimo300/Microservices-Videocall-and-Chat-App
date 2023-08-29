@@ -62,8 +62,8 @@ const Chat = ({group, user, ws, setCurrent}) => {
 
     const JoinVideoCall = async () => {
         try {
-            let accessCode = await GetWebRTCAccessCode(member.ID);
-            window.open(window._env_.APP_HOST+"/call/"+member.ID+"?accessCode="+accessCode+"&username="+user.username+"&initialVideo=true", "_blank", 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'); // 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'
+            let accessCode = await GetWebRTCAccessCode(group.ID);
+            window.open(window._env_.APP_HOST+"/call/"+group.ID+"?accessCode="+accessCode+"&initialVideo=true", "_blank", 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'); // 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'
 
         } catch(err) {
             alert(err);
@@ -72,8 +72,8 @@ const Chat = ({group, user, ws, setCurrent}) => {
 
     const JoinCall = async () => {
         try {
-            let accessCode = await GetWebRTCAccessCode(member.ID);
-            window.open(window._env_.APP_HOST+"/call/"+member.ID+"?accessCode="+accessCode+"&username="+user.username, "_blank", 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'); // 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'
+            let accessCode = await GetWebRTCAccessCode(group.ID);
+            window.open(window._env_.APP_HOST+"/call/"+group.ID+"?accessCode="+accessCode, "_blank", 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'); // 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'
 
         } catch(err) {
             alert(err);
@@ -82,8 +82,8 @@ const Chat = ({group, user, ws, setCurrent}) => {
 
     const MockJoinCall = async () => {
         try {
-            let accessCode = await GetWebRTCAccessCode(member.ID);
-            window.open(window._env_.APP_HOST+"/call/"+member.ID+"?accessCode="+accessCode+"&username="+user.username+"&initialVideo=true&mock=true", "_blank", 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'); // 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'
+            let accessCode = await GetWebRTCAccessCode(group.ID);
+            window.open(window._env_.APP_HOST+"/call/"+group.ID+"?accessCode="+accessCode+"&initialVideo=true&mock=true", "_blank", 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'); // 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'
 
         } catch(err) {
             alert(err);

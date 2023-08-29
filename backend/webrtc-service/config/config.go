@@ -11,6 +11,10 @@ import (
 
 // Config holds user service configuration
 type Config struct {
+	PodName      string `mapstructure:"podName"`
+	PodNamespace string `mapstructure:"podNamespace"`
+	ServiceName  string `mapstructure:"serviceName"`
+
 	DBAddress  string `mapstructure:"dbAddress"`
 	DBPassword string `mapstructure:"dbPassword"`
 
@@ -24,6 +28,19 @@ type Config struct {
 // LoadConfigFromEnvironment loads user service configuration from environment variables and returns an error
 // if any of them is missing
 func LoadConfigFromEnvironment() (conf Config, err error) {
+
+	conf.PodName = os.Getenv("POD_NAME")
+	if conf.PodName == "" {
+		return Config{}, errors.New("Environment variable POD_NAME not set")
+	}
+	conf.PodNamespace = os.Getenv("POD_NAMESPACE")
+	if conf.PodNamespace == "" {
+		return Config{}, errors.New("Environment variable POD_NAMESPACE not set")
+	}
+	conf.ServiceName = os.Getenv("SERVICE_NAME")
+	if conf.ServiceName == "" {
+		return Config{}, errors.New("Environment variable SERVICE_NAME not set")
+	}
 
 	conf.DBAddress = os.Getenv("DB_ADDRESS")
 	if conf.DBAddress == "" {

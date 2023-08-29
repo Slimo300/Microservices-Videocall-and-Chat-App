@@ -4,15 +4,10 @@ import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/models"
 )
 
-func (db *DB) GetMember(memberID string) (*models.Member, error) {
+func (db *DB) GetMemberByID(memberID string) (*models.Member, error) {
 	member, err := db.HGetAll(memberID).Result()
 	if err != nil {
 		return nil, err
-	}
-
-	var muting bool
-	if member["muting"] == "true" {
-		muting = true
 	}
 
 	return &models.Member{
@@ -21,7 +16,26 @@ func (db *DB) GetMember(memberID string) (*models.Member, error) {
 		UserID:     member["userID"],
 		Username:   member["username"],
 		PictureURL: member["pictureURL"],
-		Muting:     muting,
+	}, nil
+}
+
+func (db *DB) GetMemberByGroupAndUserID(groupID, userID string) (*models.Member, error) {
+	memberID, err := db.HGet(groupID, userID).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	member, err := db.HGetAll(memberID).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.Member{
+		ID:         memberID,
+		GroupID:    member["groupID"],
+		UserID:     member["userID"],
+		Username:   member["username"],
+		PictureURL: member["pictureURL"],
 	}, nil
 }
 
@@ -30,16 +44,21 @@ func (db *DB) NewMember(member models.Member) error {
 
 	pipe := db.TxPipeline()
 
-	if err := pipe.SAdd(member.GroupID, member.ID).Err(); err != nil {
+	// In Redis we will store group object for searching for members by group and user id's
+	// E.G.: GROUP_ID -> {
+	//		USER_ID -> MEMBER_ID,
+	// 		...
+	// }
+	if err := pipe.HSet(member.GroupID, member.UserID, member.ID).Err(); err != nil {
 		return err
 	}
 
+	// In Redis we will store member object containing all member data
 	if err := pipe.HMSet(member.ID, map[string]interface{}{
 		"groupID":    member.GroupID,
 		"userID":     member.UserID,
 		"username":   member.Username,
 		"pictureURL": member.PictureURL,
-		"muting":     member.Muting,
 	}).Err(); err != nil {
 		return err
 	}
@@ -53,6 +72,16 @@ func (db *DB) NewMember(member models.Member) error {
 
 // DeleteMember deletes given member if he exists
 func (db *DB) DeleteMember(memberID string) error {
+
+	groupID, err := db.HGet(memberID, "groupID").Result()
+	if err != nil {
+		return err
+	}
+
+	if err := db.HDel(groupID, memberID).Err(); err != nil {
+		return err
+	}
+
 	return db.Del(memberID).Err()
 }
 
@@ -60,15 +89,17 @@ func (db *DB) DeleteMember(memberID string) error {
 func (db *DB) DeleteGroup(groupID string) error {
 
 	// Get all members of group
-	members, err := db.SMembers(groupID).Result()
+	members, err := db.HGetAll(groupID).Result()
 	if err != nil {
 		return err
 	}
 
 	pipe := db.TxPipeline()
 
-	if err := pipe.Del(members...).Err(); err != nil {
-		return err
+	for _, memberID := range members {
+		if err := pipe.Del(memberID).Err(); err != nil {
+			return err
+		}
 	}
 	if err := pipe.Del(groupID).Err(); err != nil {
 		return err
