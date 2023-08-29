@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: groupsdeployment
+  name: groups-deployment
 spec:
   replicas: 1
   selector:
@@ -17,27 +17,27 @@ spec:
       initContainers:
         - name: db-test
           image: busybox:1.31
-          command: ['sh', '-c', 'echo -e "Checking for the availability of MySQL Server deployment"; while ! nc -z groupmysql 3306; do sleep 1; printf "-"; done; echo -e "  >> MySQL DB Server has started";']
+          command: ['sh', '-c', 'echo -e "Checking for the availability of MySQL Server deployment"; while ! nc -z group-mysql 3306; do sleep 1; printf "-"; done; echo -e "  >> MySQL DB Server has started";']
         - name: kafka-test
           image: busybox:1.31
           command: ['sh', '-c', 'echo -e "Checking for the availability of Kafka broker"; while ! nc -z kafka 9092; do sleep 1; printf "-"; done; echo -e "  >> Kafka has started";']
       containers:
       - name: group-service
         imagePullPolicy: Never
-        image: chat/groupservice
+        image: chat/group-service
         ports:
         - containerPort: 8080
           name: http
         env:
         - name: MYSQL_ADDRESS
-          value: chat:password12@tcp(groupmysql:3306)/chatapp
+          value: chat:password12@tcp(group-mysql:3306)/chatapp
         - name: ORIGIN
           value: https://www.relrel.com
         - name: BROKER_ADDRESS
           value: kafka:9092
         envFrom:
         - secretRef:
-            name: awssecrets
+            name: aws-secrets
         volumeMounts:
           - name: public-key
             mountPath: /rsa

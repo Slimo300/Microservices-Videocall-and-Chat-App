@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: wsredis
+  name: ws-redis
 spec:
   # serviceName: wsredis
   replicas: 1
@@ -41,7 +41,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: wsredis
+  name: ws-redis
 spec:
   clusterIP: None
   selector:

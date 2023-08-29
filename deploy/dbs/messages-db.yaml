@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: messagemysql
+  name: message-mysql
 spec:
   # serviceName: messagemysql
   replicas: 1
@@ -16,7 +16,7 @@ spec:
         chat/tier: database
     spec:
       containers:
-      - name: messagemysql
+      - name: message-mysql
         image: mysql
         ports:
         - containerPort: 3306
@@ -47,7 +47,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: messagemysql
+  name: message-mysql
 spec:
   clusterIP: None
   selector:

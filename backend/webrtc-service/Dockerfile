@@ -25,18 +25,11 @@ ENV DB_ADDRESS=
 ENV DB_PASSWORD=
 # Port for HTTP traffic
 ENV HTTP_PORT=8080
-# Port for HTTPS traffic
-ENV HTTPS_PORT=8090
-# Address to connect with token service
-ENV TOKEN_SERVICE_ADDRESS=
 # Origin for CORS
 ENV ORIGIN=http://localhost:3000
 # Kafka Address
 ENV BROKER_ADDRESS=
-# Directory on docker container in which SSL certificate and private key should be
-ENV CERT_DIR=/cert
 
 EXPOSE 8080
-EXPOSE 8090
 
 ENTRYPOINT ["./webrtcservice"]

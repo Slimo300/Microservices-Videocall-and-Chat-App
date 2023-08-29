@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: searchdeployment
+  name: search-deployment
 spec:
   replicas: 1
   selector:
@@ -15,7 +15,7 @@ spec:
         chat/tier: api
     spec:
       initContainers:
-        - name: init-cont
+        - name: db-test
           image: busybox:1.31
           command: ['sh', '-c', 'echo -e "Checking for the availability of ElasticSearch Server deployment"; while ! nc -z elastic 9200; do sleep 1; printf "-"; done; echo -e "  >> Elastic Search Server has started";']
         - name: kafka-test
@@ -24,7 +24,7 @@ spec:
       containers:
       - name: search-service
         imagePullPolicy: Never
-        image: chat/searchservice
+        image: chat/search-service
         ports:
         - containerPort: 8080
           name: http

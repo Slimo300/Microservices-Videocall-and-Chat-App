@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: emailsdeployment
+  name: emails-deployment
 spec:
   replicas: 1
   selector:
@@ -15,9 +15,9 @@ spec:
         chat/tier: api
     spec:
       containers:
-      - name: emailservice
+      - name: email-service
         imagePullPolicy: Never
-        image: chat/emailservice
+        image: chat/email-service
         ports:
         - containerPort: 9000
           name: grpc
@@ -26,7 +26,7 @@ spec:
           value: http://www.relrel.com
         envFrom:
         - secretRef:
-            name: smtpcreds
+            name: smtp-creds
 ---
 apiVersion: v1
 kind: Service

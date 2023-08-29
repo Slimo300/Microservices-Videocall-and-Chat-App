@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: usersdeployment
+  name: users-deployment
 spec:
   replicas: 1
   selector:
@@ -17,11 +17,11 @@ spec:
       initContainers:
         - name: db-test
           image: busybox:1.31
-          command: ['sh', '-c', 'echo -e "Checking for the availability of MySQL Server deployment"; while ! nc -z usermysql 3306; do sleep 1; printf "-"; done; echo -e "  >> MySQL DB Server has started";']
-        - name: tokenservice-test
+          command: ['sh', '-c', 'echo -e "Checking for the availability of MySQL Server deployment"; while ! nc -z user-mysql 3306; do sleep 1; printf "-"; done; echo -e "  >> MySQL DB Server has started";']
+        - name: token-service-test
           image: busybox:1.31
           command: ['sh', '-c', 'echo -e "Checking for the availability of Token service deployment"; while ! nc -z token-service 9000; do sleep 1; printf "-"; done; echo -e "  >> Token Service has started";']
-        - name: emailservice-test
+        - name: email-service-test
           image: busybox:1.31
           command: ['sh', '-c', 'echo -e "Checking for the availability of Email service deployment"; while ! nc -z email-service 9000; do sleep 1; printf "-"; done; echo -e "  >> Email Service has started";']
         - name: kafka-test
@@ -30,13 +30,13 @@ spec:
       containers:
       - name: user-service
         imagePullPolicy: Never
-        image: chat/userservice
+        image: chat/user-service
         ports:
         - containerPort: 8080
           name: http
         env:
         - name: MYSQL_ADDRESS
-          value: chat:password12@tcp(usermysql:3306)/chatapp
+          value: chat:password12@tcp(user-mysql:3306)/chatapp
         - name: TOKEN_SERVICE_ADDRESS
           value: token-service:9000
         - name: EMAIL_SERVICE_ADDRESS
@@ -49,7 +49,7 @@ spec:
           value: kafka:9092
         envFrom:
         - secretRef:
-            name: awssecrets
+            name: aws-secrets
         volumeMounts:
           - name: public-key
             mountPath: /rsa

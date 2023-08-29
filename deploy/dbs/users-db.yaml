@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: usermysql
+  name: user-mysql
 spec:
   # serviceName: usermysql
   replicas: 1
@@ -16,7 +16,7 @@ spec:
         chat/tier: database
     spec:
       containers:
-      - name: usermysql
+      - name: user-mysql
         image: mysql
         ports:
         - containerPort: 3306
@@ -47,7 +47,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: usermysql
+  name: user-mysql
 spec:
   clusterIP: None
   selector:

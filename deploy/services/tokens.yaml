@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: tokensdeployment
+  name: tokens-deployment
 spec:
   replicas: 1
   selector:
@@ -17,17 +17,17 @@ spec:
       initContainers:
         - name: init-cont
           image: busybox:1.31
-          command: ['sh', '-c', 'echo -e "Checking for the availability of Redis Server deployment"; while ! nc -z tokenredis 6379; do sleep 1; printf "-"; done; echo -e "  >> Redis Server has started";']
+          command: ['sh', '-c', 'echo -e "Checking for the availability of Redis Server deployment"; while ! nc -z token-redis 6379; do sleep 1; printf "-"; done; echo -e "  >> Redis Server has started";']
       containers:
-      - name: tokenservice
+      - name: token-service
         imagePullPolicy: Never
-        image: chat/tokenservice
+        image: chat/token-service
         ports:
         - containerPort: 9000
           name: grpc
         env:
         - name: REDIS_ADDRESS
-          value: tokenredis:6379
+          value: token-redis:6379
         - name: REDIS_PASSWORD
           value: redis
         - name: REFRESH_DURATION
@@ -36,7 +36,7 @@ spec:
           value: 1200s
         envFrom:
         - secretRef:
-            name: refreshsecret
+            name: refresh-secret
         volumeMounts:
           - name: private-key
             mountPath: /rsa

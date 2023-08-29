@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: groupmysql
+  name: group-mysql
 spec:
   # serviceName: groupmysql
   replicas: 1
@@ -16,7 +16,7 @@ spec:
         chat/tier: database
     spec:
       containers:
-      - name: groupmysql
+      - name: group-mysql
         image: mysql
         ports:
         - containerPort: 3306
@@ -47,7 +47,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: groupmysql
+  name: group-mysql
 spec:
   clusterIP: None
   selector:
