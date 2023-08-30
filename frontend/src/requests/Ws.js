@@ -4,7 +4,7 @@ export async function GetWebsocket() {
 
     let response = await axiosObject.get(wsService+"/accessCode");
     
-    let socket = new WebSocket(wsServiceWebsocket+'?accessCode='+response.data.accessCode);
+    let socket = new WebSocket(wsServiceWebsocket+'/websocket?accessCode='+response.data.accessCode);
     socket.onopen = () => {
         let date = new Date();
         console.log("Websocket openned\nSocket openned: ", date);
@@ -28,7 +28,7 @@ export async function GetWebRTCAccessCode(groupID) {
 }
 
 export function GetWebRTCWebsocket(groupID, accessCode, streamID, videoEnabled, audioEnabled) {
-    let socket = new WebSocket(webrtcServiceWebsocket+"/"+groupID+"/ws?accessCode="+accessCode+"&streamID="+streamID+"&video="+videoEnabled+"&audio="+audioEnabled);
+    let socket = new WebSocket(webrtcServiceWebsocket+"/"+groupID+"/websocket?accessCode="+accessCode+"&streamID="+streamID+"&video="+videoEnabled+"&audio="+audioEnabled);
     
     socket.onopen = () => {
         let date = new Date();

@@ -16,7 +16,7 @@ func Setup(server *handlers.Server, origin string) *gin.Engine {
 	api.Use(auth.MustAuthWithKey(server.PublicKey))
 	api.GET("/accessCode", server.GetAuthCode)
 
-	engine.GET("/ws", server.ServeWebSocket)
+	engine.GET("/ws/websocket", server.ServeWebSocket)
 
 	return engine
 }

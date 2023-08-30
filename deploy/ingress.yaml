@@ -38,27 +38,27 @@ spec:
             name: user-service
             port:
               number: 8080
-      - path: /ws
+      - path: /ws/?(.*)
         pathType: Prefix
         backend:
           service:
-            name: wsservice
+            name: ws-service
             port:
               number: 8080
-      - path: /video-call/?(.*)
+      - path: /video-call/?(.*)/websocket
+        pathType: Prefix
+        backend:
+          service:
+            name: webrtc-gateway-service
+            port:
+              number: 8080
+      - path: /video-call/?(.*)/accessCode
         pathType: Prefix
         backend:
           service:
             name: webrtc-service
             port:
               number: 8080
-      # - path: /video-call/?(.*)/ws
-      #   pathType: Prefix
-      #   backend:
-      #     service:
-      #       name: webrtc-gateway-service
-      #       port:
-      #         number: 8080
   - host: www.relrel.com
     http:
       paths:
