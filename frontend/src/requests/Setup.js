@@ -28,7 +28,7 @@ async function refreshAccessToken() {
   let response;
 
   try {
-    response = await axiosObject.post(userService+"/refresh", {}, {
+    response = await axios.post(userService+"/refresh", {}, {
       withCredentials: true,
     })
     
