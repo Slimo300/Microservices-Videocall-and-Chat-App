@@ -13,7 +13,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
 	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/config"
 	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/database/redis"
 	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/eventprocessor"
@@ -53,21 +52,18 @@ func main() {
 		log.Fatalf("Error connecting to database: %v", err)
 	}
 
-	emiter, dbListener, relayListener, err := kafkaSetup([]string{conf.BrokerAddress})
+	emiter, dbListener, err := kafkaSetup([]string{conf.BrokerAddress})
 	if err != nil {
 		log.Fatalf("Error setting up kafka: %v", err)
 	}
 
 	if err := emiter.Emit(ServiceStartedEvent{
-		FQDN: conf.PodName + "." + conf.ServiceName + "." + conf.PodNamespace,
+		FQDN: fmt.Sprintf("%s.%s.%s.svc.cluster.local:%s", conf.PodName, conf.ServiceName, conf.PodNamespace, conf.HTTPPort),
 	}); err != nil {
 		log.Fatalf("Couldn't emit ServiceStartedEvent")
 	}
 
-	relayChan := make(chan msgqueue.Event)
-
 	go eventprocessor.NewDBEventProcessor(dbListener, db).ProcessEvents("groups")
-	go eventprocessor.NewRelayEventProcessor(relayListener, relayChan).ProcessEvents("groups", "webrtc")
 
 	server := &handlers.Server{
 		DB:        db,
