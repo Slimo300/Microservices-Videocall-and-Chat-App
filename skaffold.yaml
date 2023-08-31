@@ -4,36 +4,40 @@ metadata:
   name: microserviceschatapp
 build:
   artifacts:
-    - image: chat/emailservice
+    - image: chat/email-service
       context: backend/email-service
       docker:
         dockerfile: Dockerfile
-    - image: chat/groupservice
+    - image: chat/group-service
       context: backend/group-service
       docker:
         dockerfile: Dockerfile
-    - image: chat/messageservice
+    - image: chat/message-service
       context: backend/message-service
       docker:
         dockerfile: Dockerfile
-    - image: chat/searchservice
+    - image: chat/search-service
       context: backend/search-service
       docker:
         dockerfile: Dockerfile
-    - image: chat/tokenservice
+    - image: chat/token-service
       context: backend/token-service
       docker:
         dockerfile: Dockerfile
-    - image: chat/userservice
+    - image: chat/user-service
       context: backend/user-service
       docker:
         dockerfile: Dockerfile
-    - image: chat/wsservice
+    - image: chat/ws-service
       context: backend/ws-service
       docker:
         dockerfile: Dockerfile
-    - image: chat/webrtcservice
+    - image: chat/webrtc-service
       context: backend/webrtc-service
+      docker:
+        dockerfile: Dockerfile
+    - image: chat/webrtc-gateway-service
+      context: backend/webrtc-gateway-service
       docker:
         dockerfile: Dockerfile
     - image: chat/frontend

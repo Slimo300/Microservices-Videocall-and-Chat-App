@@ -22,6 +22,9 @@ spec:
         - name: kafka-test
           image: busybox:1.31
           command: ['sh', '-c', 'echo -e "Checking for the availability of Kafka broker"; while ! nc -z kafka 9092; do sleep 1; printf "-"; done; echo -e "  >> Kafka has started";']
+        - name: webrtc-gateway-test
+          image: busybox:1.31
+          command: ['sh', '-c', 'echo -e "Checking for the availability of WebRTC Gateway deployment"; while ! nc -z webrtc-gateway-service 8080; do sleep 1; printf "-"; done; echo -e "  >> WebRTC Gateway has started";']
       containers:
       - name: webrtc-service
         imagePullPolicy: Never

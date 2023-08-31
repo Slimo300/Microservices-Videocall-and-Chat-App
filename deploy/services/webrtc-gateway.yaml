@@ -41,10 +41,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: webrtc-service
+  name: webrtc-gateway-service
 spec:
   selector:
-    chat/app: webrtc
+    chat/app: webrtc-gateway
     chat/tier: api
   ports:
   - port: 8080
