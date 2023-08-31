@@ -13,6 +13,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
+
 	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/config"
 	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/database/redis"
 	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/eventprocessor"
@@ -57,8 +59,8 @@ func main() {
 		log.Fatalf("Error setting up kafka: %v", err)
 	}
 
-	if err := emiter.Emit(ServiceStartedEvent{
-		FQDN: fmt.Sprintf("%s.%s.%s.svc.cluster.local:%s", conf.PodName, conf.ServiceName, conf.PodNamespace, conf.HTTPPort),
+	if err := emiter.Emit(events.ServiceStartedEvent{
+		ServiceAddress: fmt.Sprintf("%s.%s.%s.svc.cluster.local:%s", conf.PodName, conf.ServiceName, conf.PodNamespace, conf.HTTPPort),
 	}); err != nil {
 		log.Fatalf("Couldn't emit ServiceStartedEvent")
 	}

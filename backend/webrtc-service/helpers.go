@@ -11,14 +11,6 @@ import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/kafka"
 )
 
-type ServiceStartedEvent struct {
-	FQDN string `json:"fqdn" mapstructure:"fqdn"`
-}
-
-func (ServiceStartedEvent) EventName() string {
-	return "webrtc.service-start"
-}
-
 // kafkaSetup starts kafka EventEmiter and EventListener
 func kafkaSetup(brokerAddreses []string) (emiter msgqueue.EventEmiter, listener msgqueue.EventListener, err error) {
 	brokerConf := sarama.NewConfig()
