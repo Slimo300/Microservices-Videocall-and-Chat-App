@@ -14,6 +14,7 @@ function EmailVerification() {
         await VerifyAccount(code);
       } catch(err) {
         setMessage(err.response.data.err);
+        setRedirect(true);
         return;
       }
 
