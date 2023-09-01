@@ -11,11 +11,10 @@ func (db *DB) GetMemberByID(memberID string) (*models.Member, error) {
 	}
 
 	return &models.Member{
-		ID:         memberID,
-		GroupID:    member["groupID"],
-		UserID:     member["userID"],
-		Username:   member["username"],
-		PictureURL: member["pictureURL"],
+		ID:       memberID,
+		GroupID:  member["groupID"],
+		UserID:   member["userID"],
+		Username: member["username"],
 	}, nil
 }
 
@@ -31,11 +30,10 @@ func (db *DB) GetMemberByGroupAndUserID(groupID, userID string) (*models.Member,
 	}
 
 	return &models.Member{
-		ID:         memberID,
-		GroupID:    member["groupID"],
-		UserID:     member["userID"],
-		Username:   member["username"],
-		PictureURL: member["pictureURL"],
+		ID:       memberID,
+		GroupID:  member["groupID"],
+		UserID:   member["userID"],
+		Username: member["username"],
 	}, nil
 }
 
@@ -55,10 +53,9 @@ func (db *DB) NewMember(member models.Member) error {
 
 	// In Redis we will store member object containing all member data
 	if err := pipe.HMSet(member.ID, map[string]interface{}{
-		"groupID":    member.GroupID,
-		"userID":     member.UserID,
-		"username":   member.Username,
-		"pictureURL": member.PictureURL,
+		"groupID":  member.GroupID,
+		"userID":   member.UserID,
+		"username": member.Username,
 	}).Err(); err != nil {
 		return err
 	}

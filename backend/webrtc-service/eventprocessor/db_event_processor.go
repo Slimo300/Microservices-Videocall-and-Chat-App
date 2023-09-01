@@ -41,11 +41,10 @@ func (p *DBEventProcessor) ProcessEvents(eventNames ...string) {
 				}
 			case *events.MemberCreatedEvent:
 				if err := p.DB.NewMember(models.Member{
-					ID:         e.ID.String(),
-					GroupID:    e.GroupID.String(),
-					UserID:     e.UserID.String(),
-					Username:   e.User.UserName,
-					PictureURL: e.User.Picture,
+					ID:       e.ID.String(),
+					GroupID:  e.GroupID.String(),
+					UserID:   e.UserID.String(),
+					Username: e.User.UserName,
 				}); err != nil {
 					log.Printf("Listener NewMember error: %s", err.Error())
 				}
@@ -53,6 +52,8 @@ func (p *DBEventProcessor) ProcessEvents(eventNames ...string) {
 				if err := p.DB.DeleteMember(e.ID.String()); err != nil {
 					log.Printf("Listener DeleteMember error: %s", err.Error())
 				}
+			case *events.UserPictureModifiedEvent:
+
 			default:
 				log.Printf("Unsupported event type")
 			}
