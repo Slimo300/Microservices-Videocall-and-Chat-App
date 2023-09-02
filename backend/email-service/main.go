@@ -25,7 +25,7 @@ func main() {
 		log.Fatalf("Error creating TCP listener: %v", err)
 	}
 
-	s, err := handlers.NewEmailService(conf.TemplateDir, conf.EmailFrom,
+	s, err := handlers.NewEmailService(conf.EmailFrom,
 		conf.SMTPHost,
 		conf.SMTPPort,
 		conf.SMTPUser,

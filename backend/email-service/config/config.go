@@ -21,8 +21,6 @@ type Config struct {
 	SMTPPort  int    `mapstructure:"smtpPort"`
 	SMTPUser  string `mapstructure:"smtpUser"`
 	SMTPPass  string `mapstructure:"smtpPass"`
-
-	TemplateDir string `mapstructure:"templateDir"`
 }
 
 // LoadConfigFromEnvironment populates Config fields with environment variables
@@ -65,11 +63,6 @@ func LoadConfigFromEnvironment() (conf Config, err error) {
 	conf.SMTPPass = os.Getenv("SMTP_PASS")
 	if conf.SMTPPass == "" {
 		return Config{}, errors.New("Environment variable SMTP_PASS not found")
-	}
-
-	conf.TemplateDir = os.Getenv("TEMPLATE_DIR")
-	if conf.TemplateDir == "" {
-		return Config{}, errors.New("Environment variable TEMPLATE_DIR not found")
 	}
 
 	return conf, nil

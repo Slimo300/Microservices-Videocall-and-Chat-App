@@ -5,10 +5,12 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
-	"fmt"
+	"io/fs"
 	"path/filepath"
+	"strings"
 	"text/template"
 
+	"github.com/Slimo300/MicroservicesChatApp/backend/email-service/templates"
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/email"
 	"github.com/k3a/html2text"
 	"gopkg.in/gomail.v2"
@@ -24,23 +26,19 @@ type EmailService struct {
 }
 
 // NewEmailService is a constructor for EmailService type
-func NewEmailService(emailDir, emailFrom, host string, port int, user, pass, origin string) (*EmailService, error) {
+func NewEmailService(emailFrom, host string, port int, user, pass, origin string) (*EmailService, error) {
+
 	templateCache := make(map[string]*template.Template)
 
-	pages, err := filepath.Glob(fmt.Sprintf("%s/*.page.html", emailDir))
+	pages, err := fs.Glob(templates.FS, "*.page.html")
 	if err != nil {
 		return nil, err
 	}
 
 	for _, page := range pages {
-		name := filepath.Base(page)
+		name := strings.Split(filepath.Base(page), ".")[0]
 
-		tmpl, err := template.New(name).ParseFiles(page)
-		if err != nil {
-			return nil, err
-		}
-
-		tmpl, err = tmpl.ParseGlob(fmt.Sprintf("%s/*.layout.html", emailDir))
+		tmpl, err := template.ParseFS(templates.FS, page, "*.layout.html")
 		if err != nil {
 			return nil, err
 		}
@@ -48,11 +46,11 @@ func NewEmailService(emailDir, emailFrom, host string, port int, user, pass, ori
 		templateCache[name] = tmpl
 	}
 
-	d := gomail.NewDialer(host, port, user, pass)
-	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+	dialer := gomail.NewDialer(host, port, user, pass)
+	dialer.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 
 	return &EmailService{
-		SMTPDialer: d,
+		SMTPDialer: dialer,
 		Templates:  templateCache,
 		EmailFrom:  emailFrom,
 		Origin:     origin,
@@ -61,7 +59,7 @@ func NewEmailService(emailDir, emailFrom, host string, port int, user, pass, ori
 
 // SendVerificationEmail sends email with specified data
 func (srv EmailService) SendVerificationEmail(ctx context.Context, data *email.EmailData) (*email.Msg, error) {
-	return &email.Msg{}, srv.SendEmail("verification.page.html", EmailData{
+	return &email.Msg{}, srv.SendEmail("verification", EmailData{
 		Subject: "Verification Email",
 		Email:   data.Email,
 		Name:    data.Name,
@@ -72,7 +70,7 @@ func (srv EmailService) SendVerificationEmail(ctx context.Context, data *email.E
 
 // SendResetPasswordEmail sends email with specified data
 func (srv EmailService) SendResetPasswordEmail(ctx context.Context, data *email.EmailData) (*email.Msg, error) {
-	return &email.Msg{}, srv.SendEmail("reset.page.html", EmailData{
+	return &email.Msg{}, srv.SendEmail("reset", EmailData{
 		Subject: "Reset Password",
 		Email:   data.Email,
 		Name:    data.Name,

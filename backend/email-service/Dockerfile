@@ -16,7 +16,6 @@ FROM gcr.io/distroless/base-debian10
 WORKDIR /
 
 COPY --from=build app/emailservice /emailservice
-COPY --chown=nonroot:nonroot ./templates/ ./templates/
 
 # GRPC port for communication with other services
 ENV GRPC_PORT=9000
@@ -32,8 +31,6 @@ ENV SMTP_PORT=
 ENV SMTP_USER=
 # SMTP Password
 ENV SMTP_PASS=
-# Template Directory
-ENV TEMPLATE_DIR=/templates
 
 EXPOSE 9000
 
