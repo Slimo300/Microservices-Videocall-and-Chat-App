@@ -1,0 +1,8 @@
+name: token-service-test
+
+on: 
+  pull_request:
+    paths:
+      - "backend/token-service/**"
+
+jobs:
