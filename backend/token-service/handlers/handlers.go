@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
-	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo"
+	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/database"
 	"github.com/golang-jwt/jwt"
 )
 
@@ -17,7 +17,7 @@ func (srv *TokenService) NewPairFromUserID(ctx context.Context, userID *auth.Use
 		return &auth.TokenPair{}, err
 	}
 
-	if err := srv.repo.SaveToken(fmt.Sprintf("%s:%s", userID.ID, refreshData.ID.String()), srv.refreshTokenDuration); err != nil {
+	if err := srv.db.SaveToken(fmt.Sprintf("%s:%s", userID.ID, refreshData.ID.String()), srv.refreshTokenDuration); err != nil {
 		return &auth.TokenPair{}, err
 	}
 
@@ -45,10 +45,10 @@ func (srv *TokenService) NewPairFromRefresh(ctx context.Context, refresh *auth.R
 	userID := token.Claims.(*jwt.StandardClaims).Subject
 	tokenID := token.Claims.(*jwt.StandardClaims).Id
 
-	ok, err := srv.repo.IsTokenValid(userID, tokenID)
+	ok, err := srv.db.IsTokenValid(userID, tokenID)
 	if err != nil {
-		if errors.Is(err, repo.TokenBlacklistedError) {
-			if err := srv.repo.InvalidateTokens(userID, tokenID); err != nil {
+		if errors.Is(err, database.TokenBlacklistedError) {
+			if err := srv.db.InvalidateTokens(userID, tokenID); err != nil {
 				return &auth.TokenPair{
 					Error: err.Error(),
 				}, err
@@ -64,8 +64,8 @@ func (srv *TokenService) NewPairFromRefresh(ctx context.Context, refresh *auth.R
 		}, nil
 	}
 
-	if err := srv.repo.InvalidateToken(userID, tokenID); err != nil {
-		if errors.Is(err, repo.TokenNotFoundError) {
+	if err := srv.db.InvalidateToken(userID, tokenID); err != nil {
+		if errors.Is(err, database.TokenNotFoundError) {
 			return &auth.TokenPair{
 				Error: err.Error(),
 			}, nil
@@ -78,7 +78,7 @@ func (srv *TokenService) NewPairFromRefresh(ctx context.Context, refresh *auth.R
 		return &auth.TokenPair{}, err
 	}
 
-	if err := srv.repo.SaveToken(fmt.Sprintf("%s:%s:%s", userID, tokenID, refreshData.ID.String()), srv.refreshTokenDuration); err != nil {
+	if err := srv.db.SaveToken(fmt.Sprintf("%s:%s:%s", userID, tokenID, refreshData.ID.String()), srv.refreshTokenDuration); err != nil {
 		return &auth.TokenPair{}, err
 	}
 
@@ -106,8 +106,8 @@ func (srv *TokenService) DeleteUserToken(ctx context.Context, refresh *auth.Refr
 	userID := token.Claims.(*jwt.StandardClaims).Subject
 	tokenID := token.Claims.(*jwt.StandardClaims).Id
 
-	if err := srv.repo.InvalidateToken(userID, tokenID); err != nil {
-		if errors.Is(err, repo.TokenNotFoundError) {
+	if err := srv.db.InvalidateToken(userID, tokenID); err != nil {
+		if errors.Is(err, database.TokenNotFoundError) {
 			return &auth.Msg{
 				Error: err.Error(),
 			}, nil

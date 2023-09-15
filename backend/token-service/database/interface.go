@@ -1,4 +1,4 @@
-package repo
+package database
 
 import (
 	"errors"
@@ -21,7 +21,7 @@ func StringToTokenValue(s string) TokenValue {
 	}
 }
 
-type TokenRepository interface {
+type TokenDB interface {
 	SaveToken(token string, expiration time.Duration) error
 	IsTokenValid(userID, tokenID string) (bool, error)
 	InvalidateToken(userID, tokenID string) error
