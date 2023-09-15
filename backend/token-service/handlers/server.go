@@ -5,12 +5,12 @@ import (
 	"time"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
-	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo"
+	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/database"
 )
 
 type TokenService struct {
 	*auth.UnimplementedTokenServiceServer
-	repo                  repo.TokenRepository
+	db                    database.TokenDB
 	refreshTokenSecret    string
 	accessTokenPrivateKey *rsa.PrivateKey
 	accessTokenDuration   time.Duration
@@ -18,11 +18,11 @@ type TokenService struct {
 }
 
 // NewTokenService creates new token server
-func NewTokenService(repo repo.TokenRepository, privKey *rsa.PrivateKey, refreshSecret string,
+func NewTokenService(db database.TokenDB, privKey *rsa.PrivateKey, refreshSecret string,
 	refreshDuration, accessDuration time.Duration) (*TokenService, error) {
 
 	return &TokenService{
-		repo:                  repo,
+		db:                    db,
 		refreshTokenSecret:    refreshSecret,
 		accessTokenPrivateKey: privKey,
 		refreshTokenDuration:  refreshDuration,

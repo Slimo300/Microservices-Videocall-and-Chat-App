@@ -13,8 +13,8 @@ import (
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
 	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/config"
+	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/database/redis"
 	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/handlers"
-	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo/redis"
 	"google.golang.org/grpc"
 )
 
@@ -51,12 +51,12 @@ func main() {
 		log.Fatalf("Error when listening on TCP port: %v", err)
 	}
 
-	repo, err := redis.NewRedisTokenRepository(config.RedisAddress, config.RedisPassword)
+	db, err := redis.NewRedisTokenDB(config.RedisAddress, config.RedisPassword)
 	if err != nil {
 		log.Fatal("could not connect to redis")
 	}
 
-	s, err := handlers.NewTokenService(repo,
+	s, err := handlers.NewTokenService(db,
 		privateKey,
 		config.RefreshTokenSecret,
 		config.RefreshDuration,

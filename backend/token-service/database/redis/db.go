@@ -6,15 +6,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo"
+	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/database"
 	"github.com/go-redis/redis"
 )
 
-type redisTokenRepository struct {
+type redisTokenDB struct {
 	*redis.Client
 }
 
-func NewRedisTokenRepository(address, password string) (repo.TokenRepository, error) {
+func NewRedisTokenDB(address, password string) (database.TokenDB, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     address,
 		Password: password,
@@ -24,16 +24,16 @@ func NewRedisTokenRepository(address, password string) (repo.TokenRepository, er
 		return nil, err
 	}
 
-	return &redisTokenRepository{
+	return &redisTokenDB{
 		Client: client,
 	}, nil
 }
 
-func (rdb *redisTokenRepository) SaveToken(token string, expiration time.Duration) error {
+func (rdb *redisTokenDB) SaveToken(token string, expiration time.Duration) error {
 	return rdb.Set(token, "1", expiration).Err()
 }
 
-func (rdb *redisTokenRepository) IsTokenValid(userID, tokenID string) (bool, error) {
+func (rdb *redisTokenDB) IsTokenValid(userID, tokenID string) (bool, error) {
 	pattern := fmt.Sprintf("%s:*%s", userID, tokenID)
 
 	keys, err := rdb.Keys(pattern).Result()
@@ -41,16 +41,16 @@ func (rdb *redisTokenRepository) IsTokenValid(userID, tokenID string) (bool, err
 		return false, err
 	}
 	if len(keys) == 0 {
-		return false, repo.TokenNotFoundError
+		return false, database.TokenNotFoundError
 	}
 
 	res, err := rdb.Get(keys[0]).Result()
 	if err != nil {
 		return false, err
 	}
-	if repo.StringToTokenValue(res) != repo.TOKEN_VALID {
-		if repo.StringToTokenValue(res) == repo.TOKEN_BLACKLISTED {
-			return false, repo.TokenBlacklistedError
+	if database.StringToTokenValue(res) != database.TOKEN_VALID {
+		if database.StringToTokenValue(res) == database.TOKEN_BLACKLISTED {
+			return false, database.TokenBlacklistedError
 		}
 		return false, errors.New("Unexpected token value")
 	}
@@ -58,7 +58,7 @@ func (rdb *redisTokenRepository) IsTokenValid(userID, tokenID string) (bool, err
 	return true, nil
 }
 
-func (rdb *redisTokenRepository) InvalidateTokens(userID, tokenID string) error {
+func (rdb *redisTokenDB) InvalidateTokens(userID, tokenID string) error {
 	t := tokenID
 	for {
 		key := fmt.Sprintf("%s:%s:*", userID, t)
@@ -70,7 +70,7 @@ func (rdb *redisTokenRepository) InvalidateTokens(userID, tokenID string) error 
 		if len(keys) == 0 {
 			break
 		}
-		if err := rdb.Do("set", keys[0], string(repo.TOKEN_BLACKLISTED), "keepttl").Err(); err != nil {
+		if err := rdb.Do("set", keys[0], string(database.TOKEN_BLACKLISTED), "keepttl").Err(); err != nil {
 			return err
 		}
 		t = strings.Split(keys[0], ":")[2]
@@ -79,7 +79,7 @@ func (rdb *redisTokenRepository) InvalidateTokens(userID, tokenID string) error 
 	return nil
 }
 
-func (rdb *redisTokenRepository) InvalidateToken(userID, tokenID string) error {
+func (rdb *redisTokenDB) InvalidateToken(userID, tokenID string) error {
 	key := fmt.Sprintf("%s:*%s", userID, tokenID)
 
 	keys, err := rdb.Keys(key).Result()
@@ -87,10 +87,10 @@ func (rdb *redisTokenRepository) InvalidateToken(userID, tokenID string) error {
 		return err
 	}
 	if len(keys) == 0 {
-		return repo.TokenNotFoundError
+		return database.TokenNotFoundError
 	}
 
-	if err := rdb.Do("set", keys[0], string(repo.TOKEN_BLACKLISTED), "keepttl").Err(); err != nil {
+	if err := rdb.Do("set", keys[0], string(database.TOKEN_BLACKLISTED), "keepttl").Err(); err != nil {
 		return err
 	}
 	return nil

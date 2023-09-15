@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
+	repolayer "github.com/Slimo300/MicroservicesChatApp/backend/token-service/database"
+	mockrepo "github.com/Slimo300/MicroservicesChatApp/backend/token-service/database/mock"
 	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/handlers"
-	repolayer "github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo"
-	mockrepo "github.com/Slimo300/MicroservicesChatApp/backend/token-service/repo/mock"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
