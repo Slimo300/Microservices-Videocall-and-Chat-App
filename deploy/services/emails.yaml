@@ -26,7 +26,7 @@ spec:
           value: http://www.relrel.com
         envFrom:
         - secretRef:
-            name: smtp-creds
+            name: brevo-creds
 ---
 apiVersion: v1
 kind: Service

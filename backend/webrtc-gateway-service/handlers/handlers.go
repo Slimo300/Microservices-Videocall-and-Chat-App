@@ -23,8 +23,6 @@ func Setup(db database.DBLayer, origin string) http.Handler {
 
 func NewReverseProxy(db database.DBLayer) http.Handler {
 
-	log.Println("Creating reverse proxy!!!!!!!!!!!")
-
 	return &httputil.ReverseProxy{
 		Rewrite: func(pr *httputil.ProxyRequest) {
 			pr.SetXForwarded()
@@ -53,11 +51,9 @@ func NewReverseProxy(db database.DBLayer) http.Handler {
 			}
 			pr.Out.URL.RawQuery = pr.In.URL.RawQuery
 
-			log.Println(pr.Out.URL)
-
 			go func() {
 				<-pr.Out.Context().Done()
-				log.Println("Ending context...")
+
 				if err := db.DeleteConnection(callID, domainName); err != nil {
 					log.Printf("Error when trying to delete connection: %v", err)
 				}
