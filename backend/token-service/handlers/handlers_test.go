@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
-	repolayer "github.com/Slimo300/MicroservicesChatApp/backend/token-service/database"
-	mockrepo "github.com/Slimo300/MicroservicesChatApp/backend/token-service/database/mock"
+	dblayer "github.com/Slimo300/MicroservicesChatApp/backend/token-service/database"
+	mockdb "github.com/Slimo300/MicroservicesChatApp/backend/token-service/database/mock"
 	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/handlers"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
@@ -22,7 +22,7 @@ import (
 var PrivateKey *rsa.PrivateKey
 var RefreshSecret string
 
-var repo *mockrepo.MockTokenRepository
+var db *mockdb.MockTokenDB
 var service *handlers.TokenService
 
 func TestMain(m *testing.M) {
@@ -33,10 +33,10 @@ func TestMain(m *testing.M) {
 	}
 	PrivateKey = priv
 
-	repo = new(mockrepo.MockTokenRepository)
-	repo.On("SaveToken", mock.AnythingOfType("string"), time.Hour*24).Return(nil)
+	db = new(mockdb.MockTokenDB)
+	db.On("SaveToken", mock.AnythingOfType("string"), time.Hour*24).Return(nil)
 
-	service, err = handlers.NewTokenService(repo, priv, RefreshSecret, time.Hour*24, time.Minute*20)
+	service, err = handlers.NewTokenService(db, priv, RefreshSecret, time.Hour*24, time.Minute*20)
 	if err != nil {
 		log.Fatal("Couldn't create token service")
 	}
@@ -144,10 +144,10 @@ func TestNewPairFromRefresh(t *testing.T) {
 			checkAssertions: func(tokens *auth.TokenPair) {
 				assert.Empty(t, tokens.AccessToken)
 				assert.Empty(t, tokens.RefreshToken)
-				assert.Equal(t, repolayer.TokenBlacklistedError.Error(), tokens.Error)
+				assert.Equal(t, dblayer.TokenBlacklistedError.Error(), tokens.Error)
 			},
 			prepare: func(m *mock.Mock) {
-				m.On("IsTokenValid", userID, mock.AnythingOfType("string")).Return(false, repolayer.TokenBlacklistedError).Once()
+				m.On("IsTokenValid", userID, mock.AnythingOfType("string")).Return(false, dblayer.TokenBlacklistedError).Once()
 				m.On("InvalidateTokens", userID, mock.AnythingOfType("string")).Return(nil).Once()
 			},
 		},
@@ -157,10 +157,10 @@ func TestNewPairFromRefresh(t *testing.T) {
 			checkAssertions: func(tokens *auth.TokenPair) {
 				assert.Empty(t, tokens.AccessToken)
 				assert.Empty(t, tokens.RefreshToken)
-				assert.Equal(t, repolayer.TokenNotFoundError.Error(), tokens.Error)
+				assert.Equal(t, dblayer.TokenNotFoundError.Error(), tokens.Error)
 			},
 			prepare: func(m *mock.Mock) {
-				m.On("IsTokenValid", userID, mock.AnythingOfType("string")).Return(false, repolayer.TokenNotFoundError).Once()
+				m.On("IsTokenValid", userID, mock.AnythingOfType("string")).Return(false, dblayer.TokenNotFoundError).Once()
 			},
 		},
 	}
@@ -168,7 +168,7 @@ func TestNewPairFromRefresh(t *testing.T) {
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
 
-			tC.prepare(&repo.Mock)
+			tC.prepare(&db.Mock)
 
 			tokens, err := service.NewPairFromRefresh(context.Background(), &auth.RefreshToken{Token: tC.token})
 			if err != nil {
@@ -205,9 +205,9 @@ func TestDeleteUserToken(t *testing.T) {
 		},
 		{
 			desc:             "Delete Token No Token",
-			expectedResponse: repolayer.TokenNotFoundError.Error(),
+			expectedResponse: dblayer.TokenNotFoundError.Error(),
 			prepare: func(m *mock.Mock) {
-				m.On("InvalidateToken", userID, mock.AnythingOfType("string")).Return(repolayer.TokenNotFoundError).Once()
+				m.On("InvalidateToken", userID, mock.AnythingOfType("string")).Return(dblayer.TokenNotFoundError).Once()
 			},
 		},
 	}
@@ -215,7 +215,7 @@ func TestDeleteUserToken(t *testing.T) {
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
 
-			tC.prepare(&repo.Mock)
+			tC.prepare(&db.Mock)
 
 			res, err := service.DeleteUserToken(context.Background(), &auth.RefreshToken{Token: token.Token})
 			if err != nil {
