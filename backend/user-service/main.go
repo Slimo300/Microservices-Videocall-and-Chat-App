@@ -78,10 +78,10 @@ func main() {
 	}
 
 	// Setup for handling image uploads to s3 and email sending
-	// storage, err := storage.NewS3Storage(conf.S3Bucket, conf.Origin)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	storage, err := storage.NewS3Storage(conf.S3Bucket, conf.Origin)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	server := &handlers.Server{
 		DB:           db,
@@ -89,8 +89,8 @@ func main() {
 		EmailClient:  emailClient,
 		Emitter:      emiter,
 		TokenKey:     pubkey,
-		ImageStorage: new(storage.MockStorage),
-		MaxBodyBytes: 4194304,
+		ImageStorage: storage,
+		MaxBodyBytes: 4194304, //4MB
 		Domain:       conf.Domain,
 	}
 	handler := routes.Setup(server, conf.Origin)
