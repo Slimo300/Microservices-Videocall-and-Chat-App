@@ -4,9 +4,13 @@ import { GetPresignedRequests } from "../../requests/Messages";
 const ChatInput = (props) => {
 
     const [msg, setMsg] = useState("");
-    const [files, setFiles] = useState({});
+    const [files, setFiles] = useState(null);
+
     const form = useRef(null);
     const submitButton = useRef(null);
+
+    const fileInput = useRef(null);
+    const textInput = useRef(null);
 
     useEffect(() => {
         let current = form.current;
@@ -17,6 +21,7 @@ const ChatInput = (props) => {
         return () => {
             current.removeEventListener('dragover', handleDragOver);
             current.removeEventListener('drop', handleDrop);
+            current.removeEventListener('keypress', handleKeypress);
         };
     }, []);
       
@@ -36,13 +41,22 @@ const ChatInput = (props) => {
     const handleDrop = (e) => {
         e.preventDefault();
         e.stopPropagation();  
-        const {files} = e.dataTransfer;
+        const transferFiles = e.dataTransfer.files;
 
-        if (files && files.length) {
-          let fileInput = document.getElementById("fileUpload")
-          fileInput.removeAttribute("hidden");
-          fileInput.files = files;
-          setFiles(files);
+        if (transferFiles && transferFiles.length > 0) {
+          fileInput.current.removeAttribute("hidden");
+          setFiles(currentFiles => {
+                if (!currentFiles) {
+                    fileInput.current.files = transferFiles;
+                    return transferFiles;
+                } else {
+                    let newFiles = currentFiles;
+                    newFiles.push(...transferFiles);
+
+                    fileInput.current.files = newFiles;
+                    return newFiles;
+                }
+            });
         }
     };
 
@@ -50,27 +64,41 @@ const ChatInput = (props) => {
         e.preventDefault();
         if (msg.trim() === "" && files.length === 0) return;
 
-        let fileInfo = [];
+        // fileData stores data about files in message that will be saved to database
+        let filesData = [];
         if (files.length !== undefined && files.length > 0) {
+
+            // filesInfo stores data about files that will be needed to generate a presigned request 
+            let filesInfo = [];
+
+            for (let i = 0; i < files.length; i++) {
+                filesInfo.push({
+                    name: `${files[i].name}-${files[i].lastModified}`,
+                    size: files[i].size,
+                });
+            }
+
             try {
-                let res = await GetPresignedRequests(props.group.ID, files.length);
-                
+                const response = await GetPresignedRequests(props.group.ID, filesInfo);
+                console.log(response.data);
+
                 let promises = [];
-                for (let i = 0; i < res.data.requests.length; i++) {
-                    fileInfo.push({"key": res.data.requests[i].key, "ext": files[i].type})
-                    promises.push(fetch(res.data.requests[i].url, {
+                for (let i = 0; i < response.data.length; i++) {
+                    filesData.push({"key": response.data[i].key, "ext": files[i].type})
+                    promises.push(fetch(response.data[i].url, {
                         method: 'PUT',
                         body: files[i]
                     }))
                 }
-
-                let fileInput = document.getElementById("fileUpload");
-                fileInput.setAttribute("hidden", true);
-                fileInput.files = null;
-                setFiles({});
+    
+                fileInput.current.setAttribute("hidden", true);
+                fileInput.current.files = null;
+                setFiles(null);
+                
                 await Promise.all(promises);
             } catch(err) {
-                alert(err);
+                console.log(err);
+                // alert(err.response.data.err);
             }
         }
 
@@ -79,19 +107,21 @@ const ChatInput = (props) => {
             "userID": props.user.ID,
             "text": msg,
             "nick": props.user.username,
-            "files": fileInfo
+            "files": filesData
         }));
-        document.getElementById("chat-input").reset();
+
+        form.current.reset();
+        
         setMsg("");
 
-        document.getElementById("text-area").focus();
+        textInput.current.focus();
     }
 
     return (
-        <form ref={form} id="chat-input" className="form-group mb-0" onSubmit={sendMessage}>
-            <input className="form-control form-control-sm" id="fileUpload" type="file" hidden multiple accept=".jpg, .png, .jpeg"/>
+        <form ref={form} className="form-group mb-0" onSubmit={sendMessage}>
+            <input className="form-control form-control-sm" ref={fileInput} type="file" hidden multiple accept=".jpg, .png, .jpeg" />
             <div className="d-flex column justify-content-center">
-                <textarea autoFocus  id="text-area" className="form-control mr-1" rows="3" placeholder="Type your message here..." onChange={(e)=>{setMsg(e.target.value)}}></textarea>
+                <textarea autoFocus ref={textInput} className="form-control mr-1" rows="3" placeholder="Type your message here..." onChange={(e)=>{setMsg(e.target.value)}}></textarea>
                 <input className="btn btn-primary" type="submit" value="Send" ref={submitButton} hidden/>
             </div>
         </form>
