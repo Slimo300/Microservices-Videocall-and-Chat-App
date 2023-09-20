@@ -40,6 +40,7 @@ func NewHub(eventChan <-chan msgqueue.Event, emiter msgqueue.EventEmiter, origin
 		serviceID: uuid.New(),
 		upgrader:  upgrader,
 		eventChan: eventChan,
+		emiter:    emiter,
 		forward:   make(chan *Message),
 		join:      make(chan *client),
 		leave:     make(chan *client),
@@ -129,7 +130,7 @@ func (h *WSHub) Forward(msg *Message) {
 	h.forward <- msg
 }
 
-func ServeWebSocket(w http.ResponseWriter, req *http.Request, h WSHub, groups []uuid.UUID, id_user uuid.UUID) {
+func ServeWebSocket(w http.ResponseWriter, req *http.Request, h *WSHub, groups []uuid.UUID, id_user uuid.UUID) {
 
 	socket, err := h.upgrader.Upgrade(w, req, nil)
 	if err != nil {
