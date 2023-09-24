@@ -9,11 +9,6 @@ import (
 	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/storage"
 )
 
-type presignedEnvelope struct {
-	Url string `json:"url"`
-	Key string `json:"key"`
-}
-
 type presignedPutRequestBody struct {
 	Files []storage.FileInput `json:"files"`
 }

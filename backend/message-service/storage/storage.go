@@ -55,12 +55,15 @@ func NewS3Storage(bucket, origin string) (*S3Storage, error) {
 		AllowedMethods: aws.StringSlice([]string{"PUT", "GET", "DELETE"}),
 	}
 
-	client.PutBucketCors(&s3.PutBucketCorsInput{
+	_, err = client.PutBucketCors(&s3.PutBucketCorsInput{
 		Bucket: aws.String(bucket),
 		CORSConfiguration: &s3.CORSConfiguration{
 			CORSRules: []*s3.CORSRule{&rule},
 		},
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	return &S3Storage{
 		S3:     client,
