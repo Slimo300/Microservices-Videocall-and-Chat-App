@@ -22,3 +22,11 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       - name: Publish an Image
         run: docker push slimo300/search-service
+      - name: Installing Doctl
+        uses: digitalocean/action-doclt@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: Saving our cluster config
+        run: doctl kubernetes cluster kubeconfig save relrel
+      - name: Update Deployment
+        run: kubectl rollout restart search-deployment

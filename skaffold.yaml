@@ -49,7 +49,7 @@ manifests:
     - deploy/secrets/*
     - deploy/dbs/*
     - deploy/services/*
-    - deploy/ingress.yaml
+    - deploy/ingress-dev.yaml
     # - deploy/cert-manager/*
   helm:
     releases:

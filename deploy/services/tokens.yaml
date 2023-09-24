@@ -20,8 +20,8 @@ spec:
           command: ['sh', '-c', 'echo -e "Checking for the availability of Redis Server deployment"; while ! nc -z token-redis 6379; do sleep 1; printf "-"; done; echo -e "  >> Redis Server has started";']
       containers:
       - name: token-service
-        imagePullPolicy: Never
-        image: chat/token-service
+        imagePullPolicy: IfNotPresent
+        image: slimo300/token-service
         ports:
         - containerPort: 9000
           name: grpc
