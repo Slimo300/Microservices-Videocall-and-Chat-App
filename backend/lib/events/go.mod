@@ -1,4 +1,4 @@
-module github.com/Slimo300/MicroservicesChatApp/backend/lib/events
+module github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events
 
 go 1.19
 
