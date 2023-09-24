@@ -13,12 +13,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/config"
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/database/orm"
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/eventprocessor"
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/handlers"
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/routes"
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/storage"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/config"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/database/orm"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/eventprocessor"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/handlers"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/routes"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/storage"
 )
 
 func getPublicKey() (*rsa.PublicKey, error) {

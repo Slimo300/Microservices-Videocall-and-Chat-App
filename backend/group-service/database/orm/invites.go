@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -27,7 +27,7 @@ func (db *Database) AddInvite(issID, targetID, groupID uuid.UUID) (*models.Invit
 		return nil, apperrors.NewForbidden(fmt.Sprintf("User %v has no rights to add new members to group %v", issID, groupID))
 	}
 	if err := db.First(&models.User{}, targetID).Error; err != nil {
-		return nil, apperrors.NewNotFound("user", targetID.String())
+		return nil, apperrors.NewNotFound(fmt.Sprintf("User with id %v not found", targetID.String()))
 	}
 	if err := db.Where(models.Member{UserID: targetID, GroupID: groupID}).First(&models.Member{}).Error; err != gorm.ErrRecordNotFound {
 		return nil, apperrors.NewForbidden(fmt.Sprintf("User %v already is already a member of group %v", targetID, groupID))
@@ -37,10 +37,10 @@ func (db *Database) AddInvite(issID, targetID, groupID uuid.UUID) (*models.Invit
 	}
 	invite := models.Invite{ID: uuid.New(), IssId: issID, TargetID: targetID, GroupID: groupID, Status: models.INVITE_AWAITING, Created: time.Now(), Modified: time.Now()}
 	if err := db.Create(&invite).Error; err != nil {
-		return nil, apperrors.NewInternal()
+		return nil, err
 	}
 	if err := db.Where(models.Invite{ID: invite.ID}).Preload("Iss").Preload("Group").Preload("Target").First(&invite).Error; err != nil {
-		return nil, apperrors.NewInternal()
+		return nil, err
 	}
 	return &invite, nil
 }
@@ -54,10 +54,10 @@ func (db *Database) AnswerInvite(userID, inviteID uuid.UUID, answer bool) (*mode
 
 	var invite models.Invite
 	if err := db.Where(models.Invite{ID: inviteID}).Preload("Iss").Preload("Group").Preload("Target").First(&invite).Error; err != nil {
-		return nil, nil, nil, apperrors.NewNotFound("invite", inviteID.String())
+		return nil, nil, nil, apperrors.NewNotFound(fmt.Sprintf("Invite with id %v not found", inviteID.String()))
 	}
 	if invite.TargetID != userID {
-		return nil, nil, nil, apperrors.NewNotFound("invite", inviteID.String())
+		return nil, nil, nil, apperrors.NewNotFound(fmt.Sprintf("Invite with id %v not found", inviteID.String()))
 	}
 	if invite.Status != models.INVITE_AWAITING {
 		return nil, nil, nil, apperrors.NewForbidden("invite already answered")
@@ -66,7 +66,7 @@ func (db *Database) AnswerInvite(userID, inviteID uuid.UUID, answer bool) (*mode
 	// if invite is declined we return just an invite with empty member as none was created
 	if !answer {
 		if err := db.Model(&invite).Updates(models.Invite{Status: models.INVITE_DECLINE, Modified: time.Now()}).Error; err != nil {
-			return nil, nil, nil, apperrors.NewInternal()
+			return nil, nil, nil, err
 		}
 		return &invite, nil, nil, nil
 	}
@@ -82,21 +82,21 @@ func (db *Database) AnswerInvite(userID, inviteID uuid.UUID, answer bool) (*mode
 		}
 		return nil
 	}); err != nil {
-		return nil, nil, nil, apperrors.NewInternal()
+		return nil, nil, nil, err
 	}
 
 	var member models.Member
 	if err := db.Where(models.Member{ID: memberID}).Preload("User").First(&member, memberID).Error; err != nil {
-		return nil, nil, nil, apperrors.NewInternal()
+		return nil, nil, nil, err
 	}
 
 	var group models.Group
 	if err := db.Where(models.Group{ID: invite.GroupID}).Preload("Members").Preload("Members.User").First(&group, invite.GroupID).Error; err != nil {
-		return nil, nil, nil, apperrors.NewInternal()
+		return nil, nil, nil, err
 	}
 
 	if err := db.Where(models.Invite{ID: inviteID}).Preload("Iss").Preload("Group").Preload("Target").First(&invite).Error; err != nil {
-		return nil, nil, nil, apperrors.NewInternal()
+		return nil, nil, nil, err
 	}
 
 	return &invite, &group, &member, nil

@@ -3,7 +3,7 @@ package models_test
 import (
 	"testing"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 )

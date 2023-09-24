@@ -43,6 +43,8 @@ github.com/Shopify/sarama v1.37.2/go.mod h1:Nxye/E+YPru//Bpaorfhc3JsSGYwCaDDj+R4
 github.com/Shopify/toxiproxy/v2 v2.5.0 h1:i4LPT+qrSlKNtQf5QliVjdP08GyAH8+BUIc9gT0eahc=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20230831000226-2f2b1628bf93 h1:9dxcRfz7SoVSz8tOOt8E6q9CwT/csrCBwoHUccxX3DM=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20230831000226-2f2b1628bf93/go.mod h1:5cN6Rpbocr4dNV/OqXYBSJN+1WfuP+M7fAUvEfkFe88=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20230924152604-2c35b40dcc79 h1:9VntjR6ioIbpx4dgjEKo1QeQNlKKApeRWn/A3eOjQs8=
+github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors v0.0.0-20230924152604-2c35b40dcc79/go.mod h1:5cN6Rpbocr4dNV/OqXYBSJN+1WfuP+M7fAUvEfkFe88=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230831000226-2f2b1628bf93 h1:tkIirnzwGnVIaBc+ICdHYkYLeZzeBIqTjH5EFaU9HZk=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230831000226-2f2b1628bf93/go.mod h1:70lAOWrxgocTevJVjflPgF5YGMuQYHePk9iLnhGXELY=
 github.com/Slimo300/MicroservicesChatApp/backend/lib/events v0.0.0-20230831000226-2f2b1628bf93 h1:129zaExnIFTwyY/zzwo1QdPfc9QFQn68GmjdozNLurk=
