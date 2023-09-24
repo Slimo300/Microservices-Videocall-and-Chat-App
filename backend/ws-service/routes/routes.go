@@ -1,10 +1,10 @@
 package routes
 
 import (
-	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/handlers"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/ws-service/handlers"
 	"github.com/gin-gonic/gin"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/auth"
 )
 
 func Setup(server *handlers.Server, origin string) *gin.Engine {

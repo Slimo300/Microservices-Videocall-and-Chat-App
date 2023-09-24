@@ -10,10 +10,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-gateway-service/config"
-	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-gateway-service/database/redis"
-	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-gateway-service/eventprocessor"
-	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-gateway-service/handlers"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-gateway-service/config"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-gateway-service/database/redis"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-gateway-service/eventprocessor"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-gateway-service/handlers"
 )
 
 func main() {

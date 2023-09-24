@@ -1,7 +1,7 @@
 package ws
 
 import (
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 )
 
 func (h *WSHub) messageSent(event events.MessageSentEvent) {

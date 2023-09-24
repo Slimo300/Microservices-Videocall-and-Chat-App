@@ -7,8 +7,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
-	"github.com/Slimo300/MicroservicesChatApp/backend/search-service/models"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/search-service/models"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/google/uuid"
 )

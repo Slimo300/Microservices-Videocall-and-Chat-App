@@ -3,8 +3,8 @@ package handlers
 import (
 	"crypto/rsa"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/database"
-	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/webrtc"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-service/database"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-service/webrtc"
 )
 
 type Server struct {

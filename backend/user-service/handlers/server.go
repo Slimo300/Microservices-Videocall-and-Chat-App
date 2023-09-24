@@ -3,13 +3,13 @@ package handlers
 import (
 	"crypto/rsa"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/database"
-	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/storage"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/database"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/storage"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/auth"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/email"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/email"
 )
 
 type Server struct {

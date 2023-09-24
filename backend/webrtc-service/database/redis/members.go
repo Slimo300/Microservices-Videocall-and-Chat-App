@@ -1,7 +1,7 @@
 package redis
 
 import (
-	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/models"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-service/models"
 )
 
 func (db *DB) GetMemberByID(memberID string) (*models.Member, error) {

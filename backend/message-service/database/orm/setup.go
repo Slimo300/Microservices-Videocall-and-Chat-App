@@ -3,7 +3,7 @@ package orm
 import (
 	"fmt"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/models"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )

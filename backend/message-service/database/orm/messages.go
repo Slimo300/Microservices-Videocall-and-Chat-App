@@ -2,9 +2,10 @@ package orm
 
 import (
 	"errors"
+	"fmt"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
-	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/models"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -19,7 +20,7 @@ func (db *Database) GetGroupMessages(userID, groupID uuid.UUID, offset, num int)
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return []models.Message{}, nil
 		}
-		return []models.Message{}, apperrors.NewInternal()
+		return []models.Message{}, err
 	}
 	for i, msg := range messages {
 		for _, del := range msg.Deleters {
@@ -43,18 +44,18 @@ func (db *Database) DeleteMessageForYourself(userID, messageID, groupID uuid.UUI
 	// groupID allows us to check if request sender is aware of message affiliations
 	var message models.Message
 	if err := db.Preload("Deleters").First(&message, messageID).Error; err != nil || message.GroupID != groupID {
-		return models.Message{}, apperrors.NewNotFound("message", messageID.String())
+		return models.Message{}, apperrors.NewNotFound(fmt.Sprintf("Message with id %v not found", messageID.String()))
 	}
 
 	// checking if user haven't already deleted this message
 	for _, member := range message.Deleters {
 		if member.UserID == userID {
-			return models.Message{}, apperrors.NewConflict("deleted", userID.String())
+			return models.Message{}, apperrors.NewConflict(fmt.Sprintf("This message is already deleted by user %v", userID.String()))
 		}
 	}
 
 	if err := db.Model(&message).Association("Deleters").Append(&membership); err != nil { // 500
-		return models.Message{}, apperrors.NewInternal()
+		return models.Message{}, err
 	}
 
 	return message, nil
@@ -67,16 +68,16 @@ func (db *Database) DeleteMessageForEveryone(userID, messageID, groupID uuid.UUI
 	}
 	var message models.Message
 	if err := db.Preload("Files").First(&message, messageID).Error; err != nil {
-		return models.Message{}, apperrors.NewNotFound("message", messageID.String())
+		return models.Message{}, apperrors.NewNotFound(fmt.Sprintf("Message with id %v not found", messageID.String()))
 	}
 	if !membership.Creator && !membership.DeletingMessages && message.UserID != userID {
 		return models.Message{}, apperrors.NewForbidden("User has no right to delete message")
 	}
 	if err := db.Model(&message).Update("text", "").Error; err != nil {
-		return models.Message{}, apperrors.NewInternal()
+		return models.Message{}, err
 	}
 	if err := db.Where(models.MessageFile{MessageID: message.ID.String()}).Delete(&models.MessageFile{}).Error; err != nil {
-		return models.Message{}, apperrors.NewInternal()
+		return models.Message{}, err
 	}
 	return message, nil
 }

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
-	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/database"
-	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/models"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/database"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/models"
 	"github.com/google/uuid"
 	"github.com/thanhpk/randstr"
 	"gorm.io/gorm"
@@ -30,7 +30,7 @@ func (db *Database) DeleteProfilePicture(userID uuid.UUID) (string, error) {
 	}
 
 	if err := db.Model(&user).Update("picture_url", "").Error; err != nil {
-		return "", apperrors.NewInternal()
+		return "", err
 	}
 	return url, nil
 
@@ -46,7 +46,7 @@ func (db *Database) GetProfilePictureURL(userID uuid.UUID) (string, bool, error)
 	if user.PictureURL == "" {
 		newPictureURL := uuid.NewString()
 		if err := db.Model(&user).Update("picture_url", newPictureURL).Error; err != nil {
-			return "", true, apperrors.NewInternal()
+			return "", true, err
 		}
 		return newPictureURL, true, nil
 	}
@@ -67,7 +67,7 @@ func (db *Database) ChangePassword(userID uuid.UUID, oldPassword, newPassword st
 	}
 
 	if err := db.Model(&user).Update("password", hash).Error; err != nil {
-		return apperrors.NewInternal()
+		return err
 	}
 	return nil
 }
@@ -93,13 +93,13 @@ func (db *Database) NewResetPasswordCode(email string) (*models.User, *models.Re
 	var resetCode models.ResetCode
 	if err := db.First(&resetCode, user.ID).Error; err != gorm.ErrRecordNotFound {
 		if err := db.Delete(&resetCode).Error; err != nil {
-			return nil, nil, apperrors.NewInternal()
+			return nil, nil, err
 		}
 	}
 
 	resetCode = models.ResetCode{UserID: user.ID, Created: time.Now(), ResetCode: randstr.String(10)}
 	if err := db.Create(&resetCode).Error; err != nil {
-		return nil, nil, apperrors.NewInternal()
+		return nil, nil, err
 	}
 
 	return &user, &resetCode, nil
@@ -108,15 +108,15 @@ func (db *Database) NewResetPasswordCode(email string) (*models.User, *models.Re
 func (db *Database) ResetPassword(code, newPassword string) error {
 	var resetCode models.ResetCode
 	if err := db.Where(models.ResetCode{ResetCode: code}).First(&resetCode).Error; err != nil {
-		return apperrors.NewNotFound("reset code", code)
+		return apperrors.NewNotFound(fmt.Sprintf("No reset code %s", code))
 	}
 
 	currentTime := time.Now()
 	if currentTime.Sub(resetCode.Created) > db.Config.ResetCodeDuration {
 		if err := db.Delete(&resetCode).Error; err != nil {
-			return apperrors.NewInternal()
+			return err
 		}
-		return apperrors.NewNotFound("reset code", code)
+		return apperrors.NewNotFound(fmt.Sprintf("No reset code %s", code))
 	}
 
 	var user models.User
@@ -130,7 +130,7 @@ func (db *Database) ResetPassword(code, newPassword string) error {
 	}
 
 	if err := db.Model(&user).Update("password", hash).Error; err != nil {
-		return apperrors.NewInternal()
+		return err
 	}
 
 	return nil

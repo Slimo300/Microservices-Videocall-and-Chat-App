@@ -6,9 +6,9 @@ import (
 	"reflect"
 
 	"github.com/Shopify/sarama"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/kafka"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/kafka"
 )
 
 // kafkaSetup starts kafka listener

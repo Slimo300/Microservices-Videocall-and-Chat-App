@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/ws"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/ws-service/ws"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/thanhpk/randstr"

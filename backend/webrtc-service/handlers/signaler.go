@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 
-	w "github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/webrtc"
+	w "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-service/webrtc"
 )
 
 var upgrader = websocket.Upgrader{

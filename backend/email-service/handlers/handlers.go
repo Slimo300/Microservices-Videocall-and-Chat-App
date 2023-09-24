@@ -10,8 +10,8 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/email-service/templates"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/email"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/email-service/templates"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/email"
 	"github.com/k3a/html2text"
 	"gopkg.in/gomail.v2"
 )

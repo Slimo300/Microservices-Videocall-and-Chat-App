@@ -2,16 +2,17 @@ package handlers_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
-	mockqueue "github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/mock"
-	mockdb "github.com/Slimo300/MicroservicesChatApp/backend/message-service/database/mock"
-	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/handlers"
-	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/models"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
+	mockqueue "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/mock"
+	mockdb "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/database/mock"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/handlers"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/models"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 
@@ -59,12 +60,12 @@ func (s *MessageTestSuite) SetupSuite() {
 
 	mockDB.On("DeleteMessageForYourself", s.uuids["userInGroup"], s.uuids["message"], s.uuids["group"]).Return(models.Message{Text: "valid"}, nil)
 	mockDB.On("DeleteMessageForYourself", s.uuids["userNotInGroup"], s.uuids["message"], s.uuids["group"]).Return(models.Message{}, apperrors.NewForbidden("user not in group"))
-	mockDB.On("DeleteMessageForYourself", s.uuids["userInGroup"], s.uuids["message"], s.uuids["otherGroup"]).Return(models.Message{}, apperrors.NewNotFound("message", s.uuids["message"].String()))
-	mockDB.On("DeleteMessageForYourself", s.uuids["userInGroup"], s.uuids["notExistingMessage"], s.uuids["group"]).Return(models.Message{}, apperrors.NewNotFound("message", s.uuids["notExistingMessage"].String()))
-	mockDB.On("DeleteMessageForYourself", s.uuids["userInGroup"], s.uuids["deletedMessage"], s.uuids["group"]).Return(models.Message{}, apperrors.NewConflict("deleted", s.uuids["userInGroup"].String()))
+	mockDB.On("DeleteMessageForYourself", s.uuids["userInGroup"], s.uuids["message"], s.uuids["otherGroup"]).Return(models.Message{}, apperrors.NewNotFound(fmt.Sprintf("Message with id %v not found", s.uuids["message"].String())))
+	mockDB.On("DeleteMessageForYourself", s.uuids["userInGroup"], s.uuids["notExistingMessage"], s.uuids["group"]).Return(models.Message{}, apperrors.NewNotFound(fmt.Sprintf("Message with id %v not found", s.uuids["notExistingMessage"].String())))
+	mockDB.On("DeleteMessageForYourself", s.uuids["userInGroup"], s.uuids["deletedMessage"], s.uuids["group"]).Return(models.Message{}, apperrors.NewConflict(fmt.Sprintf("Message already deleted by user %v", s.uuids["userInGroup"].String())))
 
 	mockDB.On("DeleteMessageForEveryone", s.uuids["userNotInGroup"], s.uuids["message"], s.uuids["group"]).Return(models.Message{}, apperrors.NewForbidden("user not in group"))
-	mockDB.On("DeleteMessageForEveryone", s.uuids["userInGroup"], s.uuids["notExistingMessage"], s.uuids["group"]).Return(models.Message{}, apperrors.NewNotFound("message", s.uuids["notExistingMessage"].String()))
+	mockDB.On("DeleteMessageForEveryone", s.uuids["userInGroup"], s.uuids["notExistingMessage"], s.uuids["group"]).Return(models.Message{}, apperrors.NewNotFound(fmt.Sprintf("Message with id %v not found", s.uuids["notExistingMessage"].String())))
 	mockDB.On("DeleteMessageForEveryone", s.uuids["userWithNoRights"], s.uuids["message"], s.uuids["group"]).Return(models.Message{}, apperrors.NewForbidden("User has no right to delete messages"))
 	mockDB.On("DeleteMessageForEveryone", s.uuids["userInGroup"], s.uuids["message"], s.uuids["group"]).Return(models.Message{Text: "valid"}, nil)
 
