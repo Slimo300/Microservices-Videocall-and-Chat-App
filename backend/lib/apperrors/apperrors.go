@@ -2,10 +2,7 @@ package apperrors
 
 import (
 	"errors"
-	"log"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
 // Error is a wrapper around error message that holds
@@ -85,27 +82,4 @@ func NewUnsupportedMediaType(message string) *Error {
 		statusCode: http.StatusUnsupportedMediaType,
 		message:    message,
 	}
-}
-
-type GinErrorHandler struct {
-	logger *log.Logger
-}
-
-func NewGinErrorHandler() *GinErrorHandler {
-	return &GinErrorHandler{}
-}
-
-// WithLogger appends logger to our handler
-func (eh *GinErrorHandler) WithLogger(logger *log.Logger) *GinErrorHandler {
-	eh.logger = logger
-	return eh
-}
-
-func (eh *GinErrorHandler) HandleError(c *gin.Context, err error) {
-	if eh.logger != nil {
-		eh.logger.Println(err.Error())
-	}
-
-	c.JSON(Status(err), err.Error())
-	return
 }
