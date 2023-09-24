@@ -28,7 +28,7 @@ func (s *Server) ServeWebSocket(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
 	}
-	ws.ServeWebSocket(c.Writer, c.Request, *s.Hub, groups, userID)
+	ws.ServeWebSocket(c.Writer, c.Request, s.Hub, groups, userID)
 }
 
 func (s *Server) GetAuthCode(c *gin.Context) {

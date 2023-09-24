@@ -1,11 +1,11 @@
-name: token-service-deploy
+name: message-service-deploy
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'backend/token-service/**'
+      - 'backend/message-service/**'
   
 jobs:
   build:
@@ -14,14 +14,14 @@ jobs:
       - name: Checkout repository code
         uses: actions/checkout@v3
       - name: Build Docker Image
-        run: cd backend/token-service && docker build -t slimo300/token-service .
+        run: cd backend/message-service && docker build -t slimo300/message-service .
       - name: Log In to DockerHub
         run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       - name: Publish an Image
-        run: docker push slimo300/token-service
+        run: docker push slimo300/message-service
       - name: Installing Doctl
         uses: digitalocean/action-doclt@v2
         with:
@@ -29,4 +29,4 @@ jobs:
       - name: Saving our cluster config
         run: doctl kubernetes cluster kubeconfig save relrel
       - name: Update Deployment
-        run: kubectl rollout restart tokens-deployment
+        run: kubectl rollout restart messages-deployment

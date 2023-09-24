@@ -13,6 +13,8 @@ export async function DeleteMessageForEveryone(groupID, messageID) {
     return await axiosObject.delete(messageService+"/group/"+groupID+"/messages/"+messageID);
 }
 
-export async function GetPresignedRequests(groupID, num) {
-    return await axiosObject.get(messageService+"/group/"+groupID+"?files="+num);
+export async function GetPresignedRequests(groupID, files) {
+    return await axiosObject.post(messageService+"/group/"+groupID, {
+        "files": files,
+    });
 }

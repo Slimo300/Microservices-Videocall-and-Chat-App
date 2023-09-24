@@ -1,6 +1,7 @@
 package handlers_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"log"
@@ -36,7 +37,13 @@ func (s *PresignedUrlSuite) SetupSuite() {
 	mockDB.On("GetGroupMembership", s.uuids["userInGroup"], s.uuids["groupID"]).Return(models.Membership{MembershipID: s.uuids["memberID"]}, nil)
 
 	mockStorage := new(storage.MockStorage)
-	mockStorage.On("GetPresignedPutRequest", mock.AnythingOfType("string")).Return("someUrl", nil)
+	mockStorage.On("GetPresignedPutRequests", mock.AnythingOfType("string"), mock.Anything, mock.Anything).Return([]storage.FileOutput{{
+		Name:         "duckie.jpeg",
+		PresignedURL: "someUrl",
+	}, {
+		Name:         "kitty.jpeg",
+		PresignedURL: "someUrl",
+	}}, nil)
 
 	s.server = *handlers.NewServer(
 		mockDB,
@@ -55,7 +62,7 @@ func (s *PresignedUrlSuite) TestGetPresignedUrl() {
 		desc               string
 		userID             string
 		groupID            string
-		num                string
+		data               map[string]interface{}
 		returnVal          bool
 		expectedStatusCode int
 		expectedResponse   interface{}
@@ -76,38 +83,64 @@ func (s *PresignedUrlSuite) TestGetPresignedUrl() {
 			expectedResponse:   gin.H{"err": "invalid group ID"},
 		},
 		{
-			desc:               "invalidNumQuery",
+			desc:               "invalidRequestBody",
 			userID:             s.uuids["userInGroup"].String(),
 			groupID:            s.uuids["groupID"].String(),
-			num:                "a",
+			data:               map[string]interface{}{},
 			returnVal:          false,
 			expectedStatusCode: http.StatusBadRequest,
-			expectedResponse:   gin.H{"err": "files query value is not a valid integer"},
+			expectedResponse:   gin.H{"err": "invalid request body"},
 		},
 		{
-			desc:               "userNotInGroup",
-			userID:             s.uuids["userNotInGroup"].String(),
-			groupID:            s.uuids["groupID"].String(),
-			num:                "",
+			desc:    "userNotInGroup",
+			userID:  s.uuids["userNotInGroup"].String(),
+			groupID: s.uuids["groupID"].String(),
+			data: map[string]interface{}{
+				"files": []map[string]interface{}{
+					{
+						"name": "duckie.jpeg",
+						"size": 1024,
+					},
+				},
+			},
 			returnVal:          false,
 			expectedStatusCode: http.StatusForbidden,
 			expectedResponse:   gin.H{"err": "user cannot send messages to this group"},
 		},
 		{
-			desc:               "success",
-			userID:             s.uuids["userInGroup"].String(),
-			groupID:            s.uuids["groupID"].String(),
-			num:                "2",
+			desc:    "success",
+			userID:  s.uuids["userInGroup"].String(),
+			groupID: s.uuids["groupID"].String(),
+			data: map[string]interface{}{
+				"files": []storage.FileInput{
+					{
+						Name: "duckie.jpeg",
+						Size: 1024,
+					},
+					{
+						Name: "kitty.jpeg",
+						Size: 1024,
+					},
+				},
+			},
 			returnVal:          true,
 			expectedStatusCode: http.StatusOK,
-			expectedResponse:   []string{"someUrl", "someUrl"},
+			expectedResponse: []storage.FileOutput{{
+				Name:         "duckie.jpeg",
+				PresignedURL: "someUrl",
+			}, {
+				Name:         "kitty.jpeg",
+				PresignedURL: "someUrl",
+			}},
 		},
 	}
 
 	for _, tC := range testCases {
 		s.Run(tC.desc, func() {
 
-			r, _ := http.NewRequest(http.MethodGet, "/group/"+tC.groupID+"/uploads?files="+tC.num, nil)
+			requestBody, _ := json.Marshal(tC.data)
+
+			r, _ := http.NewRequest(http.MethodPost, "/group/"+tC.groupID+"/uploads", bytes.NewBuffer(requestBody))
 			w := httptest.NewRecorder()
 			_, engine := gin.CreateTestContext(w)
 
@@ -115,7 +148,7 @@ func (s *PresignedUrlSuite) TestGetPresignedUrl() {
 				ctx.Set("userID", tC.userID)
 			})
 
-			engine.GET("/group/:groupID/uploads", s.server.GetPresignedPutRequest)
+			engine.POST("/group/:groupID/uploads", s.server.GetPresignedPutRequest)
 			engine.ServeHTTP(w, r)
 
 			response := w.Result()
@@ -125,17 +158,12 @@ func (s *PresignedUrlSuite) TestGetPresignedUrl() {
 
 			var respBody interface{}
 			if tC.returnVal {
-				var msg gin.H
+				var msg []storage.FileOutput
 				if err := json.NewDecoder(response.Body).Decode(&msg); err != nil {
 					s.Fail(err.Error())
 				}
 
-				var urls []string
-				for _, url := range msg["requests"].([]interface{}) {
-					urls = append(urls, url.(map[string]interface{})["url"].(string))
-				}
-
-				respBody = urls
+				respBody = msg
 			} else {
 				var msg gin.H
 				if err := json.NewDecoder(response.Body).Decode(&msg); err != nil {

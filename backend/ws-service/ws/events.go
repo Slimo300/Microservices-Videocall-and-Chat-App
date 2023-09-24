@@ -24,6 +24,7 @@ func (h *WSHub) messageSent(event events.MessageSentEvent) {
 				Nick:    event.Nick,
 				Message: event.Text,
 				When:    event.Posted,
+				Files:   files,
 			}
 		}
 	}

@@ -1,12 +1,15 @@
 package storage
 
 import (
+	"fmt"
 	"mime/multipart"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
+
+const MAX_BUCKET_SIZE = 4900000000 // 4.9GB
 
 // StorageLayer describes Storage functionality (uploading and deleting files)
 type StorageLayer interface {
@@ -56,7 +59,21 @@ func NewS3Storage(bucket, origin string) (*S3Storage, error) {
 
 // UploadFile uploads file with a given key
 func (s *S3Storage) UploadFile(file multipart.File, key string) error {
-	_, err := s.S3.PutObject(&s3.PutObjectInput{
+
+	fileSize, err := file.Seek(0, 2)
+	if err != nil {
+		return err
+	}
+
+	ok, err := s.canUploadFile(fileSize)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return fmt.Errorf("Can't upload file. Storage limit exceeded")
+	}
+
+	_, err = s.S3.PutObject(&s3.PutObjectInput{
 		Body:   file,
 		Bucket: aws.String(s.Bucket),
 		Key:    aws.String(key),
@@ -71,4 +88,27 @@ func (s *S3Storage) DeleteFile(key string) error {
 		Key:    aws.String(key),
 	})
 	return err
+}
+
+func (s *S3Storage) canUploadFile(fileSize int64) (bool, error) {
+
+	objects, err := s.S3.ListObjects(&s3.ListObjectsInput{
+		Bucket: aws.String(s.Bucket),
+	})
+	if err != nil {
+		return false, err
+	}
+
+	var bucketSize int64 = 0
+
+	for _, obj := range objects.Contents {
+		bucketSize += *obj.Size
+	}
+
+	if bucketSize+fileSize > MAX_BUCKET_SIZE {
+		return false, nil
+	}
+
+	return true, nil
+
 }

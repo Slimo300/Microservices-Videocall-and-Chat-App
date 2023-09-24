@@ -1,0 +1,76 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: chatapp
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/use-regex: 'true'
+spec:
+  rules:
+  - host: api.relrel.com
+    http:
+      paths:
+      - path: /groups/?(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: group-service
+            port:
+              number: 8080
+      - path: /messages/?(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: message-service
+            port:
+              number: 8080
+      - path: /search/?(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: search-service
+            port:
+              number: 8080
+      - path: /users/?(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: user-service
+            port:
+              number: 8080
+      - path: /ws/?(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: ws-service
+            port:
+              number: 8080
+      - path: /video-call/?(.*)/websocket
+        pathType: Prefix
+        backend:
+          service:
+            name: webrtc-gateway-service
+            port:
+              number: 8080
+      - path: /video-call/?(.*)/accessCode
+        pathType: Prefix
+        backend:
+          service:
+            name: webrtc-service
+            port:
+              number: 8080
+  - host: www.relrel.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 80
+  tls:
+  - hosts:
+      - www.relrel.com
+      - api.relrel.com
+    secretName: relrel-tls

@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: chat/frontend
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
+        image: slimo300/frontend
         ports:
         - containerPort: 80
           name: http

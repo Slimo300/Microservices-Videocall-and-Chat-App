@@ -2,15 +2,15 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+
+	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/storage"
 )
 
-type presignedEnvelope struct {
-	Url string `json:"url"`
-	Key string `json:"key"`
+type presignedPutRequestBody struct {
+	Files []storage.FileInput `json:"files"`
 }
 
 func (s *Server) GetPresignedPutRequest(c *gin.Context) {
@@ -25,14 +25,15 @@ func (s *Server) GetPresignedPutRequest(c *gin.Context) {
 		return
 	}
 
-	files := c.Query("files")
-	if files == "" {
-		files = "1"
-	}
-	filesInt, err := strconv.Atoi(files)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "files query value is not a valid integer"})
+	var files presignedPutRequestBody
+	if err := c.ShouldBindJSON(&files); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
+	}
+	if len(files.Files) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid request body"})
+		return
+
 	}
 
 	if _, err := s.DB.GetGroupMembership(userID, groupID); err != nil {
@@ -40,17 +41,12 @@ func (s *Server) GetPresignedPutRequest(c *gin.Context) {
 		return
 	}
 
-	var requestsData []presignedEnvelope
-	for i := 0; i < filesInt; i++ {
-		key := groupID.String() + "/" + uuid.NewString()
-		url, err := s.Storage.GetPresignedPutRequest(key)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
-			return
-		}
-		requestsData = append(requestsData, presignedEnvelope{Url: url, Key: key})
+	requestsData, err := s.Storage.GetPresignedPutRequests(groupID.String(), files.Files...)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
+		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"requests": requestsData})
+	c.JSON(http.StatusOK, requestsData)
 
 }

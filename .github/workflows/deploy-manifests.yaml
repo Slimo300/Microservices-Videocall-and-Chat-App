@@ -1,0 +1,23 @@
+name: deploy-manifests
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'deploy/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v3
+      - name: Installing Doctl
+        uses: digitalocean/action-doclt@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: Saving our cluster config
+        run: doctl kubernetes cluster kubeconfig save relrel
+      - name: Update Deployment
+        run: kubectl apply -k deploy/

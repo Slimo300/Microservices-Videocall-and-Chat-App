@@ -41,6 +41,9 @@ func kafkaSetup(brokerAddreses []string) (emiter msgqueue.EventEmiter, dbListene
 	dbListener, err = kafka.NewConsumerGroupEventListener(client, "ws-service", dbListenerMapper, &kafka.ListenerOptions{
 		Logger: log.New(os.Stdout, "[DB listener]: ", log.Flags()),
 	})
+	if err != nil {
+		return nil, nil, nil, err
+	}
 
 	// initializing hubListener
 	hubListenerMapper := msgqueue.NewDynamicEventMapper()

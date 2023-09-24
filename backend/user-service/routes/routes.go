@@ -13,6 +13,11 @@ func Setup(server *handlers.Server, origin string) *gin.Engine {
 
 	engine.Use(CORSMiddleware(origin))
 	engine.Use(limits.RequestSizeLimiter(server.MaxBodyBytes))
+	engine.Use(func(ctx *gin.Context) {
+		if len(ctx.Errors) > 0 {
+			return
+		}
+	})
 
 	api := engine.Group("/users")
 	api.POST("/register", server.RegisterUser)
