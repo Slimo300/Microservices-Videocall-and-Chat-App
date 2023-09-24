@@ -1,4 +1,4 @@
-module github.com/Slimo300/MicroservicesChatApp/backend/lib/auth
+module github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/auth
 
 go 1.20
 

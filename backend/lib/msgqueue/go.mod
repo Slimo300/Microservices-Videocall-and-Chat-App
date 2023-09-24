@@ -1,4 +1,4 @@
-module github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue
+module github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue
 
 go 1.19
 
