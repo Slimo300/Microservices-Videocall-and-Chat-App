@@ -3,8 +3,8 @@ package orm
 import (
 	"time"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -77,7 +77,7 @@ func (db *Database) DeleteGroup(userID, groupID uuid.UUID) (models.Group, error)
 		}
 		return nil
 	}); err != nil {
-		return models.Group{}, apperrors.NewInternal()
+		return models.Group{}, err
 	}
 
 	return group, nil

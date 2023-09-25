@@ -13,13 +13,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/config"
-	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/database/redis"
-	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/eventprocessor"
-	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/handlers"
-	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-service/webrtc"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-service/config"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-service/database/redis"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-service/eventprocessor"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-service/handlers"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-service/webrtc"
 )
 
 func getPublicKey() (*rsa.PublicKey, error) {

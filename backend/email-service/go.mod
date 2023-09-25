@@ -1,9 +1,9 @@
-module github.com/Slimo300/MicroservicesChatApp/backend/email-service
+module github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/email-service
 
 go 1.20
 
 require (
-	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/email v0.0.0-20230924164549-4254531acde1 // indirect
+	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/email v0.0.0-20230925104503-6fd5ac8deecd
 	github.com/k3a/html2text v1.1.0
 	github.com/spf13/viper v1.15.0
 	google.golang.org/grpc v1.55.0

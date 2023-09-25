@@ -13,16 +13,16 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/email"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/auth"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/email"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/config"
-	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/database/orm"
-	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/handlers"
-	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/routes"
-	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/storage"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/config"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/database/orm"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/handlers"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/routes"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/storage"
 )
 
 func readPublicKey() (*rsa.PublicKey, error) {

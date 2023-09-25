@@ -3,8 +3,8 @@ package eventprocessor
 import (
 	"log"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue"
-	"github.com/Slimo300/MicroservicesChatApp/backend/ws-service/database"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/ws-service/database"
 )
 
 // EventProcessor processes traffic from listener and updates state of application

@@ -7,12 +7,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/email"
-	mockqueue "github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/mock"
-	mockdb "github.com/Slimo300/MicroservicesChatApp/backend/user-service/database/mock"
-	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/handlers"
-	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/models"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/email"
+	mockqueue "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/mock"
+	mockdb "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/database/mock"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/handlers"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
@@ -30,22 +30,22 @@ func (s *RegisterSuite) SetupSuite() {
 	s.ids["userOK"] = uuid.MustParse("1819f7ba-01fd-4d79-aa4c-09db1a481f94")
 
 	db := new(mockdb.MockUsersDB)
-	db.On("RegisterUser", models.User{Email: "host@net.com", UserName: "taken", Pass: "password12"}).Return(nil, nil, apperrors.NewConflict("username", "taken"))
-	db.On("RegisterUser", models.User{Email: "taken@net.com", UserName: "slimo300", Pass: "password12"}).Return(nil, nil, apperrors.NewConflict("email", "taken@net.com"))
+	db.On("RegisterUser", models.User{Email: "host@net.com", UserName: "taken", Pass: "password12"}).Return(nil, nil, apperrors.NewConflict("Username taken already taken"))
+	db.On("RegisterUser", models.User{Email: "taken@net.com", UserName: "slimo300", Pass: "password12"}).Return(nil, nil, apperrors.NewConflict("Email taken@net.com already taken"))
 	db.On("RegisterUser", models.User{Email: "host@net.com", UserName: "slimo300", Pass: "password12"}).Return(nil, nil, nil)
 
-	db.On("VerifyCode", "invalidCode").Return(nil, apperrors.NewNotFound("code", "invalidCode"))
+	db.On("VerifyCode", "invalidCode").Return(nil, apperrors.NewNotFound("No activation code invalidCode"))
 	db.On("VerifyCode", "validCode").Return(&models.User{ID: s.ids["userOK"]}, nil)
 
-	emitter := new(mockqueue.MockEmitter)
-	emitter.On("Emit", mock.Anything).Return(nil)
+	emiter := new(mockqueue.MockEmitter)
+	emiter.On("Emit", mock.Anything).Return(nil)
 
 	emailClient := new(email.MockEmailClient)
 	emailClient.On("SendVerificationEmail", mock.Anything, mock.Anything).Return(nil)
 
 	s.server = handlers.Server{
 		DB:          db,
-		Emitter:     emitter,
+		Emitter:     emiter,
 		EmailClient: emailClient,
 	}
 }

@@ -7,7 +7,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/webrtc-gateway-service/database"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-gateway-service/database"
 	"github.com/gorilla/mux"
 )
 

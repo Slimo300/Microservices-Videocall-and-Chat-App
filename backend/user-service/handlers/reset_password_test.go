@@ -7,10 +7,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/email"
-	dbmock "github.com/Slimo300/MicroservicesChatApp/backend/user-service/database/mock"
-	"github.com/Slimo300/MicroservicesChatApp/backend/user-service/handlers"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/email"
+	dbmock "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/database/mock"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/handlers"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
@@ -29,7 +29,7 @@ func (s *ResetPasswordSuite) SetupSuite() {
 	db := new(dbmock.MockUsersDB)
 	db.On("NewResetPasswordCode", "host@net.com").Return(nil, nil, nil)
 
-	db.On("ResetPassword", "invalidCode", mock.Anything).Return(apperrors.NewNotFound("reset code", "invalidCode"))
+	db.On("ResetPassword", "invalidCode", mock.Anything).Return(apperrors.NewNotFound("reset code invalidCode not found"))
 	db.On("ResetPassword", "validCode", mock.Anything).Return(nil)
 
 	emailClient := new(email.MockEmailClient)

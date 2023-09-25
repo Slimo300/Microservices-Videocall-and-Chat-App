@@ -1,9 +1,9 @@
-module github.com/Slimo300/MicroservicesChatApp/backend/token-service
+module github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/token-service
 
 go 1.19
 
 require (
-	github.com/Slimo300/MicroservicesChatApp/backend/lib/auth v0.0.0-20230831000226-2f2b1628bf93
+	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/auth v0.0.0-20230831000226-2f2b1628bf93
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.0

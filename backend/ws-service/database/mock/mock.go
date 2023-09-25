@@ -3,7 +3,7 @@
 package mock
 
 import (
-	events "github.com/Slimo300/MicroservicesChatApp/backend/lib/events"
+	events "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 	mock "github.com/stretchr/testify/mock"
 
 	uuid "github.com/google/uuid"

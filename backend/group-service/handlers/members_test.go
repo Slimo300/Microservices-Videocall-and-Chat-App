@@ -8,11 +8,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	mockdb "github.com/Slimo300/MicroservicesChatApp/backend/group-service/database/mock"
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/handlers"
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
-	mockqueue "github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/mock"
+	mockdb "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/database/mock"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/handlers"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
+	mockqueue "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/mock"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
@@ -42,7 +42,7 @@ func (s *MembersTestSuite) SetupSuite() {
 	db.On("DeleteMember", s.IDs["userWithoutRights"], s.IDs["groupOK"], s.IDs["memberOK"]).
 		Return(nil, apperrors.NewForbidden(fmt.Sprintf("User %v has no right to delete members in group %v", s.IDs["userWithoutRights"], s.IDs["groupOK"])))
 	db.On("DeleteMember", s.IDs["userOK"], s.IDs["groupOK"], s.IDs["memberNotFound"]).
-		Return(nil, apperrors.NewNotFound("member", s.IDs["memberNotFound"].String()))
+		Return(nil, apperrors.NewNotFound(fmt.Sprintf("Member with id %v not found", s.IDs["memberNotFound"].String())))
 	db.On("DeleteMember", s.IDs["userOK"], s.IDs["groupOK"], s.IDs["memberHighRank"]).
 		Return(nil, apperrors.NewForbidden(fmt.Sprintf("User %v cannot delete member %v", s.IDs["userOK"], s.IDs["memberHighRank"])))
 
@@ -50,7 +50,7 @@ func (s *MembersTestSuite) SetupSuite() {
 	db.On("GrantRights", s.IDs["userWithoutRights"], s.IDs["groupOK"], s.IDs["memberOK"], mock.Anything).
 		Return(nil, apperrors.NewForbidden(fmt.Sprintf("User %v has no right to alter members in group %v", s.IDs["userWithoutRights"], s.IDs["groupOK"])))
 	db.On("GrantRights", s.IDs["userOK"], s.IDs["groupOK"], s.IDs["memberNotFound"], mock.Anything).
-		Return(nil, apperrors.NewNotFound("member", s.IDs["memberNotFound"].String()))
+		Return(nil, apperrors.NewNotFound(fmt.Sprintf("Member with id %v not found", s.IDs["memberNotFound"].String())))
 	db.On("GrantRights", s.IDs["userOK"], s.IDs["groupOK"], s.IDs["memberHighRank"], mock.Anything).
 		Return(nil, apperrors.NewForbidden(fmt.Sprintf("User %v cannot alter member %v", s.IDs["userOK"], s.IDs["memberHighRank"])))
 

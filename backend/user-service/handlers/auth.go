@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/auth"
 	"github.com/gin-gonic/gin"
 )
 

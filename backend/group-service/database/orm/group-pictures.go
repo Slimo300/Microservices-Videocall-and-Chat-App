@@ -3,8 +3,8 @@ package orm
 import (
 	"fmt"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
 	"github.com/google/uuid"
 )
 
@@ -27,7 +27,7 @@ func (db *Database) GetGroupProfilePictureURL(userID, groupID uuid.UUID) (string
 	if group.Picture == "" {
 		newPictureURL := uuid.NewString()
 		if err := db.Model(&group).Update("picture_url", newPictureURL).Error; err != nil {
-			return "", apperrors.NewInternal()
+			return "", err
 		}
 		return newPictureURL, nil
 	}
@@ -49,7 +49,7 @@ func (db *Database) DeleteGroupProfilePicture(userID, groupID uuid.UUID) (string
 	var group models.Group
 	// TODO: Error here is only possible if there would exist membership to unexisting group. This should be internal error
 	if err := db.First(&group, groupID).Error; err != nil {
-		return "", apperrors.NewNotFound("group", groupID.String())
+		return "", apperrors.NewNotFound(fmt.Sprintf("Group with id %v does not exist", groupID))
 	}
 
 	if group.Picture == "" {
@@ -57,7 +57,7 @@ func (db *Database) DeleteGroupProfilePicture(userID, groupID uuid.UUID) (string
 	}
 
 	if err := db.Model(&group).Update("picture_url", "").Error; err != nil {
-		return "", apperrors.NewInternal()
+		return "", err
 	}
 	return group.Picture, nil
 

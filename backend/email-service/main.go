@@ -8,9 +8,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/email-service/config"
-	"github.com/Slimo300/MicroservicesChatApp/backend/email-service/handlers"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/email"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/email-service/config"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/email-service/handlers"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/email"
 	"google.golang.org/grpc"
 )
 

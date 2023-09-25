@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/database"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/token-service/database"
 	"github.com/go-redis/redis"
 )
 

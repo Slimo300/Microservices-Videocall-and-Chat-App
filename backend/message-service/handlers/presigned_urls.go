@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/message-service/storage"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/storage"
 )
 
 type presignedPutRequestBody struct {

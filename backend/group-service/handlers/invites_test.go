@@ -9,11 +9,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	dbmock "github.com/Slimo300/MicroservicesChatApp/backend/group-service/database/mock"
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/handlers"
-	"github.com/Slimo300/MicroservicesChatApp/backend/group-service/models"
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/apperrors"
-	mockqueue "github.com/Slimo300/MicroservicesChatApp/backend/lib/msgqueue/mock"
+	dbmock "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/database/mock"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/handlers"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
+	mockqueue "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/mock"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
@@ -49,7 +49,7 @@ func (s *InvitesTestSuite) SetupSuite() {
 	db.On("AddInvite", s.IDs["userNoRights"], s.IDs["invitedUserOK"], s.IDs["group"]).
 		Return(&models.Invite{}, apperrors.NewForbidden(fmt.Sprintf("User %v has no rights to add new members to group %v", s.IDs["userNoRights"], s.IDs["group"])))
 	db.On("AddInvite", s.IDs["userOK"], s.IDs["invitedUserNotFound"], s.IDs["group"]).
-		Return(&models.Invite{}, apperrors.NewNotFound("user", s.IDs["invitedUserNotFound"].String()))
+		Return(&models.Invite{}, apperrors.NewNotFound(fmt.Sprintf("User with id %v not found", s.IDs["invitedUserNotFound"].String())))
 	db.On("AddInvite", s.IDs["userOK"], s.IDs["invitedUserMember"], s.IDs["group"]).
 		Return(&models.Invite{}, apperrors.NewForbidden(fmt.Sprintf("User %v already is already a member of group %v", s.IDs["invitedUserMember"], s.IDs["group"])))
 	db.On("AddInvite", s.IDs["userOK"], s.IDs["invitedUserInvited"], s.IDs["group"]).
@@ -60,7 +60,7 @@ func (s *InvitesTestSuite) SetupSuite() {
 	db.On("AnswerInvite", s.IDs["userOK"], s.IDs["inviteOK"], true).Return(&models.Invite{ID: s.IDs["inviteOK"]}, &models.Group{ID: s.IDs["group"]}, nil, nil)
 	db.On("AnswerInvite", s.IDs["userOK"], s.IDs["inviteOK"], false).Return(&models.Invite{ID: s.IDs["inviteOK"]}, nil, nil, nil)
 	db.On("AnswerInvite", s.IDs["userOK"], s.IDs["inviteNotFound"], mock.Anything).
-		Return(nil, nil, nil, apperrors.NewNotFound("invite", s.IDs["inviteNotFound"].String()))
+		Return(nil, nil, nil, apperrors.NewNotFound(fmt.Sprintf("Invite with id %v not found", s.IDs["inviteNotFound"].String())))
 	db.On("AnswerInvite", s.IDs["userOK"], s.IDs["inviteAnswered"], mock.Anything).
 		Return(nil, nil, nil, apperrors.NewForbidden("invite already answered"))
 

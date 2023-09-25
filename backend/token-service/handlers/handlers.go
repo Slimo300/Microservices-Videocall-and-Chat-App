@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
-	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/database"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/auth"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/token-service/database"
 	"github.com/golang-jwt/jwt"
 )
 

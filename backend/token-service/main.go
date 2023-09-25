@@ -11,10 +11,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/Slimo300/MicroservicesChatApp/backend/lib/auth"
-	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/config"
-	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/database/redis"
-	"github.com/Slimo300/MicroservicesChatApp/backend/token-service/handlers"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/auth"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/token-service/config"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/token-service/database/redis"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/token-service/handlers"
 	"google.golang.org/grpc"
 )
 
