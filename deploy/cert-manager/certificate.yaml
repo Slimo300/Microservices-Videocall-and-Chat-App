@@ -9,5 +9,5 @@ spec:
     name: clusterissuer
     kind: ClusterIssuer
   dnsNames:
-    - www.relrel.com
-    - api.relrel.com
+    - www.relrel.org
+    - api.relrel.org

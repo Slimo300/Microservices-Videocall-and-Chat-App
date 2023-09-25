@@ -4,43 +4,43 @@ metadata:
   name: microserviceschatapp
 build:
   artifacts:
-    - image: chat/email-service
+    - image: slimo300/email-service
       context: backend/email-service
       docker:
         dockerfile: Dockerfile
-    - image: chat/group-service
+    - image: slimo300/group-service
       context: backend/group-service
       docker:
         dockerfile: Dockerfile
-    - image: chat/message-service
+    - image: slimo300/message-service
       context: backend/message-service
       docker:
         dockerfile: Dockerfile
-    - image: chat/search-service
+    - image: slimo300/search-service
       context: backend/search-service
       docker:
         dockerfile: Dockerfile
-    - image: chat/token-service
+    - image: slimo300/token-service
       context: backend/token-service
       docker:
         dockerfile: Dockerfile
-    - image: chat/user-service
+    - image: slimo300/user-service
       context: backend/user-service
       docker:
         dockerfile: Dockerfile
-    - image: chat/ws-service
+    - image: slimo300/ws-service
       context: backend/ws-service
       docker:
         dockerfile: Dockerfile
-    - image: chat/webrtc-service
+    - image: slimo300/webrtc-service
       context: backend/webrtc-service
       docker:
         dockerfile: Dockerfile
-    - image: chat/webrtc-gateway-service
+    - image: slimo300/webrtc-gateway-service
       context: backend/webrtc-gateway-service
       docker:
         dockerfile: Dockerfile
-    - image: chat/frontend
+    - image: slimo300/frontend
       context: frontend
       docker:
         dockerfile: Dockerfile
