@@ -3,7 +3,15 @@ module github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/email-se
 go 1.20
 
 require (
+<<<<<<< HEAD
 	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/email v0.0.0-20230831000226-2f2b1628bf93
+=======
+<<<<<<< HEAD
+	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/email v0.0.0-20230924164549-4254531acde1 // indirect
+=======
+	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/email v0.0.0-20230831000226-2f2b1628bf93
+>>>>>>> 5ad2ab9 (changing repo name)
+>>>>>>> 6012da7 (what is happening)
 	github.com/k3a/html2text v1.1.0
 	github.com/spf13/viper v1.15.0
 	google.golang.org/grpc v1.55.0
