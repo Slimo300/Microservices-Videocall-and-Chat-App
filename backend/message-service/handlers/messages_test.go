@@ -62,7 +62,7 @@ func (s *MessageTestSuite) SetupSuite() {
 	mockDB.On("DeleteMessageForYourself", s.uuids["userNotInGroup"], s.uuids["message"], s.uuids["group"]).Return(models.Message{}, apperrors.NewForbidden("user not in group"))
 	mockDB.On("DeleteMessageForYourself", s.uuids["userInGroup"], s.uuids["message"], s.uuids["otherGroup"]).Return(models.Message{}, apperrors.NewNotFound(fmt.Sprintf("Message with id %v not found", s.uuids["message"].String())))
 	mockDB.On("DeleteMessageForYourself", s.uuids["userInGroup"], s.uuids["notExistingMessage"], s.uuids["group"]).Return(models.Message{}, apperrors.NewNotFound(fmt.Sprintf("Message with id %v not found", s.uuids["notExistingMessage"].String())))
-	mockDB.On("DeleteMessageForYourself", s.uuids["userInGroup"], s.uuids["deletedMessage"], s.uuids["group"]).Return(models.Message{}, apperrors.NewConflict(fmt.Sprintf("Message already deleted by user %v", s.uuids["userInGroup"].String())))
+	mockDB.On("DeleteMessageForYourself", s.uuids["userInGroup"], s.uuids["deletedMessage"], s.uuids["group"]).Return(models.Message{}, apperrors.NewConflict(fmt.Sprintf("Message %v already deleted", s.uuids["deletedMessage"].String())))
 
 	mockDB.On("DeleteMessageForEveryone", s.uuids["userNotInGroup"], s.uuids["message"], s.uuids["group"]).Return(models.Message{}, apperrors.NewForbidden("user not in group"))
 	mockDB.On("DeleteMessageForEveryone", s.uuids["userInGroup"], s.uuids["notExistingMessage"], s.uuids["group"]).Return(models.Message{}, apperrors.NewNotFound(fmt.Sprintf("Message with id %v not found", s.uuids["notExistingMessage"].String())))
@@ -108,7 +108,7 @@ func (s *MessageTestSuite) TestGetGroupMessages() {
 			returnVal:          false,
 			groupID:            "61fbd273-b941-471c-983a-0a3cd2c74747",
 			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": "Forbidden action. Reason: User cannot request from this group"},
+			expectedResponse:   gin.H{"err": "User cannot request from this group"},
 		},
 		{
 			desc:               "getmessagesnogroup",
@@ -199,7 +199,7 @@ func (s *MessageTestSuite) TestDeleteMessageForYourself() {
 			messageID:          s.uuids["message"].String(),
 			returnVal:          false,
 			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": "Forbidden action. Reason: user not in group"},
+			expectedResponse:   gin.H{"err": "user not in group"},
 		},
 		{
 			desc:               "delYourselfMessageOfDifferentGroup",
@@ -208,7 +208,7 @@ func (s *MessageTestSuite) TestDeleteMessageForYourself() {
 			messageID:          s.uuids["message"].String(),
 			returnVal:          false,
 			expectedStatusCode: http.StatusNotFound,
-			expectedResponse:   gin.H{"err": "resource: message with value: 2845fa37-7bcb-40bb-a447-6e0bc5b151b2 not found"},
+			expectedResponse:   gin.H{"err": "Message with id 2845fa37-7bcb-40bb-a447-6e0bc5b151b2 not found"},
 		},
 		{
 			desc:               "delYourselfMessageNotFound",
@@ -217,7 +217,7 @@ func (s *MessageTestSuite) TestDeleteMessageForYourself() {
 			messageID:          s.uuids["notExistingMessage"].String(),
 			returnVal:          false,
 			expectedStatusCode: http.StatusNotFound,
-			expectedResponse:   gin.H{"err": "resource: message with value: 2e5530f9-36cc-4186-b46c-821eb900ba4a not found"},
+			expectedResponse:   gin.H{"err": "Message with id 2e5530f9-36cc-4186-b46c-821eb900ba4a not found"},
 		},
 		{
 			desc:               "delYourselfMessageDeleted",
@@ -226,7 +226,7 @@ func (s *MessageTestSuite) TestDeleteMessageForYourself() {
 			messageID:          s.uuids["deletedMessage"].String(),
 			returnVal:          false,
 			expectedStatusCode: http.StatusConflict,
-			expectedResponse:   gin.H{"err": "resource: deleted with value: 1c4dccaf-a341-4920-9003-f24e0412f8e0 already exists"},
+			expectedResponse:   gin.H{"err": "Message e3b82857-85fa-4b83-ae06-f85d63aab567 already deleted"},
 		},
 		{
 			desc:               "delYourselfSuccess",
@@ -268,7 +268,7 @@ func (s *MessageTestSuite) TestDeleteMessageForYourself() {
 				respBody = msg
 			}
 
-			s.True(reflect.DeepEqual(respBody, tC.expectedResponse))
+			s.Equal(respBody, tC.expectedResponse)
 		})
 	}
 }
@@ -319,7 +319,7 @@ func (s *MessageTestSuite) TestDeleteMessageForEveryone() {
 			messageID:          s.uuids["message"].String(),
 			returnVal:          false,
 			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": "Forbidden action. Reason: user not in group"},
+			expectedResponse:   gin.H{"err": "user not in group"},
 		},
 		{
 			desc:               "DeleteForEveryone MessageNotFound",
@@ -328,7 +328,7 @@ func (s *MessageTestSuite) TestDeleteMessageForEveryone() {
 			messageID:          s.uuids["notExistingMessage"].String(),
 			returnVal:          false,
 			expectedStatusCode: http.StatusNotFound,
-			expectedResponse:   gin.H{"err": "resource: message with value: 2e5530f9-36cc-4186-b46c-821eb900ba4a not found"},
+			expectedResponse:   gin.H{"err": "Message with id 2e5530f9-36cc-4186-b46c-821eb900ba4a not found"},
 		},
 		{
 			desc:               "DeleteForEveryone NoRights",
@@ -337,7 +337,7 @@ func (s *MessageTestSuite) TestDeleteMessageForEveryone() {
 			messageID:          s.uuids["message"].String(),
 			returnVal:          false,
 			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": "Forbidden action. Reason: User has no right to delete messages"},
+			expectedResponse:   gin.H{"err": "User has no right to delete messages"},
 		},
 		{
 			desc:               "DeleteForEveryone Success",

@@ -58,21 +58,25 @@ func (r *Room) AddClient(peerConnection *webrtc.PeerConnection, ws *threadSafeWr
 
 	for _, client := range r.Clients {
 		// send client info about new user
-		client.websocket.WriteJSON(&websocketMessage{
+		if err := client.websocket.WriteJSON(&websocketMessage{
 			Event: "user_info",
 			Data:  string(data),
-		})
+		}); err != nil {
+			log.Println(err.Error())
+		}
 
 		clientData, err := json.Marshal(client.userData)
 		if err != nil {
-			log.Printf("Error marshaling userData: %v", err)
+			log.Default().Printf("Error marshaling userData: %v", err)
 		}
 
 		// send new user info about client
-		ws.WriteJSON(&websocketMessage{
+		if err := ws.WriteJSON(&websocketMessage{
 			Event: "user_info",
 			Data:  string(clientData),
-		})
+		}); err != nil {
+			log.Println(err.Error())
+		}
 	}
 
 	r.Clients = append(r.Clients, client{
@@ -105,10 +109,12 @@ func (r *Room) ToggleMute(streamID string, videoEnabled, audioEnabled *bool) {
 				r.Clients[i].userData.AudioEnabled = audioEnabled
 			}
 		} else {
-			r.Clients[i].websocket.WriteJSON(&websocketMessage{
+			if err := r.Clients[i].websocket.WriteJSON(&websocketMessage{
 				Event: "mute",
 				Data:  string(data),
-			})
+			}); err != nil {
+				log.Println(err.Error())
+			}
 		}
 	}
 }

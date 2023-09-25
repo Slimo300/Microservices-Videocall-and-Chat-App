@@ -20,4 +20,4 @@ jobs:
       - name: Saving our cluster config
         run: doctl kubernetes cluster kubeconfig save relrel
       - name: Update Deployment
-        run: kubectl apply -k deploy/
+        run: source start-prod.sh

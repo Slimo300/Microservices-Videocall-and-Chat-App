@@ -120,7 +120,7 @@ func (s *MembersTestSuite) TestGrantPriv() {
 			memberID:           s.IDs["memberOK"].String(),
 			data:               map[string]interface{}{"adding": -1},
 			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": fmt.Sprintf("Forbidden action. Reason: User %v has no right to alter members in group %v", s.IDs["userWithoutRights"].String(), s.IDs["groupOK"].String())},
+			expectedResponse:   gin.H{"err": fmt.Sprintf("User %v has no right to alter members in group %v", s.IDs["userWithoutRights"].String(), s.IDs["groupOK"].String())},
 		},
 		{
 			desc:               "UpdateRightsNotFound",
@@ -129,7 +129,7 @@ func (s *MembersTestSuite) TestGrantPriv() {
 			memberID:           s.IDs["memberNotFound"].String(),
 			data:               map[string]interface{}{"adding": -1},
 			expectedStatusCode: http.StatusNotFound,
-			expectedResponse:   gin.H{"err": fmt.Sprintf("resource: member with value: %v not found", s.IDs["memberNotFound"].String())},
+			expectedResponse:   gin.H{"err": fmt.Sprintf("Member with id %v not found", s.IDs["memberNotFound"].String())},
 		},
 		{
 			desc:               "UpdateRightsHighRank",
@@ -138,7 +138,7 @@ func (s *MembersTestSuite) TestGrantPriv() {
 			memberID:           s.IDs["memberHighRank"].String(),
 			data:               map[string]interface{}{"adding": -1},
 			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": fmt.Sprintf("Forbidden action. Reason: User %v cannot alter member %v", s.IDs["userOK"].String(), s.IDs["memberHighRank"].String())},
+			expectedResponse:   gin.H{"err": fmt.Sprintf("User %v cannot alter member %v", s.IDs["userOK"].String(), s.IDs["memberHighRank"].String())},
 		},
 		{
 			desc:               "UpdateRightsSuccess",
@@ -221,7 +221,7 @@ func (s *MembersTestSuite) TestDeleteMember() {
 			groupID:            s.IDs["groupOK"].String(),
 			memberID:           s.IDs["memberOK"].String(),
 			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": fmt.Sprintf("Forbidden action. Reason: User %v has no right to delete members in group %v", s.IDs["userWithoutRights"].String(), s.IDs["groupOK"].String())},
+			expectedResponse:   gin.H{"err": fmt.Sprintf("User %v has no right to delete members in group %v", s.IDs["userWithoutRights"].String(), s.IDs["groupOK"].String())},
 		},
 		{
 			desc:               "DeleteMemberNotFound",
@@ -229,7 +229,7 @@ func (s *MembersTestSuite) TestDeleteMember() {
 			groupID:            s.IDs["groupOK"].String(),
 			memberID:           s.IDs["memberNotFound"].String(),
 			expectedStatusCode: http.StatusNotFound,
-			expectedResponse:   gin.H{"err": fmt.Sprintf("resource: member with value: %v not found", s.IDs["memberNotFound"].String())},
+			expectedResponse:   gin.H{"err": fmt.Sprintf("Member with id %v not found", s.IDs["memberNotFound"].String())},
 		},
 		{
 			desc:               "DeleteMemberHighRank",
@@ -237,7 +237,7 @@ func (s *MembersTestSuite) TestDeleteMember() {
 			groupID:            s.IDs["groupOK"].String(),
 			memberID:           s.IDs["memberHighRank"].String(),
 			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": fmt.Sprintf("Forbidden action. Reason: User %v cannot delete member %v", s.IDs["userOK"].String(), s.IDs["memberHighRank"].String())},
+			expectedResponse:   gin.H{"err": fmt.Sprintf("User %v cannot delete member %v", s.IDs["userOK"].String(), s.IDs["memberHighRank"].String())},
 		},
 		{
 			desc:               "DeleteMemberSuccess",
@@ -306,7 +306,7 @@ func (s *MembersTestSuite) TestDeleteGroup() {
 			userID:             s.IDs["userWithoutRights"].String(),
 			groupID:            s.IDs["groupOK"].String(),
 			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": "Forbidden action. Reason: User has no right to delete group"},
+			expectedResponse:   gin.H{"err": "User has no right to delete group"},
 		},
 		{
 			desc:               "DeleteGroupSuccess",

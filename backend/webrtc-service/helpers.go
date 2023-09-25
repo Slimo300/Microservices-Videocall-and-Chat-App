@@ -41,6 +41,9 @@ func kafkaSetup(brokerAddreses []string) (emiter msgqueue.EventEmiter, listener 
 	listener, err = kafka.NewConsumerGroupEventListener(client, "webrtc-service", dbListenerMapper, &kafka.ListenerOptions{
 		Logger: log.New(os.Stdout, "[ listener ]: ", log.Flags()),
 	})
+	if err != nil {
+		return nil, nil, err
+	}
 
 	return emiter, listener, nil
 }

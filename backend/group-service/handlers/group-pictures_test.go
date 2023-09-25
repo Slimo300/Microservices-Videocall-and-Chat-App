@@ -82,14 +82,14 @@ func (s *GroupPicturesTestSuite) TestDeleteGroupProfilePicture() {
 			userID:             s.IDs["userWithoutRights"].String(),
 			groupID:            s.IDs["groupOK"].String(),
 			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": "Forbidden action. Reason: User ee2c6112-1114-4d9f-8869-716068ff7159 has no rights to set in group 4552667f-ea03-4ad3-8757-ea4645c8b4a0"},
+			expectedResponse:   gin.H{"err": "User ee2c6112-1114-4d9f-8869-716068ff7159 has no rights to set in group 4552667f-ea03-4ad3-8757-ea4645c8b4a0"},
 		},
 		{
 			desc:               "DeleteProfilePictureNoPicture",
 			userID:             s.IDs["userOK"].String(),
 			groupID:            s.IDs["groupWithoutPicture"].String(),
 			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": "Forbidden action. Reason: group 4399b92e-d68a-42be-9a01-a9e098df98d8 has no profile picture"},
+			expectedResponse:   gin.H{"err": "group 4399b92e-d68a-42be-9a01-a9e098df98d8 has no profile picture"},
 		},
 		{
 			desc:               "DeleteProfilePictureSuccess",
@@ -173,7 +173,7 @@ func (s *GroupPicturesTestSuite) TestSetGroupProfilePicture() {
 			imageData:          map[string]string{"Key": "avatarFile", "CType": "image/png"},
 			setBodyLimiter:     false,
 			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": "Forbidden action. Reason: User ee2c6112-1114-4d9f-8869-716068ff7159 has no rights to set in group 4552667f-ea03-4ad3-8757-ea4645c8b4a0"},
+			expectedResponse:   gin.H{"err": "User ee2c6112-1114-4d9f-8869-716068ff7159 has no rights to set in group 4552667f-ea03-4ad3-8757-ea4645c8b4a0"},
 		},
 		{
 			desc:               "UpdateProfilePictureWrongImageType",

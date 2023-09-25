@@ -154,7 +154,7 @@ func (s *InvitesTestSuite) TestSendGroupInvite() {
 			data:               map[string]interface{}{"group": s.IDs["group"].String(), "target": s.IDs["invitedUserOK"]},
 			returnVal:          false,
 			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": fmt.Sprintf("Forbidden action. Reason: User %v has no rights to add new members to group %v", s.IDs["userNoRights"], s.IDs["group"])},
+			expectedResponse:   gin.H{"err": fmt.Sprintf("User %v has no rights to add new members to group %v", s.IDs["userNoRights"], s.IDs["group"])},
 		},
 		{
 			desc:               "inviteUserNotFound",
@@ -162,7 +162,7 @@ func (s *InvitesTestSuite) TestSendGroupInvite() {
 			data:               map[string]interface{}{"group": s.IDs["group"].String(), "target": s.IDs["invitedUserNotFound"]},
 			returnVal:          false,
 			expectedStatusCode: http.StatusNotFound,
-			expectedResponse:   gin.H{"err": fmt.Sprintf("resource: user with value: %v not found", s.IDs["invitedUserNotFound"])},
+			expectedResponse:   gin.H{"err": fmt.Sprintf("User with id %v not found", s.IDs["invitedUserNotFound"])},
 		},
 		{
 			desc:               "inviteUserMember",
@@ -170,7 +170,7 @@ func (s *InvitesTestSuite) TestSendGroupInvite() {
 			data:               map[string]interface{}{"group": s.IDs["group"].String(), "target": s.IDs["invitedUserMember"]},
 			returnVal:          false,
 			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": fmt.Sprintf("Forbidden action. Reason: User %v already is already a member of group %v", s.IDs["invitedUserMember"], s.IDs["group"])},
+			expectedResponse:   gin.H{"err": fmt.Sprintf("User %v already is already a member of group %v", s.IDs["invitedUserMember"], s.IDs["group"])},
 		},
 		{
 			desc:               "inviteUserInvited",
@@ -178,7 +178,7 @@ func (s *InvitesTestSuite) TestSendGroupInvite() {
 			data:               map[string]interface{}{"group": s.IDs["group"].String(), "target": s.IDs["invitedUserInvited"]},
 			returnVal:          false,
 			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": fmt.Sprintf("Forbidden action. Reason: User %v already invited to group %v", s.IDs["invitedUserInvited"], s.IDs["group"])},
+			expectedResponse:   gin.H{"err": fmt.Sprintf("User %v already invited to group %v", s.IDs["invitedUserInvited"], s.IDs["group"])},
 		},
 		{
 			desc:               "invitesuccess",
@@ -276,7 +276,7 @@ func (s *InvitesTestSuite) TestRespondGroupInvite() {
 			data:               map[string]interface{}{"answer": true},
 			returnVal:          false,
 			expectedStatusCode: http.StatusNotFound,
-			expectedResponse:   gin.H{"err": "resource: invite with value: 2917d4d0-b3ed-49ff-93de-d5913d24a6c8 not found"},
+			expectedResponse:   gin.H{"err": "Invite with id 2917d4d0-b3ed-49ff-93de-d5913d24a6c8 not found"},
 		},
 		{
 			desc:               "respondInviteAnswered",
@@ -285,7 +285,7 @@ func (s *InvitesTestSuite) TestRespondGroupInvite() {
 			data:               map[string]interface{}{"answer": true},
 			returnVal:          false,
 			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": "Forbidden action. Reason: invite already answered"},
+			expectedResponse:   gin.H{"err": "invite already answered"},
 		},
 		{
 			desc:               "respondInviteNo",

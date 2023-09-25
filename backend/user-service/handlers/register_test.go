@@ -87,13 +87,13 @@ func (s *RegisterSuite) TestRegister() {
 			desc:               "registerusernametaken",
 			data:               map[string]string{"username": "taken", "email": "host@net.com", "password": "password12", "rpassword": "password12"},
 			expectedStatusCode: http.StatusConflict,
-			expectedResponse:   gin.H{"err": "resource: username with value: taken already exists"},
+			expectedResponse:   gin.H{"err": "Username taken already taken"},
 		},
 		{
 			desc:               "registeremailtaken",
 			data:               map[string]string{"username": "slimo300", "email": "taken@net.com", "password": "password12", "rpassword": "password12"},
 			expectedStatusCode: http.StatusConflict,
-			expectedResponse:   gin.H{"err": "resource: email with value: taken@net.com already exists"},
+			expectedResponse:   gin.H{"err": "Email taken@net.com already taken"},
 		},
 		{
 			desc:               "registersuccess",
@@ -139,7 +139,7 @@ func (s *RegisterSuite) TestVerifyEmail() {
 			desc:               "verifyCodeNotFound",
 			code:               "invalidCode",
 			expectedStatusCode: http.StatusNotFound,
-			expectedResponse:   gin.H{"err": "resource: code with value: invalidCode not found"},
+			expectedResponse:   gin.H{"err": "No activation code invalidCode"},
 		},
 		{
 			desc:               "verifySuccess",

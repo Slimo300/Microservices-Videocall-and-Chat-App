@@ -3,17 +3,10 @@ package webrtc
 import (
 	"encoding/json"
 	"log"
-	"net/http"
 
 	"github.com/gorilla/websocket"
 	"github.com/pion/webrtc/v3"
 )
-
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-}
 
 type UserConnData struct {
 	Username     string `json:"username,omitempty"`
