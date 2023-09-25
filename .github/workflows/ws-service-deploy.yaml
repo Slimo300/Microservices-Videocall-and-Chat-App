@@ -5,7 +5,7 @@ on:
     branches: 
       - main
     paths:
-      - backend/ws-service
+      - 'backend/ws-service/**'
 
 jobs:
   build:
