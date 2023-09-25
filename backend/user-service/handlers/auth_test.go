@@ -84,13 +84,13 @@ func (s *AuthTestSuite) TestSignIn() {
 			desc:               "loginnosuchemail",
 			data:               map[string]string{"email": "host2@net.pl", "password": "password12"},
 			expectedStatusCode: http.StatusBadRequest,
-			expectedResponse:   gin.H{"err": "Bad request. Reason: wrong email or password"},
+			expectedResponse:   gin.H{"err": "wrong email or password"},
 		},
 		{
 			desc:               "logininvalidpass",
 			data:               map[string]string{"email": "host@net.pl", "password": "password"},
 			expectedStatusCode: http.StatusBadRequest,
-			expectedResponse:   gin.H{"err": "Bad request. Reason: wrong email or password"},
+			expectedResponse:   gin.H{"err": "wrong email or password"},
 		},
 	}
 

@@ -116,7 +116,7 @@ func (s *ResetPasswordSuite) TestResetForgottenPassword() {
 			code:               "invalidCode",
 			data:               map[string]string{"newPassword": "password12", "repeatPassword": "password12"},
 			expectedStatusCode: http.StatusNotFound,
-			expectedResponse:   gin.H{"err": "resource: reset code with value: invalidCode not found"},
+			expectedResponse:   gin.H{"err": "reset code invalidCode not found"},
 		},
 		{
 			desc:               "resetSuccess",

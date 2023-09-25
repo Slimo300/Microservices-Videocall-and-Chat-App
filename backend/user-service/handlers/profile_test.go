@@ -175,7 +175,7 @@ func (s *ProfileTestSuite) TestChangePassword() {
 			userID:             s.ids["userOK"].String(),
 			data:               map[string]interface{}{"oldPassword": "password", "newPassword": "password123", "repeatPassword": "password123"},
 			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": "Forbidden action. Reason: Wrong Password"},
+			expectedResponse:   gin.H{"err": "Wrong Password"},
 		},
 		{
 			desc:               "changePasswordSuccess",
@@ -233,7 +233,7 @@ func (s *ProfileTestSuite) TestDeleteProfilePicture() {
 			desc:               "DeleteProfilePictureNoPicture",
 			userID:             s.ids["userNoImage"].String(),
 			expectedStatusCode: http.StatusBadRequest,
-			expectedResponse:   gin.H{"err": "Bad request. Reason: User has no profile picture"},
+			expectedResponse:   gin.H{"err": "User has no profile picture"},
 		},
 		{
 			desc:               "DeleteProfilePictureNoUser",

@@ -4,8 +4,8 @@ go 1.20
 
 require (
 	github.com/Shopify/sarama v1.37.2
-	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events v0.0.0-20230831000226-2f2b1628bf93
-	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue v0.0.0-20230831000226-2f2b1628bf93
+	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events v0.0.0-20230925111557-a2f17671df1f
+	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue v0.0.0-20230925111557-a2f17671df1f
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/gorilla/mux v1.8.0
 	github.com/spf13/viper v1.16.0

@@ -44,5 +44,4 @@ func (srv *Server) HandleError(c *gin.Context, err error) {
 	}
 
 	c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
-	return
 }

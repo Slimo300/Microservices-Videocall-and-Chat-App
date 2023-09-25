@@ -50,7 +50,7 @@ func (db *Database) DeleteMessageForYourself(userID, messageID, groupID uuid.UUI
 	// checking if user haven't already deleted this message
 	for _, member := range message.Deleters {
 		if member.UserID == userID {
-			return models.Message{}, apperrors.NewConflict(fmt.Sprintf("This message is already deleted by user %v", userID.String()))
+			return models.Message{}, apperrors.NewConflict(fmt.Sprintf("Message %v already deleted", messageID.String()))
 		}
 	}
 
