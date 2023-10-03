@@ -50,12 +50,8 @@ manifests:
     - deploy/dbs/*
     - deploy/services/*
     - deploy/ingress-dev.yaml
-    # - deploy/cert-manager/*
   helm:
     releases:
-      # - name: cert-manager
-      #   chartPath: jetstack/cert-manager
-      #   version: 1.12.3
       - name: kafka
         chartPath: bitnami/kafka
         version: 20.0.6

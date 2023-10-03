@@ -1,0 +1,45 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: acme-issuer
+spec:
+  acme:
+    # Configure your email here...
+    # ---
+    email: sebastian.slimak707@gmail.com
+
+    # Configure your server here...
+    # ---
+    # Letsencrypt Production
+    server: https://acme-v02.api.letsencrypt.org/directory
+    # - or -
+    # Letsencrypt Staging
+    # server: https://acme-staging-v02.api.letsencrypt.org/directory
+
+    privateKeySecretRef:
+      name: acme-account-secret
+    solvers:
+    # Configure DNS or HTTP Challenge here...
+    # ---
+    # DNS Challenge:
+    - dns01:
+        digitalocean:
+        # API Key:
+        #   apiKeySecretRef:
+        #     name: cloudflare-api-key-secret
+        #     key: api-key
+        # - or -
+        # API Token:
+          tokenSecretRef:
+            name: digitalocean-token
+            key: api-token        
+      # (Optional) Add DNS selectors
+      # ---
+      # selector:
+      #   dnsZones:
+      #   - 'your-domain'
+
+    # HTTP Challenge:
+    # - http01:
+    #    ingress:
+    #      class: traefik

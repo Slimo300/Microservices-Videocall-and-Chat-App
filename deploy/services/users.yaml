@@ -42,9 +42,9 @@ spec:
         - name: EMAIL_SERVICE_ADDRESS
           value: email-service:9000
         - name: ORIGIN
-          value: https://www.relrel.com
+          value: https://www.relrel.org
         - name: DOMAIN
-          value: relrel.com
+          value: relrel.org
         - name: BROKER_ADDRESS
           value: kafka:9092
         envFrom:
