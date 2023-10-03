@@ -1,12 +1,12 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: cert
+  name: relrel-cert
   namespace: default
 spec:
   secretName: relrel-tls
   issuerRef:
-    name: clusterissuer
+    name: acme-issuer # for self-signed change name to self signed issuer
     kind: ClusterIssuer
   dnsNames:
     - www.relrel.org

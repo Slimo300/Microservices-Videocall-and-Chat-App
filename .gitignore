@@ -1,5 +1,6 @@
-commands.sh
-start.sh
+deploy/secrets/
 cert/
-deploy/secrets
+
+start-dev.sh
+start-prod.sh
 TODO

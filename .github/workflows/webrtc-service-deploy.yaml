@@ -5,7 +5,7 @@ on:
     branches: 
       - main
     paths:
-      - backend/webrtc-service
+      - 'backend/webrtc-service/**'
 
 jobs:
   build:

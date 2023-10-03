@@ -36,7 +36,7 @@ spec:
         - name: ES_PASS
           value: ""
         - name: ORIGIN
-          value: https://www.relrel.com
+          value: https://www.relrel.org
         - name: BROKER_ADDRESS
           value: kafka:9092
         volumeMounts:

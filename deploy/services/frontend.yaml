@@ -21,7 +21,7 @@ spec:
           name: http
         env:
         - name: API_URL
-          value: api.relrel.com
+          value: api.relrel.org
 ---
 apiVersion: v1
 kind: Service

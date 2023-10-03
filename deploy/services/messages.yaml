@@ -32,7 +32,7 @@ spec:
         - name: MYSQL_ADDRESS
           value: chat:password12@tcp(message-mysql:3306)/chatapp
         - name: ORIGIN
-          value: https://www.relrel.com
+          value: https://www.relrel.org
         - name: BROKER_ADDRESS
           value: kafka:9092
         envFrom:

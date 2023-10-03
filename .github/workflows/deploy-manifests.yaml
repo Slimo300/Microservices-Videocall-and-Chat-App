@@ -20,4 +20,4 @@ jobs:
       - name: Saving our cluster config
         run: doctl kubernetes cluster kubeconfig save relrel
       - name: Update Deployment
-        run: source start-prod.sh
+        run: kubectl apply -f deploy/dbs/* -f deploy/services/* -f deploy/ingress-prod.yaml

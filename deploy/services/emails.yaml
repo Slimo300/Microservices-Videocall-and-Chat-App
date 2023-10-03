@@ -23,7 +23,7 @@ spec:
           name: grpc
         env:
         - name: ORIGIN
-          value: http://www.relrel.com
+          value: http://www.relrel.org
         envFrom:
         - secretRef:
             name: brevo-creds
