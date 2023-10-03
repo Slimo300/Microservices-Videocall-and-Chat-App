@@ -27,7 +27,7 @@ spec:
           command: ['sh', '-c', 'echo -e "Checking for the availability of WebRTC Gateway deployment"; while ! nc -z webrtc-gateway-service 8080; do sleep 1; printf "-"; done; echo -e "  >> WebRTC Gateway has started";']
       containers:
       - name: webrtc-service
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         image: slimo300/webrtc-service
         ports:
         - containerPort: 8080

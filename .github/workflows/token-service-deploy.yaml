@@ -29,4 +29,4 @@ jobs:
       - name: Saving our cluster config
         run: doctl kubernetes cluster kubeconfig save relrel
       - name: Update Deployment
-        run: kubectl rollout restart tokens-deployment
+        run: kubectl rollout restart deployment tokens-deployment

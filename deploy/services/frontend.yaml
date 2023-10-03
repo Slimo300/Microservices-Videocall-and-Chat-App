@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         image: slimo300/frontend
         ports:
         - containerPort: 80
