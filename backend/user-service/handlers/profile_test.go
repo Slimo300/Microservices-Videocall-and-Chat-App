@@ -35,8 +35,8 @@ func (s *ProfileTestSuite) SetupSuite() {
 	s.ids["userNoImage"] = uuid.MustParse("5099885a-9c28-42f6-b8a4-f8feeceab579")
 
 	db := new(mockdb.MockUsersDB)
-	db.On("GetUserById", s.ids["userOK"]).Return(models.User{ID: s.ids["userOK"]}, nil)
-	db.On("GetUserById", s.ids["userNotFound"]).Return(models.User{}, errors.New("no such user"))
+	db.On("GetUserById", s.ids["userOK"]).Return(&models.User{ID: s.ids["userOK"]}, nil)
+	db.On("GetUserById", s.ids["userNotFound"]).Return(&models.User{}, errors.New("no such user"))
 
 	db.On("ChangePassword", s.ids["userNotFound"], mock.Anything, mock.Anything).Return(apperrors.NewAuthorization("User not in database"))
 	db.On("ChangePassword", s.ids["userOK"], "password", mock.Anything).Return(apperrors.NewForbidden("Wrong Password"))

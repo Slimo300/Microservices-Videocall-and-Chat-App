@@ -6,8 +6,9 @@ import (
 )
 
 type DBLayer interface {
-	GetUserById(uid uuid.UUID) (models.User, error)
-	SignIn(email, password string) (models.User, error)
+	GetUserById(uid uuid.UUID) (*models.User, error)
+	GetUserByUsername(username string) (*models.User, error)
+	SignIn(email, password string) (*models.User, error)
 
 	RegisterUser(models.User) (*models.User, *models.VerificationCode, error)
 	VerifyCode(code string) (*models.User, error)

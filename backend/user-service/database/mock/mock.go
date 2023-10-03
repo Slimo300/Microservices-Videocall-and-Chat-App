@@ -83,22 +83,50 @@ func (_m *MockUsersDB) GetProfilePictureURL(userID uuid.UUID) (string, bool, err
 }
 
 // GetUserById provides a mock function with given fields: uid
-func (_m *MockUsersDB) GetUserById(uid uuid.UUID) (models.User, error) {
+func (_m *MockUsersDB) GetUserById(uid uuid.UUID) (*models.User, error) {
 	ret := _m.Called(uid)
 
-	var r0 models.User
+	var r0 *models.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(uuid.UUID) (models.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(uuid.UUID) (*models.User, error)); ok {
 		return rf(uid)
 	}
-	if rf, ok := ret.Get(0).(func(uuid.UUID) models.User); ok {
+	if rf, ok := ret.Get(0).(func(uuid.UUID) *models.User); ok {
 		r0 = rf(uid)
 	} else {
-		r0 = ret.Get(0).(models.User)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.User)
+		}
 	}
 
 	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
 		r1 = rf(uid)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetUserByUsername provides a mock function with given fields: username
+func (_m *MockUsersDB) GetUserByUsername(username string) (*models.User, error) {
+	ret := _m.Called(username)
+
+	var r0 *models.User
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (*models.User, error)); ok {
+		return rf(username)
+	}
+	if rf, ok := ret.Get(0).(func(string) *models.User); ok {
+		r0 = rf(username)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.User)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(username)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -191,18 +219,20 @@ func (_m *MockUsersDB) ResetPassword(code string, newPassword string) error {
 }
 
 // SignIn provides a mock function with given fields: email, password
-func (_m *MockUsersDB) SignIn(email string, password string) (models.User, error) {
+func (_m *MockUsersDB) SignIn(email string, password string) (*models.User, error) {
 	ret := _m.Called(email, password)
 
-	var r0 models.User
+	var r0 *models.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string) (models.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, string) (*models.User, error)); ok {
 		return rf(email, password)
 	}
-	if rf, ok := ret.Get(0).(func(string, string) models.User); ok {
+	if rf, ok := ret.Get(0).(func(string, string) *models.User); ok {
 		r0 = rf(email, password)
 	} else {
-		r0 = ret.Get(0).(models.User)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.User)
+		}
 	}
 
 	if rf, ok := ret.Get(1).(func(string, string) error); ok {
