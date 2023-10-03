@@ -72,9 +72,8 @@ func (db *Database) ChangePassword(userID uuid.UUID, oldPassword, newPassword st
 	return nil
 }
 
-func (db *Database) SignIn(email, password string) (*models.User, error) {
-	var user *models.User
-	if err := db.Where(models.User{Email: email, Verified: true}).First(user).Error; err != nil {
+func (db *Database) SignIn(email, password string) (user *models.User, err error) {
+	if err = db.Where(models.User{Email: email, Verified: true}).First(&user).Error; err != nil {
 		return nil, apperrors.NewBadRequest("wrong email or password")
 	}
 	if !database.CheckPassword(user.Pass, password) {
