@@ -12,8 +12,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func (db *Database) GetUserById(id uuid.UUID) (user models.User, err error) {
-	return user, db.First(&user, id).Error
+func (db *Database) GetUserById(id uuid.UUID) (user *models.User, err error) {
+	return user, db.First(user, id).Error
 }
 
 // DeleteProfilePicture updates user's property "pictureURL" to empty line
@@ -72,13 +72,13 @@ func (db *Database) ChangePassword(userID uuid.UUID, oldPassword, newPassword st
 	return nil
 }
 
-func (db *Database) SignIn(email, password string) (models.User, error) {
-	var user models.User
-	if err := db.Where(models.User{Email: email, Verified: true}).First(&user).Error; err != nil {
-		return models.User{}, apperrors.NewBadRequest("wrong email or password")
+func (db *Database) SignIn(email, password string) (*models.User, error) {
+	var user *models.User
+	if err := db.Where(models.User{Email: email, Verified: true}).First(user).Error; err != nil {
+		return nil, apperrors.NewBadRequest("wrong email or password")
 	}
 	if !database.CheckPassword(user.Pass, password) {
-		return models.User{}, apperrors.NewBadRequest("wrong email or password")
+		return nil, apperrors.NewBadRequest("wrong email or password")
 	}
 	return user, nil
 }
@@ -134,4 +134,8 @@ func (db *Database) ResetPassword(code, newPassword string) error {
 	}
 
 	return nil
+}
+
+func (db *Database) GetUserByUsername(username string) (user *models.User, err error) {
+	return user, db.Where(models.User{UserName: username}).First(user).Error
 }

@@ -1,4 +1,4 @@
-import axiosObject, {userService, searchService} from "./Setup";
+import axiosObject, { userService } from "./Setup";
 
 export async function Register(email, username, password, rpassword) {
     return await axiosObject.post(userService+"/register", {
@@ -89,5 +89,5 @@ export async function ResetForgottenPassword(resetCode, newPassword, repeatPassw
 }
 
 export async function SearchUsers(username, num) {
-    return await axiosObject.get(searchService+"/"+username+"?num="+num);
+    return await axiosObject.get(userService+"/search/"+username+"?num="+num);
  }

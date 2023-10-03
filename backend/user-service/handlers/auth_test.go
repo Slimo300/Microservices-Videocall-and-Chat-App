@@ -29,9 +29,9 @@ type AuthTestSuite struct {
 func (s *AuthTestSuite) SetupSuite() {
 
 	db := new(mockdb.MockUsersDB)
-	db.On("SignIn", "host@net.pl", "password12").Return(models.User{ID: s.ids["userOK"]}, nil)
-	db.On("SignIn", "host2@net.pl", "password12").Return(models.User{}, apperrors.NewBadRequest("wrong email or password"))
-	db.On("SignIn", "host@net.pl", "password").Return(models.User{}, apperrors.NewBadRequest("wrong email or password"))
+	db.On("SignIn", "host@net.pl", "password12").Return(&models.User{ID: s.ids["userOK"]}, nil)
+	db.On("SignIn", "host2@net.pl", "password12").Return(&models.User{}, apperrors.NewBadRequest("wrong email or password"))
+	db.On("SignIn", "host@net.pl", "password").Return(&models.User{}, apperrors.NewBadRequest("wrong email or password"))
 
 	tokenClient := new(auth.MockTokenClient)
 
