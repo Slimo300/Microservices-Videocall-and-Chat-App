@@ -29,4 +29,4 @@ jobs:
       - name: Saving our cluster config
         run: doctl kubernetes cluster kubeconfig save relrel
       - name: Update Deployment
-        run: kubectl rollout restart webrtc-statefulset
+        run: kubectl rollout restart deployment webrtc-statefulset

@@ -20,4 +20,4 @@ jobs:
       - name: Saving our cluster config
         run: doctl kubernetes cluster kubeconfig save relrel
       - name: Update Deployment
-        run: kubectl apply -f deploy/dbs/* -f deploy/services/* -f deploy/ingress-prod.yaml
+        run: kubectl apply -k deploy/dbs -k deploy/services -f deploy/ingress-prod.yaml && kubectl delete deployment search-deployment elastic && kubectl delete service search-service elastic

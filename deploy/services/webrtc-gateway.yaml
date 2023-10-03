@@ -23,7 +23,7 @@ spec:
           command: ['sh', '-c', 'echo -e "Checking for the availability of Kafka broker"; while ! nc -z kafka 9092; do sleep 1; printf "-"; done; echo -e "  >> Kafka has started";']
       containers:
       - name: webrtc-gateway-service
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         image: slimo300/webrtc-gateway-service
         ports:
         - containerPort: 8080
