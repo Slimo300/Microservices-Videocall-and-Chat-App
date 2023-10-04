@@ -1,6 +1,6 @@
 import React, {useEffect, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faJedi, faVideo, faPhone } from '@fortawesome/free-solid-svg-icons'
+import { faVideo, faPhone } from '@fortawesome/free-solid-svg-icons'
 
 import GroupMenu from "./GroupMenu";
 import { ModalAddUser } from "../modals/AddUser";
@@ -63,7 +63,7 @@ const Chat = ({group, user, ws, setCurrent}) => {
     const JoinVideoCall = async () => {
         try {
             let accessCode = await GetWebRTCAccessCode(group.ID);
-            window.open(window._env_.APP_HOST+"/call/"+group.ID+"?accessCode="+accessCode+"&initialVideo=true", "_blank", 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'); // 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'
+            window.open("call/"+group.ID+"?accessCode="+accessCode+"&initialVideo=true&initialAudio=true", "_blank", 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'); // 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'
 
         } catch(err) {
             alert(err);
@@ -73,17 +73,7 @@ const Chat = ({group, user, ws, setCurrent}) => {
     const JoinCall = async () => {
         try {
             let accessCode = await GetWebRTCAccessCode(group.ID);
-            window.open(window._env_.APP_HOST+"/call/"+group.ID+"?accessCode="+accessCode, "_blank", 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'); // 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'
-
-        } catch(err) {
-            alert(err);
-        }
-    }
-
-    const MockJoinCall = async () => {
-        try {
-            let accessCode = await GetWebRTCAccessCode(group.ID);
-            window.open(window._env_.APP_HOST+"/call/"+group.ID+"?accessCode="+accessCode+"&initialVideo=true&mock=true", "_blank", 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'); // 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'
+            window.open("call/"+group.ID+"?accessCode="+accessCode+"&initialAudio=true", "_blank", 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'); // 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no'
 
         } catch(err) {
             alert(err);
@@ -98,9 +88,6 @@ const Chat = ({group, user, ws, setCurrent}) => {
             <div className="col-xl-8 col-lg-8 col-md-8 col-sm-9 col-9">
                 <div className="selected-user row">
                     <span className="mr-auto mt-4">To: <span className="name">{group.name}</span></span>
-                    <button className="btn btn-primary mt-3 mr-1 mb-3" type="button" onClick={MockJoinCall}>
-                        <FontAwesomeIcon icon={faJedi} />
-                    </button>
                     <button className="btn btn-primary mt-3 mr-1 mb-3" type="button" onClick={JoinCall}>
                         <FontAwesomeIcon icon={faPhone} />
                     </button>
