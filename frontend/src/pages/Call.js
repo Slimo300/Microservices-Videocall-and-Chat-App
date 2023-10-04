@@ -4,7 +4,6 @@ import {  useParams, Navigate } from "react-router-dom";
 import useQuery from '../hooks/useQuery';
 import { GetWebRTCWebsocket } from '../requests/Ws';
 import CallScreen from '../components/videocall/CallScreen';
-import StartCall from '../components/videocall/StartCall';
 import { RTCStreamsReducer, actionTypes } from '../components/videocall/RTCStreams';
 
 export const VIDEO_ACTIVE = "VideoActive";
@@ -18,7 +17,6 @@ const VideoConference = () => {
     const { id } = useParams();
     const query = useQuery();
     const accessCode = query.get("accessCode");
-    const mocking = query.get("mock");
     const initialVideo = query.get("initialVideo");
     const initialAudio = query.get("initialAudio");
 
@@ -39,7 +37,7 @@ const VideoConference = () => {
 
     useEffect(() => {
         const startCall = async () => {
-            const stream = await StartCall(mocking==="true", initialVideo==="true");
+            const stream = await await navigator.mediaDevices.getUserMedia({video: initialVideo==="true", audio: initialAudio==="true"});
 
             setUserStream(stream);
 
@@ -130,7 +128,7 @@ const VideoConference = () => {
 
         startCall();
 
-    }, [accessCode, id, mocking, initialVideo, initialAudio]);
+    }, [accessCode, id, initialVideo, initialAudio]);
 
     const ToggleAudio = useCallback(async () => {
         if (audioState !== AUDIO_ACTIVE) {

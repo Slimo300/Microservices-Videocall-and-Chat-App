@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
 import {ForgotPassword} from '../../requests/Users';
 
-export const ModalForgotPassword = (props) => {
+export const ModalForgotPassword = ({ toggle, show }) => {
 
     const [msg, setMsg] = useState("");
     const [email, setEmail] = useState("");
@@ -19,14 +19,14 @@ export const ModalForgotPassword = (props) => {
         }
         setTimeout(function () {    
             setMsg("");
-            props.toggle();
+            toggle();
         }, 2000);
     }
 
     return (
-        <Modal id="buy" tabIndex="-1" role="dialog" isOpen={props.show} toggle={props.toggle}>
+        <Modal id="buy" tabIndex="-1" role="dialog" isOpen={show} toggle={toggle}>
             <div role="document">
-                <ModalHeader toggle={props.toggle} className="bg-dark text-primary text-center">
+                <ModalHeader toggle={toggle} className="bg-dark text-primary text-center">
                     Forgot Password?
                 </ModalHeader>
                 <ModalBody>

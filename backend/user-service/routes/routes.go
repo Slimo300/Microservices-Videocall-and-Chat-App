@@ -36,7 +36,7 @@ func Setup(server *handlers.Server, origin string) *gin.Engine {
 	apiAuth.DELETE("/delete-image", server.DeleteProfilePicture)
 	apiAuth.POST("/set-image", server.UpdateProfilePicture)
 
-	engine.GET("/search/:name", server.SearchUser)
+	apiAuth.GET("/search/:name", server.SearchUser)
 
 	apiAuth.PUT("/change-password", server.ChangePassword)
 	apiAuth.GET("/user", server.GetUser)

@@ -4,7 +4,7 @@ import {UpdateGroupProfilePicture, DeleteGroupProfilePicture} from "../../reques
 import { actionTypes, StorageContext } from '../../ChatStorage';
 import { GroupPicture } from "../Pictures";
 
-export const ModalGroupOptions = (props) => {
+export const ModalGroupOptions = ({ group, show, toggle }) => {
 
     const [, dispatch] = useContext(StorageContext);
 
@@ -17,13 +17,13 @@ export const ModalGroupOptions = (props) => {
         let data = new FormData();
         data.append("avatarFile", file);
     
-        let response = await UpdateGroupProfilePicture(data, props.group.ID);
+        let response = await UpdateGroupProfilePicture(data, group.ID);
 
         if (response.status === 200) {
             setMessage("Image uploaded successfully");
-            dispatch({type: actionTypes.SET_GROUP_PICTURE, payload: {newUrl: response.data.newUrl, groupID: props.group.ID}});
+            dispatch({type: actionTypes.SET_GROUP_PICTURE, payload: {newUrl: response.data.newUrl, groupID: group.ID}});
             let timestamp = new Date().getTime();
-            document.getElementById("profilePicture").src = "https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+props.group.pictureUrl+"?"+timestamp;
+            document.getElementById("profilePicture").src = "https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+group.pictureUrl+"?"+timestamp;
             document.getElementById("customFile").value= null;
         } else {
             setMessage(response.data.err);
@@ -34,13 +34,13 @@ export const ModalGroupOptions = (props) => {
     };
 
     const deletePicture = async() => {
-        let response = await DeleteGroupProfilePicture(props.group.ID)
+        let response = await DeleteGroupProfilePicture(group.ID)
 
         if (response.status === 200) {
             setMessage("Image deleted successfully");
-            dispatch({type: actionTypes.DELETE_GROUP_PROFILE_PICTURE, payload: props.group.ID})
+            dispatch({type: actionTypes.DELETE_GROUP_PROFILE_PICTURE, payload: group.ID})
             let timestamp = new Date().getTime();
-            document.getElementById("profilePicture").src = "https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+props.group.ID+"?"+timestamp;
+            document.getElementById("profilePicture").src = "https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+group.ID+"?"+timestamp;
         } else {
             setMessage(response.data.err);
         }
@@ -50,9 +50,9 @@ export const ModalGroupOptions = (props) => {
     };
 
     return (
-        <Modal id="buy" tabIndex="-1" role="dialog" isOpen={props.show} toggle={props.toggle}>
+        <Modal id="buy" tabIndex="-1" role="dialog" isOpen={show} toggle={toggle}>
             <div role="document">
-                <ModalHeader toggle={props.toggle} className="bg-dark text-primary text-center">
+                <ModalHeader toggle={toggle} className="bg-dark text-primary text-center">
                     Group Profile
                 </ModalHeader>
                 <ModalBody>
@@ -62,10 +62,10 @@ export const ModalGroupOptions = (props) => {
                                 <div className="member-card">
                                     {message}
                                     <div className="mx-auto profile-image-holder">
-                                        <GroupPicture pictureUrl={props.group.pictureUrl} imageID="profilePicture"/>
+                                        <GroupPicture pictureUrl={group.pictureUrl} imageID="profilePicture"/>
                                     </div>
                                     <div>
-                                        <h4>{props.name}</h4>
+                                        <h4>{group.name}</h4>
                                     </div>
                                     <hr />
                                     <h3>Change profile picture</h3>

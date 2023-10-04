@@ -6,7 +6,7 @@ import { actionTypes } from "../../ChatStorage";
 import { SearchUsers } from "../../requests/Users";
 import { UserPicture } from "../Pictures";
 
-export const ModalAddUser = (props) => {
+export const ModalAddUser = ({ group, toggle, show }) => {
 
     const [username, setUsername] = useState("");
     const [msg, setMsg] = useState("");
@@ -23,20 +23,21 @@ export const ModalAddUser = (props) => {
             }
             try {
                 let response = await SearchUsers(username, 5);
-                setUsers(response.data);
+                console.log(response.data);
+                setUsers([response.data]);
                 dropdown.classList.add("show");
             }
             catch(err) {
-                setMsg(err);
+                // setMsg(err.response.data.err);
             }
         };
         fetchData();
     }, [username]);
     
     return (
-        <Modal id="buy" tabIndex="-1" role="dialog" isOpen={props.show} toggle={props.toggle}>
+        <Modal tabIndex="-1" role="dialog" isOpen={show} toggle={toggle}>
             <div role="document">
-                <ModalHeader toggle={props.toggle} className="bg-dark text-primary text-center">
+                <ModalHeader toggle={toggle} className="bg-dark text-primary text-center">
                     Add User
                 </ModalHeader>
                 <ModalBody>
@@ -52,7 +53,7 @@ export const ModalAddUser = (props) => {
                             <div id="dropdownUsers" className="dropdown-menu w-100" aria-labelledby="dropdownMenuButton">
                                 {users===null||users.length===0?null:users.map((item) => {
                                     return <div key={item.ID}>
-                                            <User user={item} setMsg={setMsg} groupID={props.group.ID} toggle={props.toggle} isMember={isMember(props.group, item.ID)}/>
+                                            <User user={item} setMsg={setMsg} groupID={group.ID} toggle={toggle} isMember={isMember(group, item.ID)}/>
                                             <hr />
                                         </div>
                                 })}
@@ -67,35 +68,35 @@ export const ModalAddUser = (props) => {
 } 
 
 
-const User = (props) => {
+const User = ({ user, groupID, setMsg, toggle, isMember }) => {
 
     const [, dispatch] = useContext(StorageContext);
 
     const AddUser = async(e) => {
         e.preventDefault();
         try {
-            let response = await SendGroupInvite(props.user.ID, props.groupID);
+            let response = await SendGroupInvite(user.ID, groupID);
             dispatch({type: actionTypes.ADD_INVITE, payload: response.data});
 
-            props.setMsg("Invite sent successfully");
+            setMsg("Invite sent successfully");
 
             setTimeout(function () {    
-                props.toggle();
-                props.setMsg("");
+                toggle();
+                setMsg("");
             }, 3000);
 
         } catch(err) {
-            props.setMsg(err.response);
+            setMsg(err.response);
         }
     }
 
     return (
         <div className="d-flex column justify-content-between align-items-center px-3">
             <div className="d-flex column align-items-center">
-                <div className="chat-avatar image-holder-invite"><UserPicture pictureUrl={props.user.picture}/></div>
-                <div className="user-name pl-3">{props.user.username}</div>
+                <div className="chat-avatar image-holder-invite"><UserPicture pictureUrl={user.picture}/></div>
+                <div className="user-name pl-3">{user.username}</div>
             </div>
-            <button className="btn btn-primary pl-3" disabled={props.isMember} onClick={AddUser}>Add User</button>
+            <button className="btn btn-primary pl-3" disabled={isMember} onClick={AddUser}>Add User</button>
         </div>
     )
 }

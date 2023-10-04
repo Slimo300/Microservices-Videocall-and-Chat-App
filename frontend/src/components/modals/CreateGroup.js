@@ -3,7 +3,7 @@ import { Modal, ModalHeader, ModalBody } from 'reactstrap';
 import { actionTypes, StorageContext } from '../../ChatStorage';
 import {CreateGroup} from '../../requests/Groups';
 
-export const ModalCreateGroup = (props) => {
+export const ModalCreateGroup = ({ toggle, show }) => {
 
     const [, dispatch] = useContext(StorageContext);
 
@@ -20,7 +20,7 @@ export const ModalCreateGroup = (props) => {
             setMsg("Group created");
 
             setTimeout(function () {    
-                props.toggle();
+                toggle();
                 setMsg("");
             }, 1000);
         }
@@ -31,9 +31,9 @@ export const ModalCreateGroup = (props) => {
     }
 
     return (
-        <Modal id="buy" tabIndex="-1" role="dialog" isOpen={props.show} toggle={props.toggle}>
+        <Modal id="buy" tabIndex="-1" role="dialog" isOpen={show} toggle={toggle}>
             <div role="document">
-                <ModalHeader toggle={props.toggle} className="bg-dark text-primary text-center">
+                <ModalHeader toggle={toggle} className="bg-dark text-primary text-center">
                     Create Group
                 </ModalHeader>
                 <ModalBody>

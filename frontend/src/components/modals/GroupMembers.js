@@ -5,7 +5,7 @@ import {SetRights, DeleteMember} from '../../requests/Groups';
 import { actionTypes, StorageContext } from '../../ChatStorage';
 import { UserPicture } from '../Pictures';
 
-export const ModalMembers = (props) => {
+export const ModalMembers = ({ group, member, show, toggle }) => {
 
     const [msg, setMsg] = useState("");
 
@@ -15,13 +15,13 @@ export const ModalMembers = (props) => {
     }
 
     let nogroup = false;
-    if (props.group.Members === null) {
+    if (group.Members === null) {
         nogroup = true
     }
     return (
-        <Modal id="buy" tabIndex="-1" size='lg' role="dialog" isOpen={props.show} toggle={props.toggle}>
+        <Modal id="buy" tabIndex="-1" size='lg' role="dialog" isOpen={show} toggle={toggle}>
             <div role="document">
-                <ModalHeader toggle={props.toggle} className="bg-dark text-primary text-center">
+                <ModalHeader toggle={toggle} className="bg-dark text-primary text-center">
                     Group Members
                 </ModalHeader>
                 <ModalBody>
@@ -30,7 +30,7 @@ export const ModalMembers = (props) => {
                         <div className='form-group'>
                             <table className="table">
                                 <tbody>
-                                    {nogroup?null:props.group.Members.map((item) => {return <Member key={uuidv4()} group={props.group.ID} member={item} setMsg={setMsg} toggle={props.toggle} user={props.member}/>})}
+                                    {nogroup?null:group.Members.map((item) => {return <Member key={uuidv4()} group={group.ID} member={item} setMsg={setMsg} toggle={toggle} user={member}/>})}
                                 </tbody>
                             </table>
                         </div>
@@ -67,11 +67,11 @@ function CanSet(issuer, target) {
 }
 
 
-const Member = (props) => {
+const Member = ({ member, group, user, setMsg, toggle }) => {
     const [, dispatch] = useContext(StorageContext);
 
     const toggleCollapse = () => {
-        let elem = document.getElementById("collapse-"+props.member.ID);
+        let elem = document.getElementById("collapse-"+member.ID);
         let isCollapsed = elem.classList.contains("show");
         if (isCollapsed) elem.classList.remove("show")
         else elem.classList.add("show")
@@ -79,91 +79,91 @@ const Member = (props) => {
 
     const deleteMember = async() => {
 
-        let response = await DeleteMember(props.member.groupID, props.member.ID);
+        let response = await DeleteMember(member.groupID, member.ID);
         if (response.status === 200) {
-            props.setMsg("Member deleted");
-        } else props.setMsg(response.data.err);
+            setMsg("Member deleted");
+        } else setMsg(response.data.err);
         setTimeout(function() {
-            props.toggle();
-            props.setMsg("");
+            toggle();
+            setMsg("");
         }, 2000);
-        dispatch({type: actionTypes.DELETE_MEMBER, payload: {ID: props.member.ID, groupID: props.group}})
+        dispatch({type: actionTypes.DELETE_MEMBER, payload: {ID: member.ID, groupID: group}})
     }
 
     return (
         <tr className='d-flex flex-column'>
             <td className="chat-avatar d-flex flex-row justify-content-center">
                 <div className='pr-3 members-image-holder'>
-                    <UserPicture pictureUrl={props.member.User.pictureUrl} />
+                    <UserPicture pictureUrl={member.User.pictureUrl} />
                 </div>
-                <div className="chat-name pr-3 w-50 d-flex align-items-center">{props.member.User.username}</div>
-                {isSetter(props.user)?<div className='pr-3 align-right'><button className='btn-primary btn' type="button" onClick={toggleCollapse} disabled={!CanSet(props.user, props.member)}>Set rights</button></div>:null}
-                {isDeleter(props.user)?<div className='pr-3 align-right'><button className='btn-primary btn' disabled={!CanDelete(props.user, props.member)} onClick={deleteMember}>Delete</button></div>:null}
+                <div className="chat-name pr-3 w-50 d-flex align-items-center">{member.User.username}</div>
+                {isSetter(user)?<div className='pr-3 align-right'><button className='btn-primary btn' type="button" onClick={toggleCollapse} disabled={!CanSet(user, member)}>Set rights</button></div>:null}
+                {isDeleter(user)?<div className='pr-3 align-right'><button className='btn-primary btn' disabled={!CanDelete(user, member)} onClick={deleteMember}>Delete</button></div>:null}
             </td>
-            <Rights member={props.member} user={props.user} setMsg={props.setMsg} />
+            <Rights member={member} user={user} setMsg={setMsg} />
         </tr>
     );
 };
 
-const Rights = (props) => {
+const Rights = ({ member, user, setMsg }) => {
 
-    const [adding, setAdding] = useState(props.member.adding);
+    const [adding, setAdding] = useState(member.adding);
     const toggleAdding = () => {
         setAdding(!adding);
     }
-    const [deletingMembers, setDeletingMembers] = useState(props.member.deletingMembers);
+    const [deletingMembers, setDeletingMembers] = useState(member.deletingMembers);
     const toggleDeletingMembers = () => {
         setDeletingMembers(!deletingMembers);
     }
-    const [deletingMessages, setDeletingMessages] = useState(props.member.deletingMembers);
+    const [deletingMessages, setDeletingMessages] = useState(member.deletingMembers);
     const toggleDeletingMessages = () => {
         setDeletingMessages(!deletingMessages);
     }
-    const [admin, setAdmin] = useState(props.member.admin);
+    const [admin, setAdmin] = useState(member.admin);
     const toggleAdmin = () => {
         setAdmin(!admin);
     }
 
     const setRights = async() => {
-        if (adding === props.member.adding && deletingMembers === props.member.deleting && admin === props.member.admin && deletingMessages === props.member.deletingMessages) {
+        if (adding === member.adding && deletingMembers === member.deleting && admin === member.admin && deletingMessages === member.deletingMessages) {
             return
         }
         let response = await SetRights(
-            props.member.groupID, 
-            props.member.ID, 
-            DetermineAction(props.member.adding, adding), 
-            DetermineAction(props.member.deletingMessages, deletingMessages), 
-            DetermineAction(props.member.deletingMembers, deletingMembers),
-            DetermineAction(props.member.admin, admin)
+            member.groupID, 
+            member.ID, 
+            DetermineAction(member.adding, adding), 
+            DetermineAction(member.deletingMessages, deletingMessages), 
+            DetermineAction(member.deletingMembers, deletingMembers),
+            DetermineAction(member.admin, admin)
         );
         console.log(response);
         if (response.status === 200) {
-            props.setMsg("Rights changed");
-        } else props.setMsg(response.data.err);
+            setMsg("Rights changed");
+        } else setMsg(response.data.err);
 
         setTimeout(function() {
-            props.setMsg("");
+            setMsg("");
         }, 2000);
     }
 
     return (
-        <td className="collapse" id={"collapse-"+props.member.ID}>
+        <td className="collapse" id={"collapse-"+member.ID}>
             <div className="card card-body d-flex flex-row">
                 <div className='pl-3 d-flex flex-column w-50'>
-                    {props.user.admin?<div className='align-middle'>
-                        <input className="form-check-input" type="checkbox" id="inlineCheckbox1" checked={adding} disabled={props.member.creator} onChange={toggleAdding}/>
+                    {user.admin?<div className='align-middle'>
+                        <input className="form-check-input" type="checkbox" id="inlineCheckbox1" checked={adding} disabled={member.creator} onChange={toggleAdding}/>
                         <label className="form-check-label" htmlFor="inlineCheckbox1">Adding</label>
                     </div>:null}
-                    {props.user.admin?<div className='align-middle'>
-                        <input className="form-check-input" type="checkbox" id="inlineCheckbox2" checked={deletingMembers} disabled={props.member.creator} onChange={toggleDeletingMembers}/>
+                    {user.admin?<div className='align-middle'>
+                        <input className="form-check-input" type="checkbox" id="inlineCheckbox2" checked={deletingMembers} disabled={member.creator} onChange={toggleDeletingMembers}/>
                         <label className="form-check-label" htmlFor="inlineCheckbox2">Deleting Members</label>
                     </div>:null}
-                    {props.user.admin?<div className='align-middle'>
-                        <input className="form-check-input" type="checkbox" id="inlineCheckbox2" checked={deletingMessages} disabled={props.member.creator} onChange={toggleDeletingMessages}/>
+                    {user.admin?<div className='align-middle'>
+                        <input className="form-check-input" type="checkbox" id="inlineCheckbox2" checked={deletingMessages} disabled={member.creator} onChange={toggleDeletingMessages}/>
                         <label className="form-check-label" htmlFor="inlineCheckbox2">Deleting Messages</label>
                     </div>:null}
-                    {props.user.admin?<div className='align-middle'>
-                        <input className="form-check-input" type="checkbox" id="inlineCheckbox3" checked={admin} disabled={props.member.creator} onChange={toggleAdmin}/>
+                    {user.admin?<div className='align-middle'>
+                        <input className="form-check-input" type="checkbox" id="inlineCheckbox3" checked={admin} disabled={member.creator} onChange={toggleAdmin}/>
                         <label className="form-check-label" htmlFor="inlineCheckbox3">Admin</label>
                     </div>:null}
                 </div>
