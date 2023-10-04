@@ -5,38 +5,38 @@ import { faEllipsis } from '@fortawesome/free-solid-svg-icons'
 import {DeleteMessageForEveryone, DeleteMessageForYourself} from "../../requests/Messages";
 import { actionTypes, StorageContext } from "../../ChatStorage";
 
-const Message = (props) => {
+const Message = ({ message, picture, user }) => {
 
-    let time = new Date(props.message.created);
+    let time = new Date(message.created);
     let displayedTime = time.getHours() + ":" + (time.getMinutes()<10?'0':'') + time.getMinutes();
 
     const right = (
         <li className="chat-right">
             <div className="chat-hour">{displayedTime} <span className="fa fa-check-circle"></span></div>
-            <MessageContent message={props.message} fileUrl={props.picture} side="right" />
+            <MessageContent message={message} fileUrl={picture} side="right" />
             <div className="chat-avatar">
-                <UserPicture pictureUrl={props.picture} />
-                <div className="chat-name">{props.message.nick}</div>
+                <UserPicture pictureUrl={picture} />
+                <div className="chat-name">{message.nick}</div>
             </div>
-            <MessageOptions side="right" messageID={props.message.messageID} groupID={props.message.groupID}/>
+            <MessageOptions side="right" messageID={message.messageID} groupID={message.groupID}/>
         </li>
     );
 
     const left = (
         <li className="chat-left">
-            <MessageOptions side="left" messageID={props.message.messageID} groupID={props.message.groupID}/>
+            <MessageOptions side="left" messageID={message.messageID} groupID={message.groupID}/>
             <div className="chat-avatar">
-                <UserPicture pictureUrl={props.picture} />
-                <div className="chat-name">{props.message.nick}</div>
+                <UserPicture pictureUrl={picture} />
+                <div className="chat-name">{message.nick}</div>
             </div>
-            <MessageContent message={props.message} fileUrl={props.picture} side="left" />
+            <MessageContent message={message} fileUrl={picture} side="left" />
             <div className="chat-hour">{displayedTime} <span className="fa fa-check-circle"></span></div>
         </li>
     )
 
     return (
         <div>
-            {props.message.userID===props.user?right:left}
+            {message.userID===user?right:left}
         </div>
     )
 }

@@ -4,7 +4,7 @@ import {ChangePassword, UpdateProfilePicture, DeleteProfilePicture }from "../req
 import { actionTypes, StorageContext } from '../ChatStorage';
 import { UserPicture } from "../components/Pictures";
 
-export const ModalUserProfile = (props) => {
+export const ModalUserProfile = ({ toggle, show, user }) => {
 
     const [, dispatch] = useContext(StorageContext);
 
@@ -53,7 +53,7 @@ export const ModalUserProfile = (props) => {
             setMessage("Image uploaded succesfully");
             dispatch({type: actionTypes.SET_PROFILE_PICTURE, payload: response.data.newUrl});
             let timestamp = new Date().getTime();
-            document.getElementById("profilePicture").src = "https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+props.user.pictureUrl+"?"+timestamp;
+            document.getElementById("profilePicture").src = "https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+user.pictureUrl+"?"+timestamp;
             document.getElementById("customFile").value= null;
 
         } else {
@@ -71,7 +71,7 @@ export const ModalUserProfile = (props) => {
             setMessage("Image deleted successfully");
             dispatch({type: actionTypes.SET_PROFILE_PICTURE, payload: ""});
             let timestamp = new Date().getTime();
-            document.getElementById("profilePicture").src = "https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+props.user.pictureUrl+"?"+timestamp;
+            document.getElementById("profilePicture").src = "https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+user.pictureUrl+"?"+timestamp;
         } else {
             setMessage(response.data.err);
         }
@@ -81,9 +81,9 @@ export const ModalUserProfile = (props) => {
     };
 
     return (
-        <Modal id="buy" tabIndex="-1" role="dialog" isOpen={props.show} toggle={props.toggle}>
+        <Modal id="buy" tabIndex="-1" role="dialog" isOpen={show} toggle={toggle}>
             <div role="document">
-                <ModalHeader toggle={props.toggle} className="bg-dark text-primary text-center">
+                <ModalHeader toggle={toggle} className="bg-dark text-primary text-center">
                     User Profile
                 </ModalHeader>
                 <ModalBody>
@@ -93,10 +93,10 @@ export const ModalUserProfile = (props) => {
                                 <div className="member-card">
                                     {message}
                                     <div className="mx-auto profile-image-holder">
-                                        <UserPicture pictureUrl={props.user.pictureUrl} imageID="profilePicture"/>
+                                        <UserPicture pictureUrl={user.pictureUrl} imageID="profilePicture"/>
                                     </div>
                                     <div>
-                                        <h4>{props.name}</h4>
+                                        <h4>{user.username}</h4>
                                     </div>
                                     <hr />
                                     <h3>Change profile picture</h3>

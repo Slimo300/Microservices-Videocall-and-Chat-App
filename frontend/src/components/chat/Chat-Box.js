@@ -60,9 +60,9 @@ export const ChatBox = ({ group, user }) => {
     );
 }
 
-const NewDate = (props) => {
-    let time = new Date(props.time)
-    let displayedTime = time.getDate()+"."+(time.getMonth()+1)+"."+time.getFullYear()+" "+time.getHours()+":"+(time.getMinutes()<10?'0':'') + time.getMinutes();
+const NewDate = ({ time }) => {
+    let date = new Date(time)
+    let displayedTime = date.getDate()+"."+(date.getMonth()+1)+"."+date.getFullYear()+" "+date.getHours()+":"+(date.getMinutes()<10?'0':'') + date.getMinutes();
     return (
         <div className="d-flex flex-column justify-content-center align-self-center text-secondary my-3">
             {displayedTime}

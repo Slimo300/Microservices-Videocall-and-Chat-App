@@ -3,10 +3,10 @@ import React from "react";
 import group from "../statics/images/group.jpg";
 import user from "../statics/images/user.png";
 
-export const UserPicture = (props) => {
+export const UserPicture = ({ pictureUrl, imageID }) => {
     return (
-        <img className="rounded-circle img-thumbnail" alt="user" id={props.imageID}
-            src={(props.pictureUrl === "")?user:"https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+props.pictureUrl}
+        <img className="rounded-circle img-thumbnail" alt="user" id={imageID}
+            src={(pictureUrl === "")?user:"https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+pictureUrl}
             onError={({ currentTarget }) => {
                 currentTarget.onerror = null; 
                 currentTarget.src=user;
@@ -14,10 +14,10 @@ export const UserPicture = (props) => {
         />
     );
 } 
-export const GroupPicture = (props) => {
+export const GroupPicture = ({ pictureUrl, imageID }) => {
     return (
-        <img className="rounded-circle img-thumbnail" alt="group" id={props.imageID}
-            src={(props.pictureUrl === "")?group:"https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+props.pictureUrl}
+        <img className="rounded-circle img-thumbnail" alt="group" id={imageID}
+            src={(pictureUrl === "")?group:"https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+pictureUrl}
             onError={({ currentTarget }) => {
                 currentTarget.onerror = null; 
                 currentTarget.src=group;

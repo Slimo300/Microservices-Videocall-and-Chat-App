@@ -15,14 +15,14 @@ const Invite = (props) => {
     
 };
 
-const AwaitingInvite = (props) => {
+const AwaitingInvite = ({ invite, userID }) => {
 
     const [, dispatch] = useContext(StorageContext);
 
     const Respond = async (answer) => {
         let response;
         try {
-            response = await RespondGroupInvite(props.invite.ID, answer);
+            response = await RespondGroupInvite(invite.ID, answer);
             console.log(response.data);
             if (response.data.invite !== undefined) dispatch({type: actionTypes.UPDATE_INVITE, payload: response.data.invite});
             if (response.data.group !== undefined) dispatch({type: actionTypes.ADD_GROUP, payload: response.data.group});
@@ -34,21 +34,21 @@ const AwaitingInvite = (props) => {
     };
 
     let isUserATarget = false;
-    if (props.userID === props.invite.targetID) {
+    if (userID === invite.targetID) {
         isUserATarget = true;
     }
 
     return (
         <div className="dropdown-item invite">
             <div className="list-group-item list-group-item-info d-flex row justify-content-around">
-                {isUserATarget?<InviteImage pictureUrl={props.invite.issuer.pictureUrl} user={true}/>:null}
-                <div className="chat-name align-self-center">{isUserATarget?props.invite.issuer.username:"You"}</div>
+                {isUserATarget?<InviteImage pictureUrl={invite.issuer.pictureUrl} user={true}/>:null}
+                <div className="chat-name align-self-center">{isUserATarget?invite.issuer.username:"You"}</div>
                 <div className="align-self-center">invited </div>
-                {isUserATarget?null:<InviteImage pictureUrl={props.invite.target.pictureUrl} user={true}/>}
-                <div className="chat-name align-self-center">{isUserATarget?"You":props.invite.target.username}</div>
+                {isUserATarget?null:<InviteImage pictureUrl={invite.target.pictureUrl} user={true}/>}
+                <div className="chat-name align-self-center">{isUserATarget?"You":invite.target.username}</div>
                 <div className="align-self-center">to </div>
-                <div className="chat-name align-self-center">{props.invite.group.name}</div>
-                <InviteImage pictureUrl={props.invite.group.pictureUrl} user={false}/>
+                <div className="chat-name align-self-center">{invite.group.name}</div>
+                <InviteImage pictureUrl={invite.group.pictureUrl} user={false}/>
                 {isUserATarget?<button className="btn-primary h-50 align-self-center" type="button" onClick={() => {Respond(true)}}>Accept</button>:null}
                 {isUserATarget?<button className="btn-secondary h-50 align-self-center" type="button" onClick={() => {Respond(false)}}>Decline</button>:null}
             </div>

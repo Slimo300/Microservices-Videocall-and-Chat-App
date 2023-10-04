@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { GetPresignedRequests } from "../../requests/Messages";
 
-const ChatInput = (props) => {
+const ChatInput = ({ group, ws, user }) => {
 
     const [msg, setMsg] = useState("");
     const [files, setFiles] = useState(null);
@@ -79,7 +79,7 @@ const ChatInput = (props) => {
             }
 
             try {
-                const response = await GetPresignedRequests(props.group.ID, filesInfo);
+                const response = await GetPresignedRequests(group.ID, filesInfo);
                 console.log(response.data);
 
                 let promises = [];
@@ -102,11 +102,11 @@ const ChatInput = (props) => {
             }
         }
 
-        if (props.ws !== undefined) props.ws.send(JSON.stringify({
-            "groupID": props.group.ID,
-            "userID": props.user.ID,
+        if (ws !== undefined) ws.send(JSON.stringify({
+            "groupID": group.ID,
+            "userID": user.ID,
             "text": msg,
-            "nick": props.user.username,
+            "nick": user.username,
             "files": filesData
         }));
 
