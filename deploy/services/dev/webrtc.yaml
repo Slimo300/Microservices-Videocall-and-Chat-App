@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: webrtc-statefulset
+spec:
+  replicas: 2
+  serviceName: webrtc-headless-service
+  selector:
+    matchLabels:
+      chat/app: webrtc
+      chat/tier: api
+  template:
+    metadata:
+      labels:
+        chat/app: webrtc
+        chat/tier: api
+    spec:
+      initContainers:
+        - name: webrtc-redis-test
+          image: busybox:1.31
+          command: ['sh', '-c', 'echo -e "Checking for the availability of Redis Server deployment"; while ! nc -z webrtc-redis 6379; do sleep 1; printf "-"; done; echo -e "  >> Redis Server has started";']
+        - name: kafka-test
+          image: busybox:1.31
+          command: ['sh', '-c', 'echo -e "Checking for the availability of Kafka broker"; while ! nc -z kafka 9092; do sleep 1; printf "-"; done; echo -e "  >> Kafka has started";']
+        - name: webrtc-gateway-test
+          image: busybox:1.31
+          command: ['sh', '-c', 'echo -e "Checking for the availability of WebRTC Gateway deployment"; while ! nc -z webrtc-gateway-service 8080; do sleep 1; printf "-"; done; echo -e "  >> WebRTC Gateway has started";']
+      containers:
+      - name: webrtc-service
+        imagePullPolicy: Never
+        image: slimo300/webrtc-service
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: DB_ADDRESS
+          value: webrtc-redis:6379
+        - name: DB_PASSWORD
+          value: redis
+        - name: ORIGIN
+          value: https://www.relrel.com
+        - name: BROKER_ADDRESS
+          value: kafka:9092
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: SERVICE_NAME
+          value: webrtc-headless-service
+        volumeMounts:
+          - name: public-key
+            mountPath: /rsa
+      volumes:
+        - name: public-key
+          configMap:
+            name: public-key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webrtc-service
+spec:
+  selector:
+    chat/app: webrtc
+    chat/tier: api
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webrtc-headless-service
+spec:
+  clusterIP: None
+  selector:
+    chat/app: webrtc
+    chat/tier: api
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: http

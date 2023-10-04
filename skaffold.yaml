@@ -48,7 +48,7 @@ manifests:
   rawYaml:
     - deploy/secrets/*
     - deploy/dbs/*
-    - deploy/services/*
+    - deploy/services/dev/*
     - deploy/ingress-dev.yaml
   helm:
     releases:

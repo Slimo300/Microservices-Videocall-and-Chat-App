@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: messages-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      chat/app: messages
+      chat/tier: api
+  template:
+    metadata:
+      labels:
+        chat/app: messages
+        chat/tier: api
+    spec:
+      initContainers:
+        - name: db-test
+          image: busybox:1.31
+          command: ['sh', '-c', 'echo -e "Checking for the availability of MySQL Server deployment"; while ! nc -z message-mysql 3306; do sleep 1; printf "-"; done; echo -e "  >> MySQL DB Server has started";']
+        - name: kafka-test
+          image: busybox:1.31
+          command: ['sh', '-c', 'echo -e "Checking for the availability of Kafka broker"; while ! nc -z kafka 9092; do sleep 1; printf "-"; done; echo -e "  >> Kafka has started";']
+      containers:
+      - name: message-service
+        imagePullPolicy: Never
+        image: slimo300/message-service
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: MYSQL_ADDRESS
+          value: chat:password12@tcp(message-mysql:3306)/chatapp
+        - name: ORIGIN
+          value: https://www.relrel.com
+        - name: BROKER_ADDRESS
+          value: kafka:9092
+        envFrom:
+        - secretRef:
+            name: aws-secrets
+        volumeMounts:
+          - name: public-key
+            mountPath: /rsa
+      volumes:
+        - name: public-key
+          configMap:
+            name: public-key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: message-service
+spec:
+  selector:
+    chat/app: messages
+    chat/tier: api
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: http

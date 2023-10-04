@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tokens-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      chat/app: tokens
+      chat/tier: api
+  template:
+    metadata:
+      labels:
+        chat/app: tokens
+        chat/tier: api
+    spec:
+      initContainers:
+        - name: init-cont
+          image: busybox:1.31
+          command: ['sh', '-c', 'echo -e "Checking for the availability of Redis Server deployment"; while ! nc -z token-redis 6379; do sleep 1; printf "-"; done; echo -e "  >> Redis Server has started";']
+      containers:
+      - name: token-service
+        imagePullPolicy: Never
+        image: slimo300/token-service
+        ports:
+        - containerPort: 9000
+          name: grpc
+        env:
+        - name: REDIS_ADDRESS
+          value: token-redis:6379
+        - name: REDIS_PASSWORD
+          value: redis
+        - name: REFRESH_DURATION
+          value: 86400s
+        - name: ACCESS_DURATION
+          value: 1200s
+        envFrom:
+        - secretRef:
+            name: refresh-secret
+        volumeMounts:
+          - name: private-key
+            mountPath: /rsa
+      volumes:
+        - name: private-key
+          configMap:
+            name: private-key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: token-service
+spec:
+  selector:
+    chat/app: tokens
+    chat/tier: api
+  ports:
+  - port: 9000
+    targetPort: 9000
+    name: grpc

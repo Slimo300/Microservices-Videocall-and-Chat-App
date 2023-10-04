@@ -7,7 +7,7 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: 'true'
 spec:
   rules:
-  - host: api.relrel.org
+  - host: api.relrel.com
     http:
       paths:
       - path: /groups/?(.*)
@@ -59,7 +59,7 @@ spec:
             name: webrtc-service
             port:
               number: 8080
-  - host: www.relrel.org
+  - host: www.relrel.com
     http:
       paths:
       - path: /
@@ -71,6 +71,6 @@ spec:
               number: 80
   tls:
   - hosts:
-      - www.relrel.org
-      - api.relrel.org
+      - www.relrel.com
+      - api.relrel.com
     secretName: relrel-tls

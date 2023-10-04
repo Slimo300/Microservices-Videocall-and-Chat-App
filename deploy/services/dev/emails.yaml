@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emails-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      chat/app: emails
+      chat/tier: api
+  template:
+    metadata:
+      labels:
+        chat/app: emails
+        chat/tier: api
+    spec:
+      containers:
+      - name: email-service
+        imagePullPolicy: Never
+        image: slimo300/email-service
+        ports:
+        - containerPort: 9000
+          name: grpc
+        env:
+        - name: ORIGIN
+          value: http://www.relrel.com
+        envFrom:
+        - secretRef:
+            name: mailtrap-creds
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: email-service
+spec:
+  selector:
+    chat/app: emails
+    chat/tier: api
+  ports:
+  - port: 9000
+    targetPort: 9000
+    name: grpc
