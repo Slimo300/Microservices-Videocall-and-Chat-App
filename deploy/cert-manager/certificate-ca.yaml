@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: relrel-cert
+  namespace: default
+spec:
+  secretName: relrel-tls
+  issuerRef:
+    name: ca-issuer # for self-signed change name to self signed issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - www.relrel.com
+    - api.relrel.com

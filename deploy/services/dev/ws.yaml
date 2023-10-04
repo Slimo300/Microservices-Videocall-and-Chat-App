@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ws-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      chat/app: ws
+      chat/tier: api
+  template:
+    metadata:
+      labels:
+        chat/app: ws
+        chat/tier: api
+    spec:
+      initContainers:
+        - name: wsredis-test
+          image: busybox:1.31
+          command: ['sh', '-c', 'echo -e "Checking for the availability of Redis Server deployment"; while ! nc -z ws-redis 6379; do sleep 1; printf "-"; done; echo -e "  >> Redis Server has started";']
+        - name: kafka-test
+          image: busybox:1.31
+          command: ['sh', '-c', 'echo -e "Checking for the availability of Kafka broker"; while ! nc -z kafka 9092; do sleep 1; printf "-"; done; echo -e "  >> Kafka has started";']
+      containers:
+      - name: ws-service
+        imagePullPolicy: Never
+        image: slimo300/ws-service
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: DB_ADDRESS
+          value: ws-redis:6379
+        - name: DB_PASSWORD
+          value: redis
+        - name: ORIGIN
+          value: https://www.relrel.com
+        - name: BROKER_ADDRESS
+          value: kafka:9092
+        volumeMounts:
+          - name: public-key
+            mountPath: /rsa
+      volumes:
+        - name: public-key
+          configMap:
+            name: public-key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ws-service
+spec:
+  selector:
+    chat/app: ws
+    chat/tier: api
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: http

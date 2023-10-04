@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      chat/app: frontend
+  template:
+    metadata:
+      labels:
+        chat/app: frontend
+    spec:
+      containers:
+      - name: frontend
+        imagePullPolicy: Never
+        image: slimo300/frontend
+        ports:
+        - containerPort: 80
+          name: http
+        env:
+        - name: API_URL
+          value: api.relrel.com
+        - name: APP_HOST
+          value: www.relrel.com
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    chat/app: frontend
+  ports:
+  - port: 80
+    targetPort: 80
+    name: http

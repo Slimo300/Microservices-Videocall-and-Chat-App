@@ -13,7 +13,7 @@ import (
 )
 
 func (db *Database) GetUserById(id uuid.UUID) (user *models.User, err error) {
-	return user, db.First(user, id).Error
+	return user, db.First(&user, id).Error
 }
 
 // DeleteProfilePicture updates user's property "pictureURL" to empty line
@@ -136,5 +136,5 @@ func (db *Database) ResetPassword(code, newPassword string) error {
 }
 
 func (db *Database) GetUserByUsername(username string) (user *models.User, err error) {
-	return user, db.Where(models.User{UserName: username}).First(user).Error
+	return user, db.Where(models.User{UserName: username}).First(&user).Error
 }
