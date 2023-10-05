@@ -20,7 +20,7 @@ const VideoConference = () => {
     const initialVideo = query.get("initialVideo");
     const initialAudio = query.get("initialAudio");
 
-    const peerConnection = useRef(new RTCPeerConnection());
+    const peerConnection = useRef(new RTCPeerConnection({'iceServers': [{'urls': 'stun:stun.l.google.com:19302'}]}));
     const ws = useRef(null);
     const audioSender = useRef(null);
     const videoSender = useRef(null);

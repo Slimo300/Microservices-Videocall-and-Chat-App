@@ -20,7 +20,11 @@ func (r *Room) ConnectRoom(conn *websocket.Conn, userData UserConnData) {
 	ws := newThreadSafeWriter(conn)
 	defer ws.Close()
 
-	peerConnection, err := webrtc.NewPeerConnection(webrtc.Configuration{})
+	peerConnection, err := webrtc.NewPeerConnection(webrtc.Configuration{ICEServers: []webrtc.ICEServer{
+		{
+			URLs: []string{"stun:stun.l.google.com:19302"},
+		},
+	}})
 	if err != nil {
 		log.Printf("Creating peer connection error: %v\n", err)
 		return
