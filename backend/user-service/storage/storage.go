@@ -2,6 +2,7 @@ package storage
 
 import (
 	"fmt"
+	"log"
 	"mime/multipart"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -60,12 +61,7 @@ func NewS3Storage(bucket, origin string) (*S3Storage, error) {
 // UploadFile uploads file with a given key
 func (s *S3Storage) UploadFile(file multipart.File, key string) error {
 
-	fileSize, err := file.Seek(0, 2)
-	if err != nil {
-		return err
-	}
-
-	ok, err := s.canUploadFile(fileSize)
+	ok, err := s.canUploadFile(file)
 	if err != nil {
 		return err
 	}
@@ -73,6 +69,7 @@ func (s *S3Storage) UploadFile(file multipart.File, key string) error {
 		return fmt.Errorf("Can't upload file. Storage limit exceeded")
 	}
 
+	log.Println(file)
 	_, err = s.S3.PutObject(&s3.PutObjectInput{
 		Body:   file,
 		Bucket: aws.String(s.Bucket),
@@ -90,7 +87,12 @@ func (s *S3Storage) DeleteFile(key string) error {
 	return err
 }
 
-func (s *S3Storage) canUploadFile(fileSize int64) (bool, error) {
+func (s *S3Storage) canUploadFile(file multipart.File) (bool, error) {
+
+	fileSize, err := fileSize(file)
+	if err != nil {
+		return false, err
+	}
 
 	objects, err := s.S3.ListObjects(&s3.ListObjectsInput{
 		Bucket: aws.String(s.Bucket),
@@ -105,10 +107,30 @@ func (s *S3Storage) canUploadFile(fileSize int64) (bool, error) {
 		bucketSize += *obj.Size
 	}
 
-	if bucketSize+fileSize > MAX_BUCKET_SIZE {
+	if bucketSize+*fileSize > MAX_BUCKET_SIZE {
 		return false, nil
 	}
 
 	return true, nil
 
+}
+
+func fileSize(file multipart.File) (*int64, error) {
+
+	_, err := file.Seek(0, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	fileSize, err := file.Seek(0, 2)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = file.Seek(0, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	return &fileSize, nil
 }

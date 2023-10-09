@@ -12,7 +12,7 @@ export const ModalUserProfile = ({ toggle, show, user }) => {
     const [newPassword, setNewPassword] = useState("");
     const [repeatPassword, setRepeatPassword] = useState("");
 
-    const [file, setFile] = useState({});
+    const [file, setFile] = useState(null);
 
     const [message, setMessage] = useState("");
 
@@ -44,6 +44,14 @@ export const ModalUserProfile = ({ toggle, show, user }) => {
 
     const updatePicture = async(e) => {
         e.preventDefault();
+
+        if (!file) {
+            setMessage("No file provided");
+            setTimeout(function() {
+                setMessage("");
+            }, 3000);
+            return;
+        }
 
         let data = new FormData();
         data.append("avatarFile", file);
