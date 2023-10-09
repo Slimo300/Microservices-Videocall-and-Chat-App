@@ -66,7 +66,7 @@ const ChatInput = ({ group, ws, user }) => {
 
         // fileData stores data about files in message that will be saved to database
         let filesData = [];
-        if (files.length !== undefined && files.length > 0) {
+        if (files && files.length && files.length > 0) {
 
             // filesInfo stores data about files that will be needed to generate a presigned request 
             let filesInfo = [];

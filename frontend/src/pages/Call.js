@@ -37,7 +37,7 @@ const VideoConference = () => {
 
     useEffect(() => {
         const startCall = async () => {
-            const stream = await await navigator.mediaDevices.getUserMedia({video: initialVideo==="true", audio: initialAudio==="true"});
+            const stream = await navigator.mediaDevices.getUserMedia({video: initialVideo==="true", audio: initialAudio==="true"});
 
             setUserStream(stream);
 
@@ -49,8 +49,12 @@ const VideoConference = () => {
                 }
             };
 
-            audioSender.current = peerConnection.current.addTrack(stream.getAudioTracks()[0], stream);
-            setAudioState(AUDIO_ACTIVE);
+            if (initialAudio === "true") {
+                audioSender.current = peerConnection.current.addTrack(stream.getAudioTracks()[0], stream);
+                setAudioState(AUDIO_ACTIVE);
+            } else {
+                setAudioState(AUDIO_INACTIVE);
+            }
 
             if (initialVideo === "true") {
                 videoSender.current = peerConnection.current.addTrack(stream.getVideoTracks()[0], stream);

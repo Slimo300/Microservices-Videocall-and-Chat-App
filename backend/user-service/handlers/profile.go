@@ -96,6 +96,7 @@ func (s *Server) UpdateProfilePicture(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "no file provided"})
 		return
 	}
+	log.Println(imageFileHeader.Size, imageFileHeader.Filename)
 
 	mimeType := imageFileHeader.Header.Get("Content-Type")
 	if !isAllowedImageType(mimeType) {
