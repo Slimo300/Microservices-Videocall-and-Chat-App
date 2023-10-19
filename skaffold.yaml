@@ -46,10 +46,10 @@ build:
         dockerfile: Dockerfile
 manifests:
   rawYaml:
-    - deploy/secrets/*
-    - deploy/dbs/*
-    - deploy/services/dev/*
-    - deploy/ingress-dev.yaml
+    - infra/k8s/dev/secrets/*
+    - infra/k8s/dev/dbs/*
+    - infra/k8s/dev/services/*
+    - infra/k8s/dev/ingress.yaml
   helm:
     releases:
       - name: kafka
