@@ -6,7 +6,7 @@ spec:
   acme:
     # Configure your email here...
     # ---
-    email: sebastian.slimak707@gmail.com
+    # email: EMAIL_HERE
 
     # Configure your server here...
     # ---

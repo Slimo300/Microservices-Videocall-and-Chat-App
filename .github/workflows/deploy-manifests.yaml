@@ -1,23 +1,23 @@
-name: deploy-manifests
+# name: deploy-manifests
 
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'deploy/**'
+# on:
+#   push:
+#     branches:
+#       - main
+#     paths:
+#       - 'deploy/**'
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository code
-        uses: actions/checkout@v3
-      - name: Installing Doctl
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-      - name: Saving our cluster config
-        run: doctl kubernetes cluster kubeconfig save relrel
-      - name: Update Deployment
-        run: kubectl apply -k deploy/dbs -k deploy/services/prod && kubectl apply -f deploy/ingress-prod.yaml && kubectl delete deployment search-deployment elastic && kubectl delete service search-service elastic
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout repository code
+#         uses: actions/checkout@v3
+#       - name: Installing Doctl
+#         uses: digitalocean/action-doctl@v2
+#         with:
+#           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+#       - name: Saving our cluster config
+#         run: doctl kubernetes cluster kubeconfig save relrel
+#       - name: Update Deployment
+#         run: kubectl apply -k deploy/dbs -k deploy/services/prod && kubectl apply -f deploy/ingress-prod.yaml && kubectl delete deployment search-deployment elastic && kubectl delete service search-service elastic
