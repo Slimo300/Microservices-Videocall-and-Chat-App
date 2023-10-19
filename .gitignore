@@ -1,6 +1,18 @@
-deploy/secrets/
+# Kubernetes secrets
+infra/**/secrets
+
+# Self signed certificate for dev
 cert/
 
+# Terraform files
+infra/terraform/**/.terraform
+infra/terraform/**/.terraform.lock.hcl
+infra/terraform/**/terraform.tfstate.backup
+infra/terraform/**/secrets.tf
+
+# Starting scripts
 start-dev.sh
 start-prod.sh
+
+# TODO
 TODO
