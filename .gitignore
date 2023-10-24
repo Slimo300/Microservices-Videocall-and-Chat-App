@@ -6,9 +6,13 @@ cert/
 
 # Terraform files
 infra/terraform/**/.terraform
-infra/terraform/**/.terraform.lock.hcl
-infra/terraform/**/terraform.tfstate.backup
+
+infra/terraform/**/.terraform.*
+infra/terraform/**/terraform.*
 infra/terraform/**/secrets.tf
+
+# TURN config
+infra/turnserver.conf
 
 # Starting scripts
 start-dev.sh
