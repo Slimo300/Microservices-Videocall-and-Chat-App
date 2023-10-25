@@ -21,9 +21,9 @@ spec:
         ports:
         - containerPort: 6379
           name: redis
-        env:
-          - name: REDIS_PASSWORD
-            value: redis
+        envFrom:
+        - secretRef:
+          name: redis-creds
         # volumeMounts:
         # - name: data
         #   mountPath: /bitnami/redis/data

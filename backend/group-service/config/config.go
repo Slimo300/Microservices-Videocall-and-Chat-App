@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -20,14 +21,29 @@ type Config struct {
 	S3Bucket      string `mapstructure:"bucketname"`
 }
 
+// value: chat:password12@tcp(group-mysql:3306)/chatapp
 // LoadConfigFromEnvironment loads user service configuration from environment variables and returns an error
 // if any of them is missing
 func LoadConfigFromEnvironment() (conf Config, err error) {
 
-	conf.DBAddress = os.Getenv("MYSQL_ADDRESS")
-	if conf.DBAddress == "" {
+	mySQLAddress := os.Getenv("MYSQL_ADDRESS")
+	if mySQLAddress == "" {
 		return Config{}, errors.New("Environment variable MYSQL_ADDRESS not set")
 	}
+	mySQLDatabase := os.Getenv("MYSQL_DATABASE")
+	if mySQLDatabase == "" {
+		return Config{}, errors.New("Environment variable MYSQL_DATABASE not set")
+	}
+	mySQLUser := os.Getenv("MYSQL_USER")
+	if mySQLUser == "" {
+		return Config{}, errors.New("Environment variable MYSQL_USER not set")
+	}
+	mySQLPassword := os.Getenv("MYSQL_PASSWORD")
+	if mySQLPassword == "" {
+		return Config{}, errors.New("Environment variable MYSQL_PASSWORD not set")
+	}
+
+	conf.DBAddress = fmt.Sprintf("%s:%s@tcp(%s)/%s", mySQLUser, mySQLPassword, mySQLAddress, mySQLDatabase)
 
 	conf.HTTPPort = os.Getenv("HTTP_PORT")
 	if conf.HTTPPort == "" {

@@ -20,9 +20,9 @@ spec:
         ports:
         - containerPort: 6379
           name: redis
-        env:
-          - name: REDIS_PASSWORD
-            value: redis
+        envFrom:
+        - secretRef:
+            name: redis-creds
 ---
 apiVersion: v1
 kind: Service

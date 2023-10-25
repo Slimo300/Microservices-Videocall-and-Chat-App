@@ -42,13 +42,13 @@ func LoadConfigFromEnvironment() (conf Config, err error) {
 		return Config{}, errors.New("Environment variable SERVICE_NAME not set")
 	}
 
-	conf.DBAddress = os.Getenv("DB_ADDRESS")
+	conf.DBAddress = os.Getenv("REDIS_ADDRESS")
 	if conf.DBAddress == "" {
-		return Config{}, errors.New("Environment variable DB_PASSWORD not set")
+		return Config{}, errors.New("Environment variable REDIS_ADDRESS not set")
 	}
-	conf.DBPassword = os.Getenv("DB_PASSWORD")
+	conf.DBPassword = os.Getenv("REDIS_PASSWORD")
 	if conf.DBPassword == "" {
-		return Config{}, errors.New("Environment variable DB_PASSWORD not set")
+		return Config{}, errors.New("Environment variable REDIS_PASSWORD not set")
 	}
 
 	conf.HTTPPort = os.Getenv("HTTP_PORT")

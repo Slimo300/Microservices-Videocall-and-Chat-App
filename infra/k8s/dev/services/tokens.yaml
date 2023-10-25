@@ -28,13 +28,13 @@ spec:
         env:
         - name: REDIS_ADDRESS
           value: token-redis:6379
-        - name: REDIS_PASSWORD
-          value: redis
         - name: REFRESH_DURATION
           value: 86400s
         - name: ACCESS_DURATION
           value: 1200s
         envFrom:
+        - secretRef:
+            name: redis-creds
         - secretRef:
             name: refresh-secret
         volumeMounts:
