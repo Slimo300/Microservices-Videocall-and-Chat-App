@@ -22,7 +22,10 @@ type Config struct {
 	Domain string `mapstructure:"domain"`
 
 	BrokerAddress string `mapstructure:"brokerAddress"`
-	S3Bucket      string `mapstructure:"bucketname"`
+
+	StorageKeyID     string `mapstructure:"storageKeyID"`
+	StorageKeySecret string `mapstructure:"storageKeySecret"`
+	Bucket           string `mapstructure:"bucketname"`
 }
 
 // LoadConfigFromEnvironment loads user service configuration from environment variables and returns an error
@@ -30,57 +33,65 @@ type Config struct {
 func LoadConfigFromEnvironment() (conf Config, err error) {
 
 	mySQLAddress := os.Getenv("MYSQL_ADDRESS")
-	if mySQLAddress == "" {
+	if len(mySQLAddress) == 0 {
 		return Config{}, errors.New("Environment variable MYSQL_ADDRESS not set")
 	}
 	mySQLDatabase := os.Getenv("MYSQL_DATABASE")
-	if mySQLDatabase == "" {
+	if len(mySQLDatabase) == 0 {
 		return Config{}, errors.New("Environment variable MYSQL_DATABASE not set")
 	}
 	mySQLUser := os.Getenv("MYSQL_USER")
-	if mySQLUser == "" {
+	if len(mySQLUser) == 0 {
 		return Config{}, errors.New("Environment variable MYSQL_USER not set")
 	}
 	mySQLPassword := os.Getenv("MYSQL_PASSWORD")
-	if mySQLPassword == "" {
+	if len(mySQLPassword) == 0 {
 		return Config{}, errors.New("Environment variable MYSQL_PASSWORD not set")
 	}
 
 	conf.DBAddress = fmt.Sprintf("%s:%s@tcp(%s)/%s", mySQLUser, mySQLPassword, mySQLAddress, mySQLDatabase)
 
 	conf.HTTPPort = os.Getenv("HTTP_PORT")
-	if conf.HTTPPort == "" {
+	if len(conf.HTTPPort) == 0 {
 		return Config{}, errors.New("Environment variable HTTP_PORT not set")
 	}
 
 	conf.TokenServiceAddress = os.Getenv("TOKEN_SERVICE_ADDRESS")
-	if conf.TokenServiceAddress == "" {
+	if len(conf.TokenServiceAddress) == 0 {
 		return Config{}, errors.New("Environment variable TOKEN_ADDRESS not set")
 	}
 
 	conf.EmailServiceAddress = os.Getenv("EMAIL_SERVICE_ADDRESS")
-	if conf.EmailServiceAddress == "" {
+	if len(conf.EmailServiceAddress) == 0 {
 		return Config{}, errors.New("Environment variable EMAIL_ADDRESS not set")
 	}
 
 	conf.Origin = os.Getenv("ORIGIN")
-	if conf.Origin == "" {
+	if len(conf.Origin) == 0 {
 		return Config{}, errors.New("Environment variable ORIGIN not set")
 	}
 
 	conf.Domain = os.Getenv("DOMAIN")
-	if conf.Domain == "" {
+	if len(conf.Domain) == 0 {
 		return Config{}, errors.New("Environment variable DOMAIN not set")
 	}
 
 	conf.BrokerAddress = os.Getenv("BROKER_ADDRESS")
-	if conf.BrokerAddress == "" {
+	if len(conf.BrokerAddress) == 0 {
 		return Config{}, errors.New("Environment variable BROKER_ADDRESS not set")
 	}
 
-	conf.S3Bucket = os.Getenv("S3_BUCKET")
-	if conf.S3Bucket == "" {
-		return Config{}, errors.New("Environment variable S3_BUCKET not set")
+	conf.StorageKeyID = os.Getenv("STORAGE_KEY_ID")
+	if len(conf.StorageKeyID) == 0 {
+		return Config{}, errors.New("Environment variable STORAGE_KEY_ID not set")
+	}
+	conf.StorageKeySecret = os.Getenv("STORAGE_KEY_SECRET")
+	if len(conf.StorageKeySecret) == 0 {
+		return Config{}, errors.New("Environment variable STORAGE_KEY_SECRET not set")
+	}
+	conf.Bucket = os.Getenv("STORAGE_BUCKET")
+	if len(conf.Bucket) == 0 {
+		return Config{}, errors.New("Environment variable STORAGE_BUCKET not set")
 	}
 
 	return
