@@ -58,7 +58,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	storage, err := storage.NewS3Storage(conf.S3Bucket, conf.Origin)
+	storage, err := storage.NewS3Storage(conf.StorageKeyID, conf.StorageKeySecret, conf.Bucket, storage.WithCORS(conf.Origin), storage.WithACL("private"))
 	if err != nil {
 		log.Fatalf("Couldn't establish s3 session: %v", err)
 	}

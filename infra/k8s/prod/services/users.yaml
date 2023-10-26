@@ -64,7 +64,7 @@ spec:
           value: kafka:9092
         envFrom:
         - secretRef:
-            name: aws-secrets
+            name: storage-credentials
         volumeMounts:
           - name: public-key
             mountPath: /rsa

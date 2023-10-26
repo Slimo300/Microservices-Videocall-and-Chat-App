@@ -40,7 +40,7 @@ func main() {
 
 	conf, err := config.LoadConfigFromEnvironment()
 	if err != nil {
-		log.Fatal("Couldn't read config")
+		log.Fatalf("Couldn't read config: %v", err)
 	}
 
 	pubKey, err := getPublicKey()
@@ -53,7 +53,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	storage, err := storage.NewS3Storage(conf.S3Bucket, conf.Origin)
+	storage, err := storage.NewS3Storage(conf.StorageKeyID, conf.StorageKeySecret, conf.Bucket)
 	if err != nil {
 		log.Fatalf("Error connecting to AWS S3: %v", err)
 	}

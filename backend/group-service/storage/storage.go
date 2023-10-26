@@ -3,13 +3,16 @@ package storage
 import (
 	"fmt"
 	"mime/multipart"
+	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-const MAX_BUCKET_SIZE = 4900000000 // 4.9GB
+const MAX_BUCKET_SIZE = 4900000000    // 4.9GB
+const DEFaULT_REGION = "eu-central-1" // Frankfurt
 
 // StorageLayer describes Storage functionality (uploading and deleting files)
 type StorageLayer interface {
@@ -23,36 +26,27 @@ type S3Storage struct {
 	Bucket string
 }
 
-// NewS3Storage creates new S3 session
-func NewS3Storage(bucket, origin string) (*S3Storage, error) {
-	session, err := session.NewSession(&aws.Config{
-		Region: aws.String("eu-central-1"),
-	})
+func NewS3Storage(accessKey, secretKey, bucket string) (*S3Storage, error) {
+
+	config := &aws.Config{
+		Credentials: credentials.NewStaticCredentials(accessKey, secretKey, ""),
+		Region:      aws.String(DEFaULT_REGION),
+	}
+
+	if os.Getenv("STORAGE_USE_DO") == "true" {
+		config.Endpoint = aws.String("https://fra1.digitaloceanspaces.com")
+	}
+	if len(os.Getenv("STORAGE_REGION")) != 0 {
+		config.Region = aws.String(os.Getenv("STORAGE_REGION"))
+	}
+
+	session, err := session.NewSession(config)
 	if err != nil {
 		return nil, err
 	}
 
-	client := s3.New(session)
-
-	rule := s3.CORSRule{
-		AllowedHeaders: aws.StringSlice([]string{"Authorization", "Content-Type", "Content-Length", "Accept-Encoding", "Authorization", "accept", "origin", "Cache-Control", " X-Requested-With"}),
-		AllowedOrigins: aws.StringSlice([]string{origin}),
-		MaxAgeSeconds:  aws.Int64(3000),
-
-		AllowedMethods: aws.StringSlice([]string{"PUT", "GET", "DELETE"}),
-	}
-
-	if _, err := client.PutBucketCors(&s3.PutBucketCorsInput{
-		Bucket: aws.String(bucket),
-		CORSConfiguration: &s3.CORSConfiguration{
-			CORSRules: []*s3.CORSRule{&rule},
-		},
-	}); err != nil {
-		return nil, err
-	}
-
 	return &S3Storage{
-		S3:     client,
+		S3:     s3.New(session),
 		Bucket: bucket,
 	}, nil
 }
@@ -72,6 +66,7 @@ func (s *S3Storage) UploadFile(file multipart.File, key string) error {
 		Body:   file,
 		Bucket: aws.String(s.Bucket),
 		Key:    aws.String(key),
+		ACL:    aws.String("public-read"),
 	})
 	return err
 }

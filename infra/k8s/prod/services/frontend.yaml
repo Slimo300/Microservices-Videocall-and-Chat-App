@@ -22,6 +22,11 @@ spec:
         env:
         - name: API_URL
           value: api.relrel.org
+        - name: STORAGE_URL
+          valueFrom:
+            secretKeyRef:
+              name: storage-credentials
+              key: STORAGE_URL
 ---
 apiVersion: v1
 kind: Service
