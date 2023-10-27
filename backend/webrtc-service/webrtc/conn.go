@@ -15,16 +15,33 @@ type UserConnData struct {
 	AudioEnabled *bool  `json:"audioEnabled,omitempty"`
 }
 
+var (
+	turnConfig = webrtc.Configuration{
+		ICETransportPolicy: webrtc.ICETransportPolicyRelay,
+		ICEServers: []webrtc.ICEServer{
+			{
+
+				URLs: []string{"stun:turn-around.pro:3478"},
+			},
+			{
+
+				URLs: []string{"turn:turn-around.pro:3478"},
+
+				Username: "test",
+
+				Credential:     "test123",
+				CredentialType: webrtc.ICECredentialTypePassword,
+			},
+		},
+	}
+)
+
 func (r *Room) ConnectRoom(conn *websocket.Conn, userData UserConnData) {
 
 	ws := newThreadSafeWriter(conn)
 	defer ws.Close()
 
-	peerConnection, err := webrtc.NewPeerConnection(webrtc.Configuration{ICEServers: []webrtc.ICEServer{
-		{
-			URLs: []string{"stun:stun.l.google.com:19302"},
-		},
-	}})
+	peerConnection, err := webrtc.NewPeerConnection(r.turnConfig)
 	if err != nil {
 		log.Printf("Creating peer connection error: %v\n", err)
 		return

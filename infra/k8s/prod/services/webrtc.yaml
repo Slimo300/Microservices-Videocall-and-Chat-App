@@ -51,7 +51,9 @@ spec:
           value: webrtc-headless-service
         envFrom:
         - secretRef:
-          name: redis-creds
+            name: redis-creds
+        - secretRef:
+            name: turn-credentials
         volumeMounts:
           - name: public-key
             mountPath: /rsa

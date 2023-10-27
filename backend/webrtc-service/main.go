@@ -13,6 +13,8 @@ import (
 	"syscall"
 	"time"
 
+	rtc "github.com/pion/webrtc/v3"
+
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-service/config"
@@ -67,10 +69,36 @@ func main() {
 
 	go eventprocessor.NewDBEventProcessor(dbListener, db).ProcessEvents("groups")
 
+	turnConfig := rtc.Configuration{
+		ICEServers: []rtc.ICEServer{
+			{
+				URLs: []string{fmt.Sprintf("stun:%s:%s", conf.TURNAddress, conf.TURNPort)},
+			},
+			{
+				URLs:           []string{fmt.Sprintf("turn:%s:%s", conf.TURNAddress, conf.TURNPort)},
+				Username:       conf.TURNUser,
+				Credential:     conf.TURNPassword,
+				CredentialType: rtc.ICECredentialTypePassword,
+			},
+			{
+				URLs:           []string{fmt.Sprintf("turns:%s:%s", conf.TURNAddress, conf.TURNSPort)},
+				Username:       conf.TURNUser,
+				Credential:     conf.TURNPassword,
+				CredentialType: rtc.ICECredentialTypePassword,
+			},
+			{
+				URLs:           []string{fmt.Sprintf("turns:%s:%s?transport=tcp", conf.TURNAddress, conf.TURNSPort)},
+				Username:       conf.TURNUser,
+				Credential:     conf.TURNPassword,
+				CredentialType: rtc.ICECredentialTypePassword,
+			},
+		},
+	}
+
 	server := &handlers.Server{
 		DB:        db,
 		PublicKey: pubKey,
-		Relay:     webrtc.NewRoomsRelay(),
+		Relay:     webrtc.NewRoomsRelay(turnConfig),
 	}
 
 	handler := server.Setup(conf.Origin)
