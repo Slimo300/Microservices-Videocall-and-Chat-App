@@ -61,7 +61,7 @@ export const ModalUserProfile = ({ toggle, show, user }) => {
             setMessage("Image uploaded succesfully");
             dispatch({type: actionTypes.SET_PROFILE_PICTURE, payload: response.data.newUrl});
             let timestamp = new Date().getTime();
-            document.getElementById("profilePicture").src = "https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+user.pictureUrl+"?"+timestamp;
+            document.getElementById("profilePicture").src = window._env_.STORAGE_URL+"/"+user.pictureUrl+"?"+timestamp;
             document.getElementById("customFile").value= null;
 
         } else {
@@ -79,7 +79,7 @@ export const ModalUserProfile = ({ toggle, show, user }) => {
             setMessage("Image deleted successfully");
             dispatch({type: actionTypes.SET_PROFILE_PICTURE, payload: ""});
             let timestamp = new Date().getTime();
-            document.getElementById("profilePicture").src = "https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+user.pictureUrl+"?"+timestamp;
+            document.getElementById("profilePicture").src = window._env_.STORAGE_URL+"/"+user.pictureUrl+"?"+timestamp;
         } else {
             setMessage(response.data.err);
         }

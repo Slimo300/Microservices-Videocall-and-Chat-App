@@ -24,6 +24,11 @@ spec:
           value: api.relrel.com
         - name: APP_HOST
           value: www.relrel.com
+        - name: STORAGE_URL
+          valueFrom:
+            secretKeyRef:
+              name: storage-credentials
+              key: STORAGE_URL
 ---
 apiVersion: v1
 kind: Service

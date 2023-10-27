@@ -27,24 +27,24 @@ type Config struct {
 func LoadConfigFromEnvironment() (conf Config, err error) {
 
 	conf.DBAddress = os.Getenv("ES_ADDRESS")
-	if conf.DBAddress == "" {
+	if len(conf.DBAddress) == 0 {
 		return Config{}, errors.New("Environment variable ES_ADDRESS not set")
 	}
 	conf.DBUser = os.Getenv("ES_USER")
 	conf.DBPassword = os.Getenv("ES_PASS")
 
 	conf.HTTPPort = os.Getenv("HTTP_PORT")
-	if conf.HTTPPort == "" {
+	if len(conf.HTTPPort) == 0 {
 		return Config{}, errors.New("Environment variable HTTP_PORT not set")
 	}
 
 	conf.Origin = os.Getenv("ORIGIN")
-	if conf.Origin == "" {
+	if len(conf.Origin) == 0 {
 		return Config{}, errors.New("Environment variable ORIGIN not set")
 	}
 
 	conf.BrokerAddress = os.Getenv("BROKER_ADDRESS")
-	if conf.BrokerAddress == "" {
+	if len(conf.BrokerAddress) == 0 {
 		return Config{}, errors.New("Environment variable BROKER_ADDRESS not set")
 	}
 

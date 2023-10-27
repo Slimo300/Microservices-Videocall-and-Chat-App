@@ -20,7 +20,27 @@ const VideoConference = () => {
     const initialVideo = query.get("initialVideo");
     const initialAudio = query.get("initialAudio");
 
-    const peerConnection = useRef(new RTCPeerConnection({'iceServers': [{'urls': 'stun:stun.l.google.com:19302'}]}));
+    const peerConnection = useRef(new RTCPeerConnection({'iceServers': [
+        {
+            urls: `stun:${window._env_.TURN_ADDRESS}:${window._env_.TURN_PORT}`
+        },
+        {
+            urls: `turn:${window._env_.TURN_ADDRESS}:${window._env_.TURN_PORT}`,
+            username: window._env_.TURN_USER,
+            credential: window._env_.TURN_PASSWORD
+        },
+        {
+            urls: `turns:${window._env_.TURN_ADDRESS}:${window._env_.TURNS_PORT}`,
+            username: window._env_.TURN_USER,
+            credential: window._env_.TURN_PASSWORD
+        },
+        {
+            urls: `turns:${window._env_.TURN_ADDRESS}:${window._env_.TURNS_PORT}?transport=tcp`,
+            username: window._env_.TURN_USER,
+            credential: window._env_.TURN_PASSWORD
+        }
+    ]}));
+    
     const ws = useRef(null);
     const audioSender = useRef(null);
     const videoSender = useRef(null);

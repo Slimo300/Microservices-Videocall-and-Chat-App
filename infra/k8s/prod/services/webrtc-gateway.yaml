@@ -29,14 +29,15 @@ spec:
         - containerPort: 8080
           name: http
         env:
-        - name: DB_ADDRESS
+        - name: REDIS_ADDRESS
           value: webrtc-gateway-redis:6379
-        - name: DB_PASSWORD
-          value: redis
         - name: ORIGIN
           value: https://www.relrel.org
         - name: BROKER_ADDRESS
           value: kafka:9092
+        envFrom:
+        - secretRef:
+          name: redis-creds
 ---
 apiVersion: v1
 kind: Service

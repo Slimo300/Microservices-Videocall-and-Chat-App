@@ -35,8 +35,23 @@ spec:
         - containerPort: 8080
           name: http
         env:
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: mysql-creds
+              value: MYSQL_DATABASE
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql-creds
+              value: MYSQL_USER
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-creds
+              value: MYSQL_PASSWORD
         - name: MYSQL_ADDRESS
-          value: chat:password12@tcp(user-mysql:3306)/chatapp
+          value: user-mysql:3306
         - name: TOKEN_SERVICE_ADDRESS
           value: token-service:9000
         - name: EMAIL_SERVICE_ADDRESS
@@ -49,7 +64,7 @@ spec:
           value: kafka:9092
         envFrom:
         - secretRef:
-            name: aws-secrets
+            name: storage-credentials
         volumeMounts:
           - name: public-key
             mountPath: /rsa

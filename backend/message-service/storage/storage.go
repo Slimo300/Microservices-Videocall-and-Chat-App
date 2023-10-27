@@ -2,15 +2,18 @@ package storage
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/google/uuid"
 )
 
 const MAX_BUCKET_SIZE = 4900000000
+const DEFaULT_REGION = "eu-central-1"
 
 // StorageLayer defines functionality expected from Storage
 type StorageLayer interface {
@@ -36,39 +39,75 @@ type S3Storage struct {
 	Bucket string
 }
 
-// NewS3Storage creates new S3 session
-func NewS3Storage(bucket, origin string) (*S3Storage, error) {
-	session, err := session.NewSession(&aws.Config{
-		Region: aws.String("eu-central-1"),
-	})
+type S3Option func(*S3Storage) error
+
+func WithCORS(origin string) S3Option {
+	return func(s *S3Storage) error {
+		rule := s3.CORSRule{
+			AllowedHeaders: aws.StringSlice([]string{"Authorization", "Content-Type", "Content-Length", "Accept-Encoding", "Authorization", "accept", "origin", "Cache-Control", " X-Requested-With", "X-AMZ-ACL"}),
+			AllowedOrigins: aws.StringSlice([]string{origin}),
+			MaxAgeSeconds:  aws.Int64(3000),
+
+			AllowedMethods: aws.StringSlice([]string{"PUT", "GET", "DELETE"}),
+		}
+
+		_, err := s.S3.PutBucketCors(&s3.PutBucketCorsInput{
+			Bucket: aws.String(s.Bucket),
+			CORSConfiguration: &s3.CORSConfiguration{
+				CORSRules: []*s3.CORSRule{&rule},
+			},
+		})
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+}
+
+func WithACL(acl string) S3Option {
+	return func(s *S3Storage) error {
+		_, err := s.S3.PutBucketAcl(&s3.PutBucketAclInput{
+			ACL:    aws.String(acl),
+			Bucket: &s.Bucket,
+		})
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+}
+
+func NewS3Storage(accessKey, secretKey, bucket string, options ...S3Option) (*S3Storage, error) {
+
+	config := &aws.Config{
+		Credentials: credentials.NewStaticCredentials(accessKey, secretKey, ""),
+		Region:      aws.String(DEFaULT_REGION),
+	}
+
+	if os.Getenv("STORAGE_USE_DO") == "true" {
+		config.Endpoint = aws.String("https://fra1.digitaloceanspaces.com")
+	}
+	if len(os.Getenv("STORAGE_REGION")) != 0 {
+		config.Region = aws.String(os.Getenv("STORAGE_REGION"))
+	}
+
+	session, err := session.NewSession(config)
 	if err != nil {
 		return nil, err
 	}
 
-	client := s3.New(session)
-
-	rule := s3.CORSRule{
-		AllowedHeaders: aws.StringSlice([]string{"Authorization", "Content-Type", "Content-Length", "Accept-Encoding", "Authorization", "accept", "origin", "Cache-Control", " X-Requested-With"}),
-		AllowedOrigins: aws.StringSlice([]string{origin}),
-		MaxAgeSeconds:  aws.Int64(3000),
-
-		AllowedMethods: aws.StringSlice([]string{"PUT", "GET", "DELETE"}),
-	}
-
-	_, err = client.PutBucketCors(&s3.PutBucketCorsInput{
-		Bucket: aws.String(bucket),
-		CORSConfiguration: &s3.CORSConfiguration{
-			CORSRules: []*s3.CORSRule{&rule},
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return &S3Storage{
-		S3:     client,
+	storage := &S3Storage{
+		S3:     s3.New(session),
 		Bucket: bucket,
-	}, nil
+	}
+
+	for _, opt := range options {
+		if err := opt(storage); err != nil {
+			return nil, err
+		}
+	}
+
+	return storage, nil
 }
 
 // DeleteFolder deletes every file in aws folder (prefixed: <folder>/)
@@ -118,6 +157,7 @@ func (s *S3Storage) GetPresignedPutRequests(prefix string, files ...FileInput) (
 			Bucket:        aws.String(s.Bucket),
 			Key:           aws.String(key),
 			ContentLength: aws.Int64(fileInfo.Size),
+			ACL:           aws.String("public-read"),
 		})
 
 		url, err := req.Presign(30 * time.Second)

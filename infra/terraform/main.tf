@@ -7,8 +7,6 @@ terraform {
   }
 }
 
-variable "do_token" {}
-
 provider "digitalocean" {
   token = var.do_token
 }
@@ -22,4 +20,12 @@ module "kubernetes" {
   loadbalancer_id       = digitalocean_loadbalancer.relrel_lb.id
 
   manifests_path = "../k8s/prod"
+}
+
+module "turn" {
+  source = "./turn"
+
+  do_token = var.do_token
+  user = var.turn_user
+  pvt_key = local.pvt_key
 }

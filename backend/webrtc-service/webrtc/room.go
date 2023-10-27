@@ -17,13 +17,15 @@ type Room struct {
 	TrackLocals map[string]*webrtc.TrackLocalStaticRTP
 	closeChan   chan struct{}
 	closed      bool
+	turnConfig  webrtc.Configuration
 }
 
-func NewRoom() *Room {
+func NewRoom(config webrtc.Configuration) *Room {
 	room := &Room{}
 	room.TrackLocals = make(map[string]*webrtc.TrackLocalStaticRTP)
 	room.closeChan = make(chan struct{})
 	room.closed = false
+	room.turnConfig = config
 
 	return room
 }

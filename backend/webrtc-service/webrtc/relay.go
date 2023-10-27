@@ -3,17 +3,21 @@ package webrtc
 import (
 	"sync"
 	"time"
+
+	"github.com/pion/webrtc/v3"
 )
 
 type RoomsRelay struct {
 	rooms      map[string]*Room
 	relayMutex sync.Mutex
+	turnConfig webrtc.Configuration
 }
 
-func NewRoomsRelay() *RoomsRelay {
+func NewRoomsRelay(turnConfig webrtc.Configuration) *RoomsRelay {
 	return &RoomsRelay{
 		rooms:      map[string]*Room{},
 		relayMutex: sync.Mutex{},
+		turnConfig: turnConfig,
 	}
 }
 
@@ -23,7 +27,7 @@ func (r *RoomsRelay) GetRoom(groupID string) *Room {
 
 	room, ok := r.rooms[groupID]
 	if !ok {
-		room = NewRoom()
+		room = NewRoom(r.turnConfig)
 		r.rooms[groupID] = room
 	}
 

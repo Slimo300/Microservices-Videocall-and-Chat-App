@@ -86,8 +86,11 @@ const ChatInput = ({ group, ws, user }) => {
                 for (let i = 0; i < response.data.length; i++) {
                     filesData.push({"key": response.data[i].key, "ext": files[i].type})
                     promises.push(fetch(response.data[i].url, {
+                        headers: {
+                            "x-amz-acl": "public-read",
+                        },
                         method: 'PUT',
-                        body: files[i]
+                        body: files[i],
                     }))
                 }
     

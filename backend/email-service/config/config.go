@@ -27,27 +27,27 @@ type Config struct {
 // throws an error if any environment variable is not found
 func LoadConfigFromEnvironment() (conf Config, err error) {
 	conf.GRPCPort = os.Getenv("GRPC_PORT")
-	if conf.GRPCPort == "" {
+	if len(conf.GRPCPort) == 0 {
 		return Config{}, errors.New("Environment variable GRPC_PORT not found")
 	}
 
 	conf.Origin = os.Getenv("ORIGIN")
-	if conf.Origin == "" {
+	if len(conf.Origin) == 0 {
 		return Config{}, errors.New("Environment variable ORIGIN not found")
 	}
 
 	conf.EmailFrom = os.Getenv("EMAIL_FROM")
-	if conf.EmailFrom == "" {
+	if len(conf.EmailFrom) == 0 {
 		return Config{}, errors.New("Environment variable EMAIL_FROM not found")
 	}
 
 	conf.SMTPHost = os.Getenv("SMTP_HOST")
-	if conf.SMTPHost == "" {
+	if len(conf.SMTPHost) == 0 {
 		return Config{}, errors.New("Environment variable SMTP_HOST not found")
 	}
 
 	port := os.Getenv("SMTP_PORT")
-	if port == "" {
+	if len(port) == 0 {
 		return Config{}, errors.New("Environment variable SMTP_PORT not found")
 	}
 	conf.SMTPPort, err = strconv.Atoi(port)
@@ -56,12 +56,12 @@ func LoadConfigFromEnvironment() (conf Config, err error) {
 	}
 
 	conf.SMTPUser = os.Getenv("SMTP_USER")
-	if conf.SMTPUser == "" {
+	if len(conf.SMTPUser) == 0 {
 		return Config{}, errors.New("Environment variable SMTP_USER not found")
 	}
 
 	conf.SMTPPass = os.Getenv("SMTP_PASS")
-	if conf.SMTPPass == "" {
+	if len(conf.SMTPPass) == 0 {
 		return Config{}, errors.New("Environment variable SMTP_PASS not found")
 	}
 

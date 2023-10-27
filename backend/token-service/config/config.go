@@ -27,27 +27,27 @@ type Config struct {
 func LoadConfigFromEnvironment() (conf Config, err error) {
 
 	conf.GRPCPort = os.Getenv("GRPC_PORT")
-	if conf.GRPCPort == "" {
+	if len(conf.GRPCPort) == 0 {
 		return Config{}, errors.New("Environment variable GRPC_PORT not set")
 	}
 
 	conf.RedisAddress = os.Getenv("REDIS_ADDRESS")
-	if conf.RedisAddress == "" {
+	if len(conf.RedisAddress) == 0 {
 		return Config{}, errors.New("Environment variable GRPC_PORT not set")
 	}
 
 	conf.RedisPassword = os.Getenv("REDIS_PASSWORD")
-	if conf.RedisPassword == "" {
+	if len(conf.RedisPassword) == 0 {
 		return Config{}, errors.New("Environment variable GRPC_PORT not set")
 	}
 
 	conf.RefreshTokenSecret = os.Getenv("REFRESH_SECRET")
-	if conf.RefreshTokenSecret == "" {
+	if len(conf.RefreshTokenSecret) == 0 {
 		return Config{}, errors.New("Environment variable GRPC_PORT not set")
 	}
 
 	refreshDuration := os.Getenv("REFRESH_DURATION")
-	if refreshDuration == "" {
+	if len(refreshDuration) == 0 {
 		return Config{}, errors.New("Environment variable REFRESH_DURATION not set")
 	}
 	conf.RefreshDuration, err = time.ParseDuration(refreshDuration)
@@ -56,7 +56,7 @@ func LoadConfigFromEnvironment() (conf Config, err error) {
 	}
 
 	accessDuration := os.Getenv("ACCESS_DURATION")
-	if accessDuration == "" {
+	if len(accessDuration) == 0 {
 		return Config{}, errors.New("Environment variable ACCESS_DURATION not set")
 	}
 	conf.AccessDuration, err = time.ParseDuration(accessDuration)

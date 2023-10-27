@@ -29,15 +29,30 @@ spec:
         - containerPort: 8080
           name: http
         env:
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: mysql-creds
+              key: MYSQL_DATABASE
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql-creds
+              key: MYSQL_USER
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-creds
+              key: MYSQL_PASSWORD
         - name: MYSQL_ADDRESS
-          value: chat:password12@tcp(message-mysql:3306)/chatapp
+          value: message-mysql:3306
         - name: ORIGIN
           value: https://www.relrel.com
         - name: BROKER_ADDRESS
           value: kafka:9092
         envFrom:
         - secretRef:
-            name: aws-secrets
+            name: storage-credentials
         volumeMounts:
           - name: public-key
             mountPath: /rsa

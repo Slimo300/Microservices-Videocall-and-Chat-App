@@ -66,7 +66,7 @@ const MessageContent = (props) => {
 
 const MessageFile = (props) => {
     return (
-    <img src={"https://chatprofilepics.s3.eu-central-1.amazonaws.com/"+props.file.key} style={{height: '200px', width: '200px', border: '1px solid'}} alt="sample"/>
+    <img src={window._env_.STORAGE_URL+"/"+props.file.key} style={{height: '200px', width: '200px', border: '1px solid'}} alt="sample"/>
     )
 }
 
