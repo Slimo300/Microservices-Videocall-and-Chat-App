@@ -9,7 +9,7 @@ resource "digitalocean_record" "relrel_a_record" {
   name   = "@"
   value  = digitalocean_loadbalancer.relrel_lb.ip
 
-  depends_on = [module.kubernetes]
+  # depends_on = [module.kubernetes]
 }
 
 resource "digitalocean_record" "CNAME_www" {

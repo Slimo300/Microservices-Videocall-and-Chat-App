@@ -37,7 +37,7 @@ spec:
           value: kafka:9092
         envFrom:
         - secretRef:
-          name: redis-creds
+            name: redis-creds
 ---
 apiVersion: v1
 kind: Service

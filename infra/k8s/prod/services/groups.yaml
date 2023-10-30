@@ -33,19 +33,19 @@ spec:
           valueFrom:
             secretKeyRef:
               name: mysql-creds
-              value: MYSQL_DATABASE
+              key: MYSQL_DATABASE
         - name: MYSQL_USER
           valueFrom:
             secretKeyRef:
               name: mysql-creds
-              value: MYSQL_USER
+              key: MYSQL_USER
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
               name: mysql-creds
-              value: MYSQL_PASSWORD
+              key: MYSQL_PASSWORD
         - name: MYSQL_ADDRESS
-          value: group-mysql:3306)
+          value: group-mysql:3306
         - name: ORIGIN
           value: https://www.relrel.org
         - name: BROKER_ADDRESS
