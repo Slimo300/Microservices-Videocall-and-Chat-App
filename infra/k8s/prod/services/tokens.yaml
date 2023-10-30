@@ -34,9 +34,9 @@ spec:
           value: 1200s
         envFrom:
         - secretRef:
-          name: redis-creds
+            name: redis-creds
         - secretRef:
-          name: refresh-secret
+            name: refresh-secret
         volumeMounts:
           - name: private-key
             mountPath: /rsa

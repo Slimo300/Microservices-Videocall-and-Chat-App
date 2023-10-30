@@ -29,6 +29,10 @@ spec:
             secretKeyRef:
               name: storage-credentials
               key: STORAGE_URL
+        envFrom:
+        - secretRef:
+            name: turn-credentials
+
 ---
 apiVersion: v1
 kind: Service

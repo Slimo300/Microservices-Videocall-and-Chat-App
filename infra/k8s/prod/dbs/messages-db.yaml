@@ -23,7 +23,7 @@ spec:
           name: mysql
         envFrom:
         - secretRef:
-          name: mysql-creds
+            name: mysql-creds
         # volumeMounts:
         # - name: data
         #   mountPath: /var/lib/mysql

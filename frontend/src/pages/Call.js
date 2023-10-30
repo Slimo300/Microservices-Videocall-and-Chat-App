@@ -20,26 +20,7 @@ const VideoConference = () => {
     const initialVideo = query.get("initialVideo");
     const initialAudio = query.get("initialAudio");
 
-    const peerConnection = useRef(new RTCPeerConnection({'iceServers': [
-        {
-            urls: `stun:${window._env_.TURN_ADDRESS}:${window._env_.TURN_PORT}`
-        },
-        {
-            urls: `turn:${window._env_.TURN_ADDRESS}:${window._env_.TURN_PORT}`,
-            username: window._env_.TURN_USER,
-            credential: window._env_.TURN_PASSWORD
-        },
-        {
-            urls: `turns:${window._env_.TURN_ADDRESS}:${window._env_.TURNS_PORT}`,
-            username: window._env_.TURN_USER,
-            credential: window._env_.TURN_PASSWORD
-        },
-        {
-            urls: `turns:${window._env_.TURN_ADDRESS}:${window._env_.TURNS_PORT}?transport=tcp`,
-            username: window._env_.TURN_USER,
-            credential: window._env_.TURN_PASSWORD
-        }
-    ]}));
+    const peerConnection = useRef(null);
     
     const ws = useRef(null);
     const audioSender = useRef(null);
@@ -60,6 +41,31 @@ const VideoConference = () => {
             const stream = await navigator.mediaDevices.getUserMedia({video: initialVideo==="true", audio: initialAudio==="true"});
 
             setUserStream(stream);
+
+            try {
+                peerConnection.current = new RTCPeerConnection({'iceServers': [
+                    {
+                        urls: `stun:${window._env_.TURN_ADDRESS}:${window._env_.TURN_PORT}`
+                    },
+                    {
+                        urls: `turn:${window._env_.TURN_ADDRESS}:${window._env_.TURN_PORT}`,
+                        username: window._env_.TURN_USER,
+                        credential: window._env_.TURN_PASSWORD
+                    },
+                    {
+                        urls: `turns:${window._env_.TURN_ADDRESS}:${window._env_.TURN_TLS_PORT}`,
+                        username: window._env_.TURN_USER,
+                        credential: window._env_.TURN_PASSWORD
+                    },
+                    {
+                        urls: `turns:${window._env_.TURN_ADDRESS}:${window._env_.TURN_TLS_PORT}?transport=tcp`,
+                        username: window._env_.TURN_USER,
+                        credential: window._env_.TURN_PASSWORD
+                    }
+                ]});
+            } catch (err) {
+                console.log((new RTCPeerConnection()))
+            }
 
             peerConnection.current.ontrack = (event) => {
                 dispatch({type: actionTypes.NEW_STREAM, payload: event.streams[0]});

@@ -23,7 +23,7 @@ spec:
           name: redis
         envFrom:
         - secretRef:
-          name: redis-creds
+            name: redis-creds
         # volumeMounts:
         # - name: data
         #   mountPath: /bitnami/redis/data
