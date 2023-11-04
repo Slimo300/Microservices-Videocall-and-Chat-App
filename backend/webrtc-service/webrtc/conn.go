@@ -9,15 +9,18 @@ import (
 )
 
 type UserConnData struct {
-	Username     string `json:"username,omitempty"`
-	StreamID     string `json:"streamID,omitempty"`
-	VideoEnabled *bool  `json:"videoEnabled,omitempty"`
-	AudioEnabled *bool  `json:"audioEnabled,omitempty"`
+	MemberID   string `json:"memberID,omitempty"`
+	StreamID   string `json:"streamID,omitempty"`
+	Username   string `json:"username,omitempty"`
+	PictureURL string `json:"pictureURL,omitempty"`
+	Muting     bool   `json:"muting,omitempty"`
 }
 
 func (r *Room) ConnectRoom(conn *websocket.Conn, userData UserConnData) {
 
-	ws := newThreadSafeWriter(conn)
+	defer log.Println("Closing connection")
+	defer r.SignalPeerClosed(userData.MemberID)
+	ws := NewSignaler(conn)
 	defer ws.Close()
 
 	peerConnection, err := webrtc.NewPeerConnection(r.turnConfig)
@@ -36,9 +39,11 @@ func (r *Room) ConnectRoom(conn *websocket.Conn, userData UserConnData) {
 		}
 	}
 
-	r.AddClient(peerConnection, ws, userData)
+	peer := NewPeer(peerConnection, ws, r, userData)
+	r.AddPeer(peer)
 
 	peerConnection.OnICECandidate(func(i *webrtc.ICECandidate) {
+		log.Println("New candidate received")
 		if i == nil {
 			return
 		}
@@ -58,21 +63,20 @@ func (r *Room) ConnectRoom(conn *websocket.Conn, userData UserConnData) {
 	})
 
 	peerConnection.OnConnectionStateChange(func(pcs webrtc.PeerConnectionState) {
+		log.Println("Connection state changed: ", pcs.String())
 		switch pcs {
 		case webrtc.PeerConnectionStateFailed:
-			log.Println("Peer connection failed")
 			if err := peerConnection.Close(); err != nil {
 				log.Printf("Error closing failed connection: %v", err)
 			}
 		case webrtc.PeerConnectionStateClosed:
-			log.Printf("Peer connection closed")
 			r.SignalPeerConnections()
 		}
 	})
 
 	peerConnection.OnTrack(func(tr *webrtc.TrackRemote, _ *webrtc.RTPReceiver) {
-		log.Println("New track received!")
-		trackLocal := r.AddTrack(tr)
+		log.Println("New Track received...")
+		trackLocal := r.AddTrack(tr, userData.MemberID)
 		defer r.RemoveTrack(trackLocal)
 
 		buf := make([]byte, 1500)
@@ -89,55 +93,5 @@ func (r *Room) ConnectRoom(conn *websocket.Conn, userData UserConnData) {
 		}
 	})
 
-	message := &websocketMessage{}
-	for {
-		_, raw, err := ws.ReadMessage()
-		if err != nil {
-			log.Printf("Error reading message: %v\n", err)
-			return
-		} else if err := json.Unmarshal(raw, &message); err != nil {
-			log.Printf("Error unmarshaling message: %v\n", err)
-			return
-		}
-
-		switch message.Event {
-		case "candidate":
-			candidate := webrtc.ICECandidateInit{}
-			if err := json.Unmarshal([]byte(message.Data), &candidate); err != nil {
-				log.Printf("Error unmarshaling candidate: %v\n", err)
-				return
-			}
-
-			if err := peerConnection.AddICECandidate(candidate); err != nil {
-				log.Printf("Error adding ICE candidate: %v\n", err)
-				return
-			}
-		case "answer":
-			log.Printf("SDP Answer received")
-			answer := webrtc.SessionDescription{}
-			if err := json.Unmarshal([]byte(message.Data), &answer); err != nil {
-				log.Printf("Error unmarshaling answer: %v\n", err)
-				return
-			}
-
-			if err := peerConnection.SetRemoteDescription(answer); err != nil {
-				log.Printf("Error setting remote description: %v\n", err)
-				return
-			}
-		case "renegotiate":
-			r.SignalPeerConnections()
-		case "mute":
-			muteInfo := struct {
-				VideoEnabled *bool `json:"videoEnabled,omitempty"`
-				AudioEnabled *bool `json:"audioEnabled,omitempty"`
-			}{}
-
-			if err := json.Unmarshal([]byte(message.Data), &muteInfo); err != nil {
-				log.Printf("Error unmarshaling mute message")
-			}
-
-			r.ToggleMute(userData.StreamID, muteInfo.VideoEnabled, muteInfo.AudioEnabled)
-		}
-	}
-
+	peer.ServeSignaler()
 }
