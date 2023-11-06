@@ -13,7 +13,7 @@ type MemberUpdatedEvent struct {
 	DeletingMessages bool      `json:"deletingMessages" mapstructure:"deletingMessages"`
 	DeletingMembers  bool      `json:"deletingMembers" mapstructure:"deletingMembers"`
 	Admin            bool      `json:"admin" mapstructure:"admin"`
-	Muting           bool      `json:"adming" mapstructure:"admin"`
+	Muting           bool      `json:"muting" mapstructure:"muting"`
 }
 
 // EventName method from Event interface
