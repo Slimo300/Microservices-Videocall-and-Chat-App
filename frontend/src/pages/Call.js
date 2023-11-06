@@ -20,6 +20,8 @@ const VideoConference = () => {
     const initialVideo = query.get("initialVideo");
     const initialAudio = query.get("initialAudio");
 
+    const userStream = useRef(null);
+
     const peerConnection = useRef(null);
     
     const ws = useRef(null);
@@ -28,69 +30,64 @@ const VideoConference = () => {
 
     const [audioState, setAudioState] = useState("");
     const [videoState, setVideoState] = useState("");
-    const [videoPrevState, setVideoPrevState] = useState("");
-
+    const [, setState] = useState(false);
     const [fatal, setFatal] = useState(false);
 
     const [RTCStreams, dispatch] = useReducer(RTCStreamsReducer, []);
 
-    const [userStream, setUserStream] = useState(null);
-
     useEffect(() => {
         const startCall = async () => {
-            const stream = await navigator.mediaDevices.getUserMedia({video: initialVideo==="true", audio: initialAudio==="true"});
+            userStream.current = await navigator.mediaDevices.getUserMedia({video: initialVideo==="true", audio: initialAudio==="true"});
 
-            setUserStream(stream);
-
-            try {
-                peerConnection.current = new RTCPeerConnection({'iceServers': [
-                    {
-                        urls: `stun:${window._env_.TURN_ADDRESS}:${window._env_.TURN_PORT}`
-                    },
-                    {
-                        urls: `turn:${window._env_.TURN_ADDRESS}:${window._env_.TURN_PORT}`,
-                        username: window._env_.TURN_USER,
-                        credential: window._env_.TURN_PASSWORD
-                    },
-                    {
-                        urls: `turns:${window._env_.TURN_ADDRESS}:${window._env_.TURN_TLS_PORT}`,
-                        username: window._env_.TURN_USER,
-                        credential: window._env_.TURN_PASSWORD
-                    },
-                    {
-                        urls: `turns:${window._env_.TURN_ADDRESS}:${window._env_.TURN_TLS_PORT}?transport=tcp`,
-                        username: window._env_.TURN_USER,
-                        credential: window._env_.TURN_PASSWORD
-                    }
-                ]});
-            } catch (err) {
-                console.log((new RTCPeerConnection()))
-            }
+            peerConnection.current = new RTCPeerConnection({'iceServers': [
+                {
+                    urls: `stun:${window._env_.TURN_ADDRESS}:${window._env_.TURN_PORT}`
+                },
+                {
+                    urls: `turn:${window._env_.TURN_ADDRESS}:${window._env_.TURN_PORT}`,
+                    username: window._env_.TURN_USER,
+                    credential: window._env_.TURN_PASSWORD
+                },
+                {
+                    urls: `turns:${window._env_.TURN_ADDRESS}:${window._env_.TURN_TLS_PORT}`,
+                    username: window._env_.TURN_USER,
+                    credential: window._env_.TURN_PASSWORD
+                },
+                {
+                    urls: `turns:${window._env_.TURN_ADDRESS}:${window._env_.TURN_TLS_PORT}?transport=tcp`,
+                    username: window._env_.TURN_USER,
+                    credential: window._env_.TURN_PASSWORD
+                }
+            ]});
 
             peerConnection.current.ontrack = (event) => {
+                console.log("Track added");
+                setState(state => { return !state });
                 dispatch({type: actionTypes.NEW_STREAM, payload: event.streams[0]});
-    
+
                 event.streams[0].onremovetrack = () => {
-                    dispatch({type: actionTypes.DELETE_STREAM, payload: event.streams[0].id});
+                    console.log("Track removed");
+                    setState(state => { return !state });
+                    // dispatch({type: actionTypes.DELETE_STREAM, payload: event.streams[0].id});
                 }
             };
 
             if (initialAudio === "true") {
-                audioSender.current = peerConnection.current.addTrack(stream.getAudioTracks()[0], stream);
+                audioSender.current = peerConnection.current.addTrack(userStream.current.getAudioTracks()[0], userStream.current);
                 setAudioState(AUDIO_ACTIVE);
             } else {
                 setAudioState(AUDIO_INACTIVE);
             }
 
             if (initialVideo === "true") {
-                videoSender.current = peerConnection.current.addTrack(stream.getVideoTracks()[0], stream);
+                videoSender.current = peerConnection.current.addTrack(userStream.current.getVideoTracks()[0], userStream.current);
                 setVideoState(VIDEO_ACTIVE);
             } else {
                 setVideoState(VIDEO_INACTIVE);
             }
     
             try {
-                ws.current = GetWebRTCWebsocket(id, accessCode, stream.id, initialVideo==="true", initialAudio===false);
+                ws.current = GetWebRTCWebsocket(id, accessCode, userStream.current.id);
             } catch(err) {
                 alert(err);
                 setTimeout(() => setFatal(true), 3000);
@@ -134,16 +131,18 @@ const VideoConference = () => {
                             return console.log("Failed to parse newUser message");
                         }
 
-                        console.log(userData);
                         dispatch({type: actionTypes.SET_USER_INFO, payload: userData});
                         break;
-                    case "mute":
-                        let data = JSON.parse(msg.data);
-                        if (!data) {
-                            return console.log("Failed to parse mute message")
-                        }
-                        dispatch({type: actionTypes.TOGGLE_MUTE, payload: data});
+                    case "disconnected":
+                        dispatch({type: actionTypes.USER_DISCONNECTED, payload: msg.data});
                         break;
+                    // case "mute":
+                    //     let data = JSON.parse(msg.data);
+                    //     if (!data) {
+                    //         return console.log("Failed to parse mute message")
+                    //     }
+                    //     dispatch({type: actionTypes.TOGGLE_MUTE, payload: data});
+                    //     break;
                     default:
                         console.log("Unexpected websocket event: ", msg.event);
                 }
@@ -164,30 +163,23 @@ const VideoConference = () => {
         if (audioState !== AUDIO_ACTIVE) {
             const track = (await navigator.mediaDevices.getUserMedia({audio: true})).getAudioTracks()[0];
 
-            setUserStream(stream => {
-                stream.addTrack(track);
-    
-                if (!audioSender.current) {
-                    audioSender.current = peerConnection.current.addTrack(track, stream);
-                    ws.current.send(JSON.stringify({event: "renegotiate"}));
-                } else {
-                    audioSender.current.replaceTrack(track);
-                }
-                ws.current.send(JSON.stringify({event: "mute", data: JSON.stringify({audioEnabled: true})}));
-                return stream;
-            })
+            userStream.current.addTrack(track);
+
+            if (!audioSender.current) {
+                audioSender.current = peerConnection.current.addTrack(track, userStream.current);
+                ws.current.send(JSON.stringify({event: "renegotiate"}));
+            } else {
+                audioSender.current.replaceTrack(track);
+                ws.current.send(JSON.stringify({event: "mute_yourself", data: JSON.stringify({actionType: "enable", kind: "audio"})}));
+            }
 
             setAudioState(AUDIO_ACTIVE);
         } else {
-            setUserStream(stream => {
-                const track = stream.getAudioTracks()[0];
-                track.stop();
-                stream.removeTrack(track);
-
-                return stream;
-            })
+            userStream.current.getAudioTracks()[0].stop();
+            userStream.current.removeTrack(userStream.current.getAudioTracks()[0]);
+            
             audioSender.current.replaceTrack(null);
-            ws.current.send(JSON.stringify({event: "mute", data: JSON.stringify({audioEnabled: false})}));
+            ws.current.send(JSON.stringify({event: "mute_yourself", data: JSON.stringify({actionType: "disable", kind: "audio"})}));
 
             setAudioState(AUDIO_INACTIVE);
         }
@@ -197,36 +189,28 @@ const VideoConference = () => {
         if (videoState !== VIDEO_ACTIVE) {
             const track = (await navigator.mediaDevices.getUserMedia({video: true})).getVideoTracks()[0];
 
-            setUserStream(stream => {
-                if (videoState === VIDEO_SCREENSHARE) {
-                    stream.getVideoTracks()[0].stop();
-                    stream.removeTrack(stream.getVideoTracks()[0]);
-                }
-                
-                stream.addTrack(track);
-    
-                if (!videoSender.current) {
-                    videoSender.current = peerConnection.current.addTrack(track, stream);
-                    ws.current.send(JSON.stringify({event: "renegotiate"}));
-                } else {
-                    videoSender.current.replaceTrack(track);
-                }
-                ws.current.send(JSON.stringify({event: "mute", data: JSON.stringify({videoEnabled: true})}));
-                return stream;
-            });
-    
-            setVideoState(VIDEO_ACTIVE);
-        } else {
-            setUserStream(stream => {
-                const track = stream.getVideoTracks()[0];
-                track.stop();
-                stream.removeTrack(track);
+            if (videoState === VIDEO_SCREENSHARE) {
+                userStream.current.getVideoTracks()[0].stop();
+                userStream.current.removeTrack(userStream.current.getVideoTracks()[0]);
+            }
+            userStream.current.addTrack(track);
 
-                return stream;
-            });
+            if (!videoSender.current) {
+                videoSender.current = peerConnection.current.addTrack(track, userStream.current);
+                ws.current.send(JSON.stringify({event: "renegotiate"}));
+            } else {
+                videoSender.current.replaceTrack(track);
+            }
+
+            ws.current.send(JSON.stringify({event: "mute_yourself", data: JSON.stringify({actionType: "enable", kind: "video"})}));
+            setVideoState(VIDEO_ACTIVE);
+
+        } else {
+            userStream.current.getVideoTracks()[0].stop();
+            userStream.current.removeTrack(userStream.current.getVideoTracks()[0]);
     
             videoSender.current.replaceTrack(null);
-            ws.current.send(JSON.stringify({event: "mute", data: JSON.stringify({videoEnabled: false})}));
+            ws.current.send(JSON.stringify({event: "mute_yourself", data: JSON.stringify({actionType: "disable", kind: "video"})}));
 
             setVideoState(VIDEO_INACTIVE);
         }
@@ -235,55 +219,33 @@ const VideoConference = () => {
     const ToggleScreenShare = useCallback(async () => {
         if (videoState !== VIDEO_SCREENSHARE) {
             const track = (await navigator.mediaDevices.getDisplayMedia({video: true})).getVideoTracks()[0];
-
-            setUserStream(stream => {
-                if (videoState === VIDEO_ACTIVE) {
-                    stream.getVideoTracks()[0].stop();
-                    stream.removeTrack(stream.getVideoTracks()[0]);
-                }
-                stream.addTrack(track);
+            if (videoState === VIDEO_ACTIVE) {
+                userStream.getVideoTracks()[0].stop();
+                userStream.removeTrack(userStream.getVideoTracks()[0]);
+            }
+            userStream.addTrack(track);
     
-                if (!videoSender.current) {
-                    videoSender.current = peerConnection.current.addTrack(track, stream);
-                    ws.current.send(JSON.stringify({event: "renegotiate"}));
-                } else {
-                    videoSender.current.replaceTrack(track);
-                }
-                if (videoState === VIDEO_INACTIVE) {
-                    ws.current.send(JSON.stringify({event: "mute", data: JSON.stringify({videoEnabled: true})}));
-                }
-                return stream;
-            });
-    
-            setVideoState(videoState => {
-                setVideoPrevState(videoState);
-
-                return VIDEO_SCREENSHARE;
-            });
+            if (!videoSender.current) {
+                videoSender.current = peerConnection.current.addTrack(track, userStream.current);
+                ws.current.send(JSON.stringify({event: "renegotiate"}));
+            } else {
+                videoSender.current.replaceTrack(track);
+            }
+            if (videoState === VIDEO_INACTIVE) {
+                ws.current.send(JSON.stringify({event: "mute_yourself", data: JSON.stringify({actionType: "enable", kind: "video"})}));
+            }
+            setVideoState(VIDEO_SCREENSHARE);
 
         } else {
-            let track = null;
-            if (videoPrevState === VIDEO_ACTIVE) {
-                track = (await navigator.mediaDevices.getUserMedia({video: true})).getVideoTracks()[0];
-            }
+            userStream.getVideoTracks()[0].stop();
+            userStream.removeTrack(userStream.getVideoTracks()[0]);
 
-            setUserStream(stream => {
-                stream.getVideoTracks()[0].stop();
-                stream.removeTrack(stream.getVideoTracks()[0]);
+            videoSender.current.replaceTrack(null);
+            ws.current.send(JSON.stringify({event: "mute_yourself", data: JSON.stringify({actionType: "disable", kind: "video"})}));
 
-                if (videoPrevState === VIDEO_ACTIVE) {
-                    stream.addTrack(track);
-                }
-
-                return stream;
-            });
-    
-            videoSender.current.replaceTrack(track);
-            
-            ws.current.send(JSON.stringify({event: "mute", data: JSON.stringify({videoEnabled: true})}));
-            setVideoState(videoPrevState);
+            setVideoState(VIDEO_INACTIVE);
         }
-    }, [videoState, videoPrevState]);
+    }, [videoState]);
 
     const EndCall = useCallback(() => {
 
@@ -292,13 +254,10 @@ const VideoConference = () => {
 
         dispatch({type: actionTypes.END_SESSION});
 
-        setUserStream(stream => {
-            stream.getTracks().forEach((track) => {
-                track.stop();
-            })
-
-            return null;
+        userStream.current.getTracks().forEach((track) => {
+            track.stop();
         });
+        userStream.current = null;
     }, []);
 
     const CallHandler = useMemo(() => {
@@ -310,7 +269,7 @@ const VideoConference = () => {
     if (fatal) return <Navigate to="/not-found" />;
 
     return (
-        <CallScreen CallHandler={CallHandler} userStream={userStream} RTCStreams={RTCStreams} audioState={audioState} videoState={videoState}/>
+        <CallScreen CallHandler={CallHandler} userStream={userStream.current} RTCStreams={RTCStreams} audioState={audioState} videoState={videoState}/>
     )
 };
 

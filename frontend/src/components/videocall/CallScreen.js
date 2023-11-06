@@ -46,9 +46,9 @@ const CallScreen = ({CallHandler, userStream, videoState, audioState, RTCStreams
                 </button>
             </div>
             <div className='d-flex flex-wrap justify-content-center align-items-center'>
-                {userStream?<PeerVideo stream={userStream} username={localStorage.getItem("username")} isVideoMuted={videoState===VIDEO_INACTIVE} isAudioMuted={audioState===AUDIO_INACTIVE} isUser={true} />:null}
+                {userStream?<PeerVideo stream={userStream} username={localStorage.getItem("username")} /*isVideoMuted={videoState===VIDEO_INACTIVE} isAudioMuted={audioState===AUDIO_INACTIVE}*/ isUser={true} />:null}
                 {RTCStreams?RTCStreams.map(item => {
-                    return <PeerVideo key={item.stream.id} stream={item.stream} username={item.username} isVideoMuted={!item.videoEnabled} isAudioMuted={!item.audioEnabled} isUser={false} />
+                    return <PeerVideo key={item.stream.id} stream={item.stream} username={item.username} /*isVideoMuted={!item.videoEnabled} isAudioMuted={!item.audioEnabled}*/ isUser={false} />
                 }):null}
             </div> 
         </div>

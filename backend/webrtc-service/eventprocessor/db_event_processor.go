@@ -41,10 +41,11 @@ func (p *DBEventProcessor) ProcessEvents(eventNames ...string) {
 				}
 			case *events.MemberCreatedEvent:
 				if err := p.DB.NewMember(models.Member{
-					ID:       e.ID.String(),
-					GroupID:  e.GroupID.String(),
-					UserID:   e.UserID.String(),
-					Username: e.User.UserName,
+					ID:         e.ID.String(),
+					GroupID:    e.GroupID.String(),
+					UserID:     e.UserID.String(),
+					Username:   e.User.UserName,
+					PictureURL: e.User.Picture,
 				}); err != nil {
 					log.Printf("Listener NewMember error: %s", err.Error())
 				}
