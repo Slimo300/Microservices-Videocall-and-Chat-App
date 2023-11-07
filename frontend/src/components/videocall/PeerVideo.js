@@ -6,7 +6,7 @@ import mutedUser from "../../statics/images/video-user.png";
 
 export const USER_PEER_VIDEO_ELEMENT_ID = "userPeerVideo"
 
-const PeerVideo = ({stream, username}) => {
+export const PeerVideo = ({stream, username, memberID, muting, ws}) => {
     const video = useRef(null);
 
     useEffect(() => {
@@ -40,19 +40,30 @@ const PeerVideo = ({stream, username}) => {
         setupRef();
     });
 
+    const SwitchMuteForYourself = (actionType, kind) => {
+        ws.current.send(JSON.stringify({event: "mute_for_yourself", data: JSON.stringify({actionType, memberID, kind})}));
+    }
+    const SwitchMuteForEveryone = (actionType, kind) => {
+        ws.current.send(JSON.stringify({event: "mute_for_everyone", data: JSON.stringify({actionType, memberID, kind})}));
+    }
+
     return (
         <div className='peer m-1'>
             <h4 className='white-text peer-footer'>{username?username:stream.id}</h4>
             <div className="dropdown peer-options">
-                <button className="peer-status-icon p-1" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button className="peer-options-button p-1" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <FontAwesomeIcon icon={faEllipsisVertical} size='m' />
                 </button>
-                <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <button className="dropdown-item"> Option #1</button>
-                    <button className="dropdown-item"> Option #2</button>
-                    <div className="dropdown-divider"></div>
-                    <button className="dropdown-item"> Option #1</button>
-                    <button className="dropdown-item"> Option #2</button>
+                <div className="bg-dark dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <button className="dropdown-item text-white py-0 my-0" onClick={() => { SwitchMuteForYourself("enable", "audio") }}>Enable Audio</button>
+                    <button className="dropdown-item text-white py-0 my-0" onClick={() => { SwitchMuteForYourself("disable", "audio") }}>Disable Audio</button>
+                    <button className="dropdown-item text-white py-0 my-0" onClick={() => { SwitchMuteForYourself("enable", "video") }}>Enable Video</button>
+                    <button className="dropdown-item text-white py-0 my-0" onClick={() => { SwitchMuteForYourself("disable", "video") }}>Disable Video</button>
+                    {muting?<div className="dropdown-divider"></div>:null}
+                    {muting?<button className="dropdown-item text-white py-0 my-0" onClick={() => { SwitchMuteForEveryone("enable", "audio") }}>Enable Audio (for everyone)</button>:null}
+                    {muting?<button className="dropdown-item text-white py-0 my-0" onClick={() => { SwitchMuteForEveryone("disable", "audio") }}>Disable Audio (for everyone)</button>:null}
+                    {muting?<button className="dropdown-item text-white py-0 my-0" onClick={() => { SwitchMuteForEveryone("enable", "video") }}>Enable Video (for everyone)</button>:null}
+                    {muting?<button className="dropdown-item text-white py-0 my-0" onClick={() => { SwitchMuteForEveryone("disable", "video") }}>Disable Video (for everyone)</button>:null}
                 </div>  
             </div>
             {stream instanceof MediaStream && stream.getAudioTracks().length === 0?<h5 className="mute-symbol"><FontAwesomeIcon icon={faMicrophoneSlash} size='m' /></h5>:null}
@@ -60,8 +71,6 @@ const PeerVideo = ({stream, username}) => {
         </div>
     )
 }
-
-export default PeerVideo;
 
 export const UserPeerVideo = ({ stream, username }) => {
     const video = useRef(null);
@@ -104,8 +113,6 @@ export const UserPeerVideo = ({ stream, username }) => {
         
         setupRef();
     });
-
-    if (peerStream) console.log(peerStream instanceof MediaStream && peerStream.getAudioTracks().length === 0);
 
     return (
         <div className='peer m-1' id={USER_PEER_VIDEO_ELEMENT_ID}>

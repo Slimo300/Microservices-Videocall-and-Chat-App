@@ -1,8 +1,6 @@
 package orm
 
 import (
-	"log"
-
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/models"
 )
@@ -20,10 +18,7 @@ func (db *Database) NewMember(event events.MemberCreatedEvent) error {
 }
 
 func (db *Database) ModifyMember(event events.MemberUpdatedEvent) error {
-	log.Println(event.Admin)
-	res := db.Model(&models.Membership{MembershipID: event.ID}).Updates(map[string]interface{}{"admin": event.Admin, "deleting_messages": event.DeletingMessages})
-	log.Println(res.RowsAffected)
-	return res.Error
+	return db.Model(&models.Membership{MembershipID: event.ID}).Updates(map[string]interface{}{"admin": event.Admin, "deleting_messages": event.DeletingMessages}).Error
 }
 
 func (db *Database) DeleteMember(event events.MemberDeletedEvent) error {

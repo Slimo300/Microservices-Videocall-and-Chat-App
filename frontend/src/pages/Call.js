@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useReducer } from 'react';
 import {  useParams, Navigate } from "react-router-dom";
 
 import useQuery from '../hooks/useQuery';
-import { GetWebRTCWebsocket } from '../requests/Ws';
+import { GetWebRTCWebSocket } from '../requests/Ws';
 import CallScreen from '../components/videocall/CallScreen';
 import { RTCStreamsReducer, actionTypes } from '../components/videocall/RTCStreams';
 
@@ -16,9 +16,11 @@ const VideoConference = () => {
 
     const { id } = useParams();
     const query = useQuery();
-    const accessCode = query.get("accessCode");
     const initialVideo = query.get("initialVideo");
     const initialAudio = query.get("initialAudio");
+
+    const [username, setUsername] = useState("");
+    const [muting, setMuting] = useState(false);
 
     const userStream = useRef(null);
 
@@ -69,20 +71,17 @@ const VideoConference = () => {
 
             if (initialAudio === "true") {
                 audioSender.current = peerConnection.current.addTrack(userStream.current.getAudioTracks()[0], userStream.current);
-                // setAudioState(AUDIO_ACTIVE);
-            } else {
-                // setAudioState(AUDIO_INACTIVE);
             }
-
             if (initialVideo === "true") {
                 videoSender.current = peerConnection.current.addTrack(userStream.current.getVideoTracks()[0], userStream.current);
-                // setVideoState(VIDEO_ACTIVE);
-            } else {
-                // setVideoState(VIDEO_INACTIVE);
-            }
+            } 
     
             try {
-                ws.current = GetWebRTCWebsocket(id, accessCode, userStream.current.id);
+                let {socket, username, muting} = await GetWebRTCWebSocket(id, userStream.current.id);
+                ws.current = socket;
+                setUsername(username);
+                setMuting(muting);
+                
             } catch(err) {
                 alert(err);
                 setTimeout(() => setFatal(true), 3000);
@@ -147,12 +146,12 @@ const VideoConference = () => {
 
         startCall();
 
-    }, [accessCode, id, initialVideo, initialAudio]);
+    }, [id, initialVideo, initialAudio]);
 
     if (fatal) return <Navigate to="/not-found" />;
 
     if (init) return (
-        <CallScreen peerConnection={peerConnection} ws={ws} audioSender={audioSender} videoSender={videoSender} dispatch={dispatch} userStream={userStream} RTCStreams={RTCStreams} />
+        <CallScreen peerConnection={peerConnection} ws={ws} audioSender={audioSender} videoSender={videoSender} dispatch={dispatch} userStream={userStream} RTCStreams={RTCStreams} username={username} muting={muting} />
     )
     else return null;
 };

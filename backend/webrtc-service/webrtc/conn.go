@@ -14,6 +14,8 @@ type UserConnData struct {
 	Username   string `json:"username,omitempty"`
 	PictureURL string `json:"pictureURL,omitempty"`
 	Muting     bool   `json:"muting,omitempty"`
+	Admin      bool   `json:"admin,omitempty"`
+	Creator    bool   `json:"creator,omitempty"`
 }
 
 func (r *Room) ConnectRoom(conn *websocket.Conn, userData UserConnData) {

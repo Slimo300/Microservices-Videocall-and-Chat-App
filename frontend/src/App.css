@@ -459,13 +459,16 @@ ul {
     right: 0;
     z-index: 1;
     margin: 1%;
+  }
+
+  .peer-options-button {
     transition: 0.1s;
     color: whitesmoke;
     background-color: darkslategray;
     opacity: 0.5;
   }
 
-  .peer-options:hover {
+  .peer-options-button:hover {
     opacity: 1;
   }
 

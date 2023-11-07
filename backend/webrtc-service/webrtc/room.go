@@ -21,6 +21,8 @@ type Room struct {
 	BanningRules map[MutingRule]bool
 	MutingRules  map[MutingRule]bool
 
+	PeerRights map[string]PeerRights
+
 	// closeChan is a channel on which room signals that it has exited, closed flag makes sure closeChan is only closed once
 	closeChan chan struct{}
 	closed    bool
@@ -29,8 +31,11 @@ type Room struct {
 func NewRoom(config webrtc.Configuration) *Room {
 	room := &Room{}
 	room.TrackLocals = make(map[string]*LocalTrack)
+
 	room.MutingRules = make(map[MutingRule]bool)
 	room.BanningRules = make(map[MutingRule]bool)
+	room.PeerRights = make(map[string]PeerRights)
+
 	room.closeChan = make(chan struct{})
 	room.closed = false
 	room.turnConfig = config
@@ -47,6 +52,15 @@ func (r *Room) Done() <-chan struct{} {
 	return r.closeChan
 }
 
+func (r *Room) GetPeerRights(memberID string) (PeerRights, bool) {
+	r.ListLock.RLock()
+	defer r.ListLock.RUnlock()
+
+	rights, ok := r.PeerRights[memberID]
+
+	return rights, ok
+}
+
 func (r *Room) AddPeer(peer *Peer) {
 	log.Println("ROOM: Adding Peer")
 
@@ -59,6 +73,12 @@ func (r *Room) AddPeer(peer *Peer) {
 	data, err := json.Marshal(peer.userData)
 	if err != nil {
 		log.Printf("Error marshaling userData: %v", err)
+	}
+
+	r.PeerRights[peer.userData.MemberID] = PeerRights{
+		Creator: peer.userData.Creator,
+		Admin:   peer.userData.Admin,
+		Muting:  peer.userData.Muting,
 	}
 
 	for _, client := range r.Peers {
