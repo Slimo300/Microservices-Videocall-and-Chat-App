@@ -152,10 +152,12 @@ func (r *Room) SignalPeerClosed(memberID string) {
 
 	for i := range r.Peers {
 		if r.Peers[i].userData.MemberID != memberID {
-			r.Peers[i].signaler.WriteJSON(&websocketMessage{
+			if err := r.Peers[i].signaler.WriteJSON(&websocketMessage{
 				Event: "disconnected",
 				Data:  memberID,
-			})
+			}); err != nil {
+				log.Printf("Error writing message to signaler: %v", err)
+			}
 		}
 	}
 }

@@ -128,7 +128,7 @@ func (p *Peer) HandleRenegotiate() error {
 
 type MutingAction struct {
 	MutingRule
-	ActionType mutingActionType `json:"actionType,required"`
+	ActionType mutingActionType `json:"actionType"`
 }
 
 type MutingRule struct {
