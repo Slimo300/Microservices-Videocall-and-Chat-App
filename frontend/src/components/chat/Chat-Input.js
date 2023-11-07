@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { GetPresignedRequests } from "../../requests/Messages";
 
-const ChatInput = ({ group, ws, user }) => {
+const ChatInput = ({ group, ws, user, member }) => {
 
     const [msg, setMsg] = useState("");
     const [files, setFiles] = useState(null);
@@ -106,11 +106,14 @@ const ChatInput = ({ group, ws, user }) => {
         }
 
         if (ws !== undefined) ws.send(JSON.stringify({
-            "groupID": group.ID,
-            "userID": user.ID,
-            "text": msg,
-            "nick": user.username,
-            "files": filesData
+            Member: {
+                ID: member.ID,
+                groupID: group.ID,
+                userID: user.ID,
+                username: user.username,
+            },
+            text: msg,
+            files: filesData
         }));
 
         form.current.reset();

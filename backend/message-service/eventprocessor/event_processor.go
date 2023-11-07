@@ -54,6 +54,7 @@ func (p *EventProcessor) ProcessEvents(eventNames ...string) {
 					log.Printf("Error when creating member from message: %s\n", err.Error())
 				}
 			case *events.MemberUpdatedEvent:
+				log.Println("Modifying member")
 				if err := p.DB.ModifyMember(*e); err != nil {
 					log.Printf("Error when updating member from message: %s\n", err.Error())
 				}

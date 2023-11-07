@@ -1,6 +1,8 @@
 package orm
 
 import (
+	"log"
+
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/models"
 )
@@ -10,6 +12,7 @@ func (db *Database) NewMember(event events.MemberCreatedEvent) error {
 		MembershipID:     event.ID,
 		GroupID:          event.GroupID,
 		UserID:           event.UserID,
+		Username:         event.User.UserName,
 		Creator:          event.Creator,
 		Admin:            event.Creator,
 		DeletingMessages: event.Creator,
@@ -17,7 +20,10 @@ func (db *Database) NewMember(event events.MemberCreatedEvent) error {
 }
 
 func (db *Database) ModifyMember(event events.MemberUpdatedEvent) error {
-	return db.Where(models.Membership{MembershipID: event.ID}).Updates(models.Membership{DeletingMessages: event.DeletingMessages, Admin: event.Admin}).Error
+	log.Println(event.Admin)
+	res := db.Model(&models.Membership{MembershipID: event.ID}).Updates(map[string]interface{}{"admin": event.Admin, "deleting_messages": event.DeletingMessages})
+	log.Println(res.RowsAffected)
+	return res.Error
 }
 
 func (db *Database) DeleteMember(event events.MemberDeletedEvent) error {
@@ -29,14 +35,13 @@ func (db *Database) AddMessage(event events.MessageSentEvent) error {
 	for _, f := range event.Files {
 		files = append(files, models.MessageFile{Key: f.Key, Extention: f.Extension})
 	}
+
 	return db.Create(models.Message{
-		ID:      event.ID,
-		GroupID: event.GroupID,
-		UserID:  event.UserID,
-		Text:    event.Text,
-		Nick:    event.Nick,
-		Posted:  event.Posted,
-		Files:   files,
+		ID:       event.ID,
+		MemberID: event.MemberID,
+		Text:     event.Text,
+		Posted:   event.Posted,
+		Files:    files,
 	}).Error
 }
 

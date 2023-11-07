@@ -46,12 +46,17 @@ func (p *DBEventProcessor) ProcessEvents(eventNames ...string) {
 					UserID:     e.UserID.String(),
 					Username:   e.User.UserName,
 					PictureURL: e.User.Picture,
+					Muting:     e.Creator,
 				}); err != nil {
 					log.Printf("Listener NewMember error: %s", err.Error())
 				}
 			case *events.MemberDeletedEvent:
 				if err := p.DB.DeleteMember(e.ID.String()); err != nil {
 					log.Printf("Listener DeleteMember error: %s", err.Error())
+				}
+			case *events.MemberUpdatedEvent:
+				if err := p.DB.ModifyMember(*e); err != nil {
+					log.Printf("Listener ModifyMember error: %s", err.Error())
 				}
 			case *events.UserPictureModifiedEvent:
 

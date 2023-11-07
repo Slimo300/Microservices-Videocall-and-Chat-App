@@ -37,7 +37,7 @@ func (db *Database) CreateGroup(userID uuid.UUID, name string) (models.Group, er
 		if err := tx.Create(&group).Error; err != nil {
 			return err
 		}
-		member := models.Member{ID: uuid.New(), UserID: userID, GroupID: group.ID, Adding: true, DeletingMembers: true, Admin: true, Creator: true}
+		member := models.Member{ID: uuid.New(), UserID: userID, GroupID: group.ID, Adding: true, DeletingMembers: true, Admin: true, Creator: true, Muting: true, DeletingMessages: true}
 		if err := tx.Create(&member).Error; err != nil {
 			return err
 		}

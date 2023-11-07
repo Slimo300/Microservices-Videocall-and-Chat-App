@@ -52,26 +52,7 @@ func (h *WSHub) Run() {
 	for {
 		select {
 		case event := <-h.eventChan:
-			switch e := event.(type) {
-			case *events.GroupDeletedEvent:
-				h.groupDeleted(*e)
-			case *events.MemberCreatedEvent:
-				h.memberAdded(*e)
-			case *events.MemberDeletedEvent:
-				h.memberDeleted(*e)
-			case *events.MemberUpdatedEvent:
-				h.memberUpdated(*e)
-			case *events.InviteSentEvent:
-				h.inviteSent(*e)
-			case *events.InviteRespondedEvent:
-				h.inviteResponded(*e)
-			case *events.MessageDeletedEvent:
-				h.messageDeleted(*e)
-			case *events.MessageSentEvent:
-				h.messageSent(*e)
-			default:
-				log.Println("Unsupported Event Type: ", event.EventName())
-			}
+			h.HandleEvent(event)
 		case client := <-h.join:
 			h.clients[client] = true
 		case client := <-h.leave:
@@ -88,7 +69,7 @@ func (h *WSHub) Run() {
 			}()
 
 			for client := range h.clients {
-				if _, ok := client.groups[msg.Group]; ok {
+				if _, ok := client.groups[msg.Member.GroupID]; ok {
 					client.send <- msg
 				}
 			}
@@ -105,9 +86,10 @@ func (h *WSHub) EmitMessage(msg *Message) error {
 
 	if err := h.emiter.Emit(events.MessageSentEvent{
 		ID:        msg.ID,
-		GroupID:   msg.Group,
-		UserID:    msg.User,
-		Nick:      msg.Nick,
+		MemberID:  msg.Member.ID,
+		GroupID:   msg.Member.GroupID,
+		UserID:    msg.Member.UserID,
+		Nick:      msg.Member.Username,
 		Posted:    msg.When,
 		Text:      msg.Message,
 		Files:     files,

@@ -52,10 +52,10 @@ func (s *MessageTestSuite) SetupSuite() {
 	// Setting up our mocks
 	mockDB := new(mockdb.MockMessageDB)
 
-	mockDB.On("GetGroupMessages", s.uuids["userInGroup"], s.uuids["group"], 0, 4).Return([]models.Message{{Text: "elo", Nick: "Mal"},
-		{Text: "siema", Nick: "River"},
-		{Text: "elo elo", Nick: "Mal"},
-		{Text: "siema siema", Nick: "River"}}, nil)
+	mockDB.On("GetGroupMessages", s.uuids["userInGroup"], s.uuids["group"], 0, 4).Return([]models.Message{{Text: "elo"},
+		{Text: "siema"},
+		{Text: "elo elo"},
+		{Text: "siema siema"}}, nil)
 	mockDB.On("GetGroupMessages", s.uuids["userNotInGroup"], s.uuids["group"], 0, 4).Return([]models.Message{}, apperrors.NewForbidden("User cannot request from this group"))
 
 	mockDB.On("DeleteMessageForYourself", s.uuids["userInGroup"], s.uuids["message"], s.uuids["group"]).Return(models.Message{Text: "valid"}, nil)
@@ -97,10 +97,10 @@ func (s *MessageTestSuite) TestGetGroupMessages() {
 			returnVal:          true,
 			expectedStatusCode: http.StatusOK,
 			groupID:            s.uuids["group"].String(),
-			expectedResponse: []models.Message{{Text: "elo", Nick: "Mal"},
-				{Text: "siema", Nick: "River"},
-				{Text: "elo elo", Nick: "Mal"},
-				{Text: "siema siema", Nick: "River"}},
+			expectedResponse: []models.Message{{Text: "elo"},
+				{Text: "siema"},
+				{Text: "elo elo"},
+				{Text: "siema siema"}},
 		},
 		{
 			desc:               "getmessagesforbidden",

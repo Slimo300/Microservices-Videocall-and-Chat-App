@@ -168,9 +168,9 @@ func (p *Peer) HandleMuteForEveryone(data string) error {
 
 	switch action.ActionType {
 	case Enable:
-		p.room.RemoveMutingRule(action.MutingRule)
+		p.room.RemoveBanningRule(action.MutingRule)
 	case Disable:
-		p.room.AddMutingRule(action.MutingRule)
+		p.room.AddBanningRule(action.MutingRule)
 	}
 
 	return nil

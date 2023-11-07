@@ -103,7 +103,7 @@ const Chat = ({group, user, ws, setCurrent}) => {
                 </div>
                 <div className="chat-container d-flex flex-column justify-content-end" style={{'height': '80vh'}}>
                     <ChatBox group={group} user={user} />
-                    <ChatInput ws={ws} group={group} user={user}/>
+                    <ChatInput ws={ws} group={group} user={user} member={member}/>
                 </div>
                 <ModalDeleteGroup show={delGrShow} toggle={toggleDelGroup} group={group} setCurrent={setCurrent}/>
                 <ModalLeaveGroup show={leaveGrShow} toggle={toggleLeaveGroup} member={member} group={group} setCurrent={setCurrent}/>

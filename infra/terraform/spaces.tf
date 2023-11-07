@@ -1,9 +1,9 @@
-resource "digitalocean_spaces_bucket" "relrelspaces" {
-  name = "relrelspaces"
+# resource "digitalocean_spaces_bucket" "relrelspaces" {
+#   name = "relrelspaces"
   
-  region = "fra1"
-  acl = "public-read"
-}
+#   region = "fra1"
+#   acl = "public-read"
+# }
 
 resource "digitalocean_spaces_bucket_cors_configuration" "relrelspaces-cors" {
   bucket = "relrelspaces"

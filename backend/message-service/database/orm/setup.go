@@ -6,6 +6,7 @@ import (
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type Database struct {
@@ -17,6 +18,7 @@ func Setup(address string) (*Database, error) {
 
 	db, err := gorm.Open(mysql.Open(fmt.Sprintf("%s?parseTime=true", address)), &gorm.Config{
 		SkipDefaultTransaction: true,
+		Logger:                 logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
 		return nil, err

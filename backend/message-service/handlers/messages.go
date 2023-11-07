@@ -81,7 +81,7 @@ func (s *Server) DeleteMessageForEveryone(c *gin.Context) {
 
 	_ = s.Emitter.Emit(events.MessageDeletedEvent{
 		ID:      msg.ID,
-		GroupID: msg.GroupID,
+		GroupID: msg.Member.GroupID,
 	})
 
 	c.JSON(http.StatusOK, msg)

@@ -447,6 +447,13 @@ ul {
   }
   
   .mute-symbol {
+    transition: 0.1s;
+    color: whitesmoke;
+    background-color: darkslategray;
+    opacity: 0.5;
+  }
+
+  .peer-options {
     position: absolute;
     top: 0;
     right: 0;
@@ -457,7 +464,23 @@ ul {
     background-color: darkslategray;
     opacity: 0.5;
   }
-  
+
+  .peer-options:hover {
+    opacity: 1;
+  }
+
+  .mute-symbol {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    margin: 1%;
+    transition: 0.1s;
+    color: whitesmoke;
+    background-color: darkslategray;
+    opacity: 0.5;
+  }
+
   .mute-symbol:hover {
     opacity: 1;
   }

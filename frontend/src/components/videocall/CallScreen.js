@@ -1,19 +1,20 @@
 import React, { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMicrophone, faMicrophoneSlash, faVideo, faVideoSlash, faPhoneSlash, faShareFromSquare } from "@fortawesome/free-solid-svg-icons";
+// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+// import { faMicrophone, faMicrophoneSlash, faVideo, faVideoSlash, faPhoneSlash, faShareFromSquare } from "@fortawesome/free-solid-svg-icons";
 
-import PeerVideo from "./PeerVideo";
-import { AUDIO_ACTIVE, AUDIO_INACTIVE, VIDEO_ACTIVE, VIDEO_INACTIVE, VIDEO_SCREENSHARE } from "../../pages/Call";
+import PeerVideo, { UserPeerVideo } from "./PeerVideo";
+// import { AUDIO_ACTIVE, VIDEO_ACTIVE, VIDEO_SCREENSHARE } from "../../pages/Call";
+import Toolbar from "./Toolbar";
 
-const CallScreen = ({CallHandler, userStream, videoState, audioState, RTCStreams}) => {
+const CallScreen = ({/*CallHandler,*/ peerConnection, userStream, videoSender, audioSender, ws, RTCStreams, dispatch}) => {
 
     const [ended, setEnded] = useState(false);
 
-    const EndCall = () => {
-        CallHandler.EndCall();
+    // const EndCall = () => {
+    //     CallHandler.EndCall();
 
-        setEnded(true);
-    };
+    //     setEnded(true);
+    // };
 
     if (ended) return (
         <div className="container mt-4 pt-4">
@@ -27,7 +28,8 @@ const CallScreen = ({CallHandler, userStream, videoState, audioState, RTCStreams
 
     return (
         <div>
-            <div id="toolbar" className='d-flex justify-content-around rounded p-1'>
+            <Toolbar userStream={userStream} audioSender={audioSender} videoSender={videoSender} peerConnection={peerConnection} ws={ws} dispatch={dispatch} setEnded={setEnded} />
+            {/* <div id="toolbar" className='d-flex justify-content-around rounded p-1'>
 
                 <button className={"btn shadow rounded-circle "+(audioState===AUDIO_ACTIVE?"btn-secondary":"btn-danger")} type="button" onClick={CallHandler.ToggleAudio}>
                     <FontAwesomeIcon icon={audioState===AUDIO_ACTIVE?faMicrophone:faMicrophoneSlash} size='xl'/>
@@ -44,11 +46,11 @@ const CallScreen = ({CallHandler, userStream, videoState, audioState, RTCStreams
                 <button className="btn btn-danger shadow rounded-circle" type="button" onClick={EndCall}>
                     <FontAwesomeIcon icon={faPhoneSlash} size='xl' />
                 </button>
-            </div>
+            </div> */}
             <div className='d-flex flex-wrap justify-content-center align-items-center'>
-                {userStream?<PeerVideo stream={userStream} username={localStorage.getItem("username")} /*isVideoMuted={videoState===VIDEO_INACTIVE} isAudioMuted={audioState===AUDIO_INACTIVE}*/ isUser={true} />:null}
+                {userStream.current?<UserPeerVideo stream={userStream.current} username={localStorage.getItem("username")} /*isUser={true}*/ />:null}
                 {RTCStreams?RTCStreams.map(item => {
-                    return <PeerVideo key={item.stream.id} stream={item.stream} username={item.username} /*isVideoMuted={!item.videoEnabled} isAudioMuted={!item.audioEnabled}*/ isUser={false} />
+                    return <PeerVideo key={item.stream.id} stream={item.stream} username={item.username}/>
                 }):null}
             </div> 
         </div>

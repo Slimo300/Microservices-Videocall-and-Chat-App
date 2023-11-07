@@ -177,7 +177,7 @@ function DeleteMemberFromGroup(state, payload) {
 function AddMessage(state, payload) {
     let newState = {...state};
     for (let i = 0; i < newState.groups.length; i++) {
-        if (newState.groups[i].ID === payload.message.groupID) {
+        if (newState.groups[i].ID === payload.message.Member.groupID) {
             newState.groups[i].messages.unshift(payload.message)
             if (!payload.current) {
                 newState.groups[i].unreadMessages += 1;
@@ -201,6 +201,7 @@ function AddMessages(state, payload) {
 
 function DeleteMessage(state, payload) {
     let newState = {...state};
+    console.log(payload);
     for (let i = 0; i < newState.groups.length; i++) {
         if (newState.groups[i].ID === payload.groupID) {
             for (let j = 0; j < newState.groups[i].messages.length; j++) {

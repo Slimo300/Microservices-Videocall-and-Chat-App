@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"log"
 	"net/http"
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
@@ -26,16 +27,17 @@ func (s *Server) SignIn(c *gin.Context) {
 		return
 	}
 	tokenPair, err := s.TokenClient.NewPairFromUserID(context.TODO(), &auth.UserID{ID: user.ID.String()})
-	if tokenPair.Error != "" {
-		c.JSON(http.StatusBadRequest, gin.H{"err": tokenPair.Error})
-		return
-	}
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
 	}
+	if tokenPair.Error != "" {
+		c.JSON(http.StatusBadRequest, gin.H{"err": tokenPair.Error})
+		return
+	}
 
-	c.SetCookie("refreshToken", tokenPair.RefreshToken, 86400, "/", s.Domain, false, true)
+	log.Println(s.Domain)
+	c.SetCookie("refreshToken", tokenPair.RefreshToken, 86400, "/", s.Domain, true, true)
 
 	c.JSON(http.StatusOK, gin.H{"accessToken": tokenPair.AccessToken})
 }

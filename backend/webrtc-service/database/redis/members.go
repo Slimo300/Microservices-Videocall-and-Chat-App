@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-service/models"
 )
 
@@ -56,6 +57,7 @@ func (db *DB) NewMember(member models.Member) error {
 		"groupID":  member.GroupID,
 		"userID":   member.UserID,
 		"username": member.Username,
+		"muting":   member.Muting,
 	}).Err(); err != nil {
 		return err
 	}
@@ -107,4 +109,8 @@ func (db *DB) DeleteGroup(groupID string) error {
 	}
 
 	return nil
+}
+
+func (db *DB) ModifyMember(event events.MemberUpdatedEvent) error {
+	return db.HSet(event.ID.String(), "muting", event.Muting).Err()
 }
