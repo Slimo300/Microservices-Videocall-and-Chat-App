@@ -92,7 +92,7 @@ const AuthMain = ({ ws, setWs, profileShow, toggleProfile}) => {
             }
             return;
         }
-        if (msgJSON.groupID === current.ID) { // add message to state
+        if (msgJSON.Member.groupID === current.ID) { // add message to state
             dispatch({type: actionTypes.ADD_MESSAGE, payload: {message: msgJSON, current: true}})
         } else {
             dispatch({type: actionTypes.ADD_MESSAGE, payload: {message: msgJSON, current: false}})

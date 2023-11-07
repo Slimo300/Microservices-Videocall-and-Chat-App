@@ -16,6 +16,7 @@ type Member struct {
 	Adding           bool      `gorm:"column:adding" json:"adding"`
 	DeletingMembers  bool      `gorm:"column:deleting_members" json:"deletingMembers"`
 	DeletingMessages bool      `gorm:"column:deleting_messages" json:"deletingMessages"`
+	Muting           bool      `gorm:"column:muting" json:"muting"`
 	Admin            bool      `gorm:"column:setting" json:"admin"`
 	Creator          bool      `gorm:"column:creator" json:"creator"`
 }
@@ -78,6 +79,7 @@ type MemberRights struct {
 	DeletingMessages operation `json:"deletingMessages,omitempty"`
 	DeletingMembers  operation `json:"deletingMembers,omitempty"`
 	Admin            operation `json:"admin,omitempty"`
+	Muting           operation `json:"muting,omitempty"`
 }
 
 func (m *Member) ApplyRights(rights MemberRights) error {

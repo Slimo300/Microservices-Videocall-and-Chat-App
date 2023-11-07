@@ -128,7 +128,7 @@ func (p *Peer) HandleRenegotiate() error {
 
 type MutingAction struct {
 	MutingRule
-	ActionType mutingActionType `json:"actionType,required"`
+	ActionType mutingActionType `json:"actionType"`
 }
 
 type MutingRule struct {
@@ -157,26 +157,28 @@ func (p *Peer) HandleMuteYourself(data string) error {
 }
 
 func (p *Peer) HandleMuteForEveryone(data string) error {
+	log.Println("Handling MuteForEveryone")
 	var action MutingAction
 	if err := json.Unmarshal([]byte(data), &action); err != nil {
 		return fmt.Errorf("Error unmarshaling mute_for_everyone")
 	}
 
-	if !p.userData.Muting {
+	if !p.CanBan(action.MutingRule) {
 		return fmt.Errorf("User not authorized to mute")
 	}
 
 	switch action.ActionType {
 	case Enable:
-		p.room.RemoveMutingRule(action.MutingRule)
+		p.room.RemoveBanningRule(action.MutingRule)
 	case Disable:
-		p.room.AddMutingRule(action.MutingRule)
+		p.room.AddBanningRule(action.MutingRule)
 	}
 
 	return nil
 }
 
 func (p *Peer) HandleMuteForYourself(data string) error {
+	log.Println("Handling mute for yourself: ", data)
 	var action MutingAction
 	if err := json.Unmarshal([]byte(data), &action); err != nil {
 		return fmt.Errorf("Error unmarshaling mute_for_everyone")
@@ -192,14 +194,40 @@ func (p *Peer) HandleMuteForYourself(data string) error {
 	return nil
 }
 
+func (p *Peer) CanBan(mr MutingRule) bool {
+	if p.userData.MemberID == mr.MemberID {
+		return false
+	}
+
+	mutedMember, ok := p.room.GetPeerRights(mr.MemberID)
+	if !ok {
+		return false
+	}
+
+	if p.userData.Creator {
+		return true
+	}
+
+	if p.userData.Admin && !mutedMember.Creator {
+		return true
+	}
+	if p.userData.Muting && !mutedMember.Creator && !mutedMember.Admin {
+		return true
+	}
+
+	return false
+}
+
 func (p *Peer) AddMutingRule(mr MutingRule) {
 	p.peerLock.Lock()
 	defer func() {
 		p.peerLock.Unlock()
 		p.room.SignalPeerConnections()
 	}()
+	log.Println("Adding muting rule: ", mr)
 
 	p.mutingRules[mr] = true
+	log.Println(p.mutingRules)
 }
 
 func (p *Peer) RemoveMutingRule(mr MutingRule) {
@@ -208,8 +236,10 @@ func (p *Peer) RemoveMutingRule(mr MutingRule) {
 		p.peerLock.Unlock()
 		p.room.SignalPeerConnections()
 	}()
+	log.Println("Removing muting rule: ", mr)
 
 	delete(p.mutingRules, mr)
+	log.Println(p.mutingRules)
 }
 
 type websocketMessage struct {
@@ -259,4 +289,10 @@ func (s *Signaler) WriteJSON(v interface{}) error {
 func (s *Signaler) Close() {
 	s.closeChan <- struct{}{}
 	s.Conn.Close()
+}
+
+type PeerRights struct {
+	Creator bool
+	Admin   bool
+	Muting  bool
 }

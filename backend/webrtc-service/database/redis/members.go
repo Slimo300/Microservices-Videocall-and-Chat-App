@@ -1,8 +1,17 @@
 package redis
 
 import (
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-service/models"
 )
+
+func StrToBool(str string) bool {
+	if str == "0" || str == "" {
+		return false
+	} else {
+		return true
+	}
+}
 
 func (db *DB) GetMemberByID(memberID string) (*models.Member, error) {
 	member, err := db.HGetAll(memberID).Result()
@@ -15,6 +24,9 @@ func (db *DB) GetMemberByID(memberID string) (*models.Member, error) {
 		GroupID:  member["groupID"],
 		UserID:   member["userID"],
 		Username: member["username"],
+		Muting:   StrToBool(member["muting"]),
+		Admin:    StrToBool(member["admin"]),
+		Creator:  StrToBool(member["creator"]),
 	}, nil
 }
 
@@ -34,6 +46,9 @@ func (db *DB) GetMemberByGroupAndUserID(groupID, userID string) (*models.Member,
 		GroupID:  member["groupID"],
 		UserID:   member["userID"],
 		Username: member["username"],
+		Muting:   StrToBool(member["muting"]),
+		Admin:    StrToBool(member["admin"]),
+		Creator:  StrToBool(member["creator"]),
 	}, nil
 }
 
@@ -56,6 +71,9 @@ func (db *DB) NewMember(member models.Member) error {
 		"groupID":  member.GroupID,
 		"userID":   member.UserID,
 		"username": member.Username,
+		"muting":   member.Muting,
+		"admin":    member.Admin,
+		"creator":  member.Creator,
 	}).Err(); err != nil {
 		return err
 	}
@@ -107,4 +125,8 @@ func (db *DB) DeleteGroup(groupID string) error {
 	}
 
 	return nil
+}
+
+func (db *DB) ModifyMember(event events.MemberUpdatedEvent) error {
+	return db.HSet(event.ID.String(), "muting", event.Muting).Err()
 }

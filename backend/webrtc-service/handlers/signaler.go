@@ -58,6 +58,8 @@ func (s *Server) ServeWebSocket(c *gin.Context) {
 		Username:   member.Username,
 		PictureURL: member.PictureURL,
 		Muting:     member.Muting,
+		Admin:      member.Admin,
+		Creator:    member.Creator,
 	}
 
 	room := s.Relay.GetRoom(member.GroupID)
@@ -70,14 +72,3 @@ func (s *Server) ServeWebSocket(c *gin.Context) {
 
 	room.ConnectRoom(conn, userData)
 }
-
-// func applyMediaQuery(query string) *bool {
-
-// 	enabled := true
-// 	notEnabled := false
-
-// 	if query == "true" {
-// 		return &enabled
-// 	}
-// 	return &notEnabled
-// }

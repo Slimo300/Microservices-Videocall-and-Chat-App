@@ -1,62 +1,62 @@
-import React, { useContext } from "react";
+import React from "react";
 import { UserPicture } from "../Pictures";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons'
 import {DeleteMessageForEveryone, DeleteMessageForYourself} from "../../requests/Messages";
-import { actionTypes, StorageContext } from "../../ChatStorage";
 
 const Message = ({ message, picture, user }) => {
 
     let time = new Date(message.created);
     let displayedTime = time.getHours() + ":" + (time.getMinutes()<10?'0':'') + time.getMinutes();
+    let isDeleted = message.text === "" && message.files.length === 0;
 
     const right = (
         <li className="chat-right">
             <div className="chat-hour">{displayedTime} <span className="fa fa-check-circle"></span></div>
-            <MessageContent message={message} fileUrl={picture} side="right" />
+            <MessageContent message={message} side="right" />
             <div className="chat-avatar">
                 <UserPicture pictureUrl={picture} />
-                <div className="chat-name">{message.nick}</div>
+                <div className="chat-name">{message.Member.username}</div>
             </div>
-            <MessageOptions side="right" messageID={message.messageID} groupID={message.groupID}/>
+            <MessageOptions side="right" messageID={message.messageID} groupID={message.Member.groupID} isDeleted={isDeleted}/>
         </li>
     );
 
     const left = (
         <li className="chat-left">
-            <MessageOptions side="left" messageID={message.messageID} groupID={message.groupID}/>
+            <MessageOptions side="left" messageID={message.messageID} groupID={message.Member.groupID} isDeleted={isDeleted}/>
             <div className="chat-avatar">
                 <UserPicture pictureUrl={picture} />
-                <div className="chat-name">{message.nick}</div>
+                <div className="chat-name">{message.Member.username}</div>
             </div>
-            <MessageContent message={message} fileUrl={picture} side="left" />
+            <MessageContent message={message} side="left" />
             <div className="chat-hour">{displayedTime} <span className="fa fa-check-circle"></span></div>
         </li>
     )
 
     return (
         <div>
-            {message.userID===user?right:left}
+            {message.Member.userID===user?right:left}
         </div>
     )
 }
 
-const MessageContent = (props) => {
-    let messageText = props.message.text;
-    let isDeleted = props.message.text === "" && props.message.files.length === 0;
-    let hasText = props.message.text !== "";
+const MessageContent = ({message, side}) => {
+    let messageText = message.text;
+    let isDeleted = message.text === "" && message.files.length === 0;
+    let hasText = message.text !== "";
     if (isDeleted) {
         messageText=<div className="italic">Message deleted</div>
     }
-    let messageHolderClassName = (props.side==="right")?"d-flex flex-row align-items-center justify-content-end":"d-flex flex-row align-items-center justify-content-start"
+    let messageHolderClassName = (side==="right")?"d-flex flex-row align-items-center justify-content-end":"d-flex flex-row align-items-center justify-content-start"
 
     return (
         <div className="d-flex flex-column justify-content-center">
             {hasText||isDeleted?<div className={messageHolderClassName}>
                 <div className="chat-text d-flex justify-content-end">{messageText}</div>
             </div>:null}
-            {props.message.files===undefined||props.message.files===null?null:<div className="d-flex flex-column">
-            {props.message.files.map((item) => {
+            {message.files===undefined||message.files===null?null:<div className="d-flex flex-column">
+            {message.files.map((item) => {
                 return <MessageFile key={item.key} file={item} />
             })}
             </div>}
@@ -70,30 +70,26 @@ const MessageFile = (props) => {
     )
 }
 
-const MessageOptions = (props) => {
+const MessageOptions = ({groupID, messageID, canDelete, isDeleted, side}) => {
 
-    const [, dispatch] = useContext(StorageContext);
+    // const [, dispatch] = useContext(StorageContext);
 
     const DeleteForYourself = async () => {
-        let response;
         try {
-            response = await DeleteMessageForYourself(props.groupID, props.messageID);
+            if (!isDeleted) await DeleteMessageForYourself(groupID, messageID);
         } catch(err) {
             alert(err.response.data.err);
             return;
         }
-        dispatch({type: actionTypes.DELETE_MESSAGE, payload: response.data});
     }
 
     const DeleteForEveryone = async () => {
-    let response;
     try {
-        response = await DeleteMessageForEveryone(props.groupID, props.messageID)
+        if (!isDeleted) await DeleteMessageForEveryone(groupID, messageID)
       } catch(err) {
         alert(err.response.data.err);
         return;
       }
-      dispatch({type: actionTypes.DELETE_MESSAGE, payload: response.data});
     }
 
     return (
@@ -102,8 +98,8 @@ const MessageOptions = (props) => {
                 <FontAwesomeIcon icon={faEllipsis} />
             </button>
             <div className="dropdown-menu">
-                <button type="button" className="btn btn-light dropdown-item" onClick={DeleteForYourself}><p style={{float: props.side}}>Delete for yourself</p></button>
-                <button type="button" className="btn btn-light dropdown-item" onClick={DeleteForEveryone}><p style={{float: props.side}}>Delete for everyone</p></button>
+                <button type="button" className="btn btn-light dropdown-item" onClick={DeleteForYourself}><p style={{float: side}}>Delete for yourself</p></button>
+                <button type="button" className="btn btn-light dropdown-item" onClick={DeleteForEveryone}><p style={{float: side}}>Delete for everyone</p></button>
             </div>
         </div>
     )

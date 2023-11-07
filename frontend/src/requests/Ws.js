@@ -46,3 +46,29 @@ export function GetWebRTCWebsocket(groupID, accessCode, streamID) {
 
     return socket;
 }
+
+export async function GetWebRTCWebSocket(groupID, streamID) {
+
+    let {accessCode, username, muting} = (await axiosObject.get(webrtcService+"/"+groupID+"/accessCode")).data;
+    console.log(muting)
+
+    let socket = new WebSocket(webrtcServiceWebsocket+"/"+groupID+"/websocket?accessCode="+accessCode+"&streamID="+streamID);
+    
+    socket.onopen = () => {
+        let date = new Date();
+        console.log("Websocket openned\nSocket openned: ", date);
+    };
+
+    socket.onclose = (evt) => {
+        let date = new Date();
+        console.log("WebRTC signaling Websocket closed: ", evt.wasClean, "\ncode: ", evt.code, "\nreason: ", evt.reason, "\ntimestamp: ", date);
+    };
+
+    socket.onerror = (evt) => {
+        console.log(evt);
+    };
+
+    return {
+        socket, username, muting
+    };
+}

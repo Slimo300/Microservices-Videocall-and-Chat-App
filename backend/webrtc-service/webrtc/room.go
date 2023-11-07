@@ -17,7 +17,11 @@ type Room struct {
 
 	Peers       []*Peer
 	TrackLocals map[string]*LocalTrack
-	MutingRules map[MutingRule]bool
+
+	BanningRules map[MutingRule]bool
+	MutingRules  map[MutingRule]bool
+
+	PeerRights map[string]PeerRights
 
 	// closeChan is a channel on which room signals that it has exited, closed flag makes sure closeChan is only closed once
 	closeChan chan struct{}
@@ -27,7 +31,11 @@ type Room struct {
 func NewRoom(config webrtc.Configuration) *Room {
 	room := &Room{}
 	room.TrackLocals = make(map[string]*LocalTrack)
+
 	room.MutingRules = make(map[MutingRule]bool)
+	room.BanningRules = make(map[MutingRule]bool)
+	room.PeerRights = make(map[string]PeerRights)
+
 	room.closeChan = make(chan struct{})
 	room.closed = false
 	room.turnConfig = config
@@ -44,6 +52,15 @@ func (r *Room) Done() <-chan struct{} {
 	return r.closeChan
 }
 
+func (r *Room) GetPeerRights(memberID string) (PeerRights, bool) {
+	r.ListLock.RLock()
+	defer r.ListLock.RUnlock()
+
+	rights, ok := r.PeerRights[memberID]
+
+	return rights, ok
+}
+
 func (r *Room) AddPeer(peer *Peer) {
 	log.Println("ROOM: Adding Peer")
 
@@ -56,6 +73,12 @@ func (r *Room) AddPeer(peer *Peer) {
 	data, err := json.Marshal(peer.userData)
 	if err != nil {
 		log.Printf("Error marshaling userData: %v", err)
+	}
+
+	r.PeerRights[peer.userData.MemberID] = PeerRights{
+		Creator: peer.userData.Creator,
+		Admin:   peer.userData.Admin,
+		Muting:  peer.userData.Muting,
 	}
 
 	for _, client := range r.Peers {
@@ -90,8 +113,6 @@ func (r *Room) AddMutingRule(mr MutingRule) {
 		r.ListLock.Unlock()
 		r.SignalPeerConnections()
 	}()
-	log.Println("Adding muting rule")
-	log.Println(mr)
 
 	r.MutingRules[mr] = true
 }
@@ -103,9 +124,26 @@ func (r *Room) RemoveMutingRule(mr MutingRule) {
 		r.SignalPeerConnections()
 	}()
 
-	log.Println("Removing muting rule")
-
 	delete(r.MutingRules, mr)
+}
+func (r *Room) AddBanningRule(mr MutingRule) {
+	r.ListLock.Lock()
+	defer func() {
+		r.ListLock.Unlock()
+		r.SignalPeerConnections()
+	}()
+
+	r.BanningRules[mr] = true
+}
+
+func (r *Room) RemoveBanningRule(mr MutingRule) {
+	r.ListLock.Lock()
+	defer func() {
+		r.ListLock.Unlock()
+		r.SignalPeerConnections()
+	}()
+
+	delete(r.BanningRules, mr)
 }
 
 func (r *Room) SignalPeerClosed(memberID string) {
@@ -114,45 +152,15 @@ func (r *Room) SignalPeerClosed(memberID string) {
 
 	for i := range r.Peers {
 		if r.Peers[i].userData.MemberID != memberID {
-			r.Peers[i].signaler.WriteJSON(&websocketMessage{
+			if err := r.Peers[i].signaler.WriteJSON(&websocketMessage{
 				Event: "disconnected",
 				Data:  memberID,
-			})
+			}); err != nil {
+				log.Printf("Error writing message to signaler: %v", err)
+			}
 		}
 	}
 }
-
-// func (r *Room) ToggleMute(streamID string, videoEnabled, audioEnabled *bool) {
-// 	r.ListLock.Lock()
-// 	defer r.ListLock.Unlock()
-
-// 	data, err := json.Marshal(UserConnData{
-// 		StreamID:     streamID,
-// 		VideoEnabled: videoEnabled,
-// 		AudioEnabled: audioEnabled,
-// 	})
-// 	if err != nil {
-// 		log.Printf("Error marshaling data: %v", err)
-// 	}
-
-// 	for i := range r.Peers {
-// 		if r.Peers[i].userData.StreamID == streamID {
-// 			if videoEnabled != nil {
-// 				r.Peers[i].userData.VideoEnabled = videoEnabled
-// 			}
-// 			if audioEnabled != nil {
-// 				r.Peers[i].userData.AudioEnabled = audioEnabled
-// 			}
-// 		} else {
-// 			if err := r.Peers[i].signaler.WriteJSON(&websocketMessage{
-// 				Event: "mute",
-// 				Data:  string(data),
-// 			}); err != nil {
-// 				log.Println(err.Error())
-// 			}
-// 		}
-// 	}
-// }
 
 // Add to list of tracks and fire renegotation for all PeerConnections
 func (r *Room) AddTrack(t *webrtc.TrackRemote, memberID string) *webrtc.TrackLocalStaticRTP {
@@ -232,7 +240,7 @@ func (r *Room) SignalPeerConnections() {
 						log.Println(mr.MemberID)
 					}
 					mr := MutingRule{MemberID: track.MemberID, TrackKind: track.Track.Kind().String()}
-					if r.MutingRules[mr] || r.Peers[i].mutingRules[mr] {
+					if r.MutingRules[mr] || r.BanningRules[mr] || r.Peers[i].mutingRules[mr] {
 						log.Printf("Track removed from peerConnection because its muted")
 						if err := r.Peers[i].peerConnection.RemoveTrack(sender); err != nil {
 							log.Printf("Signal: Couldn't remove track from peerConnection: %v", err)
@@ -255,7 +263,7 @@ func (r *Room) SignalPeerConnections() {
 				mr := MutingRule{MemberID: track.MemberID, TrackKind: track.Track.Kind().String()}
 				_, ok := existingSenders[trackID]
 				// Add track if its not in existing senders and if there are no mutingRules disallowing it
-				if !ok && !r.MutingRules[mr] && !r.Peers[i].mutingRules[mr] {
+				if !ok && !r.MutingRules[mr] && !r.BanningRules[mr] && !r.Peers[i].mutingRules[mr] {
 					if _, err := r.Peers[i].peerConnection.AddTrack(r.TrackLocals[trackID].Track); err != nil {
 						log.Printf("Error adding track to peerConnection: %v", err)
 						return true

@@ -23,7 +23,6 @@ export const ModalAddUser = ({ group, toggle, show }) => {
             }
             try {
                 let response = await SearchUsers(username, 5);
-                console.log(response.data);
                 setUsers([response.data]);
                 dropdown.classList.add("show");
             }
@@ -43,7 +42,7 @@ export const ModalAddUser = ({ group, toggle, show }) => {
                 <ModalBody>
                     <div>
                         {msg!==""?<h5 className="mb-4 text-danger">{msg}</h5>:null}
-                        <form>
+                        <form onSubmit={(e) => {e.preventDefault()}}>
                             <div className="form-group">
                                 <label htmlFor="email">Username:</label>
                                 <input name="name" type="text" className="form-control" id="gr_name" autoComplete="off" onChange={(e)=>{setUsername(e.target.value)}}/>
@@ -83,7 +82,7 @@ const User = ({ user, groupID, setMsg, toggle, isMember }) => {
             setTimeout(function () {    
                 toggle();
                 setMsg("");
-            }, 3000);
+            }, 1500);
 
         } catch(err) {
             setMsg(err.response);

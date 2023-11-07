@@ -16,13 +16,19 @@ type Sender interface {
 
 // Message is a plain message in chat app
 type Message struct {
-	ID      uuid.UUID     `json:"messageID"`
-	Group   uuid.UUID     `json:"groupID"`
-	User    uuid.UUID     `json:"userID"`
-	Message string        `json:"text"`
-	Nick    string        `json:"nick"`
-	When    time.Time     `json:"created"`
-	Files   []MessageFile `json:"files"`
+	ID       uuid.UUID     `json:"messageID"`
+	MemberID uuid.UUID     `json:"memberID"`
+	Member   Member        `json:"Member"`
+	Message  string        `json:"text"`
+	When     time.Time     `json:"created"`
+	Files    []MessageFile `json:"files"`
+}
+
+type Member struct {
+	ID       uuid.UUID `json:"ID"`
+	GroupID  uuid.UUID `json:"groupID"`
+	UserID   uuid.UUID `json:"userID"`
+	Username string    `json:"username"`
 }
 
 type MessageFile struct {

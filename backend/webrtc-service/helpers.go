@@ -33,6 +33,7 @@ func kafkaSetup(brokerAddreses []string) (emiter msgqueue.EventEmiter, listener 
 	if err := dbListenerMapper.RegisterTypes(
 		reflect.TypeOf(events.GroupDeletedEvent{}),
 		reflect.TypeOf(events.MemberCreatedEvent{}),
+		reflect.TypeOf(events.MemberUpdatedEvent{}),
 		reflect.TypeOf(events.MemberDeletedEvent{}),
 	); err != nil {
 		return nil, nil, err

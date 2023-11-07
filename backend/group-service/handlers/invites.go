@@ -134,11 +134,7 @@ func (s *Server) RespondGroupInvite(c *gin.Context) {
 				UserName: member.User.UserName,
 				Picture:  member.User.Picture,
 			},
-			Adding:           member.Adding,
-			DeletingMembers:  member.DeletingMembers,
-			DeletingMessages: member.DeletingMessages,
-			Admin:            member.Admin,
-			Creator:          member.Creator,
+			Creator: member.Creator,
 		})
 	}
 	if invite != nil {

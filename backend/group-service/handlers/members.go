@@ -35,7 +35,7 @@ func (s *Server) GrantPriv(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
 	}
-	if rights.Adding == 0 && rights.DeletingMessages == 0 && rights.DeletingMembers == 0 && rights.Admin == 0 {
+	if rights.Adding == 0 && rights.DeletingMessages == 0 && rights.DeletingMembers == 0 && rights.Admin == 0 && rights.Muting == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "no action specified"})
 		return
 	}
@@ -52,13 +52,14 @@ func (s *Server) GrantPriv(c *gin.Context) {
 			GroupID: member.GroupID,
 			UserID:  member.UserID,
 			User: events.User{
-				UserName: member.User.UserName,
 				Picture:  member.User.Picture,
+				UserName: member.User.UserName,
 			},
 			DeletingMessages: member.DeletingMessages,
 			DeletingMembers:  member.DeletingMembers,
 			Adding:           member.Adding,
 			Admin:            member.Admin,
+			Muting:           member.Muting,
 		})
 	}
 

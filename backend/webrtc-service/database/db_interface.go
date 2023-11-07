@@ -1,6 +1,7 @@
 package database
 
 import (
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-service/models"
 )
 
@@ -14,4 +15,6 @@ type DBLayer interface {
 
 	NewAccessCode(accessCode, memberID string) error
 	CheckAccessCode(accessCode string) (string, error)
+
+	ModifyMember(e events.MemberUpdatedEvent) error
 }

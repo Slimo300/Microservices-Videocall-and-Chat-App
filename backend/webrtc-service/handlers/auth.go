@@ -35,5 +35,9 @@ func (s *Server) GetAuthCode(c *gin.Context) {
 	}
 
 	// Return auth code
-	c.JSON(http.StatusOK, gin.H{"accessCode": accessCode})
+	c.JSON(http.StatusOK, gin.H{
+		"accessCode": accessCode,
+		"username":   member.Username,
+		"muting":     member.Muting || member.Admin || member.Creator,
+	})
 }

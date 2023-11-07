@@ -35,12 +35,13 @@ export async function DeleteMember(groupID, memberID) {
     return await axiosObject.delete(groupsService+"/group/"+groupID+"/member/"+memberID);
 }
 
-export async function SetRights(groupID, memberID, adding, deletingMessages, deletingMembers, setting) {
+export async function SetRights(groupID, memberID, adding, deletingMessages, muting, deletingMembers, admin ) {
     return await axiosObject.patch(groupsService+"/group/"+groupID+"/member/"+memberID, {
         "adding": adding,
         "deletingMessages": deletingMessages,
         "deletingMembers": deletingMembers,
-        "setting": setting
+        "muting": muting,
+        "admin": admin,
     });
 }
 

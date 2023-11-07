@@ -16,7 +16,7 @@ func (db *Database) GetGroupMessages(userID, groupID uuid.UUID, offset, num int)
 	if err != nil {
 		return []models.Message{}, apperrors.NewForbidden("User not in group")
 	}
-	if err := db.Order("posted desc").Offset(offset).Limit(num).Preload("Files").Preload("Deleters").Where(models.Message{GroupID: groupID}).Find(&messages).Error; err != nil {
+	if err := db.Order("posted desc").Offset(offset).Limit(num).Preload("Member").Preload("Files").Preload("Deleters").Where(models.Message{Member: models.Membership{GroupID: groupID}}).Find(&messages).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return []models.Message{}, nil
 		}
@@ -43,7 +43,7 @@ func (db *Database) DeleteMessageForYourself(userID, messageID, groupID uuid.UUI
 	// Here we find our message and if it belongs to a group user passed. Making user pass extra argument
 	// groupID allows us to check if request sender is aware of message affiliations
 	var message models.Message
-	if err := db.Preload("Deleters").First(&message, messageID).Error; err != nil || message.GroupID != groupID {
+	if err := db.Preload("Member").Preload("Deleters").First(&message, messageID).Error; err != nil || message.Member.GroupID != groupID {
 		return models.Message{}, apperrors.NewNotFound(fmt.Sprintf("Message with id %v not found", messageID.String()))
 	}
 
@@ -67,10 +67,10 @@ func (db *Database) DeleteMessageForEveryone(userID, messageID, groupID uuid.UUI
 		return models.Message{}, apperrors.NewForbidden("User not in group")
 	}
 	var message models.Message
-	if err := db.Preload("Files").First(&message, messageID).Error; err != nil {
+	if err := db.Preload("Member").Preload("Files").First(&message, messageID).Error; err != nil {
 		return models.Message{}, apperrors.NewNotFound(fmt.Sprintf("Message with id %v not found", messageID.String()))
 	}
-	if !membership.Creator && !membership.DeletingMessages && message.UserID != userID {
+	if !membership.CanDeleteMessage(&message) {
 		return models.Message{}, apperrors.NewForbidden("User has no right to delete message")
 	}
 	if err := db.Model(&message).Update("text", "").Error; err != nil {

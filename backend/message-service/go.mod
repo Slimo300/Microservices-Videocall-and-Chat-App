@@ -6,7 +6,7 @@ require (
 	github.com/Shopify/sarama v1.37.2
 	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors v0.0.0-20230925111557-a2f17671df1f
 	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/auth v0.0.0-20230925105039-55423c186140
-	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events v0.0.0-20230925105039-55423c186140
+	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events v0.0.0-20231107123609-a4780631277a
 	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue v0.0.0-20230925105039-55423c186140
 	github.com/aws/aws-sdk-go v1.44.100
 	github.com/gin-gonic/gin v1.9.0

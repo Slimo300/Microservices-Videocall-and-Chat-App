@@ -1,8 +1,34 @@
 package ws
 
 import (
+	"log"
+
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
 )
+
+func (h *WSHub) HandleEvent(event msgqueue.Event) {
+	switch e := event.(type) {
+	case *events.GroupDeletedEvent:
+		h.groupDeleted(*e)
+	case *events.MemberCreatedEvent:
+		h.memberAdded(*e)
+	case *events.MemberDeletedEvent:
+		h.memberDeleted(*e)
+	case *events.MemberUpdatedEvent:
+		h.memberUpdated(*e)
+	case *events.InviteSentEvent:
+		h.inviteSent(*e)
+	case *events.InviteRespondedEvent:
+		h.inviteResponded(*e)
+	case *events.MessageDeletedEvent:
+		h.messageDeleted(*e)
+	case *events.MessageSentEvent:
+		h.messageSent(*e)
+	default:
+		log.Println("Unsupported Event Type: ", event.EventName())
+	}
+}
 
 func (h *WSHub) messageSent(event events.MessageSentEvent) {
 
@@ -18,10 +44,14 @@ func (h *WSHub) messageSent(event events.MessageSentEvent) {
 	for client := range h.clients {
 		if _, ok := client.groups[event.GroupID]; ok {
 			client.send <- &Message{
-				ID:      event.ID,
-				Group:   event.GroupID,
-				User:    event.UserID,
-				Nick:    event.Nick,
+				ID:       event.ID,
+				MemberID: event.MemberID,
+				Member: Member{
+					ID:       event.GroupID,
+					GroupID:  event.GroupID,
+					UserID:   event.UserID,
+					Username: event.Nick,
+				},
 				Message: event.Text,
 				When:    event.Posted,
 				Files:   files,

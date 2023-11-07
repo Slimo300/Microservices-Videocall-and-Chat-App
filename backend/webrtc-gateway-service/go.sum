@@ -41,8 +41,8 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/Shopify/sarama v1.37.2 h1:LoBbU0yJPte0cE5TZCGdlzZRmMgMtZU/XgnUKZg9Cv4=
 github.com/Shopify/sarama v1.37.2/go.mod h1:Nxye/E+YPru//Bpaorfhc3JsSGYwCaDDj+R4bK52U5o=
 github.com/Shopify/toxiproxy/v2 v2.5.0 h1:i4LPT+qrSlKNtQf5QliVjdP08GyAH8+BUIc9gT0eahc=
-github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events v0.0.0-20230925111557-a2f17671df1f h1:CgW7uS9+5ss95Jr/xBLlVyQaKt4knzPIn1SmYTYNHXI=
-github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events v0.0.0-20230925111557-a2f17671df1f/go.mod h1:ZNFz/mHsG1wNIZ5RGylVZna5YyinlvGxOadIjznsR30=
+github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events v0.0.0-20231106223400-0edbc54c36ea h1:Bhz025ZDVBzfTCbn8RpjjFiGuKCeY/jpRdCtDzRnXUg=
+github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events v0.0.0-20231106223400-0edbc54c36ea/go.mod h1:ZNFz/mHsG1wNIZ5RGylVZna5YyinlvGxOadIjznsR30=
 github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue v0.0.0-20230925111557-a2f17671df1f h1:PmLO4gwurQYHBlVvvVOOs8olG7mklcs5KYNiclnq2Ck=
 github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue v0.0.0-20230925111557-a2f17671df1f/go.mod h1:aXnQboMsrGPSbWB0b5qzKblodwPMbQy3W6NJzFR8cFA=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
