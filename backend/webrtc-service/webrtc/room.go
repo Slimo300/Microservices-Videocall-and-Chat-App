@@ -104,6 +104,26 @@ func (r *Room) AddPeer(peer *Peer) {
 		}
 	}
 
+	for mr := range r.BanningRules {
+		banData, err := json.Marshal(MutingAction{
+			ActionType: Disable,
+			MutingRule: MutingRule{
+				MemberID:  mr.MemberID,
+				TrackKind: mr.TrackKind,
+			},
+		})
+		if err != nil {
+			log.Println(err.Error())
+		}
+
+		if err := peer.signaler.WriteJSON(&websocketMessage{
+			Event: "banning_action",
+			Data:  string(banData),
+		}); err != nil {
+			log.Println(err.Error())
+		}
+	}
+
 	r.Peers = append(r.Peers, peer)
 }
 
@@ -126,6 +146,7 @@ func (r *Room) RemoveMutingRule(mr MutingRule) {
 
 	delete(r.MutingRules, mr)
 }
+
 func (r *Room) AddBanningRule(mr MutingRule) {
 	r.ListLock.Lock()
 	defer func() {
@@ -146,18 +167,43 @@ func (r *Room) RemoveBanningRule(mr MutingRule) {
 	delete(r.BanningRules, mr)
 }
 
+func (r *Room) SignalBan(mutingAction MutingAction) error {
+	r.ListLock.Lock()
+	defer r.ListLock.Unlock()
+
+	data, err := json.Marshal(mutingAction)
+	if err != nil {
+		return err
+	}
+
+	for i := range r.Peers {
+		if r.Peers[i].userData.Muting || r.Peers[i].userData.Admin || r.Peers[i].userData.Creator {
+			if err := r.Peers[i].signaler.WriteJSON(&websocketMessage{
+				Event: "banning_action",
+				Data:  string(data),
+			}); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 func (r *Room) SignalPeerClosed(memberID string) {
 	r.ListLock.RLock()
 	defer r.ListLock.RUnlock()
 
 	for i := range r.Peers {
 		if r.Peers[i].userData.MemberID != memberID {
-			if err := r.Peers[i].signaler.WriteJSON(&websocketMessage{
-				Event: "disconnected",
-				Data:  memberID,
-			}); err != nil {
-				log.Printf("Error writing message to signaler: %v", err)
-			}
+			go func(i int) {
+				if err := r.Peers[i].signaler.WriteJSON(&websocketMessage{
+					Event: "disconnected",
+					Data:  memberID,
+				}); err != nil {
+					log.Printf("Error writing message to signaler: %v", err)
+				}
+			}(i)
 		}
 	}
 }

@@ -20,7 +20,6 @@ type UserConnData struct {
 
 func (r *Room) ConnectRoom(conn *websocket.Conn, userData UserConnData) {
 
-	defer log.Println("Closing connection")
 	defer r.SignalPeerClosed(userData.MemberID)
 	ws := NewSignaler(conn)
 	defer ws.Close()

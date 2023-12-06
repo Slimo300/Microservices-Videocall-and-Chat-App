@@ -30,7 +30,7 @@ const VideoConference = () => {
     const audioSender = useRef(null);
     const videoSender = useRef(null);
 
-    const [, setState] = useState(false);
+    // const [, setState] = useState(false);
     const [init, setInit] = useState(false);
     const [fatal, setFatal] = useState(false);
 
@@ -64,9 +64,9 @@ const VideoConference = () => {
             peerConnection.current.ontrack = (event) => {
                 dispatch({type: actionTypes.NEW_STREAM, payload: event.streams[0]});
 
-                event.streams[0].onremovetrack = () => {
-                    setState(state => { return !state });
-                }
+                // event.streams[0].onremovetrack = () => {
+                //     setState(state => { return !state });
+                // }
             };
 
             if (initialAudio === "true") {
@@ -124,8 +124,11 @@ const VideoConference = () => {
                         if (!userData) {
                             return console.log("Failed to parse newUser message");
                         }
-
                         dispatch({type: actionTypes.SET_USER_INFO, payload: userData});
+                        break;
+                    case "banning_action":
+                        let data = JSON.parse(msg.data);
+                        document.getElementById(data.memberID+":"+data.kind).dispatchEvent(new CustomEvent("track_muted", {detail: data}));
                         break;
                     case "disconnected":
                         dispatch({type: actionTypes.USER_DISCONNECTED, payload: msg.data});
