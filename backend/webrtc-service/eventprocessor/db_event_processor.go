@@ -46,7 +46,9 @@ func (p *DBEventProcessor) ProcessEvents(eventNames ...string) {
 					UserID:     e.UserID.String(),
 					Username:   e.User.UserName,
 					PictureURL: e.User.Picture,
-					Muting:     e.Creator,
+					Creator:    e.Creator,
+					Admin:      e.Admin,
+					Muting:     e.Muting,
 				}); err != nil {
 					log.Printf("Listener NewMember error: %s", err.Error())
 				}
