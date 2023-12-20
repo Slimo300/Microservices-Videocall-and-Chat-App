@@ -282,12 +282,9 @@ func (r *Room) SignalPeerConnections() {
 						return true
 					}
 				} else {
-					for mr := range r.MutingRules {
-						log.Println(mr.MemberID)
-					}
 					mr := MutingRule{MemberID: track.MemberID, TrackKind: track.Track.Kind().String()}
+					// Track removed from peerConnection when its muted
 					if r.MutingRules[mr] || r.BanningRules[mr] || r.Peers[i].mutingRules[mr] {
-						log.Printf("Track removed from peerConnection because its muted")
 						if err := r.Peers[i].peerConnection.RemoveTrack(sender); err != nil {
 							log.Printf("Signal: Couldn't remove track from peerConnection: %v", err)
 							return true

@@ -2,19 +2,19 @@ import axiosObject, {messageService} from "./Setup";
 
 
 export async function LoadMessages(groupID, offset) {
-    return await axiosObject.get(messageService+"/group/"+groupID+"/messages?num=8&offset="+offset);
+    return await axiosObject.get(messageService+"/"+groupID+"?num=8&offset="+offset);
 }
 
-export async function DeleteMessageForYourself(groupID, messageID) {
-    return await axiosObject.patch(messageService+"/group/"+groupID+"/messages/"+messageID);
+export async function DeleteMessageForYourself(messageID) {
+    return await axiosObject.patch(messageService+"/"+messageID+"/hide");
 }
 
-export async function DeleteMessageForEveryone(groupID, messageID) {
-    return await axiosObject.delete(messageService+"/group/"+groupID+"/messages/"+messageID);
+export async function DeleteMessageForEveryone(messageID) {
+    return await axiosObject.delete(messageService+"/"+messageID);
 }
 
 export async function GetPresignedRequests(groupID, files) {
-    return await axiosObject.post(messageService+"/group/"+groupID, {
+    return await axiosObject.post(messageService+"/"+groupID+"/presign", {
         "files": files,
     });
 }

@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
 import { UserPicture } from "../Pictures";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEllipsis } from '@fortawesome/free-solid-svg-icons'
+import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
 import {DeleteMessageForEveryone, DeleteMessageForYourself} from "../../requests/Messages";
+import { actionTypes, StorageContext } from '../../ChatStorage';
 
 const Message = ({ message, picture, user }) => {
 
@@ -70,13 +71,17 @@ const MessageFile = (props) => {
     )
 }
 
-const MessageOptions = ({groupID, messageID, canDelete, isDeleted, side}) => {
+const MessageOptions = ({messageID, isDeleted, side}) => {
 
-    // const [, dispatch] = useContext(StorageContext);
+    const [, dispatch] = useContext(StorageContext);
 
     const DeleteForYourself = async () => {
         try {
-            if (!isDeleted) await DeleteMessageForYourself(groupID, messageID);
+            if (!isDeleted) {
+               let response = await DeleteMessageForYourself(messageID);
+               console.log(response);
+               dispatch({type: actionTypes.DELETE_MESSAGE, payload: { messageID: response.data.messageID, groupID: response.data.Member.groupID }});
+            }
         } catch(err) {
             alert(err.response.data.err);
             return;
@@ -85,7 +90,7 @@ const MessageOptions = ({groupID, messageID, canDelete, isDeleted, side}) => {
 
     const DeleteForEveryone = async () => {
     try {
-        if (!isDeleted) await DeleteMessageForEveryone(groupID, messageID)
+        if (!isDeleted) await DeleteMessageForEveryone(messageID)
       } catch(err) {
         alert(err.response.data.err);
         return;

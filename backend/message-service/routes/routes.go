@@ -14,10 +14,10 @@ func Setup(server *handlers.Server, origin string) *gin.Engine {
 	api := engine.Group("/messages")
 	apiAuth := api.Use(auth.MustAuthWithKey(server.PublicKey))
 
-	apiAuth.GET("/group/:groupID/messages", server.GetGroupMessages)
-	apiAuth.DELETE("/group/:groupID/messages/:messageID", server.DeleteMessageForEveryone)
-	apiAuth.PATCH("/group/:groupID/messages/:messageID", server.DeleteMessageForYourself)
-	apiAuth.POST("/group/:groupID", server.GetPresignedPutRequest)
+	apiAuth.GET("/:groupID", server.GetGroupMessages)
+	apiAuth.DELETE("/:messageID", server.DeleteMessageForEveryone)
+	apiAuth.PATCH("/:messageID/hide", server.DeleteMessageForYourself)
+	apiAuth.POST("/:groupID/presign", server.GetPresignedPutRequest)
 
 	return engine
 }

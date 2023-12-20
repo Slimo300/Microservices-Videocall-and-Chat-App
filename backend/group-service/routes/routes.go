@@ -23,15 +23,15 @@ func Setup(server *handlers.Server, origin string) *gin.Engine {
 
 	apiAuth := api.Use(auth.MustAuthWithKey(server.PublicKey))
 
-	apiAuth.GET("/group", server.GetUserGroups)
-	apiAuth.POST("/group", server.CreateGroup)
-	apiAuth.DELETE("/group/:groupID", server.DeleteGroup)
+	apiAuth.GET("/", server.GetUserGroups)
+	apiAuth.POST("/", server.CreateGroup)
+	apiAuth.DELETE("/:groupID", server.DeleteGroup)
 
-	apiAuth.POST("/group/:groupID/image", server.SetGroupProfilePicture)
-	apiAuth.DELETE("/group/:groupID/image", server.DeleteGroupProfilePicture)
+	apiAuth.POST("/:groupID/image", server.SetGroupProfilePicture)
+	apiAuth.DELETE("/:groupID/image", server.DeleteGroupProfilePicture)
 
-	apiAuth.DELETE("/group/:groupID/member/:memberID", server.DeleteUserFromGroup)
-	apiAuth.PATCH("/group/:groupID/member/:memberID", server.GrantPriv)
+	apiAuth.DELETE("/:groupID/member/:memberID", server.DeleteUserFromGroup)
+	apiAuth.PATCH("/:groupID/member/:memberID", server.GrantPriv)
 
 	apiAuth.GET("/invites", server.GetUserInvites)
 	apiAuth.POST("/invites", server.CreateInvite)
