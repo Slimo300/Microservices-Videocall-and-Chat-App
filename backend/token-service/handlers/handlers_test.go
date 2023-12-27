@@ -144,10 +144,10 @@ func TestNewPairFromRefresh(t *testing.T) {
 			checkAssertions: func(tokens *auth.TokenPair) {
 				assert.Empty(t, tokens.AccessToken)
 				assert.Empty(t, tokens.RefreshToken)
-				assert.Equal(t, dblayer.TokenBlacklistedError.Error(), tokens.Error)
+				assert.Equal(t, dblayer.ErrTokenBlacklisted.Error(), tokens.Error)
 			},
 			prepare: func(m *mock.Mock) {
-				m.On("IsTokenValid", userID, mock.AnythingOfType("string")).Return(false, dblayer.TokenBlacklistedError).Once()
+				m.On("IsTokenValid", userID, mock.AnythingOfType("string")).Return(false, dblayer.ErrTokenBlacklisted).Once()
 				m.On("InvalidateTokens", userID, mock.AnythingOfType("string")).Return(nil).Once()
 			},
 		},
@@ -157,10 +157,10 @@ func TestNewPairFromRefresh(t *testing.T) {
 			checkAssertions: func(tokens *auth.TokenPair) {
 				assert.Empty(t, tokens.AccessToken)
 				assert.Empty(t, tokens.RefreshToken)
-				assert.Equal(t, dblayer.TokenNotFoundError.Error(), tokens.Error)
+				assert.Equal(t, dblayer.ErrTokenNotFound.Error(), tokens.Error)
 			},
 			prepare: func(m *mock.Mock) {
-				m.On("IsTokenValid", userID, mock.AnythingOfType("string")).Return(false, dblayer.TokenNotFoundError).Once()
+				m.On("IsTokenValid", userID, mock.AnythingOfType("string")).Return(false, dblayer.ErrTokenNotFound).Once()
 			},
 		},
 	}
@@ -205,9 +205,9 @@ func TestDeleteUserToken(t *testing.T) {
 		},
 		{
 			desc:             "Delete Token No Token",
-			expectedResponse: dblayer.TokenNotFoundError.Error(),
+			expectedResponse: dblayer.ErrTokenNotFound.Error(),
 			prepare: func(m *mock.Mock) {
-				m.On("InvalidateToken", userID, mock.AnythingOfType("string")).Return(dblayer.TokenNotFoundError).Once()
+				m.On("InvalidateToken", userID, mock.AnythingOfType("string")).Return(dblayer.ErrTokenNotFound).Once()
 			},
 		},
 	}

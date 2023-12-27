@@ -1,7 +1,6 @@
 package redis
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -41,7 +40,7 @@ func (rdb *redisTokenDB) IsTokenValid(userID, tokenID string) (bool, error) {
 		return false, err
 	}
 	if len(keys) == 0 {
-		return false, database.TokenNotFoundError
+		return false, database.ErrTokenNotFound
 	}
 
 	res, err := rdb.Get(keys[0]).Result()
@@ -50,9 +49,9 @@ func (rdb *redisTokenDB) IsTokenValid(userID, tokenID string) (bool, error) {
 	}
 	if database.StringToTokenValue(res) != database.TOKEN_VALID {
 		if database.StringToTokenValue(res) == database.TOKEN_BLACKLISTED {
-			return false, database.TokenBlacklistedError
+			return false, database.ErrTokenBlacklisted
 		}
-		return false, errors.New("Unexpected token value")
+		return false, database.ErrUnexpectedTokenValue
 	}
 
 	return true, nil
@@ -87,7 +86,18 @@ func (rdb *redisTokenDB) InvalidateToken(userID, tokenID string) error {
 		return err
 	}
 	if len(keys) == 0 {
-		return database.TokenNotFoundError
+		return database.ErrTokenNotFound
+	}
+
+	res, err := rdb.Get(keys[0]).Result()
+	if err != nil {
+		return err
+	}
+	if database.StringToTokenValue(res) != database.TOKEN_VALID {
+		if database.StringToTokenValue(res) == database.TOKEN_BLACKLISTED {
+			return database.ErrTokenBlacklisted
+		}
+		return database.ErrUnexpectedTokenValue
 	}
 
 	if err := rdb.Do("set", keys[0], string(database.TOKEN_BLACKLISTED), "keepttl").Err(); err != nil {

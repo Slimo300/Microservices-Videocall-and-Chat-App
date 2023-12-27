@@ -47,7 +47,7 @@ func (srv *TokenService) NewPairFromRefresh(ctx context.Context, refresh *auth.R
 
 	ok, err := srv.db.IsTokenValid(userID, tokenID)
 	if err != nil {
-		if errors.Is(err, database.TokenBlacklistedError) {
+		if errors.Is(err, database.ErrTokenBlacklisted) {
 			if err := srv.db.InvalidateTokens(userID, tokenID); err != nil {
 				return &auth.TokenPair{
 					Error: err.Error(),
@@ -65,7 +65,7 @@ func (srv *TokenService) NewPairFromRefresh(ctx context.Context, refresh *auth.R
 	}
 
 	if err := srv.db.InvalidateToken(userID, tokenID); err != nil {
-		if errors.Is(err, database.TokenNotFoundError) {
+		if errors.Is(err, database.ErrTokenNotFound) {
 			return &auth.TokenPair{
 				Error: err.Error(),
 			}, nil
@@ -107,7 +107,17 @@ func (srv *TokenService) DeleteUserToken(ctx context.Context, refresh *auth.Refr
 	tokenID := token.Claims.(*jwt.StandardClaims).Id
 
 	if err := srv.db.InvalidateToken(userID, tokenID); err != nil {
-		if errors.Is(err, database.TokenNotFoundError) {
+		if errors.Is(err, database.ErrTokenNotFound) {
+			return &auth.Msg{
+				Error: err.Error(),
+			}, nil
+		}
+		if errors.Is(err, database.ErrTokenBlacklisted); err != nil {
+			if err := srv.db.InvalidateTokens(userID, tokenID); err != nil {
+				return &auth.Msg{
+					Error: err.Error(),
+				}, err
+			}
 			return &auth.Msg{
 				Error: err.Error(),
 			}, nil
