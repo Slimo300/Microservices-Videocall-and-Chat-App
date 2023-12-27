@@ -38,6 +38,8 @@ func (s *MessageTestSuite) SetupSuite() {
 
 	s.uuids = make(map[string]uuid.UUID)
 
+	s.uuids["group"] = uuid.MustParse("1c4dccaf-a341-4920-9023-f24e0412f8e0")
+
 	s.uuids["userInGroup"] = uuid.MustParse("1c4dccaf-a341-4920-9003-f24e0412f8e0")
 	s.uuids["userNotInGroup"] = uuid.MustParse("634240cf-1219-4be2-adfa-90ab6b47899b")
 	s.uuids["userWithNoRights"] = uuid.MustParse("889858f7-4b2a-4914-ad14-471a7300c26b")
@@ -102,7 +104,7 @@ func (s *MessageTestSuite) TestGetGroupMessages() {
 			desc:               "getmessagesforbidden",
 			userID:             s.uuids["userNotInGroup"].String(),
 			returnVal:          false,
-			groupID:            "61fbd273-b941-471c-983a-0a3cd2c74747",
+			groupID:            s.uuids["group"].String(),
 			expectedStatusCode: http.StatusForbidden,
 			expectedResponse:   gin.H{"err": "User cannot request from this group"},
 		},
