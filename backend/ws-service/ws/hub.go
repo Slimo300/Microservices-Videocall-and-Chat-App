@@ -119,9 +119,9 @@ func ServeWebSocket(w http.ResponseWriter, req *http.Request, h *WSHub, groups [
 		return
 	}
 
-	groupsMap := make(map[uuid.UUID]struct{})
+	groupsMap := make(map[uuid.UUID]bool)
 	for _, group := range groups {
-		groupsMap[group] = struct{}{}
+		groupsMap[group] = true
 	}
 
 	client := &client{
