@@ -7,11 +7,12 @@ import (
 )
 
 type Message struct {
-	ID       uuid.UUID     `gorm:"primaryKey" json:"messageID"`
-	Posted   time.Time     `json:"created"`
-	Text     string        `json:"text"`
-	MemberID uuid.UUID     `gorm:"column:member_id;size:191" json:"memberID"`
-	Member   Membership    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	ID       uuid.UUID `gorm:"primaryKey" json:"messageID"`
+	GroupID  uuid.UUID `json:"grouopID"`
+	Posted   time.Time `json:"created"`
+	Text     string    `json:"text"`
+	MemberID uuid.UUID `gorm:"column:member_id;size:191" json:"memberID"`
+	Member   Membership
 	Deleters []Membership  `gorm:"many2many:users_who_deleted;constraint:OnDelete:CASCADE;"`
 	Files    []MessageFile `gorm:"foreignKey:MessageID" json:"files"`
 }

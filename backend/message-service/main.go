@@ -18,7 +18,7 @@ import (
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/eventprocessor"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/handlers"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/routes"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/storage"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/storage/s3"
 )
 
 func getPublicKey() (*rsa.PublicKey, error) {
@@ -58,7 +58,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	storage, err := storage.NewS3Storage(conf.StorageKeyID, conf.StorageKeySecret, conf.Bucket, storage.WithCORS(conf.Origin), storage.WithACL("private"))
+	log.Println(conf.StorageKeyID, conf.StorageKeySecret)
+	storage, err := s3.NewS3Storage(conf.StorageKeyID, conf.StorageKeySecret, conf.Bucket, s3.WithCORS(conf.Origin), s3.WithACL("private"))
 	if err != nil {
 		log.Fatalf("Couldn't establish s3 session: %v", err)
 	}

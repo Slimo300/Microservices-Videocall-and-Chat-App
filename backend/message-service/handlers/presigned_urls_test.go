@@ -13,6 +13,7 @@ import (
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/handlers"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/models"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/storage"
+	mockstorage "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/storage/mock"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
@@ -36,8 +37,8 @@ func (s *PresignedUrlSuite) SetupSuite() {
 	mockDB.On("GetGroupMembership", s.uuids["userNotInGroup"], s.uuids["groupID"]).Return(models.Membership{}, errors.New("no membership"))
 	mockDB.On("GetGroupMembership", s.uuids["userInGroup"], s.uuids["groupID"]).Return(models.Membership{MembershipID: s.uuids["memberID"]}, nil)
 
-	mockStorage := new(storage.MockStorage)
-	mockStorage.On("GetPresignedPutRequests", mock.AnythingOfType("string"), mock.Anything, mock.Anything).Return([]storage.FileOutput{{
+	mockStorage := new(mockstorage.MockStorage)
+	mockStorage.On("GetPresignedPutRequests", mock.AnythingOfType("string"), mock.Anything, mock.Anything).Return([]storage.PutFileOutput{{
 		Name:         "duckie.jpeg",
 		PresignedURL: "someUrl",
 	}, {
@@ -112,7 +113,7 @@ func (s *PresignedUrlSuite) TestGetPresignedUrl() {
 			userID:  s.uuids["userInGroup"].String(),
 			groupID: s.uuids["groupID"].String(),
 			data: map[string]interface{}{
-				"files": []storage.FileInput{
+				"files": []storage.PutFileInput{
 					{
 						Name: "duckie.jpeg",
 						Size: 1024,
@@ -125,7 +126,7 @@ func (s *PresignedUrlSuite) TestGetPresignedUrl() {
 			},
 			returnVal:          true,
 			expectedStatusCode: http.StatusOK,
-			expectedResponse: []storage.FileOutput{{
+			expectedResponse: []storage.PutFileOutput{{
 				Name:         "duckie.jpeg",
 				PresignedURL: "someUrl",
 			}, {
@@ -148,7 +149,7 @@ func (s *PresignedUrlSuite) TestGetPresignedUrl() {
 				ctx.Set("userID", tC.userID)
 			})
 
-			engine.POST("/group/:groupID/uploads", s.server.GetPresignedPutRequest)
+			engine.POST("/group/:groupID/uploads", s.server.GetPresignedPutRequests)
 			engine.ServeHTTP(w, r)
 
 			response := w.Result()
@@ -158,7 +159,7 @@ func (s *PresignedUrlSuite) TestGetPresignedUrl() {
 
 			var respBody interface{}
 			if tC.returnVal {
-				var msg []storage.FileOutput
+				var msg []storage.PutFileOutput
 				if err := json.NewDecoder(response.Body).Decode(&msg); err != nil {
 					s.Fail(err.Error())
 				}

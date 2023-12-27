@@ -30,8 +30,8 @@ func (_m *MockMessageDB) AddMessage(event events.MessageSentEvent) error {
 	return r0
 }
 
-// DeleteGroupMembers provides a mock function with given fields: event
-func (_m *MockMessageDB) DeleteGroupMembers(event events.GroupDeletedEvent) error {
+// DeleteGroup provides a mock function with given fields: event
+func (_m *MockMessageDB) DeleteGroup(event events.GroupDeletedEvent) error {
 	ret := _m.Called(event)
 
 	var r0 error

@@ -1,4 +1,4 @@
-package storage
+package s3
 
 import (
 	"fmt"
@@ -10,28 +10,9 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/google/uuid"
+
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/storage"
 )
-
-const MAX_BUCKET_SIZE = 4900000000
-const DEFaULT_REGION = "eu-central-1"
-
-// StorageLayer defines functionality expected from Storage
-type StorageLayer interface {
-	GetPresignedPutRequests(string, ...FileInput) ([]FileOutput, error)
-	DeleteFolder(folder string) error
-	DeleteFile(key string) error
-}
-
-type FileInput struct {
-	Name string `json:"name"`
-	Size int64  `json:"size"`
-}
-
-type FileOutput struct {
-	Name         string `json:"name"`
-	Key          string `json:"key"`
-	PresignedURL string `json:"url"`
-}
 
 // S3Storage allows to interact with S3 to store files
 type S3Storage struct {
@@ -44,7 +25,7 @@ type S3Option func(*S3Storage) error
 func WithCORS(origin string) S3Option {
 	return func(s *S3Storage) error {
 		rule := s3.CORSRule{
-			AllowedHeaders: aws.StringSlice([]string{"Authorization", "Content-Type", "Content-Length", "Accept-Encoding", "Authorization", "accept", "origin", "Cache-Control", " X-Requested-With", "X-AMZ-ACL"}),
+			AllowedHeaders: aws.StringSlice([]string{"Authorization", "Content-Type", "Content-Length", "Accept-Encoding", "Authorization", "Accept", "Origin", "Cache-Control", " X-Requested-With"}),
 			AllowedOrigins: aws.StringSlice([]string{origin}),
 			MaxAgeSeconds:  aws.Int64(3000),
 
@@ -81,7 +62,7 @@ func NewS3Storage(accessKey, secretKey, bucket string, options ...S3Option) (*S3
 
 	config := &aws.Config{
 		Credentials: credentials.NewStaticCredentials(accessKey, secretKey, ""),
-		Region:      aws.String(DEFaULT_REGION),
+		Region:      aws.String(storage.DEFAULT_REGION),
 	}
 
 	if os.Getenv("STORAGE_USE_DO") == "true" {
@@ -138,7 +119,7 @@ func (s *S3Storage) DeleteFolder(folder string) error {
 	return nil
 }
 
-func (s *S3Storage) GetPresignedPutRequests(prefix string, files ...FileInput) ([]FileOutput, error) {
+func (s *S3Storage) GetPresignedPutRequests(prefix string, files ...storage.PutFileInput) ([]storage.PutFileOutput, error) {
 
 	ok, err := s.canUploadFiles(files...)
 	if err != nil {
@@ -148,7 +129,7 @@ func (s *S3Storage) GetPresignedPutRequests(prefix string, files ...FileInput) (
 		return nil, fmt.Errorf("Storage Limit Exceeded")
 	}
 
-	var out []FileOutput
+	var out []storage.PutFileOutput
 
 	for _, fileInfo := range files {
 		key := prefix + "/" + uuid.NewString()
@@ -157,7 +138,7 @@ func (s *S3Storage) GetPresignedPutRequests(prefix string, files ...FileInput) (
 			Bucket:        aws.String(s.Bucket),
 			Key:           aws.String(key),
 			ContentLength: aws.Int64(fileInfo.Size),
-			ACL:           aws.String("public-read"),
+			// ACL:           aws.String("public-read"),
 		})
 
 		url, err := req.Presign(30 * time.Second)
@@ -165,9 +146,36 @@ func (s *S3Storage) GetPresignedPutRequests(prefix string, files ...FileInput) (
 			return nil, err
 		}
 
-		out = append(out, FileOutput{
+		out = append(out, storage.PutFileOutput{
 			Name:         fileInfo.Name,
 			Key:          key,
+			PresignedURL: url,
+		})
+	}
+
+	return out, nil
+}
+
+func (s *S3Storage) GetPresignedGetRequests(prefix string, files ...storage.GetFileInput) ([]storage.GetFileOutput, error) {
+
+	var out []storage.GetFileOutput
+
+	for _, key := range files {
+
+		strKey := string(key)
+
+		req, _ := s.S3.GetObjectRequest(&s3.GetObjectInput{
+			Bucket: aws.String(s.Bucket),
+			Key:    aws.String(strKey),
+		})
+
+		url, err := req.Presign(30 * time.Second)
+		if err != nil {
+			return nil, err
+		}
+
+		out = append(out, storage.GetFileOutput{
+			Key:          strKey,
 			PresignedURL: url,
 		})
 	}
@@ -184,7 +192,7 @@ func (s *S3Storage) DeleteFile(key string) error {
 	return err
 }
 
-func (s *S3Storage) canUploadFiles(files ...FileInput) (bool, error) {
+func (s *S3Storage) canUploadFiles(files ...storage.PutFileInput) (bool, error) {
 
 	objects, err := s.S3.ListObjects(&s3.ListObjectsInput{
 		Bucket: aws.String(s.Bucket),
@@ -207,7 +215,7 @@ func (s *S3Storage) canUploadFiles(files ...FileInput) (bool, error) {
 		filesSize += file.Size
 	}
 
-	if bucketSize+filesSize > MAX_BUCKET_SIZE {
+	if bucketSize+filesSize > storage.MAX_BUCKET_SIZE {
 		return false, nil
 	}
 

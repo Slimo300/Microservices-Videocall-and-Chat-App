@@ -33,6 +33,7 @@ func (db *Database) AddMessage(event events.MessageSentEvent) error {
 
 	return db.Create(models.Message{
 		ID:       event.ID,
+		GroupID:  event.GroupID,
 		MemberID: event.MemberID,
 		Text:     event.Text,
 		Posted:   event.Posted,
@@ -40,6 +41,9 @@ func (db *Database) AddMessage(event events.MessageSentEvent) error {
 	}).Error
 }
 
-func (db *Database) DeleteGroupMembers(event events.GroupDeletedEvent) error {
+func (db *Database) DeleteGroup(event events.GroupDeletedEvent) error {
+	if err := db.Where(models.Message{GroupID: event.ID}).Delete(&models.Message{}).Error; err != nil {
+		return err
+	}
 	return db.Where(models.Membership{GroupID: event.ID}).Delete(&models.Membership{}).Error
 }
