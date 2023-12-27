@@ -1,8 +1,8 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { UserPicture } from "../Pictures";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
-import {DeleteMessageForEveryone, DeleteMessageForYourself} from "../../requests/Messages";
+import { DeleteMessageForEveryone, DeleteMessageForYourself, GetPresignedGetRequests } from "../../requests/Messages";
 import { actionTypes, StorageContext } from '../../ChatStorage';
 
 const Message = ({ message, picture, user }) => {
@@ -43,31 +43,47 @@ const Message = ({ message, picture, user }) => {
 }
 
 const MessageContent = ({message, side}) => {
+
+    const [fileUrls, setFileUrls] = useState(null);
+
+    useEffect(() => {
+        const fetchUrls = async () => {
+            try {
+                let result = await GetPresignedGetRequests(message.Member.groupID, message.files.map(file => {
+                    return file.key;
+                }))
+    
+                setFileUrls(result.data);
+            } catch(err) {
+                console.log(err.response.data);
+            }
+        }
+
+        if (message.files && message.files.length > 0) fetchUrls();
+    }, []);
+
     let messageText = message.text;
     let isDeleted = message.text === "" && message.files.length === 0;
     let hasText = message.text !== "";
-    if (isDeleted) {
-        messageText=<div className="italic">Message deleted</div>
-    }
-    let messageHolderClassName = (side==="right")?"d-flex flex-row align-items-center justify-content-end":"d-flex flex-row align-items-center justify-content-start"
+    if (isDeleted) messageText=<div className="italic">Message deleted</div>
 
     return (
         <div className="d-flex flex-column justify-content-center">
-            {hasText||isDeleted?<div className={messageHolderClassName}>
+            {hasText||isDeleted?<div className={"d-flex align-items-center justify-content-"+(side==="right")?"end":"start"}>
                 <div className="chat-text d-flex justify-content-end">{messageText}</div>
             </div>:null}
-            {message.files===undefined||message.files===null?null:<div className="d-flex flex-column">
-            {message.files.map((item) => {
-                return <MessageFile key={item.key} file={item} />
-            })}
-            </div>}
+            {message.files?<div className="d-flex flex-column">
+                {fileUrls?fileUrls.map((item) => {
+                    return <MessageFile key={item.key} url={item.url} />
+                }):null}
+            </div>:null}
         </div>
     );
 }
 
-const MessageFile = (props) => {
+const MessageFile = ({ url }) => {
     return (
-    <img src={window._env_.STORAGE_URL+"/"+props.file.key} style={{height: '200px', width: '200px', border: '1px solid'}} alt="sample"/>
+        <img src={url} style={{height: '200px', width: '200px', border: '1px solid'}} alt="sample"/>
     )
 }
 
@@ -79,7 +95,6 @@ const MessageOptions = ({messageID, isDeleted, side}) => {
         try {
             if (!isDeleted) {
                let response = await DeleteMessageForYourself(messageID);
-               console.log(response);
                dispatch({type: actionTypes.DELETE_MESSAGE, payload: { messageID: response.data.messageID, groupID: response.data.Member.groupID }});
             }
         } catch(err) {

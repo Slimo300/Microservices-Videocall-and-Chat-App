@@ -18,5 +18,8 @@ infra/turnserver.conf
 start-dev.sh
 start-prod.sh
 
+go.work
+go.work.sum
+
 # TODO
 TODO
