@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { GetPresignedRequests } from "../../requests/Messages";
+import { GetPresignedPutRequests } from "../../requests/Messages";
 
 const ChatInput = ({ group, ws, user, member }) => {
 
@@ -79,16 +79,12 @@ const ChatInput = ({ group, ws, user, member }) => {
             }
 
             try {
-                const response = await GetPresignedRequests(group.ID, filesInfo);
-                console.log(response.data);
+                const response = await GetPresignedPutRequests(group.ID, filesInfo);
 
                 let promises = [];
                 for (let i = 0; i < response.data.length; i++) {
                     filesData.push({"key": response.data[i].key, "ext": files[i].type})
                     promises.push(fetch(response.data[i].url, {
-                        headers: {
-                            "x-amz-acl": "public-read",
-                        },
                         method: 'PUT',
                         body: files[i],
                     }))

@@ -28,5 +28,6 @@ type TokenDB interface {
 	InvalidateTokens(userID, tokenID string) error
 }
 
-var TokenBlacklistedError = errors.New("Token Blacklisted")
-var TokenNotFoundError = errors.New("Token not found")
+var ErrTokenBlacklisted = errors.New("Token Blacklisted")
+var ErrTokenNotFound = errors.New("Token not found")
+var ErrUnexpectedTokenValue = errors.New("Unexpected token value")

@@ -53,22 +53,20 @@ func (s *Server) DeleteMessageForEveryone(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid user ID"})
 		return
 	}
-	groupID, err := uuid.Parse(c.Param("groupID"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid group ID"})
-		return
-	}
+
 	messageID, err := uuid.Parse(c.Param("messageID"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid message ID"})
 		return
 	}
 
-	msg, err := s.DB.DeleteMessageForEveryone(userID, messageID, groupID)
+	msg, err := s.DB.DeleteMessageForEveryone(userID, messageID)
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
+	log.Println(msg)
+	log.Println(err)
 
 	go func() {
 		for _, file := range msg.Files {
@@ -93,11 +91,6 @@ func (s *Server) DeleteMessageForYourself(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid user ID"})
 		return
 	}
-	groupID, err := uuid.Parse((c.Param("groupID")))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid group ID"})
-		return
-	}
 
 	messageID, err := uuid.Parse(c.Param("messageID"))
 	if err != nil {
@@ -105,7 +98,7 @@ func (s *Server) DeleteMessageForYourself(c *gin.Context) {
 		return
 	}
 
-	msg, err := s.DB.DeleteMessageForYourself(userID, messageID, groupID)
+	msg, err := s.DB.DeleteMessageForYourself(userID, messageID)
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return

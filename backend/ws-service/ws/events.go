@@ -74,7 +74,7 @@ func (h *WSHub) groupDeleted(event events.GroupDeletedEvent) {
 func (h *WSHub) memberAdded(event events.MemberCreatedEvent) {
 	for client := range h.clients {
 		if client.id == event.UserID {
-			client.groups[event.GroupID] = struct{}{}
+			client.groups[event.GroupID] = true
 			continue
 		}
 		if _, ok := client.groups[event.GroupID]; ok {

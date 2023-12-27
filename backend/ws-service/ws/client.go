@@ -15,7 +15,7 @@ type client struct {
 	socket *websocket.Conn
 	send   chan Sender
 	hub    *WSHub
-	groups map[uuid.UUID]struct{}
+	groups map[uuid.UUID]bool
 	ticker *time.Ticker
 }
 
@@ -28,7 +28,9 @@ func (c *client) read() {
 		if err := c.socket.ReadJSON(&msg); err != nil {
 			return
 		}
-		c.hub.Forward(&msg)
+		if c.groups[msg.Member.GroupID] {
+			c.hub.Forward(&msg)
+		}
 	}
 }
 

@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"log"
 	"net/http"
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
@@ -36,7 +35,6 @@ func (s *Server) SignIn(c *gin.Context) {
 		return
 	}
 
-	log.Println(s.Domain)
 	c.SetCookie("refreshToken", tokenPair.RefreshToken, 86400, "/", s.Domain, true, true)
 
 	c.JSON(http.StatusOK, gin.H{"accessToken": tokenPair.AccessToken})

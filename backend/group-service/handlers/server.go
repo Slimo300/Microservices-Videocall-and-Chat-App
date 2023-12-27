@@ -40,7 +40,7 @@ func (srv *Server) WithLogger(logger *log.Logger) *Server {
 
 func (srv *Server) HandleError(c *gin.Context, err error) {
 	if srv.logger != nil {
-		log.Println(err)
+		srv.logger.Println(err)
 	}
 
 	c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})

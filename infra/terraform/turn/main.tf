@@ -35,7 +35,7 @@ resource "digitalocean_droplet" "turn_droplet" {
   name  = "turn"
 
   region = "fra1"
-  size   = "s-1vcpu-1gb"
+  size   = "s-2vcpu-4gb"
   ssh_keys = [
     data.digitalocean_ssh_key.relrel_ssh.id
   ]

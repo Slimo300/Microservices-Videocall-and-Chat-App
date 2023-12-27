@@ -445,13 +445,6 @@ ul {
   .peer-footer:hover {
     opacity: 1;
   }
-  
-  .mute-symbol {
-    transition: 0.1s;
-    color: whitesmoke;
-    background-color: darkslategray;
-    opacity: 0.5;
-  }
 
   .peer-options {
     position: absolute;
@@ -486,4 +479,12 @@ ul {
 
   .mute-symbol:hover {
     opacity: 1;
+  }
+
+  .muting-menu-text {
+    color: white
+  }
+
+  .muting-menu-text:hover {
+    color: black
   }

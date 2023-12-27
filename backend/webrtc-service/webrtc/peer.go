@@ -174,6 +174,10 @@ func (p *Peer) HandleMuteForEveryone(data string) error {
 		p.room.AddBanningRule(action.MutingRule)
 	}
 
+	if err := p.room.SignalBan(action); err != nil {
+		return err
+	}
+
 	return nil
 }
 

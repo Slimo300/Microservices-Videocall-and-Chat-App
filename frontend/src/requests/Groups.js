@@ -5,17 +5,17 @@ export async function GetInvites(offset) {
 }
 
 export async function GetGroups() {
-    return await axiosObject.get(groupsService+"/group");
+    return await axiosObject.get(groupsService+"/");
 }
 
 export async function CreateGroup(name) {
-    return await axiosObject.post(groupsService+"/group", {
+    return await axiosObject.post(groupsService+"/", {
         "name": name,
     })
 }
 
 export async function DeleteGroup(groupID) {
-    return await axiosObject.delete(groupsService+"/group/"+groupID);
+    return await axiosObject.delete(groupsService+"/"+groupID);
 }
 
 export async function SendGroupInvite(targetID, groupID) {
@@ -32,11 +32,11 @@ export async function RespondGroupInvite(inviteID, answer) {
 }
 
 export async function DeleteMember(groupID, memberID) {
-    return await axiosObject.delete(groupsService+"/group/"+groupID+"/member/"+memberID);
+    return await axiosObject.delete(groupsService+"/"+groupID+"/member/"+memberID);
 }
 
 export async function SetRights(groupID, memberID, adding, deletingMessages, muting, deletingMembers, admin ) {
-    return await axiosObject.patch(groupsService+"/group/"+groupID+"/member/"+memberID, {
+    return await axiosObject.patch(groupsService+"/"+groupID+"/member/"+memberID, {
         "adding": adding,
         "deletingMessages": deletingMessages,
         "deletingMembers": deletingMembers,
@@ -46,7 +46,7 @@ export async function SetRights(groupID, memberID, adding, deletingMessages, mut
 }
 
 export async function UpdateGroupProfilePicture(imageForm, groupID) {
-    return await axiosObject.post(groupsService+"/group/"+groupID+"/image", imageForm, {
+    return await axiosObject.post(groupsService+"/"+groupID+"/image", imageForm, {
         headers: {
             'Content-Type': 'multipart/form-data',
         }
@@ -54,5 +54,5 @@ export async function UpdateGroupProfilePicture(imageForm, groupID) {
 }
 
 export async function DeleteGroupProfilePicture(groupID) {
-    return await axiosObject.delete(groupsService+"group/"+groupID+"/image");
+    return await axiosObject.delete(groupsService+"/"+groupID+"/image");
 }

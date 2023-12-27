@@ -19,6 +19,10 @@ func (Membership) TableName() string {
 }
 
 func (m *Membership) CanDeleteMessage(msg *Message) bool {
+	if msg.Member.GroupID != m.GroupID {
+		return false
+	}
+
 	if msg.MemberID == m.MembershipID || m.Creator {
 		return true
 	}
