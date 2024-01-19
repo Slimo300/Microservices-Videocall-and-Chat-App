@@ -182,7 +182,7 @@ func (s *GroupPicturesTestSuite) TestSetGroupProfilePicture() {
 			imageData:          map[string]string{"Key": "avatarFile", "CType": "application/octet-stream"},
 			setBodyLimiter:     false,
 			expectedStatusCode: http.StatusBadRequest,
-			expectedResponse:   gin.H{"err": "image extention not allowed"},
+			expectedResponse:   gin.H{"err": "image extension not allowed"},
 		},
 		{
 			desc:               "UpdateProfilePictureTooBig",

@@ -5,7 +5,7 @@ import Switch from "react-switch";
 
 import mutedUser from "../../statics/images/video-user.png";
 
-export const USER_PEER_VIDEO_ELEMENT_ID = "userPeerVideo"
+export const USER_PEER_VIDEO_ELEMENT_ID = "userPeerVideo";
 
 export const PeerVideo = ({stream, username, memberID, muting, ws}) => {
     const video = useRef(null);
@@ -54,19 +54,19 @@ export const PeerVideo = ({stream, username, memberID, muting, ws}) => {
                 <div className="bg-dark dropdown-menu" onClick={(e) => {e.stopPropagation()}} aria-labelledby="dropdownMenuButton">
                     <div className="dropdown-item muting-menu-text d-flex column justify-content-between">
                         <PrivateSwitch ws={ws} memberID={memberID} kind={"audio"} />
-                        <div className="pl-2">Toggle Audio</div>
+                        <div className="pl-2">Mute Audio</div>
                     </div>
                     <div className="dropdown-item muting-menu-text d-flex column justify-content-between">
                         <PrivateSwitch ws={ws} memberID={memberID} kind={"video"} />
-                        <div className="pl-2">Toggle Video</div>
+                        <div className="pl-2">Mute Video</div>
                     </div>
                     {muting?<div className="dropdown-item muting-menu-text d-flex column justify-content-between">
                         <GlobalSwitch ws={ws} memberID={memberID} kind={"audio"} />
-                        <div className="pl-2">Toggle Audio (for everyone)</div>
+                        <div className="pl-2">Mute Audio (for everyone)</div>
                     </div>:null}
                     {muting?<div className="dropdown-item muting-menu-text d-flex column justify-content-between">
                         <GlobalSwitch ws={ws} memberID={memberID} kind={"video"} />
-                        <div className="pl-2">Toggle Video (for everyone)</div>
+                        <div className="pl-2">Mute Video (for everyone)</div>
                     </div>:null}
                 </div>
             </div>

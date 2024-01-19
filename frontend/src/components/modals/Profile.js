@@ -1,8 +1,8 @@
 import React, { useContext, useState } from "react";
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
-import {ChangePassword, UpdateProfilePicture, DeleteProfilePicture }from "../requests/Users";
-import { actionTypes, StorageContext } from '../ChatStorage';
-import { UserPicture } from "../components/Pictures";
+import {ChangePassword, UpdateProfilePicture, DeleteProfilePicture }from "../../requests/Users";
+import { actionTypes, StorageContext } from '../../ChatStorage';
+import { UserPicture } from "../Pictures";
 
 export const ModalUserProfile = ({ toggle, show, user }) => {
 

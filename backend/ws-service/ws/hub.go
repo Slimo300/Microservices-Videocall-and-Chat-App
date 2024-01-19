@@ -16,7 +16,7 @@ const (
 	messageBufferSize = 256
 )
 
-type WSHub struct {
+type Hub struct {
 	serviceID uuid.UUID
 	upgrader  *websocket.Upgrader
 	emiter    msgqueue.EventEmiter
@@ -27,7 +27,7 @@ type WSHub struct {
 	clients   map[*client]bool
 }
 
-func NewHub(eventChan <-chan msgqueue.Event, emiter msgqueue.EventEmiter, origin string) *WSHub {
+func NewHub(eventChan <-chan msgqueue.Event, emiter msgqueue.EventEmiter, origin string) *Hub {
 
 	upgrader := &websocket.Upgrader{
 		ReadBufferSize:  socketBufferSize,
@@ -36,7 +36,7 @@ func NewHub(eventChan <-chan msgqueue.Event, emiter msgqueue.EventEmiter, origin
 			return r.Header.Get("Origin") == origin
 		}}
 
-	return &WSHub{
+	return &Hub{
 		serviceID: uuid.New(),
 		upgrader:  upgrader,
 		eventChan: eventChan,
@@ -48,7 +48,7 @@ func NewHub(eventChan <-chan msgqueue.Event, emiter msgqueue.EventEmiter, origin
 	}
 }
 
-func (h *WSHub) Run() {
+func (h *Hub) Run() {
 	for {
 		select {
 		case event := <-h.eventChan:
@@ -77,7 +77,7 @@ func (h *WSHub) Run() {
 	}
 }
 
-func (h *WSHub) EmitMessage(msg *Message) error {
+func (h *Hub) EmitMessage(msg *Message) error {
 
 	var files []events.File
 	for _, f := range msg.Files {
@@ -101,18 +101,18 @@ func (h *WSHub) EmitMessage(msg *Message) error {
 	return nil
 }
 
-func (h *WSHub) Join(c *client) {
+func (h *Hub) Join(c *client) {
 	h.join <- c
 }
 
-func (h *WSHub) Leave(c *client) {
+func (h *Hub) Leave(c *client) {
 	h.leave <- c
 }
-func (h *WSHub) Forward(msg *Message) {
+func (h *Hub) Forward(msg *Message) {
 	h.forward <- msg
 }
 
-func ServeWebSocket(w http.ResponseWriter, req *http.Request, h *WSHub, groups []uuid.UUID, id_user uuid.UUID) {
+func (h *Hub) ServeWebSocket(w http.ResponseWriter, req *http.Request, groups []uuid.UUID, userID uuid.UUID) {
 
 	socket, err := h.upgrader.Upgrade(w, req, nil)
 	if err != nil {
@@ -125,12 +125,11 @@ func ServeWebSocket(w http.ResponseWriter, req *http.Request, h *WSHub, groups [
 	}
 
 	client := &client{
-		id:     id_user,
+		id:     userID,
 		socket: socket,
 		send:   make(chan Sender, messageBufferSize),
 		hub:    h,
 		groups: groupsMap,
-		ticker: time.NewTicker(KEEP_ALIVE_INTERVAL),
 	}
 
 	h.Join(client)

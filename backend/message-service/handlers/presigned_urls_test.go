@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -38,13 +37,17 @@ func (s *PresignedUrlSuite) SetupSuite() {
 	mockDB.On("GetGroupMembership", s.uuids["userInGroup"], s.uuids["groupID"]).Return(models.Membership{MembershipID: s.uuids["memberID"]}, nil)
 
 	mockStorage := new(mockstorage.MockStorage)
-	mockStorage.On("GetPresignedPutRequests", mock.AnythingOfType("string"), mock.Anything, mock.Anything).Return([]storage.PutFileOutput{{
-		Name:         "duckie.jpeg",
-		PresignedURL: "someUrl",
-	}, {
-		Name:         "kitty.jpeg",
-		PresignedURL: "someUrl",
-	}}, nil)
+	mockStorage.On("GetPresignedPutRequests",
+		mock.AnythingOfType("string"),
+		mock.Anything,
+		mock.Anything).Return(
+		[]storage.PutFileOutput{{
+			Name:         "duckie.jpeg",
+			PresignedURL: "someUrl",
+		}, {
+			Name:         "kitty.jpeg",
+			PresignedURL: "someUrl",
+		}}, nil)
 
 	s.server = *handlers.NewServer(
 		mockDB,
@@ -52,11 +55,9 @@ func (s *PresignedUrlSuite) SetupSuite() {
 		nil,
 		mockStorage,
 	)
-	log.Println(s.server)
-
 }
 
-func (s *PresignedUrlSuite) TestGetPresignedUrl() {
+func (s *PresignedUrlSuite) TestGetPresignedPutUrls() {
 	gin.SetMode(gin.TestMode)
 
 	testCases := []struct {
@@ -141,7 +142,7 @@ func (s *PresignedUrlSuite) TestGetPresignedUrl() {
 
 			requestBody, _ := json.Marshal(tC.data)
 
-			r, _ := http.NewRequest(http.MethodPost, "/group/"+tC.groupID+"/uploads", bytes.NewBuffer(requestBody))
+			r, _ := http.NewRequest(http.MethodPost, "/group/"+tC.groupID+"/presign/put", bytes.NewBuffer(requestBody))
 			w := httptest.NewRecorder()
 			_, engine := gin.CreateTestContext(w)
 
@@ -149,7 +150,7 @@ func (s *PresignedUrlSuite) TestGetPresignedUrl() {
 				ctx.Set("userID", tC.userID)
 			})
 
-			engine.POST("/group/:groupID/uploads", s.server.GetPresignedPutRequests)
+			engine.POST("/group/:groupID/presign/put", s.server.GetPresignedPutRequests)
 			engine.ServeHTTP(w, r)
 
 			response := w.Result()

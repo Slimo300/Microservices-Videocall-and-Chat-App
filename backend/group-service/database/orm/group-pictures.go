@@ -1,6 +1,7 @@
 package orm
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
@@ -14,14 +15,13 @@ func (db *Database) GetGroupProfilePictureURL(userID, groupID uuid.UUID) (string
 		return "", apperrors.NewForbidden(fmt.Sprintf("User %v has no rights to set in group %v", userID, groupID))
 	}
 
-	if !member.Admin {
+	if !member.Creator {
 		return "", apperrors.NewForbidden(fmt.Sprintf("User %v has no rights to set in group %v", userID, groupID))
 	}
 
 	var group models.Group
 	if err := db.First(&group, groupID).Error; err != nil {
-		// TODO: Error here is only possible if there would exist membership to unexisting group. This should be internal error
-		return "", apperrors.NewForbidden(fmt.Sprintf("User %v has no rights to set in group %v", userID, groupID))
+		return "", errors.New("Internal error")
 	}
 
 	if group.Picture == "" {
@@ -42,7 +42,7 @@ func (db *Database) DeleteGroupProfilePicture(userID, groupID uuid.UUID) (string
 		return "", apperrors.NewForbidden(fmt.Sprintf("User %v has no rights to set in group %v", userID, groupID))
 	}
 
-	if !member.Admin {
+	if !member.Creator {
 		return "", apperrors.NewForbidden(fmt.Sprintf("User %v has no rights to set in group %v", userID, groupID))
 	}
 

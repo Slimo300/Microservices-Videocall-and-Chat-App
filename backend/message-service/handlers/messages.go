@@ -22,7 +22,6 @@ func (s *Server) GetGroupMessages(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
 	}
-
 	num, err := strconv.Atoi(c.Query("num"))
 	if err != nil || num <= 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "number of messages is not a valid number"})

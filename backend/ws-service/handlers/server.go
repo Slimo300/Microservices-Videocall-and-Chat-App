@@ -9,6 +9,6 @@ import (
 
 type Server struct {
 	DB        database.DBLayer
-	Hub       *ws.WSHub
+	Hub       *ws.Hub
 	PublicKey *rsa.PublicKey
 }

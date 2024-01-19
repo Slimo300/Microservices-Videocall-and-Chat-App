@@ -8,7 +8,6 @@ import (
 )
 
 const INDEX_NAME = "users"
-const INDEX_EXISTS_EXCEPTION = "resource_already_exists_exception"
 const MINIMUM_SHOULD_MATCH = "60%"
 
 type elasticSearchDB struct {

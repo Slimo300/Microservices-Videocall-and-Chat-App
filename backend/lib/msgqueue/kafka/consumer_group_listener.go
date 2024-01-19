@@ -166,7 +166,10 @@ func (consumer *groupConsumer) Cleanup(sarama.ConsumerGroupSession) error {
 func (consumer *groupConsumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	for {
 		select {
-		case message := <-claim.Messages():
+		case message, ok := <-claim.Messages():
+			if !ok {
+				return nil
+			}
 			consumer.results <- message
 			session.MarkMessage(message, "")
 

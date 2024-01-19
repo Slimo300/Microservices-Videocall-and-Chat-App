@@ -43,6 +43,7 @@ func (s *Server) SetGroupProfilePicture(c *gin.Context) {
 	pictureURL, err := s.DB.GetGroupProfilePictureURL(userUID, groupUID)
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
+		return
 	}
 
 	if err = s.Storage.UploadFile(file, pictureURL); err != nil {

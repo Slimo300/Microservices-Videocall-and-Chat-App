@@ -1,16 +1,18 @@
 import React, { useContext, useEffect, useState } from "react";
-import {Navigate} from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+
 import { actionTypes, StorageContext } from "../ChatStorage";
 import Chat from "../components/chat/Chat";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GroupLabel } from "../components/GroupLabel";
 import { ModalCreateGroup } from "../components/modals/CreateGroup";
-import {GetGroups, GetInvites} from "../requests/Groups";
+import { ModalUserProfile } from "../components/modals/Profile";
+
+import { GetGroups, GetInvites } from "../requests/Groups";
 import { GetUser } from "../requests/Users";
 import { GetWebsocket } from "../requests/Ws";
 import { LoadMessages } from "../requests/Messages";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import { ModalUserProfile } from "./Profile";
 
 const Main = (props) => {
 

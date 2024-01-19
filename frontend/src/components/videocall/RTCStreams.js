@@ -27,7 +27,6 @@ export const RTCStreamsReducer = (state, action) => {
 };
 
 const NewStream = (state, payload) => {
-    console.log("New Stream");
     let newState = [...state];
     for (let i = 0; i < newState.length; i++) {
         if (newState[i].stream.id === payload.id) {
@@ -63,7 +62,6 @@ const SetUserInfo = (state, payload) => {
 };
 
 const UserDisconnected = (state, payload) => {
-    console.log("User disconnected");
     let newState = [...state];
     newState = newState.filter((stream) => { return stream.memberID !== payload });
     return newState
