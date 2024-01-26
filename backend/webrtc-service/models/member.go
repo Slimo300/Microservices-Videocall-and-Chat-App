@@ -1,14 +1,14 @@
 package models
 
 type Member struct {
-	ID         string
-	GroupID    string
-	UserID     string
-	Username   string
-	PictureURL string
-	Creator    bool
-	Admin      bool
-	Muting     bool
+	ID       string `mapstructure:"ID"`
+	GroupID  string `mapstructure:"groupID"`
+	UserID   string `mapstructure:"userID"`
+	Username string `mapstructure:"username"`
+	// PictureURL string `mapstructure:"pictureURL"`
+	Creator bool `mapstructure:"creator"`
+	Admin   bool `mapstructure:"admin"`
+	Muting  bool `mapstructure:"muting"`
 }
 
 func (m *Member) CanMute(mem *Member) bool {

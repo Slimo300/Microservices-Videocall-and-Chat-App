@@ -12,8 +12,8 @@ import (
 
 type Room struct {
 	// lock for peerConnections and trackLocals
-	ListLock   sync.RWMutex
-	turnConfig webrtc.Configuration
+	ListLock sync.RWMutex
+	config   webrtc.Configuration
 
 	Peers       []*Peer
 	TrackLocals map[string]*LocalTrack
@@ -38,7 +38,7 @@ func NewRoom(config webrtc.Configuration) *Room {
 
 	room.closeChan = make(chan struct{})
 	room.closed = false
-	room.turnConfig = config
+	room.config = config
 
 	return room
 }
@@ -62,8 +62,6 @@ func (r *Room) GetPeerRights(memberID string) (PeerRights, bool) {
 }
 
 func (r *Room) AddPeer(peer *Peer) {
-	log.Println("ROOM: Adding Peer")
-
 	r.ListLock.Lock()
 	defer func() {
 		r.ListLock.Unlock()

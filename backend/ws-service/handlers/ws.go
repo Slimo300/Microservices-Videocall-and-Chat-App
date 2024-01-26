@@ -3,7 +3,6 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/ws-service/ws"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/thanhpk/randstr"
@@ -28,7 +27,8 @@ func (s *Server) ServeWebSocket(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
 	}
-	ws.ServeWebSocket(c.Writer, c.Request, s.Hub, groups, userID)
+
+	s.Hub.ServeWebSocket(c.Writer, c.Request, groups, userID)
 }
 
 func (s *Server) GetAuthCode(c *gin.Context) {

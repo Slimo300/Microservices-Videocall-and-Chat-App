@@ -31,4 +31,5 @@ module "turn" {
   do_token = var.do_token
   user = var.turn_user
   pvt_key = local.pvt_key
+  pvt_key_password = var.pvt_key_password
 }

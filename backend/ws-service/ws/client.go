@@ -14,9 +14,8 @@ type client struct {
 	id     uuid.UUID
 	socket *websocket.Conn
 	send   chan Sender
-	hub    *WSHub
+	hub    *Hub
 	groups map[uuid.UUID]bool
-	ticker *time.Ticker
 }
 
 // read reads messages received by socket
@@ -37,6 +36,8 @@ func (c *client) read() {
 // write sends messages from server to clients
 func (c *client) write() {
 	defer c.socket.Close()
+
+	ticker := time.NewTicker(KEEP_ALIVE_INTERVAL)
 	for {
 		select {
 		case msg := <-c.send:
@@ -46,8 +47,8 @@ func (c *client) write() {
 			if err := msg.Send(c.socket); err != nil {
 				log.Printf("Error when sending message through socket: %v\n", err)
 			}
-			c.ticker.Reset(KEEP_ALIVE_INTERVAL)
-		case <-c.ticker.C:
+			ticker.Reset(KEEP_ALIVE_INTERVAL)
+		case <-ticker.C:
 			if err := c.socket.WriteMessage(websocket.PingMessage, nil); err != nil {
 				log.Printf("Error pinging client: %v\n", err)
 			}

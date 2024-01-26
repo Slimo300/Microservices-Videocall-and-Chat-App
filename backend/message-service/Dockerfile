@@ -27,8 +27,12 @@ ENV HTTP_PORT=8080
 ENV ORIGIN=http://localhost:3000
 # Kafka Address
 ENV BROKER_ADDRESS=
-# S3 Bucket name for storing group profile pictures
-ENV S3_BUCKET=
+# Storage config
+ENV STORAGE_BUCKET=
+ENV STORAGE_KEY_ID=
+ENV STORAGE_KEY_SECRET=
+ENV STORAGE_USE_DO=
+ENV STORAGE_URL=
 
 EXPOSE 8080
 

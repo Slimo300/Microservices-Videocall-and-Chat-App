@@ -9,13 +9,12 @@ import (
 )
 
 type UserConnData struct {
-	MemberID   string `json:"memberID,omitempty"`
-	StreamID   string `json:"streamID,omitempty"`
-	Username   string `json:"username,omitempty"`
-	PictureURL string `json:"pictureURL,omitempty"`
-	Muting     bool   `json:"muting,omitempty"`
-	Admin      bool   `json:"admin,omitempty"`
-	Creator    bool   `json:"creator,omitempty"`
+	MemberID string `json:"memberID,omitempty"`
+	StreamID string `json:"streamID,omitempty"`
+	Username string `json:"username,omitempty"`
+	Muting   bool   `json:"muting,omitempty"`
+	Admin    bool   `json:"admin,omitempty"`
+	Creator  bool   `json:"creator,omitempty"`
 }
 
 func (r *Room) ConnectRoom(conn *websocket.Conn, userData UserConnData) {
@@ -24,7 +23,7 @@ func (r *Room) ConnectRoom(conn *websocket.Conn, userData UserConnData) {
 	ws := NewSignaler(conn)
 	defer ws.Close()
 
-	peerConnection, err := webrtc.NewPeerConnection(r.turnConfig)
+	peerConnection, err := webrtc.NewPeerConnection(r.config)
 	if err != nil {
 		log.Printf("Creating peer connection error: %v\n", err)
 		return

@@ -2,7 +2,6 @@ package storage
 
 import (
 	"fmt"
-	"log"
 	"mime/multipart"
 	"os"
 
@@ -13,7 +12,7 @@ import (
 )
 
 const MAX_BUCKET_SIZE = 4900000000 // 4.9GB
-const DEFaULT_REGION = "eu-central-1"
+const DEFAULT_REGION = "eu-central-1"
 
 // StorageLayer describes Storage functionality (uploading and deleting files)
 type StorageLayer interface {
@@ -31,7 +30,7 @@ func NewS3Storage(accessKey, secretKey, bucket string) (*S3Storage, error) {
 
 	config := &aws.Config{
 		Credentials: credentials.NewStaticCredentials(accessKey, secretKey, ""),
-		Region:      aws.String(DEFaULT_REGION),
+		Region:      aws.String(DEFAULT_REGION),
 	}
 
 	if os.Getenv("STORAGE_USE_DO") == "true" {
@@ -63,7 +62,6 @@ func (s *S3Storage) UploadFile(file multipart.File, key string) error {
 		return fmt.Errorf("Can't upload file. Storage limit exceeded")
 	}
 
-	log.Println(file)
 	_, err = s.S3.PutObject(&s3.PutObjectInput{
 		Body:   file,
 		Bucket: aws.String(s.Bucket),

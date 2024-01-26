@@ -53,13 +53,13 @@ func (s *Server) ServeWebSocket(c *gin.Context) {
 	}
 
 	userData := w.UserConnData{
-		MemberID:   memberID,
-		StreamID:   streamID,
-		Username:   member.Username,
-		PictureURL: member.PictureURL,
-		Muting:     member.Muting,
-		Admin:      member.Admin,
-		Creator:    member.Creator,
+		MemberID: memberID,
+		StreamID: streamID,
+		Username: member.Username,
+		// PictureURL: member.PictureURL,
+		Muting:  member.Muting,
+		Admin:   member.Admin,
+		Creator: member.Creator,
 	}
 
 	room := s.Relay.GetRoom(member.GroupID)

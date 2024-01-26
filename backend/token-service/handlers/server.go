@@ -19,7 +19,7 @@ type TokenService struct {
 
 // NewTokenService creates new token server
 func NewTokenService(db database.TokenDB, privKey *rsa.PrivateKey, refreshSecret string,
-	refreshDuration, accessDuration time.Duration) (*TokenService, error) {
+	refreshDuration, accessDuration time.Duration) *TokenService {
 
 	return &TokenService{
 		db:                    db,
@@ -27,5 +27,5 @@ func NewTokenService(db database.TokenDB, privKey *rsa.PrivateKey, refreshSecret
 		accessTokenPrivateKey: privKey,
 		refreshTokenDuration:  refreshDuration,
 		accessTokenDuration:   accessDuration,
-	}, nil
+	}
 }

@@ -47,8 +47,8 @@ func (rdb *redisTokenDB) IsTokenValid(userID, tokenID string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if database.StringToTokenValue(res) != database.TOKEN_VALID {
-		if database.StringToTokenValue(res) == database.TOKEN_BLACKLISTED {
+	if res != string(database.TOKEN_VALID) {
+		if res == string(database.TOKEN_BLACKLISTED) {
 			return false, database.ErrTokenBlacklisted
 		}
 		return false, database.ErrUnexpectedTokenValue
@@ -93,8 +93,8 @@ func (rdb *redisTokenDB) InvalidateToken(userID, tokenID string) error {
 	if err != nil {
 		return err
 	}
-	if database.StringToTokenValue(res) != database.TOKEN_VALID {
-		if database.StringToTokenValue(res) == database.TOKEN_BLACKLISTED {
+	if res != string(database.TOKEN_VALID) {
+		if res == string(database.TOKEN_BLACKLISTED) {
 			return database.ErrTokenBlacklisted
 		}
 		return database.ErrUnexpectedTokenValue

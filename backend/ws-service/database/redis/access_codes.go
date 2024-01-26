@@ -14,6 +14,10 @@ func (db *DB) CheckAccessCode(accessCode string) (uuid.UUID, error) {
 		return uuid.Nil, err
 	}
 
+	if err := db.Del(accessCode).Err(); err != nil {
+		return uuid.Nil, err
+	}
+
 	userUID, err := uuid.Parse(user)
 	if err != nil {
 		return uuid.Nil, err

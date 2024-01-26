@@ -30,7 +30,6 @@ const VideoConference = () => {
     const audioSender = useRef(null);
     const videoSender = useRef(null);
 
-    // const [, setState] = useState(false);
     const [init, setInit] = useState(false);
     const [fatal, setFatal] = useState(false);
 
@@ -38,7 +37,11 @@ const VideoConference = () => {
 
     useEffect(() => {
         const startCall = async () => {
-            userStream.current = await navigator.mediaDevices.getUserMedia({video: initialVideo==="true", audio: initialAudio==="true"});
+            userStream.current = await navigator.mediaDevices.getUserMedia({video: initialVideo==="true", audio: initialAudio==="true"?{
+                autoGainControl: true,
+                echoCancellation: true,
+                noiseSuppression: true
+            }:false});
 
             peerConnection.current = new RTCPeerConnection({'iceServers': [
                 {
@@ -61,13 +64,7 @@ const VideoConference = () => {
                 }
             ]});
 
-            peerConnection.current.ontrack = (event) => {
-                dispatch({type: actionTypes.NEW_STREAM, payload: event.streams[0]});
-
-                // event.streams[0].onremovetrack = () => {
-                //     setState(state => { return !state });
-                // }
-            };
+            peerConnection.current.ontrack = (event) => dispatch({type: actionTypes.NEW_STREAM, payload: event.streams[0]});
 
             if (initialAudio === "true") {
                 audioSender.current = peerConnection.current.addTrack(userStream.current.getAudioTracks()[0], userStream.current);

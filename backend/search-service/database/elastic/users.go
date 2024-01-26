@@ -86,8 +86,6 @@ func (es *elasticSearchDB) AddUser(user events.UserRegisteredEvent) error {
 
 func (es *elasticSearchDB) GetUsers(query string, num int) ([]models.User, error) {
 
-	var buffer bytes.Buffer
-
 	reqBody := map[string]interface{}{
 		"from": 0,
 		"size": num,
@@ -101,6 +99,7 @@ func (es *elasticSearchDB) GetUsers(query string, num int) ([]models.User, error
 		},
 	}
 
+	var buffer bytes.Buffer
 	if err := json.NewEncoder(&buffer).Encode(reqBody); err != nil {
 		return nil, fmt.Errorf("Error when encoding query: %v", err)
 	}

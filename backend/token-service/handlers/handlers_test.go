@@ -36,10 +36,7 @@ func TestMain(m *testing.M) {
 	db = new(mockdb.MockTokenDB)
 	db.On("SaveToken", mock.AnythingOfType("string"), time.Hour*24).Return(nil)
 
-	service, err = handlers.NewTokenService(db, priv, RefreshSecret, time.Hour*24, time.Minute*20)
-	if err != nil {
-		log.Fatal("Couldn't create token service")
-	}
+	service = handlers.NewTokenService(db, priv, RefreshSecret, time.Hour*24, time.Minute*20)
 
 	os.Exit(m.Run())
 }

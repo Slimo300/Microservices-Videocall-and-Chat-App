@@ -138,7 +138,6 @@ func (s *S3Storage) GetPresignedPutRequests(prefix string, files ...storage.PutF
 			Bucket:        aws.String(s.Bucket),
 			Key:           aws.String(key),
 			ContentLength: aws.Int64(fileInfo.Size),
-			// ACL:           aws.String("public-read"),
 		})
 
 		url, err := req.Presign(30 * time.Second)

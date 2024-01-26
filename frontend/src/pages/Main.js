@@ -1,16 +1,18 @@
 import React, { useContext, useEffect, useState } from "react";
-import {Navigate} from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+
 import { actionTypes, StorageContext } from "../ChatStorage";
 import Chat from "../components/chat/Chat";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GroupLabel } from "../components/GroupLabel";
 import { ModalCreateGroup } from "../components/modals/CreateGroup";
-import {GetGroups, GetInvites} from "../requests/Groups";
+import { ModalUserProfile } from "../components/modals/Profile";
+
+import { GetGroups, GetInvites } from "../requests/Groups";
 import { GetUser } from "../requests/Users";
 import { GetWebsocket } from "../requests/Ws";
 import { LoadMessages } from "../requests/Messages";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import { ModalUserProfile } from "./Profile";
 
 const Main = (props) => {
 
@@ -59,6 +61,15 @@ const AuthMain = ({ ws, setWs, profileShow, toggleProfile}) => {
         };
 
         fetchData();
+
+        return () => {
+            dispatch({type: actionTypes.LOGOUT});
+            setWs(ws => {
+                if (ws && ws.close) ws.close();
+                return null;
+            })
+        }
+
     }, [dispatch, setWs]);
 
     if (ws) ws.onmessage = (e) => {
@@ -92,11 +103,8 @@ const AuthMain = ({ ws, setWs, profileShow, toggleProfile}) => {
             }
             return;
         }
-        if (msgJSON.Member.groupID === current.ID) { // add message to state
-            dispatch({type: actionTypes.ADD_MESSAGE, payload: {message: msgJSON, current: true}})
-        } else {
-            dispatch({type: actionTypes.ADD_MESSAGE, payload: {message: msgJSON, current: false}})
-        }
+
+        dispatch({type: actionTypes.ADD_MESSAGE, payload: {message: msgJSON, current: msgJSON.Member.groupID === current.ID}});
     }
 
     // getting messages from specific group

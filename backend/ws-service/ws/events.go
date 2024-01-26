@@ -7,7 +7,7 @@ import (
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
 )
 
-func (h *WSHub) HandleEvent(event msgqueue.Event) {
+func (h *Hub) HandleEvent(event msgqueue.Event) {
 	switch e := event.(type) {
 	case *events.GroupDeletedEvent:
 		h.groupDeleted(*e)
@@ -30,7 +30,7 @@ func (h *WSHub) HandleEvent(event msgqueue.Event) {
 	}
 }
 
-func (h *WSHub) messageSent(event events.MessageSentEvent) {
+func (h *Hub) messageSent(event events.MessageSentEvent) {
 
 	if event.ServiceID == h.serviceID {
 		return
@@ -47,7 +47,7 @@ func (h *WSHub) messageSent(event events.MessageSentEvent) {
 				ID:       event.ID,
 				MemberID: event.MemberID,
 				Member: Member{
-					ID:       event.GroupID,
+					ID:       event.MemberID,
 					GroupID:  event.GroupID,
 					UserID:   event.UserID,
 					Username: event.Nick,
@@ -61,9 +61,9 @@ func (h *WSHub) messageSent(event events.MessageSentEvent) {
 }
 
 // Deletes group from every user that is subscribed to it and sends information via websocket to user
-func (h *WSHub) groupDeleted(event events.GroupDeletedEvent) {
+func (h *Hub) groupDeleted(event events.GroupDeletedEvent) {
 	for client := range h.clients {
-		if _, ok := client.groups[event.ID]; ok {
+		if client.groups[event.ID] {
 			delete(client.groups, event.ID)
 			client.send <- &Action{ActionType: "DELETE_GROUP", Payload: event.ID}
 		}
@@ -71,22 +71,22 @@ func (h *WSHub) groupDeleted(event events.GroupDeletedEvent) {
 }
 
 // Adds subscription to member groups and sends info to other members in group
-func (h *WSHub) memberAdded(event events.MemberCreatedEvent) {
+func (h *Hub) memberAdded(event events.MemberCreatedEvent) {
 	for client := range h.clients {
 		if client.id == event.UserID {
 			client.groups[event.GroupID] = true
 			continue
 		}
-		if _, ok := client.groups[event.GroupID]; ok {
+		if client.groups[event.GroupID] {
 			client.send <- &Action{ActionType: "ADD_MEMBER", Payload: event}
 		}
 	}
 }
 
 // Deletes member subscription and sends info about it to other members in group
-func (h *WSHub) memberDeleted(event events.MemberDeletedEvent) {
+func (h *Hub) memberDeleted(event events.MemberDeletedEvent) {
 	for client := range h.clients {
-		if _, ok := client.groups[event.GroupID]; ok {
+		if client.groups[event.GroupID] {
 			if client.id == event.UserID {
 				delete(client.groups, event.GroupID)
 				client.send <- &Action{ActionType: "DELETE_GROUP", Payload: event.GroupID}
@@ -97,16 +97,16 @@ func (h *WSHub) memberDeleted(event events.MemberDeletedEvent) {
 	}
 }
 
-func (h *WSHub) memberUpdated(event events.MemberUpdatedEvent) {
+func (h *Hub) memberUpdated(event events.MemberUpdatedEvent) {
 	for client := range h.clients {
-		if _, ok := client.groups[event.GroupID]; ok {
+		if client.groups[event.GroupID] {
 			client.send <- &Action{ActionType: "UPDATE_MEMBER", Payload: event}
 		}
 	}
 }
 
 // Sends invite to specified user
-func (h *WSHub) inviteSent(event events.InviteSentEvent) {
+func (h *Hub) inviteSent(event events.InviteSentEvent) {
 	for client := range h.clients {
 		if client.id == event.TargetID {
 			client.send <- &Action{ActionType: "ADD_INVITE", Payload: event}
@@ -114,7 +114,7 @@ func (h *WSHub) inviteSent(event events.InviteSentEvent) {
 	}
 }
 
-func (h *WSHub) inviteResponded(event events.InviteRespondedEvent) {
+func (h *Hub) inviteResponded(event events.InviteRespondedEvent) {
 	for client := range h.clients {
 		if client.id == event.IssuerID {
 			client.send <- &Action{ActionType: "UPDATE_INVITE", Payload: event}
@@ -122,9 +122,9 @@ func (h *WSHub) inviteResponded(event events.InviteRespondedEvent) {
 	}
 }
 
-func (h *WSHub) messageDeleted(event events.MessageDeletedEvent) {
+func (h *Hub) messageDeleted(event events.MessageDeletedEvent) {
 	for client := range h.clients {
-		if _, ok := client.groups[event.GroupID]; ok {
+		if client.groups[event.GroupID] {
 			client.send <- &Action{ActionType: "DELETE_MESSAGE", Payload: event}
 		}
 	}

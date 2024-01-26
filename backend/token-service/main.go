@@ -56,18 +56,15 @@ func main() {
 		log.Fatal("could not connect to redis")
 	}
 
-	s, err := handlers.NewTokenService(db,
+	server := handlers.NewTokenService(db,
 		privateKey,
 		config.RefreshTokenSecret,
 		config.RefreshDuration,
 		config.AccessDuration,
 	)
-	if err != nil {
-		log.Fatalf("Error creating token service: %v", err)
-	}
 
 	grpcServer := grpc.NewServer()
-	auth.RegisterTokenServiceServer(grpcServer, s)
+	auth.RegisterTokenServiceServer(grpcServer, server)
 
 	errChan := make(chan error)
 	quit := make(chan os.Signal, 1)

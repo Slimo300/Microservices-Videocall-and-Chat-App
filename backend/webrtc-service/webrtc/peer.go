@@ -94,7 +94,6 @@ func (p *Peer) ServeSignaler() {
 }
 
 func (p *Peer) HandleCandidate(data string) error {
-	log.Println("Handling candidate... ")
 	candidate := webrtc.ICECandidateInit{}
 	if err := json.Unmarshal([]byte(data), &candidate); err != nil {
 		return fmt.Errorf("Error unmarshaling candidate: %v\n", err)
@@ -107,7 +106,6 @@ func (p *Peer) HandleCandidate(data string) error {
 	return nil
 }
 func (p *Peer) HandleAnswer(data string) error {
-	log.Println("Handling answer... ")
 	answer := webrtc.SessionDescription{}
 	if err := json.Unmarshal([]byte(data), &answer); err != nil {
 		return fmt.Errorf("Error unmarshaling answer: %v\n", err)
@@ -121,7 +119,6 @@ func (p *Peer) HandleAnswer(data string) error {
 }
 
 func (p *Peer) HandleRenegotiate() error {
-	log.Println("Handling renegotiate... ")
 	p.room.SignalPeerConnections()
 	return nil
 }
@@ -137,8 +134,6 @@ type MutingRule struct {
 }
 
 func (p *Peer) HandleMuteYourself(data string) error {
-	log.Println("Handling muting yourself")
-
 	var action MutingAction
 	if err := json.Unmarshal([]byte(data), &action); err != nil {
 		return fmt.Errorf("Error unmarshaling mute_for_everyone: %w", err)
@@ -157,7 +152,6 @@ func (p *Peer) HandleMuteYourself(data string) error {
 }
 
 func (p *Peer) HandleMuteForEveryone(data string) error {
-	log.Println("Handling MuteForEveryone")
 	var action MutingAction
 	if err := json.Unmarshal([]byte(data), &action); err != nil {
 		return fmt.Errorf("Error unmarshaling mute_for_everyone")
@@ -182,7 +176,6 @@ func (p *Peer) HandleMuteForEveryone(data string) error {
 }
 
 func (p *Peer) HandleMuteForYourself(data string) error {
-	log.Println("Handling mute for yourself: ", data)
 	var action MutingAction
 	if err := json.Unmarshal([]byte(data), &action); err != nil {
 		return fmt.Errorf("Error unmarshaling mute_for_everyone")
@@ -228,7 +221,6 @@ func (p *Peer) AddMutingRule(mr MutingRule) {
 		p.peerLock.Unlock()
 		p.room.SignalPeerConnections()
 	}()
-	log.Println("Adding muting rule: ", mr)
 
 	p.mutingRules[mr] = true
 	log.Println(p.mutingRules)
@@ -240,10 +232,8 @@ func (p *Peer) RemoveMutingRule(mr MutingRule) {
 		p.peerLock.Unlock()
 		p.room.SignalPeerConnections()
 	}()
-	log.Println("Removing muting rule: ", mr)
 
 	delete(p.mutingRules, mr)
-	log.Println(p.mutingRules)
 }
 
 type websocketMessage struct {

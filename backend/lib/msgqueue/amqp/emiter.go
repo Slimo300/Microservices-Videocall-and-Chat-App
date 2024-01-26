@@ -12,7 +12,7 @@ type amqpEventEmiter struct {
 }
 
 // NewAMQPEventEmiter creates amqp emiter
-func NewAMQPEventEmiter(conn amqp.Connection, exchange string) (msgqueue.EventEmiter, error) {
+func NewAMQPEventEmiter(conn *amqp.Connection, exchange string) (msgqueue.EventEmiter, error) {
 
 	channel, err := conn.Channel()
 	if err != nil {
@@ -24,7 +24,7 @@ func NewAMQPEventEmiter(conn amqp.Connection, exchange string) (msgqueue.EventEm
 		return nil, err
 	}
 	return &amqpEventEmiter{
-		connection: &conn,
+		connection: conn,
 		exchange:   exchange,
 		Encoder:    msgqueue.NewJSONEncoder(),
 	}, nil
