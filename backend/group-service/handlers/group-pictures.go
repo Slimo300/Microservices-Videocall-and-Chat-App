@@ -30,7 +30,7 @@ func (s *Server) SetGroupProfilePicture(c *gin.Context) {
 
 	mimeType := imageFileHeader.Header.Get("Content-Type")
 	if !isAllowedImageType(mimeType) {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "image extention not allowed"})
+		c.JSON(http.StatusBadRequest, gin.H{"err": "image extension not allowed"})
 		return
 	}
 
