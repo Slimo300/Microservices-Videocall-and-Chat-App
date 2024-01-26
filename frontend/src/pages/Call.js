@@ -37,7 +37,11 @@ const VideoConference = () => {
 
     useEffect(() => {
         const startCall = async () => {
-            userStream.current = await navigator.mediaDevices.getUserMedia({video: initialVideo==="true", audio: initialAudio==="true"});
+            userStream.current = await navigator.mediaDevices.getUserMedia({video: initialVideo==="true", audio: initialAudio==="true"?{
+                autoGainControl: true,
+                echoCancellation: true,
+                noiseSuppression: true
+            }:false});
 
             peerConnection.current = new RTCPeerConnection({'iceServers': [
                 {

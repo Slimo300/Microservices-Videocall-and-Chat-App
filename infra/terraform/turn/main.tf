@@ -17,6 +17,9 @@ variable "do_token" {
 variable "pvt_key" {
   sensitive = true
 }
+variable "pvt_key_password" {
+  sensitive = true
+}
 variable "user" {
   sensitive = true
 }
@@ -66,6 +69,7 @@ resource "ssh_resource" "certbot_config" {
 
   user        = "root"
   private_key = file(var.pvt_key)
+  password    = var.pvt_key_password
 
   when = "create" # Default
 

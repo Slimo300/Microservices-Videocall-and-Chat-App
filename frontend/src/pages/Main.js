@@ -61,6 +61,15 @@ const AuthMain = ({ ws, setWs, profileShow, toggleProfile}) => {
         };
 
         fetchData();
+
+        return () => {
+            dispatch({type: actionTypes.LOGOUT});
+            setWs(ws => {
+                if (ws && ws.close) ws.close();
+                return null;
+            })
+        }
+
     }, [dispatch, setWs]);
 
     if (ws) ws.onmessage = (e) => {
@@ -94,11 +103,8 @@ const AuthMain = ({ ws, setWs, profileShow, toggleProfile}) => {
             }
             return;
         }
-        if (msgJSON.Member.groupID === current.ID) { // add message to state
-            dispatch({type: actionTypes.ADD_MESSAGE, payload: {message: msgJSON, current: true}})
-        } else {
-            dispatch({type: actionTypes.ADD_MESSAGE, payload: {message: msgJSON, current: false}})
-        }
+
+        dispatch({type: actionTypes.ADD_MESSAGE, payload: {message: msgJSON, current: msgJSON.Member.groupID === current.ID}});
     }
 
     // getting messages from specific group
