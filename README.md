@@ -83,7 +83,7 @@ To protect application from sending files too many times it is send straight for
 
 ### User rigts modal window
 
-![user rights modal window](./member_rights.png)
+![user rights modal window](./images/member_rights.png)
 
 <hr />
 
