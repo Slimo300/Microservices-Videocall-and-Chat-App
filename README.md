@@ -39,7 +39,7 @@ The whole backend structure of application presents itself like so:
 
 ### Websocket scaling
 For application to be horizontally scallable stateful parts of our system like **ws-service** instances had to overcome their scalability issues. To achieve synchronization across **ws-service** instances every instance becomes Kafka consumer (when other services use Kafka for updating their database, they form collective Consumer Group),
-![message distribution](./images/chat.png)
+![message distribution](./images/websocket.png)
 <hr />
 
 ### WebRTC-service scaling
