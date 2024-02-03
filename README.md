@@ -2,86 +2,91 @@
 
 ## This is an example Golang microservice application build in educational purposes.
 
-The goal of this project is to explore microservice architecture and patterns associated with it, 
-such as Cloud Native Development, Event Sourcing, etc. This application consists of: 
+The goal of this project is to build microservice application with functionality that encapsulates: 
+- sending text messages
+- sending files
+- videocalls in group
+- rights system for groups
+- ability to add and delete members from group
+- deleting messages from group
+- muting audio and video tracks
 
-1. user-service - REST service handling user profiles (profile pictures), registration, login, logout and password reset
-2. group-service - REST service handling chat groups, invites to them and user rights in context of a group
-3. message-service - REST service for obtaining and deleting messages, connected with message broker to ws-service
-4. ws-service - WS service working with websocket connections (uses REST to establish them)
-5. token-service - gRPC service working with redis to store and handle tokens, it also distributes public key to other services for validation
-6. search-service - REST service working with elasticsearch to query user index to implement search-as-you-type functionality
-7. frontend - React frontend for application (needs testing and better error handling :/)
-8. File storage - application uses AWS S3 service to store user and group pictures. It also stores files sent by users  (for now only jpeg and png)
-9. Message broker - application uses Kafka for asynchronous communication
-10. Application is dockerized 
-11. Application is ready to be deployed to Kubernetes if needed config files are present and environment variables are set
+Application is based on microservices and it is horizontally scallable.
 
-## How to setup?
+<hr />
+This application consists of: 
 
-1. Using minikube 
+1. **user-service** - REST service handling user profiles (profile pictures), registration, login, logout and password reset.
+2. **email-service**  - gRPC service to which **user-service** connects. Is sends verification and reset password emails.
+3. **token-service** - gRPC service working with redis to store and handle tokens.
+4. **group-service** - REST service handling chat groups, invites to them and user rights in context of a group.
+5. **message-service** - REST service for obtaining and deleting messages, it also handles file uploads.
+6. **ws-service** - WS service working with websocket connections (uses REST to establish them).
+7. **search-service** - REST service working with elasticsearch to query user index to implement 3-gram analyzer for user search recommendations.
+8. **webrtc-service** - service responsible for videocalling functionality.
+9. **webrtc-gateway-service** - a dedicated service responsible for connecting user to instance of webrtc-service that handles room he requested. For performance reasons, one room is always assigned to one **webrtc-service** instance. 
+10. **frontend** - React frontend for application
 
-In order to setup this project you'll first need to provide configuration to files awsSecrets.yaml and smtpCreds.yaml in folder deploy/secrets_templates: 
+Application makes use of multiple database technologies like MySQL, ElasticSearch and Redis. It also uses DigitalOcean Spaces as a file storage and Apache Kafka as a message broker. Tech in use:
+![tech in use](./images/tech.png)
 
-awsSecrets.yaml stores AWS keys and name of S3 bucket to store files pictures sent to app either as profile pictures or messages
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: awssecrets
-type: Opaque
-data:
-  AWS_ACCESS_KEY_ID: <BASE64_AWS_ACCESS_KEY_ID>
-  AWS_SECRET_ACCESS_KEY: <BASE64_AWS_SECRET_ACCESS_KEY>
-  S3_BUCKET: <S3_BUCKET_NAME>
-```
+## Application architecture
+The whole backend structure of application presents itself like so:
+![project structure](./images/arch.png)
 
-smtpCreds.yaml stores SMTP credentials of SMTP provider to send verification and reset password email by email-service
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: smtpcreds
-type: Opaque
-data:
-  SMTP_HOST: <SMTP_HOST>
-  SMTP_PORT: <SMTP_PORT>
-  SMTP_USER: <SMTP_USER>
-  SMTP_PASS: <SMTP_PASS>
-```
-Secret (only AWS and redis need to be base64 encoded)
-to base64 encode on Linux distributions you can use: 
+## Solutions
+<hr />
 
-```sh
-echo -n "YOUR_SECRET" | base64
-```
+### Websocket scaling
+For application to be horizontally scallable stateful parts of our system like **ws-service** instances had to overcome their scalability issues. To achieve synchronization across **ws-service** instances every instance becomes Kafka consumer (when other services use Kafka for updating their database, they form collective Consumer Group),
+![message distribution](./images/chat.png)
+<hr />
 
-After that rename secrets_templates directory to secrets and run
+### WebRTC-service scaling
+The same applies for webrtc-service, although in this case to make application more effective, other approach was used. New service called WebRTC-Gateway-Service was build to enable 
 
-```sh
-minikube start
-minikube enable addons ingress
-source deploy/deploy.sh
-```
+![webrtc-connecting](./images/webrtc.png)
 
-2. Using docker-compose 
+<hr />
+### File uploading with presigned urls
+To protect application from sending files too many times it is send straight forward from React application with use of so called pre-signed URLs. They are generated by backend appliaction and sent on user demand for the exact file that user specified (user has to provide file name and size when generating URL). when message is sent through websocket it only contains identifiers of files that are already uploaded to Spaces.
+![Sending files](./images/file_upload)
 
-Setup with docker-compose is similar to that of minikube but instead of setting values in secrets you have to set them 
-as environment variables: 
+<hr />
 
-```bash
-export AWS_ACCESS_KEY_ID=<AWS_ACCESS_KEY_ID>
-export AWS_SECRET_ACCESS_KEY=<AWS_SECRET_ACCESS_KEY>
-export S3_BUCKET=<S3_BUCKET>
+## Application presentation
+<hr />
 
-export SMTP_HOST=<SMTP_HOST>
-export SMTP_PORT=<SMTP_PORT>
-export SMTP_USER=<SMTP_USER>
-export SMTP_PASS=<SMTP_PASS>
-```
+### Chat window
 
-After that just run:
+![chat window](./images/chat.png)
 
-```bash
-docker-compose up -d
-```
+<hr />
+
+### Videocall window
+
+![videocall window](./images/video_call.png)
+
+<hr />
+
+### Login form
+
+![login form](./images/login.png)
+
+<hr />
+
+### Profile modal window
+
+![profile modal window](./images/profile.png)
+
+<hr />
+
+### User rigts modal window
+
+![user rights modal window](./member_rights.png)
+
+<hr />
+
+### Adding user modal window
+![adding user modal window](./images/adding_member.png)
+
