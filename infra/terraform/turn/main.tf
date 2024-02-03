@@ -54,6 +54,7 @@ resource "ssh_resource" "coturn_config" {
 
   user        = "root"
   private_key = file(var.pvt_key)
+  password = var.pvt_key_password
 
   when = "create" # Default
 
