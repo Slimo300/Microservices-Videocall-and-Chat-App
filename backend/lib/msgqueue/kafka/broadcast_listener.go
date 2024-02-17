@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
 )
 
