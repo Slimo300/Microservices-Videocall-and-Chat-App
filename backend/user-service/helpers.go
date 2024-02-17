@@ -7,7 +7,7 @@ import (
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/kafka"
 
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 )
 
 // kafkaSetup starts Kafka EventEmiter and EventListener
