@@ -32,14 +32,13 @@ func (db *Database) RegisterUser(user models.User) (*models.User, *models.Verifi
 	var code models.VerificationCode
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		now := time.Now()
 		// user creation
-		newUser = models.User{ID: uuid.New(), UserName: user.UserName, Email: user.Email, Pass: hash, Verified: false, Created: now, Updated: now}
+		newUser = models.User{ID: uuid.New(), UserName: user.UserName, Email: user.Email, Pass: hash, Verified: false}
 		if err := tx.Create(&newUser).Error; err != nil {
 			return err
 		}
 		// verification code creation
-		code = models.VerificationCode{UserID: newUser.ID, ActivationCode: randstr.String(10), Created: now}
+		code = models.VerificationCode{UserID: newUser.ID, ActivationCode: randstr.String(10), Created: time.Now()}
 		if err = tx.Create(&code).Error; err != nil {
 			return err
 		}

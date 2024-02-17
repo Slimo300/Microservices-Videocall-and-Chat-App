@@ -5,7 +5,7 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/kafka"

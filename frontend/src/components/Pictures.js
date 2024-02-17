@@ -4,10 +4,9 @@ import group from "../statics/images/group.jpg";
 import user from "../statics/images/user.png";
 
 export const UserPicture = ({ pictureUrl, imageID }) => {
-    let pictureSrc = window._env_.STORAGE_URL+"/"+pictureUrl;
     return (
         <img className="rounded-circle img-thumbnail" alt="user" id={imageID}
-            src={(pictureUrl === "")?user:pictureSrc}
+            src={(pictureUrl === "")?user:window._env_.STORAGE_URL+"/"+pictureUrl}
             onError={({ currentTarget }) => {
                 currentTarget.onerror = null; 
                 currentTarget.src=user;

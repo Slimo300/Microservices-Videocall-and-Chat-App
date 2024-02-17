@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from "react";
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
 import { StorageContext } from "../../ChatStorage";
-import {SendGroupInvite} from "../../requests/Groups";
+import { SendGroupInvite } from "../../requests/Groups";
 import { actionTypes } from "../../ChatStorage";
 import { SearchUsers } from "../../requests/Users";
 import { UserPicture } from "../Pictures";
