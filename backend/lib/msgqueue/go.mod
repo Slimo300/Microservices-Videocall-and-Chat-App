@@ -6,7 +6,7 @@ require (
 	github.com/IBM/sarama v1.42.2
 	github.com/google/uuid v1.6.0
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/streadway/amqp v1.1.0
+	github.com/rabbitmq/amqp091-go v1.9.0
 	github.com/stretchr/testify v1.8.4
 )
 
