@@ -52,7 +52,7 @@ func (a *amqpEventListener) Listen(eventNames ...string) (<-chan msgqueue.Event,
 	if err != nil {
 		return nil, nil, err
 	}
-	defer channel.Close()
+	// defer channel.Close()
 
 	// Here we bind listener queue to exchanges via routing keys provided in 'eventNames' argument,
 	// event is routing key and its first part is name of exchange it will be published to e.g.:
