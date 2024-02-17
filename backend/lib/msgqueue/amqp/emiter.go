@@ -2,7 +2,7 @@ package amqp
 
 import (
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
-	"github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type amqpEventEmiter struct {
