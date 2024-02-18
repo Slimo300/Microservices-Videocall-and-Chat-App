@@ -68,14 +68,19 @@ func main() {
 
 	emailConn, err := grpc.Dial(conf.EmailServiceAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		log.Fatalf("Error connecting to token service")
+		log.Fatal("Error connecting to token service")
 	}
 	emailClient := email.NewEmailServiceClient(emailConn)
 
-	emiter, err := kafkaSetup([]string{conf.BrokerAddress})
+	emitter, err := rabbitSetup(conf.BrokerAddress, "TheExchange")
 	if err != nil {
-		log.Fatalf("Error setting up kafka: %v", err)
+		log.Fatalf("Error setting up RabbitMQ: %v", err)
 	}
+
+	// emitter, err := kafkaSetup([]string{conf.BrokerAddress})
+	// if err != nil {
+	// 	log.Fatalf("Error setting up kafka: %v", err)
+	// }
 
 	// Setup for handling image uploads to s3 and email sending
 	storage, err := storage.NewS3Storage(conf.StorageKeyID, conf.StorageKeySecret, conf.Bucket)
@@ -87,7 +92,7 @@ func main() {
 		DB:           db,
 		TokenClient:  tokenClient,
 		EmailClient:  emailClient,
-		Emitter:      emiter,
+		Emitter:      emitter,
 		TokenKey:     pubkey,
 		ImageStorage: storage,
 		MaxBodyBytes: 4194304, //4MB
