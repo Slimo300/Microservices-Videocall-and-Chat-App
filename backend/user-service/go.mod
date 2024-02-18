@@ -8,11 +8,12 @@ require (
 	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/auth v0.0.0-20240217201258-4eb5321322a5
 	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/email v0.0.0-20240217201258-4eb5321322a5
 	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events v0.0.0-20240217201258-4eb5321322a5
-	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue v0.0.0-20240217201258-4eb5321322a5
+	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue v0.0.0-20240217210232-462976734d98
 	github.com/aws/aws-sdk-go v1.44.140
 	github.com/gin-contrib/size v0.0.0-20220829131622-0fc0bc875336
 	github.com/gin-gonic/gin v1.9.1
 	github.com/google/uuid v1.6.0
+	github.com/rabbitmq/amqp091-go v1.9.0
 	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.4
 	github.com/thanhpk/randstr v1.0.4

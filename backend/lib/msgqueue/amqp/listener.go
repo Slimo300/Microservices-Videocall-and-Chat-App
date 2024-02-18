@@ -53,21 +53,18 @@ func (a *amqpEventListener) Listen(eventNames ...string) (<-chan msgqueue.Event,
 	if err != nil {
 		return nil, nil, err
 	}
-	// defer channel.Close()
 
 	// Here we bind listener queue to exchanges via routing keys provided in 'eventNames' argument,
 	// event is routing key and its first part is name of exchange it will be published to e.g.:
 	// event - users.created -> exchange users
 	for _, event := range eventNames {
 		if err := channel.QueueBind(a.queue, event, strings.Split(event, ".")[0], false, nil); err != nil {
-			log.Printf("Queue Binding failed: %v", err)
 			return nil, nil, err
 		}
 	}
 
 	msgs, err := channel.Consume(a.queue, "", false, false, false, false, nil)
 	if err != nil {
-		log.Printf("Consuming failed: %v", err)
 		return nil, nil, err
 	}
 
@@ -88,7 +85,7 @@ func (a *amqpEventListener) Listen(eventNames ...string) (<-chan msgqueue.Event,
 			}
 
 			var messageBody interface{}
-			err := a.decoder.Decode(msg.Body, messageBody)
+			err := a.decoder.Decode(msg.Body, &messageBody)
 			if err != nil {
 				errChan <- fmt.Errorf("decoding message returned error: %v", err)
 				msg.Nack(false, false)
@@ -104,8 +101,10 @@ func (a *amqpEventListener) Listen(eventNames ...string) (<-chan msgqueue.Event,
 
 			eventChan <- event
 			msg.Ack(false)
-
 		}
+
+		channel.Close()
+		log.Println("AMQP Channel closed")
 	}()
 
 	return eventChan, errChan, nil

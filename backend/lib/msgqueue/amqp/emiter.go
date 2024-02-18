@@ -1,6 +1,8 @@
 package amqp
 
 import (
+	"context"
+
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -49,7 +51,7 @@ func (a *amqpEventEmiter) Emit(evt msgqueue.Event) error {
 		Body:        jsonBody,
 	}
 
-	if err := channel.Publish(a.exchange, evt.EventName(), false, false, msg); err != nil {
+	if err := channel.PublishWithContext(context.Background(), a.exchange, evt.EventName(), false, false, msg); err != nil {
 		return err
 	}
 
