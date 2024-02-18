@@ -3,6 +3,7 @@ package amqp
 import (
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
@@ -52,17 +53,21 @@ func (a *amqpEventListener) Listen(eventNames ...string) (<-chan msgqueue.Event,
 	if err != nil {
 		return nil, nil, err
 	}
-	defer channel.Close()
+	// defer channel.Close()
 
 	// Here we bind listener queue to exchanges via routing keys provided in 'eventNames' argument,
 	// event is routing key and its first part is name of exchange it will be published to e.g.:
 	// event - users.created -> exchange users
 	for _, event := range eventNames {
-		channel.QueueBind(a.queue, event, strings.Split(event, ".")[0], false, nil)
+		if err := channel.QueueBind(a.queue, event, strings.Split(event, ".")[0], false, nil); err != nil {
+			log.Printf("Queue Binding failed: %v", err)
+			return nil, nil, err
+		}
 	}
 
 	msgs, err := channel.Consume(a.queue, "", false, false, false, false, nil)
 	if err != nil {
+		log.Printf("Consuming failed: %v", err)
 		return nil, nil, err
 	}
 
