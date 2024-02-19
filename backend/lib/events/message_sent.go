@@ -27,5 +27,5 @@ type File struct {
 
 // EventName method from Event interface
 func (MessageSentEvent) EventName() string {
-	return "wsmessages.created"
+	return "wsmessage.created"
 }

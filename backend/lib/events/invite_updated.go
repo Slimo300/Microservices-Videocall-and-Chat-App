@@ -20,5 +20,5 @@ type InviteRespondedEvent struct {
 
 // EventName method from Event interface
 func (InviteRespondedEvent) EventName() string {
-	return "groups.inviteresponded"
+	return "invites.updated"
 }

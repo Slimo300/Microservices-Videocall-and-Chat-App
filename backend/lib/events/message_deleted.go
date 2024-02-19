@@ -12,5 +12,5 @@ type MessageDeletedEvent struct {
 
 // EventName method from Event interface
 func (MessageDeletedEvent) EventName() string {
-	return "messages.deleted"
+	return "message.deleted"
 }

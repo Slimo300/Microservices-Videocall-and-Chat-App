@@ -12,5 +12,5 @@ type UserPictureModifiedEvent struct {
 
 // EventName method from Event interface
 func (UserPictureModifiedEvent) EventName() string {
-	return "users.picturemodified"
+	return "user.picturemodified"
 }

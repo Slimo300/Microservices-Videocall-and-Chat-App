@@ -11,5 +11,5 @@ type GroupDeletedEvent struct {
 
 // EventName method from Event interface
 func (GroupDeletedEvent) EventName() string {
-	return "groups.deleted"
+	return "group.deleted"
 }

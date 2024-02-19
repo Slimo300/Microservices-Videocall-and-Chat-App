@@ -20,5 +20,5 @@ type MemberCreatedEvent struct {
 
 // EventName method from Event interface
 func (MemberCreatedEvent) EventName() string {
-	return "groups.membercreated"
+	return "group.membercreated"
 }

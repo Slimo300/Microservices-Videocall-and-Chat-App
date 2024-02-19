@@ -41,7 +41,7 @@ func (m *DynamicEventMapper) RegisterEventType(eventType reflect.Type) error {
 func (m *DynamicEventMapper) RegisterTypes(eventTypes ...reflect.Type) error {
 	for _, typ := range eventTypes {
 		if err := m.RegisterEventType(typ); err != nil {
-			return fmt.Errorf("Error when registering type %s: %s", typ.Name(), err.Error())
+			return fmt.Errorf("error when registering type %s: %s", typ.Name(), err.Error())
 		}
 	}
 	return nil
@@ -53,13 +53,13 @@ func (m *DynamicEventMapper) MapEvent(eventName string, eventPayload interface{}
 
 	typ, ok := m.typeMap[eventName]
 	if !ok {
-		return nil, fmt.Errorf("No type with eventName: %s", eventName)
+		return nil, fmt.Errorf("no type with eventName: %s", eventName)
 	}
 
 	inter := reflect.New(typ).Interface()
 	event, ok := inter.(Event)
 	if !ok {
-		return nil, fmt.Errorf("Type %s does not match Event interface", eventName)
+		return nil, fmt.Errorf("type %s does not match Event interface", eventName)
 	}
 
 	cfg := mapstructure.DecoderConfig{
@@ -72,11 +72,11 @@ func (m *DynamicEventMapper) MapEvent(eventName string, eventPayload interface{}
 
 	dec, err := mapstructure.NewDecoder(&cfg)
 	if err != nil {
-		return nil, fmt.Errorf("Error when creating decoder: %s", err.Error())
+		return nil, fmt.Errorf("error when creating decoder: %s", err.Error())
 	}
 
 	if err = dec.Decode(eventPayload); err != nil {
-		return nil, fmt.Errorf("Error when decoding: %s", err.Error())
+		return nil, fmt.Errorf("error when decoding: %s", err.Error())
 	}
 
 	return event, nil

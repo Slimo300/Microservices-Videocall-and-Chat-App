@@ -96,7 +96,7 @@ func (b *broadcastEventListener) Listen(topics ...string) (<-chan msgqueue.Event
 				for msg := range con.Messages() {
 					body := kafkaMessage{}
 					if err := b.decoder.Decode(msg.Value, &body); err != nil {
-						errors <- fmt.Errorf("Could not unmarshal message: %s", err.Error())
+						errors <- fmt.Errorf("could not unmarshal message: %s", err.Error())
 						continue
 					}
 
@@ -106,7 +106,7 @@ func (b *broadcastEventListener) Listen(topics ...string) (<-chan msgqueue.Event
 
 					evt, err := b.mapper.MapEvent(body.EventName, body.Payload)
 					if err != nil {
-						errors <- fmt.Errorf("Error when mapping event: %s", err.Error())
+						errors <- fmt.Errorf("error when mapping event: %s", err.Error())
 						continue
 					}
 

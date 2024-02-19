@@ -12,13 +12,11 @@ import (
 )
 
 type consumerGroupEventListener struct {
-	client   sarama.Client
-	consumer sarama.ConsumerGroup
-	groupID  string
-	mapper   msgqueue.EventMapper
+	client  sarama.Client
+	groupID string
+	mapper  msgqueue.EventMapper
 
 	decoder msgqueue.Decoder
-	offset  int64
 	logger  *log.Logger
 }
 
@@ -29,10 +27,6 @@ func (c *consumerGroupEventListener) applyOptions(options *ListenerOptions) erro
 
 	if options.Decoder != nil {
 		c.decoder = *options.Decoder
-	}
-
-	if options.Offset != 0 {
-		c.offset = options.Offset
 	}
 
 	if options.SetPartitions != nil {
@@ -81,7 +75,6 @@ func NewConsumerGroupEventListener(client sarama.Client, groupID string, mapper 
 		groupID: groupID,
 		mapper:  mapper,
 		decoder: msgqueue.NewJSONDecoder(),
-		offset:  OffsetNewest,
 	}
 
 	if err := listener.applyOptions(options); err != nil {
@@ -127,7 +120,7 @@ func (c *consumerGroupEventListener) Listen(topics ...string) (<-chan msgqueue.E
 
 			body := kafkaMessage{}
 			if err := c.decoder.Decode(msg.Value, &body); err != nil {
-				errors <- fmt.Errorf("Could not unmarshal message: %s", err.Error())
+				errors <- fmt.Errorf("could not unmarshal message: %s", err.Error())
 				continue
 			}
 
@@ -137,7 +130,7 @@ func (c *consumerGroupEventListener) Listen(topics ...string) (<-chan msgqueue.E
 
 			evt, err := c.mapper.MapEvent(body.EventName, body.Payload)
 			if err != nil {
-				errors <- fmt.Errorf("Error when mapping event: %s", err.Error())
+				errors <- fmt.Errorf("error when mapping event: %s", err.Error())
 				continue
 			}
 
@@ -154,7 +147,7 @@ type groupConsumer struct {
 	results chan *sarama.ConsumerMessage
 }
 
-func (consumer *groupConsumer) Setup(sarama.ConsumerGroupSession) error {
+func (consumer *groupConsumer) Setup(sess sarama.ConsumerGroupSession) error {
 	close(consumer.ready)
 	return nil
 }
