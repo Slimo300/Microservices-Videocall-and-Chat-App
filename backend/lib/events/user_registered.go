@@ -13,5 +13,5 @@ type UserRegisteredEvent struct {
 
 // EventName method from Event interface
 func (UserRegisteredEvent) EventName() string {
-	return "users.created"
+	return "user.created"
 }

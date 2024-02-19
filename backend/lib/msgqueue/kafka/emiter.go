@@ -46,7 +46,7 @@ func (k *kafkaEventEmiter) Emit(event msgqueue.Event) error {
 	topic := strings.Split(event.EventName(), ".")[0]
 
 	if k.logger != nil {
-		k.logger.Printf("Emiting: %s\n", event.EventName())
+		k.logger.Printf("Emitting: %s\n", event.EventName())
 	}
 
 	_, _, err = k.producer.SendMessage(&sarama.ProducerMessage{
