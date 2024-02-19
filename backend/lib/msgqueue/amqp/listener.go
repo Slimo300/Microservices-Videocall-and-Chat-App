@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -56,9 +55,9 @@ func (a *amqpEventListener) Listen(eventNames ...string) (<-chan msgqueue.Event,
 
 	// Here we bind listener queue to exchanges via routing keys provided in 'eventNames' argument,
 	// event is routing key and its first part is name of exchange it will be published to e.g.:
-	// event - users.created -> exchange users
+	// event - user.created -> exchange users
 	for _, event := range eventNames {
-		if err := channel.QueueBind(a.queue, event, strings.Split(event, ".")[0], false, nil); err != nil {
+		if err := channel.QueueBind(a.queue, event+".#", event, false, nil); err != nil {
 			return nil, nil, err
 		}
 	}
