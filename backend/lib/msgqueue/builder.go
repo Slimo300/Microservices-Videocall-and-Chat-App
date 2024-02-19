@@ -11,6 +11,18 @@ const (
 	AMQP_BROKER
 )
 
+// Possible types are "AMQP" or "KAFKA", otherwise function panics
+func ParseBrokerType(brokerType string) BrokerType {
+	switch brokerType {
+	case "KAFKA":
+		return KAFKA_BROKER
+	case "AMQP":
+		return AMQP_BROKER
+	default:
+		panic("Unsupported broker type")
+	}
+}
+
 type BrokerBuilder interface {
 	GetEmiter(EmiterConfig) (EventEmiter, error)
 	GetListener(ListenerConfig) (EventListener, error)
