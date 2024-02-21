@@ -19,6 +19,9 @@ import (
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/handlers"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/routes"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/storage"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/builder"
 )
 
 func getPublicKey() (*rsa.PublicKey, error) {
@@ -58,12 +61,31 @@ func main() {
 		log.Fatalf("Error connecting to AWS S3: %v", err)
 	}
 
-	emiter, listener, err := kafkaSetup([]string{conf.BrokerAddress})
+	brokerBuilder, err := builder.NewBrokerBuilder(msgqueue.ParseBrokerType(conf.BrokerType), conf.BrokerAddress)
 	if err != nil {
-		log.Fatalf("Error setting up kafka: %v", err)
+		log.Fatalf("Error creating broker builder: %v", err)
 	}
 
-	go eventprocessor.NewEventProcessor(db, listener).ProcessEvents("users")
+	emiter, err := brokerBuilder.GetEmiter(msgqueue.EmiterConfig{
+		ExchangeName: "group",
+	})
+	if err != nil {
+		log.Fatalf("Error when building emitter: %v", err)
+	}
+
+	listener, err := brokerBuilder.GetListener(msgqueue.ListenerConfig{
+		ClientName: "group-service",
+
+		Events: []msgqueue.Event{
+			events.UserRegisteredEvent{},
+			events.UserPictureModifiedEvent{},
+		},
+	})
+	if err != nil {
+		log.Fatalf("Error when building listener: %v", err)
+	}
+
+	go eventprocessor.NewEventProcessor(db, listener).ProcessEvents("user")
 
 	server := handlers.NewServer(db, storage, pubKey, emiter)
 	handler := routes.Setup(server, conf.Origin)

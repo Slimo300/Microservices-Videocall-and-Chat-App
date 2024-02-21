@@ -13,6 +13,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/builder"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/search-service/config"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/search-service/database/elastic"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/search-service/eventprocessor"
@@ -46,9 +49,20 @@ func main() {
 		log.Fatalf("Error reading public key: %v", err)
 	}
 
-	listener, err := kafkaSetup([]string{conf.BrokerAddress})
+	builder, err := builder.NewBrokerBuilder(msgqueue.ParseBrokerType(conf.BrokerType), conf.BrokerAddress)
 	if err != nil {
-		log.Fatalf("Error creating kafka listener: %v", err)
+		log.Fatalf("Error when creating broker builder: %v", err)
+	}
+
+	listener, err := builder.GetListener(msgqueue.ListenerConfig{
+		ClientName: "search-service",
+		Events: []msgqueue.Event{
+			events.UserRegisteredEvent{},
+			events.UserPictureModifiedEvent{},
+		},
+	})
+	if err != nil {
+		log.Fatalf("Error when building listener: %v", err)
 	}
 
 	es, err := elastic.NewElasticSearchDB([]string{conf.DBAddress}, conf.DBUser, conf.DBPassword)
@@ -59,7 +73,7 @@ func main() {
 	log.Println("Initializng new event processor")
 
 	eventProcessor := eventprocessor.NewEventProcessor(es, listener)
-	go eventProcessor.ProcessEvents("users")
+	go eventProcessor.ProcessEvents("user")
 
 	server := handlers.Server{
 		PublicKey: pubKey,

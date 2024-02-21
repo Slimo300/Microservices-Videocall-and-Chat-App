@@ -10,10 +10,13 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/builder"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/ws-service/config"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/ws-service/database/redis"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/ws-service/eventprocessor"
@@ -54,15 +57,58 @@ func main() {
 		log.Fatalf("Error when reading public key: %v", err)
 	}
 
-	emiter, dbListener, hubListener, err := kafkaSetup([]string{conf.BrokerAddress})
+	builder, err := builder.NewBrokerBuilder(msgqueue.ParseBrokerType(conf.BrokerType), conf.BrokerAddress)
 	if err != nil {
-		log.Fatalf("Error setting up kafka: %v", err)
+		log.Fatalf("Error when creating broker builder: %v", err)
+	}
+
+	emiter, err := builder.GetEmiter(msgqueue.EmiterConfig{
+		ExchangeName: "wsmessage",
+	})
+	if err != nil {
+		log.Fatalf("Error when building emitter: %v", err)
+	}
+
+	dbListener, err := builder.GetListener(msgqueue.ListenerConfig{
+		ClientName: "ws-service",
+		Events: []msgqueue.Event{
+			events.GroupDeletedEvent{},
+			events.MemberCreatedEvent{},
+			events.MemberDeletedEvent{},
+			events.MemberUpdatedEvent{},
+		},
+	})
+	if err != nil {
+		log.Fatalf("Error when building data replication listener: %v", err)
+	}
+
+	podName := strings.Split(conf.PodName, "-")
+	if len(podName) < 4 {
+		log.Fatalf("Invalid Pod name %v", podName)
+	}
+
+	hubListener, err := builder.GetListener(msgqueue.ListenerConfig{
+		ClientName: "ws-service-" + podName[2] + podName[3],
+		Broadcast:  true,
+		Events: []msgqueue.Event{
+			events.GroupDeletedEvent{},
+			events.InviteSentEvent{},
+			events.InviteRespondedEvent{},
+			events.MemberCreatedEvent{},
+			events.MemberDeletedEvent{},
+			events.MemberUpdatedEvent{},
+			events.MessageDeletedEvent{},
+			events.MessageSentEvent{},
+		},
+	})
+	if err != nil {
+		log.Fatalf("Error when building hub listener: %v", err)
 	}
 
 	eventChan := make(chan msgqueue.Event)
 
-	go eventprocessor.NewDBEventProcessor(dbListener, db).ProcessEvents("groups")
-	go eventprocessor.NewHubEventProcessor(hubListener, eventChan).ProcessEvents("groups", "messages", "wsmessages")
+	go eventprocessor.NewDBEventProcessor(dbListener, db).ProcessEvents("group")
+	go eventprocessor.NewHubEventProcessor(hubListener, eventChan).ProcessEvents("group", "message", "wsmessage", "invite")
 
 	server := &handlers.Server{
 		DB:        db,

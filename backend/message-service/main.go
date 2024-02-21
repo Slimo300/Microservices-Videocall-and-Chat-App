@@ -13,6 +13,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/builder"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/config"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/database/orm"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/eventprocessor"
@@ -53,9 +56,30 @@ func main() {
 		log.Fatal(err)
 	}
 
-	emiter, listener, err := kafkaSetup([]string{conf.BrokerAddress})
+	builder, err := builder.NewBrokerBuilder(msgqueue.ParseBrokerType(conf.BrokerType), conf.BrokerAddress)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error when creating broker builder: %v", err)
+	}
+
+	emiter, err := builder.GetEmiter(msgqueue.EmiterConfig{
+		ExchangeName: "message",
+	})
+	if err != nil {
+		log.Fatalf("Error when building emitter: %v", err)
+	}
+
+	listener, err := builder.GetListener(msgqueue.ListenerConfig{
+		ClientName: "message-service",
+		Events: []msgqueue.Event{
+			events.GroupDeletedEvent{},
+			events.MemberCreatedEvent{},
+			events.MemberDeletedEvent{},
+			events.MemberUpdatedEvent{},
+			events.MessageSentEvent{},
+		},
+	})
+	if err != nil {
+		log.Fatalf("Error when building listener: %v", err)
 	}
 
 	log.Println(conf.StorageKeyID, conf.StorageKeySecret)
@@ -64,7 +88,7 @@ func main() {
 		log.Fatalf("Couldn't establish s3 session: %v", err)
 	}
 
-	go eventprocessor.NewEventProcessor(listener, db, storage).ProcessEvents("wsmessages", "groups")
+	go eventprocessor.NewEventProcessor(listener, db, storage).ProcessEvents("wsmessage", "group")
 
 	server := handlers.NewServer(db, pubKey, emiter, storage)
 	handler := routes.Setup(server, conf.Origin)

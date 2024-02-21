@@ -18,9 +18,12 @@ spec:
         - name: db-test
           image: busybox:1.31
           command: ['sh', '-c', 'echo -e "Checking for the availability of ElasticSearch Server deployment"; while ! nc -z elastic 9200; do sleep 1; printf "-"; done; echo -e "  >> Elastic Search Server has started";']
-        - name: kafka-test
+        - name: rabbitmq-test
           image: busybox:1.31
-          command: ['sh', '-c', 'echo -e "Checking for the availability of Kafka broker"; while ! nc -z kafka 9092; do sleep 1; printf "-"; done; echo -e "  >> Kafka has started";']
+          command: ['sh', '-c', 'echo -e "Checking for the availability of RabbitMQ broker"; while ! nc -z rabbitmq-service 5672; do sleep 1; printf "-"; done; echo -e "  >> RabbitMQ has started";']
+        # - name: kafka-test
+        #   image: busybox:1.31
+        #   command: ['sh', '-c', 'echo -e "Checking for the availability of Kafka broker"; while ! nc -z kafka 9092; do sleep 1; printf "-"; done; echo -e "  >> Kafka has started";']
       containers:
       - name: search-service
         imagePullPolicy: Never
@@ -37,8 +40,9 @@ spec:
           value: ""
         - name: ORIGIN
           value: https://www.relrel.com
-        - name: BROKER_ADDRESS
-          value: kafka:9092
+        envFrom:
+        - configMapRef:
+            name: broker-config
         volumeMounts:
           - name: public-key
             mountPath: /rsa

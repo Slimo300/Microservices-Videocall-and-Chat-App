@@ -16,6 +16,8 @@ import (
 	rtc "github.com/pion/webrtc/v3"
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/builder"
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-service/config"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-service/database/redis"
@@ -56,18 +58,38 @@ func main() {
 		log.Fatalf("Error connecting to database: %v", err)
 	}
 
-	emiter, dbListener, err := kafkaSetup([]string{conf.BrokerAddress})
+	builder, err := builder.NewBrokerBuilder(msgqueue.ParseBrokerType(conf.BrokerType), conf.BrokerAddress)
 	if err != nil {
-		log.Fatalf("Error setting up kafka: %v", err)
+		log.Fatalf("Error creating broker builder: %v", err)
 	}
 
-	if err := emiter.Emit(events.ServiceStartedEvent{
+	emitter, err := builder.GetEmiter(msgqueue.EmiterConfig{
+		ExchangeName: "webrtc",
+	})
+	if err != nil {
+		log.Fatalf("Error building emitter: %v", err)
+	}
+
+	listener, err := builder.GetListener(msgqueue.ListenerConfig{
+		ClientName: "webrtc-service",
+		Events: []msgqueue.Event{
+			events.GroupDeletedEvent{},
+			events.MemberCreatedEvent{},
+			events.MemberUpdatedEvent{},
+			events.MemberDeletedEvent{},
+		},
+	})
+	if err != nil {
+		log.Fatalf("Error building listener: %v", err)
+	}
+
+	if err := emitter.Emit(events.ServiceStartedEvent{
 		ServiceAddress: fmt.Sprintf("%s.%s.%s.svc.cluster.local:%s", conf.PodName, conf.ServiceName, conf.PodNamespace, conf.HTTPPort),
 	}); err != nil {
 		log.Fatalf("Couldn't emit ServiceStartedEvent")
 	}
 
-	go eventprocessor.NewDBEventProcessor(dbListener, db).ProcessEvents("groups")
+	go eventprocessor.NewDBEventProcessor(listener, db).ProcessEvents("group")
 
 	turnConfig := rtc.Configuration{
 		ICEServers: []rtc.ICEServer{

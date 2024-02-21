@@ -10,6 +10,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/builder"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-gateway-service/config"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-gateway-service/database/redis"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-gateway-service/eventprocessor"
@@ -27,9 +30,19 @@ func main() {
 		log.Fatalf("Error when trying to connect to Redis: %v", err)
 	}
 
-	listener, err := kafkaSetup([]string{conf.BrokerAddress})
+	builder, err := builder.NewBrokerBuilder(msgqueue.ParseBrokerType(conf.BrokerType), conf.BrokerAddress)
 	if err != nil {
-		log.Fatalf("Error setting up kafka listener: %v", err)
+		log.Fatalf("Error creating broker builder: %v", err)
+	}
+
+	listener, err := builder.GetListener(msgqueue.ListenerConfig{
+		ClientName: "webrtc-gateway-service",
+		Events: []msgqueue.Event{
+			events.ServiceStartedEvent{},
+		},
+	})
+	if err != nil {
+		log.Fatalf("Error building listener: %v", err)
 	}
 
 	go eventprocessor.NewEventProcessor(listener, db).ProcessEvents("webrtc")
