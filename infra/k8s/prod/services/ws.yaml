@@ -18,9 +18,12 @@ spec:
         - name: wsredis-test
           image: busybox:1.31
           command: ['sh', '-c', 'echo -e "Checking for the availability of Redis Server deployment"; while ! nc -z ws-redis 6379; do sleep 1; printf "-"; done; echo -e "  >> Redis Server has started";']
-        - name: kafka-test
+        - name: rabbitmq-test
           image: busybox:1.31
-          command: ['sh', '-c', 'echo -e "Checking for the availability of Kafka broker"; while ! nc -z kafka 9092; do sleep 1; printf "-"; done; echo -e "  >> Kafka has started";']
+          command: ['sh', '-c', 'echo -e "Checking for the availability of RabbitMQ broker"; while ! nc -z rabbitmq-service 5672; do sleep 1; printf "-"; done; echo -e "  >> RabbitMQ has started";']
+        # - name: kafka-test
+        #   image: busybox:1.31
+        #   command: ['sh', '-c', 'echo -e "Checking for the availability of Kafka broker"; while ! nc -z kafka 9092; do sleep 1; printf "-"; done; echo -e "  >> Kafka has started";']
       containers:
       - name: ws-service
         imagePullPolicy: Always
@@ -29,13 +32,17 @@ spec:
         - containerPort: 8080
           name: http
         env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
         - name: REDIS_ADDRESS
           value: ws-redis:6379
         - name: ORIGIN
           value: https://www.relrel.org
-        - name: BROKER_ADDRESS
-          value: kafka:9092
         envFrom:
+        - configMapRef:
+            name: broker-config
         - secretRef:
             name: redis-creds
         volumeMounts:

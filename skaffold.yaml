@@ -47,11 +47,12 @@ build:
 manifests:
   rawYaml:
     - infra/k8s/dev/secrets/*
+    - infra/k8s/dev/rabbitmq.yaml
     - infra/k8s/dev/dbs/*
     - infra/k8s/dev/services/*
     - infra/k8s/dev/ingress.yaml
-  helm:
-    releases:
-      - name: kafka
-        chartPath: bitnami/kafka
-        version: 20.0.6
+  # helm:
+  #   releases:
+  #     - name: kafka
+  #       chartPath: bitnami/kafka
+  #       version: 20.0.6

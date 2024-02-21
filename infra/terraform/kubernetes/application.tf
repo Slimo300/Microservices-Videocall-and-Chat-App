@@ -1,8 +1,12 @@
-resource "helm_release" "kafka" {
-  name       = "kafka"
-  repository = "https://charts.bitnami.com/bitnami"
-  chart      = "kafka"
-  version    = "v20.0.6"
+# resource "helm_release" "kafka" {
+#   name       = "kafka"
+#   repository = "https://charts.bitnami.com/bitnami"
+#   chart      = "kafka"
+#   version    = "v20.0.6"
+# }
+
+resource "kubectl_manifest" "rabbitmq" {
+  yaml_body = "${var.manifests_path}/rabbitmq.yaml"
 }
 
 data "kubectl_path_documents" "dbs" {

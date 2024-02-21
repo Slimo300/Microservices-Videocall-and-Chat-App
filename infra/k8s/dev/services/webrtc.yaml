@@ -19,9 +19,12 @@ spec:
         - name: webrtc-redis-test
           image: busybox:1.31
           command: ['sh', '-c', 'echo -e "Checking for the availability of Redis Server deployment"; while ! nc -z webrtc-redis 6379; do sleep 1; printf "-"; done; echo -e "  >> Redis Server has started";']
-        - name: kafka-test
+        - name: rabbitmq-test
           image: busybox:1.31
-          command: ['sh', '-c', 'echo -e "Checking for the availability of Kafka broker"; while ! nc -z kafka 9092; do sleep 1; printf "-"; done; echo -e "  >> Kafka has started";']
+          command: ['sh', '-c', 'echo -e "Checking for the availability of RabbitMQ broker"; while ! nc -z rabbitmq-service 5672; do sleep 1; printf "-"; done; echo -e "  >> RabbitMQ has started";']
+        # - name: kafka-test
+        #   image: busybox:1.31
+        #   command: ['sh', '-c', 'echo -e "Checking for the availability of Kafka broker"; while ! nc -z kafka 9092; do sleep 1; printf "-"; done; echo -e "  >> Kafka has started";']
         - name: webrtc-gateway-test
           image: busybox:1.31
           command: ['sh', '-c', 'echo -e "Checking for the availability of WebRTC Gateway deployment"; while ! nc -z webrtc-gateway-service 8080; do sleep 1; printf "-"; done; echo -e "  >> WebRTC Gateway has started";']
@@ -37,8 +40,6 @@ spec:
           value: webrtc-redis:6379
         - name: ORIGIN
           value: https://www.relrel.com
-        - name: BROKER_ADDRESS
-          value: kafka:9092
         - name: POD_NAME
           valueFrom:
             fieldRef:
@@ -50,6 +51,8 @@ spec:
         - name: SERVICE_NAME
           value: webrtc-headless-service
         envFrom:
+        - configMapRef:
+            name: broker-config
         - secretRef:
             name: turn-credentials
         - secretRef:

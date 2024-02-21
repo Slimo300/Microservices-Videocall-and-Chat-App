@@ -15,6 +15,8 @@ import (
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/auth"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/email"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/builder"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -72,15 +74,17 @@ func main() {
 	}
 	emailClient := email.NewEmailServiceClient(emailConn)
 
-	emitter, err := rabbitSetup(conf.BrokerAddress, "TheExchange")
+	brokerBuilder, err := builder.NewBrokerBuilder(msgqueue.ParseBrokerType(conf.BrokerType), conf.BrokerAddress)
 	if err != nil {
-		log.Fatalf("Error setting up RabbitMQ: %v", err)
+		log.Fatalf("Error creating broker builder: %v", err)
 	}
 
-	// emitter, err := kafkaSetup([]string{conf.BrokerAddress})
-	// if err != nil {
-	// 	log.Fatalf("Error setting up kafka: %v", err)
-	// }
+	emitter, err := brokerBuilder.GetEmiter(msgqueue.EmiterConfig{
+		ExchangeName: "user",
+	})
+	if err != nil {
+		log.Fatalf("Error getting emitter: %v", err)
+	}
 
 	// Setup for handling image uploads to s3 and email sending
 	storage, err := storage.NewS3Storage(conf.StorageKeyID, conf.StorageKeySecret, conf.Bucket)

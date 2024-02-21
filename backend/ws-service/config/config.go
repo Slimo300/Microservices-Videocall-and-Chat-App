@@ -11,6 +11,8 @@ import (
 
 // Config holds user service configuration
 type Config struct {
+	PodName string `mapstructure:"podName"`
+
 	DBAddress  string `mapstructure:"dbAddress"`
 	DBPassword string `mapstructure:"dbPassword"`
 
@@ -18,6 +20,7 @@ type Config struct {
 
 	Origin string `mapstructure:"origin"`
 
+	BrokerType    string `mapstructure:"brokerType"`
 	BrokerAddress string `mapstructure:"brokerAddress"`
 }
 
@@ -25,28 +28,38 @@ type Config struct {
 // if any of them is missing
 func LoadConfigFromEnvironment() (conf Config, err error) {
 
+	conf.PodName = os.Getenv("POD_NAME")
+	if len(conf.PodName) == 0 {
+		return Config{}, errors.New("environment variable POD_NAME not set")
+	}
+
 	conf.DBAddress = os.Getenv("REDIS_ADDRESS")
 	if len(conf.DBAddress) == 0 {
-		return Config{}, errors.New("Environment variable REDIS_PASSWORD not set")
+		return Config{}, errors.New("environment variable REDIS_PASSWORD not set")
 	}
 	conf.DBPassword = os.Getenv("REDIS_PASSWORD")
 	if len(conf.DBPassword) == 0 {
-		return Config{}, errors.New("Environment variable REDIS_PASSWORD not set")
+		return Config{}, errors.New("environment variable REDIS_PASSWORD not set")
 	}
 
 	conf.HTTPPort = os.Getenv("HTTP_PORT")
 	if len(conf.HTTPPort) == 0 {
-		return Config{}, errors.New("Environment variable HTTP_PORT not set")
+		return Config{}, errors.New("environment variable HTTP_PORT not set")
 	}
 
 	conf.Origin = os.Getenv("ORIGIN")
 	if len(conf.Origin) == 0 {
-		return Config{}, errors.New("Environment variable ORIGIN not set")
+		return Config{}, errors.New("environment variable ORIGIN not set")
+	}
+
+	conf.BrokerType = os.Getenv("BROKER_TYPE")
+	if len(conf.BrokerType) == 0 {
+		return Config{}, errors.New("environment variable BROKER_TYPE not set")
 	}
 
 	conf.BrokerAddress = os.Getenv("BROKER_ADDRESS")
 	if len(conf.BrokerAddress) == 0 {
-		return Config{}, errors.New("Environment variable BROKER_ADDRESS not set")
+		return Config{}, errors.New("environment variable BROKER_ADDRESS not set")
 	}
 
 	return

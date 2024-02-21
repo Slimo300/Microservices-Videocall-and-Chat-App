@@ -18,9 +18,12 @@ spec:
         - name: db-test
           image: busybox:1.31
           command: ['sh', '-c', 'echo -e "Checking for the availability of MySQL Server deployment"; while ! nc -z message-mysql 3306; do sleep 1; printf "-"; done; echo -e "  >> MySQL DB Server has started";']
-        - name: kafka-test
+        - name: rabbitmq-test
           image: busybox:1.31
-          command: ['sh', '-c', 'echo -e "Checking for the availability of Kafka broker"; while ! nc -z kafka 9092; do sleep 1; printf "-"; done; echo -e "  >> Kafka has started";']
+          command: ['sh', '-c', 'echo -e "Checking for the availability of RabbitMQ broker"; while ! nc -z rabbitmq-service 5672; do sleep 1; printf "-"; done; echo -e "  >> RabbitMQ has started";']
+        # - name: kafka-test
+        #   image: busybox:1.31
+        #   command: ['sh', '-c', 'echo -e "Checking for the availability of Kafka broker"; while ! nc -z kafka 9092; do sleep 1; printf "-"; done; echo -e "  >> Kafka has started";']
       containers:
       - name: message-service
         imagePullPolicy: Always
@@ -48,9 +51,9 @@ spec:
           value: message-mysql:3306
         - name: ORIGIN
           value: https://www.relrel.org
-        - name: BROKER_ADDRESS
-          value: kafka:9092
         envFrom:
+        - configMapRef:
+            name: broker-config
         - secretRef:
             name: storage-credentials
         volumeMounts:

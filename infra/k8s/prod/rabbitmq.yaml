@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      chat/app: amqp-broker
+  template:
+    metadata:
+      labels:
+        chat/app: amqp-broker
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:3.13-rc
+        ports:
+        - containerPort: 5672
+          name: amqp
+        - containerPort: 15672
+          name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-service
+spec:
+  type: NodePort
+  selector:
+    chat/app: amqp-broker
+  ports:
+  - port: 5672
+    targetPort: 5672
+    name: amqp
