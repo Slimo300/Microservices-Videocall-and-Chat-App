@@ -2,6 +2,7 @@ package amqp
 
 import (
 	"context"
+	"strings"
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -9,7 +10,6 @@ import (
 
 type amqpEventEmiter struct {
 	connection *amqp.Connection
-	exchange   string
 	Encoder    msgqueue.Encoder
 }
 
@@ -27,7 +27,6 @@ func NewAMQPEventEmiter(conn *amqp.Connection, exchange string) (msgqueue.EventE
 	}
 	return &amqpEventEmiter{
 		connection: conn,
-		exchange:   exchange,
 		Encoder:    msgqueue.NewJSONEncoder(),
 	}, nil
 }
@@ -51,7 +50,7 @@ func (a *amqpEventEmiter) Emit(evt msgqueue.Event) error {
 		Body:        jsonBody,
 	}
 
-	if err := channel.PublishWithContext(context.Background(), a.exchange, evt.EventName(), false, false, msg); err != nil {
+	if err := channel.PublishWithContext(context.Background(), strings.Split(evt.EventName(), ".")[0], evt.EventName(), false, false, msg); err != nil {
 		return err
 	}
 
