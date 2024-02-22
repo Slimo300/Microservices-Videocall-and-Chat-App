@@ -20,7 +20,7 @@ type InviteSentEvent struct {
 
 // EventName method from Event interface
 func (InviteSentEvent) EventName() string {
-	return "invite.created"
+	return "group.invitecreated"
 }
 
 // Group holds group information to be sent with invite
