@@ -108,7 +108,7 @@ func main() {
 	eventChan := make(chan msgqueue.Event)
 
 	go eventprocessor.NewDBEventProcessor(dbListener, db).ProcessEvents("group")
-	go eventprocessor.NewHubEventProcessor(hubListener, eventChan).ProcessEvents("group", "message", "wsmessage", "invite")
+	go eventprocessor.NewHubEventProcessor(hubListener, eventChan).ProcessEvents("group", "message", "wsmessage")
 
 	server := &handlers.Server{
 		DB:        db,

@@ -4,8 +4,8 @@ go 1.22.0
 
 require (
 	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/auth v0.0.0-20240221110501-44d46458e2a7
-	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events v0.0.0-20240221110501-44d46458e2a7
-	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue v0.0.0-20240221110501-44d46458e2a7
+	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events v0.0.0-20240222113859-bdc3ac508a24
+	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue v0.0.0-20240222113859-bdc3ac508a24
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/gorilla/websocket v1.5.0

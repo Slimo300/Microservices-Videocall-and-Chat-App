@@ -44,8 +44,12 @@ github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/auth v0.0.0
 github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/auth v0.0.0-20240221110501-44d46458e2a7/go.mod h1:gpm3/zDLmS7NfuINfUyldiFI6eRm/eRHFfTMROu32n8=
 github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events v0.0.0-20240221110501-44d46458e2a7 h1:hHjrzKX14EaSofu909px7tiuildDsKGGP1juObGy+SE=
 github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events v0.0.0-20240221110501-44d46458e2a7/go.mod h1:cl12QmHlOkSnZ0kMyUHRzp6cOfXpj8aFuDnkOrp8C1w=
+github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events v0.0.0-20240222113859-bdc3ac508a24 h1:uyZAnxD3g8ys9902Q5vEBkKvpmqodhvUS4+vZ28sXqo=
+github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events v0.0.0-20240222113859-bdc3ac508a24/go.mod h1:cl12QmHlOkSnZ0kMyUHRzp6cOfXpj8aFuDnkOrp8C1w=
 github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue v0.0.0-20240221110501-44d46458e2a7 h1:nG4eWRxbD8h45+ozHgbbHBrA1n9n3BpbV8vhM2QT1IA=
 github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue v0.0.0-20240221110501-44d46458e2a7/go.mod h1:DWRbT8KsDluovP4Gykyb32Tad3bhPkCYWt0onviHCwo=
+github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue v0.0.0-20240222113859-bdc3ac508a24 h1:Og5+uk9w3V+D6Lo+NA3aEheHTUK260EaxyTOB/O4m+0=
+github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue v0.0.0-20240222113859-bdc3ac508a24/go.mod h1:DWRbT8KsDluovP4Gykyb32Tad3bhPkCYWt0onviHCwo=
 github.com/bytedance/sonic v1.5.0/go.mod h1:ED5hyg4y6t3/9Ku1R6dU/4KyJ48DZ4jPhfY1O2AihPM=
 github.com/bytedance/sonic v1.9.1 h1:6iJ6NqdoxCDr6mbY8h18oSO+cShGSMRGCEo7F2h0x8s=
 github.com/bytedance/sonic v1.9.1/go.mod h1:i736AoUSYt75HyZLoJW9ERYxcy6eaN6h4BZXU064P/U=
