@@ -35,9 +35,12 @@ func TestHandleMember(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("Error applying rights to member: %v", err)
 	}
-	_, err = db.UpdateMember(member)
+	member, err = db.UpdateMember(member)
 	if err != nil {
 		t.Fatalf("Error updating member: %v", err)
+	}
+	if member.User.UserName != "1" {
+		t.Fatalf("Username after update should be \"1\", it is %s", member.User.UserName)
 	}
 
 	member, err = db.GetMemberByUserGroupID(user.ID, group.ID)

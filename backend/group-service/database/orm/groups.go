@@ -26,11 +26,17 @@ func (db *Database) GetGroupByID(groupID uuid.UUID) (group *models.Group, err er
 }
 
 func (db *Database) CreateGroup(group *models.Group) (*models.Group, error) {
-	return group, db.Preload("Members").Preload("Members.User").Create(&group).Error
+	if err := db.Create(&group).Error; err != nil {
+		return nil, err
+	}
+	return group, db.Preload("Members").Preload("Members.User").First(&group, group.ID).Error
 }
 
 func (db *Database) UpdateGroup(group *models.Group) (*models.Group, error) {
-	return group, db.Preload("Members").Preload("Members.User").Model(&group).Updates(*group).Error
+	if err := db.Model(&group).Updates(*group).Error; err != nil {
+		return nil, err
+	}
+	return group, db.Preload("Members").Preload("Members.User").First(&group, group.ID).Error
 }
 
 func (db *Database) DeleteGroup(groupID uuid.UUID) (group *models.Group, err error) {
