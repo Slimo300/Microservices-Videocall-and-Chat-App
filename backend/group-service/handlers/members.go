@@ -5,26 +5,18 @@ import (
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
-func (s *Server) GrantPriv(c *gin.Context) {
-	userID := c.GetString("userID")
-	userUUID, err := uuid.Parse(userID)
+func (s *Server) GrantRights(c *gin.Context) {
+	userID, err := uuid.Parse(c.GetString("userID"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
 		return
 	}
-	groupID := c.Param("groupID")
-	groupUUID, err := uuid.Parse(groupID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid group ID"})
-		return
-	}
-	memberID := c.Param("memberID")
-	memberUUID, err := uuid.Parse(memberID)
+
+	memberID, err := uuid.Parse(c.Param("memberID"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid member ID"})
 		return
@@ -40,59 +32,33 @@ func (s *Server) GrantPriv(c *gin.Context) {
 		return
 	}
 
-	member, err := s.DB.GrantRights(userUUID, groupUUID, memberUUID, rights)
+	_, err = s.Service.GrantRights(userID, memberID, rights)
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
-	}
-
-	if member != nil {
-		_ = s.Emitter.Emit(events.MemberUpdatedEvent{
-			ID:      member.ID,
-			GroupID: member.GroupID,
-			UserID:  member.UserID,
-			User: events.User{
-				Picture:  member.User.Picture,
-				UserName: member.User.UserName,
-			},
-			DeletingMessages: member.DeletingMessages,
-			DeletingMembers:  member.DeletingMembers,
-			Adding:           member.Adding,
-			Admin:            member.Admin,
-			Muting:           member.Muting,
-		})
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "member updated"})
 }
 
 func (s *Server) DeleteUserFromGroup(c *gin.Context) {
-	userID := c.GetString("userID")
-	userUUID, err := uuid.Parse(userID)
+	userID, err := uuid.Parse(c.GetString("userID"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
 		return
 	}
-	groupID := c.Param("groupID")
-	groupUUID, err := uuid.Parse(groupID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid group ID"})
-		return
-	}
-	memberID := c.Param("memberID")
-	memberUUID, err := uuid.Parse(memberID)
+
+	memberID, err := uuid.Parse(c.Param("memberID"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid member ID"})
 		return
 	}
 
-	member, err := s.DB.DeleteMember(userUUID, groupUUID, memberUUID)
+	_, err = s.Service.DeleteMember(userID, memberID)
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
-
-	_ = s.Emitter.Emit(events.MemberDeletedEvent{ID: member.ID, GroupID: member.GroupID, UserID: member.UserID})
 
 	c.JSON(http.StatusOK, gin.H{"message": "member deleted"})
 }

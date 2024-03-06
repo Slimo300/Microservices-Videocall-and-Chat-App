@@ -4,19 +4,17 @@ import (
 	"net/http"
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
 func (s *Server) GetUserGroups(c *gin.Context) {
-	userID := c.GetString("userID")
-	userUID, err := uuid.Parse(userID)
+	userID, err := uuid.Parse(c.GetString("userID"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
 	}
 
-	groups, err := s.DB.GetUserGroups(userUID)
+	groups, err := s.Service.GetUserGroups(userID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
@@ -31,8 +29,7 @@ func (s *Server) GetUserGroups(c *gin.Context) {
 }
 
 func (s *Server) CreateGroup(c *gin.Context) {
-	userID := c.GetString("userID")
-	userUID, err := uuid.Parse(userID)
+	userID, err := uuid.Parse(c.GetString("userID"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
 		return
@@ -41,7 +38,6 @@ func (s *Server) CreateGroup(c *gin.Context) {
 	payload := struct {
 		Name string `json:"name"`
 	}{}
-
 	err = c.ShouldBindJSON(&payload)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
@@ -52,64 +48,32 @@ func (s *Server) CreateGroup(c *gin.Context) {
 		return
 	}
 
-	group, err := s.DB.CreateGroup(userUID, payload.Name)
+	group, err := s.Service.CreateGroup(userID, payload.Name)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
+		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
-	}
-
-	user, err := s.DB.GetUser(userUID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
-		return
-	}
-
-	if err = s.Emitter.Emit(events.MemberCreatedEvent{
-		ID:      group.Members[0].ID,
-		GroupID: group.ID,
-		UserID:  userUID,
-		User: events.User{
-			UserName: user.UserName,
-			Picture:  user.Picture,
-		},
-		Creator: true,
-	}); err != nil {
-		panic(err)
 	}
 
 	c.JSON(http.StatusCreated, group)
 }
 
 func (s *Server) DeleteGroup(c *gin.Context) {
-	userID := c.GetString("userID")
-	userUUID, err := uuid.Parse(userID)
+	userID, err := uuid.Parse(c.GetString("userID"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
 		return
 	}
 
-	groupID := c.Param("groupID")
-	groupUUID, err := uuid.Parse(groupID)
+	groupID, err := uuid.Parse(c.Param("groupID"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid group ID"})
 		return
 	}
-	group, err := s.DB.DeleteGroup(userUUID, groupUUID)
+
+	_, err = s.Service.DeleteGroup(userID, groupID)
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
-	}
-	if group.Picture != "" {
-		if err := s.Storage.DeleteFile(group.Picture); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
-			return
-		}
-	}
-
-	if err = s.Emitter.Emit(events.GroupDeletedEvent{
-		ID: group.ID,
-	}); err != nil {
-		panic(err)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "group deleted"})

@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/database"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
 )
@@ -34,11 +35,11 @@ func (p *EventProcessor) ProcessEvents(eventNames ...string) {
 		case evt := <-received:
 			switch e := evt.(type) {
 			case *events.UserRegisteredEvent:
-				if err := p.DB.NewUser(*e); err != nil {
+				if _, err := p.DB.CreateUser(&models.User{ID: e.ID, UserName: e.Username}); err != nil {
 					log.Printf("Listener NewUser error: %s", err.Error())
 				}
 			case *events.UserPictureModifiedEvent:
-				if err := p.DB.UpdateUserProfilePictureURL(*e); err != nil {
+				if _, err := p.DB.UpdateUser(&models.User{ID: e.ID, Picture: e.PictureURL}); err != nil {
 					log.Printf("Listener UpdatePicture error: %s", err.Error())
 				}
 			default:

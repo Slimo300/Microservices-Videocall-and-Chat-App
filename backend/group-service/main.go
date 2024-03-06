@@ -18,6 +18,7 @@ import (
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/eventprocessor"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/handlers"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/routes"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/service"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/storage"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
@@ -87,7 +88,7 @@ func main() {
 
 	go eventprocessor.NewEventProcessor(db, listener).ProcessEvents("user")
 
-	server := handlers.NewServer(db, storage, pubKey, emiter)
+	server := handlers.NewServer(service.NewService(db, storage, emiter), pubKey)
 	handler := routes.Setup(server, conf.Origin)
 
 	httpServer := &http.Server{

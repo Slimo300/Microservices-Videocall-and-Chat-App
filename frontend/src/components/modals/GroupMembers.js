@@ -55,14 +55,14 @@ function CanDelete(issuer, target) {
     if (target.creator) return false;
     if (target.admin && !issuer.creator) return false;
     if (target.deletingMembers && !issuer.creator && !issuer.admin) return false;
-    if (!issuer.deletingMembers) return false;
+    if (!issuer.deletingMembers && !issuer.creator && !issuer.admin) return false;
     return true;
 }
 
 function CanSet(issuer, target) {
     if (target.creator) return false;
     if (target.admin && !issuer.creator) return false;
-    if (!issuer.admin) return false;
+    if (!issuer.admin && !issuer.creator) return false;
     return true;
 }
 
@@ -79,7 +79,7 @@ const Member = ({ member, group, user, setMsg, toggle }) => {
 
     const deleteMember = async() => {
 
-        let response = await DeleteMember(member.groupID, member.ID);
+        let response = await DeleteMember(member.ID);
         if (response.status === 200) {
             setMsg("Member deleted");
         } else setMsg(response.data.err);
@@ -118,7 +118,6 @@ const Rights = ({ member, user, setMsg }) => {
             return
         }
         let response = await SetRights(
-            member.groupID, 
             member.ID, 
             DetermineAction(member.adding, adding), 
             DetermineAction(member.deletingMessages, deletingMessages),
@@ -126,7 +125,6 @@ const Rights = ({ member, user, setMsg }) => {
             DetermineAction(member.deletingMembers, deletingMembers),
             DetermineAction(member.admin, admin)
         );
-        console.log(response);
         if (response.status === 200) {
             setMsg("Rights changed");
         } else setMsg(response.data.err);
@@ -140,23 +138,23 @@ const Rights = ({ member, user, setMsg }) => {
         <td className="collapse" id={"collapse-"+member.ID}>
             <div className="card card-body d-flex flex-row">
                 <div className='pl-3 d-flex flex-column w-50'>
-                    {user.admin?<div className='align-middle'>
+                    {user.admin || user.creator?<div className='align-middle'>
                         <input className="form-check-input" type="checkbox" id="inlineCheckbox1" checked={adding} disabled={member.creator} onChange={() => setAdding(adding => {return !adding})}/>
                         <label className="form-check-label" htmlFor="inlineCheckbox1">Adding</label>
                     </div>:null}
-                    {user.admin?<div className='align-middle'>
+                    {user.admin || user.creator?<div className='align-middle'>
                         <input className="form-check-input" type="checkbox" id="inlineCheckbox2" checked={deletingMembers} disabled={member.creator} onChange={() => setDeletingMembers(deletingMembers => {return !deletingMembers})}/>
                         <label className="form-check-label" htmlFor="inlineCheckbox2">Deleting Members</label>
                     </div>:null}
-                    {user.admin?<div className='align-middle'>
+                    {user.admin || user.creator?<div className='align-middle'>
                         <input className="form-check-input" type="checkbox" id="inlineCheckbox2" checked={deletingMessages} disabled={member.creator} onChange={() => setDeletingMessages(deletingMessages => {return !deletingMessages})}/>
                         <label className="form-check-label" htmlFor="inlineCheckbox2">Deleting Messages</label>
                     </div>:null}
-                    {user.admin?<div className='align-middle'>
+                    {user.admin || user.creator?<div className='align-middle'>
                         <input className="form-check-input" type="checkbox" id="inlineCheckbox4" checked={muting} disabled={member.creator} onChange={() => setMuting(muting => {return !muting})}/>
                         <label className="form-check-label" htmlFor="inlineCheckbox4">Muting</label>
                     </div>:null}
-                    {user.admin?<div className='align-middle'>
+                    {user.admin || user.creator?<div className='align-middle'>
                         <input className="form-check-input" type="checkbox" id="inlineCheckbox3" checked={admin} disabled={member.creator} onChange={() => setAdmin(admin => {return !admin})}/>
                         <label className="form-check-label" htmlFor="inlineCheckbox3">Admin</label>
                     </div>:null}

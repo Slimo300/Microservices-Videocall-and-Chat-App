@@ -7,11 +7,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	mockdb "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/database/mock"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/handlers"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/storage"
-	mockqueue "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/mock"
+	mockservice "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/service/mock"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
@@ -35,25 +33,18 @@ func (s *GroupTestSuite) SetupSuite() {
 
 	s.IDs["member"] = uuid.MustParse("6c564875-cd55-4e20-a035-44f1750d25b9")
 
-	db := new(mockdb.MockGroupsDB)
-	db.On("GetUserGroups", s.IDs["user1"]).Return([]models.Group{
+	service := new(mockservice.MockGroupService)
+	service.On("GetUserGroups", s.IDs["user1"]).Return([]*models.Group{
 		{ID: s.IDs["group1"]},
 		{ID: s.IDs["group2"]},
 	}, nil)
-	db.On("GetUserGroups", s.IDs["user2"]).Return([]models.Group{}, nil)
+	service.On("GetUserGroups", s.IDs["user2"]).Return([]*models.Group{}, nil)
 
-	db.On("GetUser", mock.Anything).Return(models.User{}, nil)
+	service.On("CreateGroup", mock.Anything, mock.Anything).Return(&models.Group{}, nil)
 
-	db.On("CreateGroup", s.IDs["user1"], "New Group").Return(models.Group{Name: "New Group", Members: []models.Member{{ID: s.IDs["member"]}}}, nil)
+	service.On("DeleteGroup", mock.Anything).Return(&models.Group{}, nil)
 
-	// Handlers don't handle emitter errors so there is no need to mock one
-	emiter := new(mockqueue.MockEmitter)
-	emiter.On("Emit", mock.Anything).Return(nil)
-
-	storage := new(storage.MockStorage)
-	storage.On("DeleteFile", mock.Anything).Return(nil)
-
-	s.server = handlers.NewServer(db, storage, nil, emiter)
+	s.server = handlers.NewServer(service, nil)
 }
 
 func (s *GroupTestSuite) TestGetUserGroups() {
@@ -148,7 +139,7 @@ func (s *GroupTestSuite) TestCreateGroup() {
 			data:               map[string]interface{}{"name": "New Group"},
 			returnVal:          true,
 			expectedStatusCode: http.StatusCreated,
-			expectedResponse:   models.Group{Name: "New Group", Members: []models.Member{{ID: s.IDs["member"]}}},
+			expectedResponse:   models.Group{},
 		},
 	}
 

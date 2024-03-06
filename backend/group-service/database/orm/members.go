@@ -1,53 +1,32 @@
 package orm
 
 import (
-	"fmt"
-
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
 	"github.com/google/uuid"
 )
 
-func (db *Database) DeleteMember(userID, groupID, memberID uuid.UUID) (*models.Member, error) {
-	var issuer models.Member
-	if err := db.Where(models.Member{UserID: userID, GroupID: groupID}).First(&issuer).Error; err != nil {
-		return nil, apperrors.NewForbidden(fmt.Sprintf("User %v has no right to delete members in group %v", userID, groupID))
-	}
-	var target models.Member
-	if err := db.Where(models.Member{ID: memberID, GroupID: groupID}).First(&target).Error; err != nil {
-		return nil, apperrors.NewNotFound(fmt.Sprintf("Member with id %v not found", memberID.String()))
-	}
-	if !issuer.CanDelete(target) {
-		return nil, apperrors.NewForbidden(fmt.Sprintf("User %v cannot delete member %v", userID, memberID))
-	}
-	if err := db.Where(models.Member{ID: target.ID}).Delete(&models.Member{}).Error; err != nil {
-		return nil, err
-	}
-
-	return &target, nil
+func (db *Database) GetMemberByID(memberID uuid.UUID) (member *models.Member, err error) {
+	return member, db.Preload("User").First(&member, memberID).Error
 }
 
-func (db *Database) GrantRights(userID, groupID, memberID uuid.UUID, rights models.MemberRights) (*models.Member, error) {
+func (db *Database) GetMemberByUserGroupID(userID, groupID uuid.UUID) (member *models.Member, err error) {
+	return member, db.Preload("User").Where(&models.Member{UserID: userID, GroupID: groupID}).First(&member).Error
+}
 
-	var issuer models.Member
-	if err := db.Where(models.Member{UserID: userID, GroupID: groupID}).First(&issuer).Error; err != nil {
-		return nil, apperrors.NewForbidden(fmt.Sprintf("User %v has no right to alter members in group %v", userID, groupID))
-	}
-	var target models.Member
-	if err := db.Where(models.Member{ID: memberID, GroupID: groupID}).Preload("User").First(&target).Error; err != nil {
-		return nil, apperrors.NewNotFound(fmt.Sprintf("Member with id %v not found", memberID.String()))
-	}
-
-	if !issuer.CanAlter(target) {
-		return nil, apperrors.NewForbidden(fmt.Sprintf("User %v cannot alter member %v", userID, memberID))
-	}
-
-	if err := target.ApplyRights(rights); err != nil {
-		return nil, apperrors.NewBadRequest(err.Error())
-	}
-
-	if err := db.Save(&target).Error; err != nil {
+func (db *Database) CreateMember(member *models.Member) (*models.Member, error) {
+	if err := db.Create(&member).Error; err != nil {
 		return nil, err
 	}
-	return &target, nil
+	return member, db.Preload("User").First(&member, member.ID).Error
+}
+
+func (db *Database) UpdateMember(member *models.Member) (*models.Member, error) {
+	return member, db.Preload("User").Save(&member).Error
+}
+
+func (db *Database) DeleteMember(memberID uuid.UUID) (member *models.Member, err error) {
+	if err := db.Preload("User").First(&member, memberID).Error; err != nil {
+		return nil, err
+	}
+	return member, db.Delete(&models.Member{}, memberID).Error
 }
