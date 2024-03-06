@@ -40,7 +40,10 @@ func (db *Database) CreateInvite(invite *models.Invite) (*models.Invite, error) 
 }
 
 func (db *Database) UpdateInvite(invite *models.Invite) (*models.Invite, error) {
-	return invite, db.Preload("Iss").Preload("Group").Preload("Target").Model(&invite).Updates(*invite).Error
+	if err := db.Model(&invite).Updates(*invite).Error; err != nil {
+		return nil, err
+	}
+	return invite, db.Preload("Iss").Preload("Group").Preload("Target").First(&invite, invite.ID).Error
 }
 
 func (db *Database) DeleteInvite(inviteID uuid.UUID) (invite *models.Invite, err error) {

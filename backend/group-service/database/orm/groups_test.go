@@ -28,12 +28,18 @@ func TestHandleGroup(t *testing.T) {
 		t.Fatal("group name not correct")
 	}
 
-	_, err = db.UpdateGroup(&models.Group{
+	user, _ := db.CreateUser(&models.User{ID: uuid.New(), UserName: "SLimo"})
+	_, _ = db.CreateMember(&models.Member{ID: uuid.New(), GroupID: group.ID, UserID: user.ID})
+
+	group, err = db.UpdateGroup(&models.Group{
 		ID:      group.ID,
 		Picture: "Picture",
 	})
 	if err != nil {
 		t.Fatalf("Error updating group: %v", err)
+	}
+	if len(group.Members) == 0 {
+		t.Fatal("group has 0 members after update")
 	}
 
 	group, err = db.GetGroupByID(group.ID)

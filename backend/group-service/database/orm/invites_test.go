@@ -53,13 +53,16 @@ func TestHandleInvite(t *testing.T) {
 		t.Fatalf("User shouldn't be invited")
 	}
 
-	_, err = db.UpdateInvite(&models.Invite{
+	invite, err = db.UpdateInvite(&models.Invite{
 		ID:       invite.ID,
 		Status:   models.INVITE_ACCEPT,
 		Modified: time.Now(),
 	})
 	if err != nil {
 		t.Fatalf("Error updating invite: %v", err)
+	}
+	if invite.Iss.UserName == "" {
+		t.Fatalf("users not preloaded")
 	}
 
 	invite, err = db.GetInviteByID(invite.ID)

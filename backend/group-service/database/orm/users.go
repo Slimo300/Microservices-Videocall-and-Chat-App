@@ -10,7 +10,10 @@ func (db *Database) GetUserByID(userID uuid.UUID) (user *models.User, err error)
 }
 
 func (db *Database) CreateUser(user *models.User) (*models.User, error) {
-	return user, db.Create(&user).Error
+	if err := db.Create(&user).Error; err != nil {
+		return nil, err
+	}
+	return user, db.First(&user, user.ID).Error
 }
 
 func (db *Database) UpdateUser(user *models.User) (*models.User, error) {
