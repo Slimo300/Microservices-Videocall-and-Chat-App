@@ -88,12 +88,12 @@ func (db *DB) NewMember(member models.Member) error {
 // DeleteMember deletes given member if he exists
 func (db *DB) DeleteMember(memberID string) error {
 
-	groupID, err := db.HGet(memberID, "groupID").Result()
+	member, err := db.HGetAll(memberID).Result()
 	if err != nil {
 		return err
 	}
 
-	if err := db.HDel(groupID, memberID).Err(); err != nil {
+	if err := db.HDel(member["groupID"], member["userID"]).Err(); err != nil {
 		return err
 	}
 
