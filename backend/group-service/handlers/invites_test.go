@@ -3,20 +3,16 @@ package handlers_test
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	dbmock "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/database/mock"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/handlers"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
-	mockqueue "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/mock"
+	mockservice "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/service/mock"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -30,44 +26,22 @@ func (s *InvitesTestSuite) SetupSuite() {
 
 	s.IDs = make(map[string]uuid.UUID)
 
-	s.IDs["inviteOK"] = uuid.MustParse("9248e828-8120-4f6d-a2c5-25a4689b9ba8")
-	s.IDs["inviteNotFound"] = uuid.MustParse("2917d4d0-b3ed-49ff-93de-d5913d24a6c8")
-	s.IDs["inviteAnswered"] = uuid.MustParse("a901767d-d908-471d-8a9a-f01945547da9")
-	s.IDs["userOK"] = uuid.MustParse("f515cb74-99b2-4aa9-be0d-faf1a68c8064")
+	s.IDs["invite"] = uuid.MustParse("9248e828-8120-4f6d-a2c5-25a4689b9ba8")
+	s.IDs["user"] = uuid.MustParse("f515cb74-99b2-4aa9-be0d-faf1a68c8064")
+	s.IDs["target"] = uuid.New()
 	s.IDs["userWithoutInvites"] = uuid.MustParse("1414bb70-a865-4a88-8c5d-adbe7fa1ec53")
-	s.IDs["userNoRights"] = uuid.MustParse("58bb1c85-7f6a-4e2b-90a9-b974928a81c4")
-	s.IDs["invitedUserOK"] = uuid.MustParse("34b80593-57fc-4953-8cd3-217ecb61b6eb")
-	s.IDs["invitedUserNotFound"] = uuid.MustParse("6ebb22de-1bd6-4c23-bb0f-eec359d10462")
-	s.IDs["invitedUserMember"] = uuid.MustParse("27df64da-a103-49fb-9724-151cdb2943b5")
-	s.IDs["invitedUserInvited"] = uuid.MustParse("34234be4-fe92-49cb-9ddd-76ba9f410266")
 	s.IDs["group"] = uuid.MustParse("b646e70f-3c8f-4782-84a3-0b34b0f9aecf")
 
-	db := new(dbmock.MockGroupsDB)
-	db.On("GetUserInvites", s.IDs["userOK"], 1, 0).Return([]models.Invite{{ID: s.IDs["inviteOK"]}}, nil)
-	db.On("GetUserInvites", s.IDs["userWithoutInvites"], 1, 0).Return([]models.Invite{}, nil)
+	service := new(mockservice.MockGroupService)
+	service.On("GetUserInvites", s.IDs["user"], 2, 0).Return([]*models.Invite{{ID: s.IDs["invite"]}, {ID: s.IDs["inviteAnswered"]}}, nil)
+	service.On("GetUserInvites", s.IDs["userWithoutInvites"], 2, 0).Return([]*models.Invite{}, nil)
 
-	db.On("AddInvite", s.IDs["userNoRights"], s.IDs["invitedUserOK"], s.IDs["group"]).
-		Return(&models.Invite{}, apperrors.NewForbidden(fmt.Sprintf("User %v has no rights to add new members to group %v", s.IDs["userNoRights"], s.IDs["group"])))
-	db.On("AddInvite", s.IDs["userOK"], s.IDs["invitedUserNotFound"], s.IDs["group"]).
-		Return(&models.Invite{}, apperrors.NewNotFound(fmt.Sprintf("User with id %v not found", s.IDs["invitedUserNotFound"].String())))
-	db.On("AddInvite", s.IDs["userOK"], s.IDs["invitedUserMember"], s.IDs["group"]).
-		Return(&models.Invite{}, apperrors.NewForbidden(fmt.Sprintf("User %v already is already a member of group %v", s.IDs["invitedUserMember"], s.IDs["group"])))
-	db.On("AddInvite", s.IDs["userOK"], s.IDs["invitedUserInvited"], s.IDs["group"]).
-		Return(&models.Invite{}, apperrors.NewForbidden(fmt.Sprintf("User %v already invited to group %v", s.IDs["invitedUserInvited"], s.IDs["group"])))
-	db.On("AddInvite", s.IDs["userOK"], s.IDs["invitedUserOK"], s.IDs["group"]).
-		Return(&models.Invite{ID: s.IDs["inviteOK"]}, nil)
+	service.On("AddInvite", s.IDs["user"], s.IDs["target"], s.IDs["group"]).Return(&models.Invite{ID: s.IDs["invite"]}, nil)
 
-	db.On("AnswerInvite", s.IDs["userOK"], s.IDs["inviteOK"], true).Return(&models.Invite{ID: s.IDs["inviteOK"]}, &models.Group{ID: s.IDs["group"]}, nil, nil)
-	db.On("AnswerInvite", s.IDs["userOK"], s.IDs["inviteOK"], false).Return(&models.Invite{ID: s.IDs["inviteOK"]}, nil, nil, nil)
-	db.On("AnswerInvite", s.IDs["userOK"], s.IDs["inviteNotFound"], mock.Anything).
-		Return(nil, nil, nil, apperrors.NewNotFound(fmt.Sprintf("Invite with id %v not found", s.IDs["inviteNotFound"].String())))
-	db.On("AnswerInvite", s.IDs["userOK"], s.IDs["inviteAnswered"], mock.Anything).
-		Return(nil, nil, nil, apperrors.NewForbidden("invite already answered"))
+	service.On("RespondInvite", s.IDs["user"], s.IDs["invite"], false).Return(&models.Invite{ID: s.IDs["invite"]}, nil, nil)
+	service.On("RespondInvite", s.IDs["user"], s.IDs["invite"], true).Return(&models.Invite{ID: s.IDs["invite"]}, &models.Group{ID: s.IDs["group"]}, nil)
 
-	emiter := new(mockqueue.MockEmitter)
-	emiter.On("Emit", mock.Anything).Return(nil)
-
-	s.server = handlers.NewServer(db, nil, nil, emiter)
+	s.server = handlers.NewServer(service, nil)
 }
 
 func (s *InvitesTestSuite) TestGetUserInvites() {
@@ -81,9 +55,9 @@ func (s *InvitesTestSuite) TestGetUserInvites() {
 	}{
 		{
 			desc:               "getinvitessuccess",
-			id:                 s.IDs["userOK"].String(),
+			id:                 s.IDs["user"].String(),
 			expectedStatusCode: http.StatusOK,
-			expectedResponse:   []models.Invite{{ID: s.IDs["inviteOK"]}},
+			expectedResponse:   []models.Invite{{ID: s.IDs["invite"]}, {ID: s.IDs["inviteAnswered"]}},
 		},
 		{
 			desc:               "getinvitesnocontent",
@@ -96,7 +70,7 @@ func (s *InvitesTestSuite) TestGetUserInvites() {
 	for _, tC := range testCases {
 		s.Run(tC.desc, func() {
 
-			req, _ := http.NewRequest("GET", "/api/invites?num=1&offset=0", nil)
+			req, _ := http.NewRequest("GET", "/api/invites?num=2&offset=0", nil)
 
 			w := httptest.NewRecorder()
 			_, engine := gin.CreateTestContext(w)
@@ -134,59 +108,27 @@ func (s *InvitesTestSuite) TestSendGroupInvite() {
 	}{
 		{
 			desc:               "inviteNoGroup",
-			id:                 s.IDs["userOK"].String(),
-			data:               map[string]interface{}{"target": s.IDs["invitedUserOK"].String()},
+			id:                 s.IDs["user"].String(),
+			data:               map[string]interface{}{"target": s.IDs["invitedUser"].String()},
 			returnVal:          false,
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "invalid group ID"},
 		},
 		{
 			desc:               "inviteNoUser",
-			id:                 s.IDs["userOK"].String(),
+			id:                 s.IDs["user"].String(),
 			data:               map[string]interface{}{"group": s.IDs["group"].String()},
 			returnVal:          false,
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "invalid target user ID"},
 		},
 		{
-			desc:               "inviteNoRights",
-			id:                 s.IDs["userNoRights"].String(),
-			data:               map[string]interface{}{"group": s.IDs["group"].String(), "target": s.IDs["invitedUserOK"]},
-			returnVal:          false,
-			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": fmt.Sprintf("User %v has no rights to add new members to group %v", s.IDs["userNoRights"], s.IDs["group"])},
-		},
-		{
-			desc:               "inviteUserNotFound",
-			id:                 s.IDs["userOK"].String(),
-			data:               map[string]interface{}{"group": s.IDs["group"].String(), "target": s.IDs["invitedUserNotFound"]},
-			returnVal:          false,
-			expectedStatusCode: http.StatusNotFound,
-			expectedResponse:   gin.H{"err": fmt.Sprintf("User with id %v not found", s.IDs["invitedUserNotFound"])},
-		},
-		{
-			desc:               "inviteUserMember",
-			id:                 s.IDs["userOK"].String(),
-			data:               map[string]interface{}{"group": s.IDs["group"].String(), "target": s.IDs["invitedUserMember"]},
-			returnVal:          false,
-			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": fmt.Sprintf("User %v already is already a member of group %v", s.IDs["invitedUserMember"], s.IDs["group"])},
-		},
-		{
-			desc:               "inviteUserInvited",
-			id:                 s.IDs["userOK"].String(),
-			data:               map[string]interface{}{"group": s.IDs["group"].String(), "target": s.IDs["invitedUserInvited"]},
-			returnVal:          false,
-			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": fmt.Sprintf("User %v already invited to group %v", s.IDs["invitedUserInvited"], s.IDs["group"])},
-		},
-		{
 			desc:               "invitesuccess",
-			id:                 s.IDs["userOK"].String(),
-			data:               map[string]interface{}{"group": s.IDs["group"].String(), "target": s.IDs["invitedUserOK"].String()},
+			id:                 s.IDs["user"].String(),
+			data:               map[string]interface{}{"group": s.IDs["group"].String(), "target": s.IDs["target"].String()},
 			returnVal:          true,
 			expectedStatusCode: http.StatusCreated,
-			expectedResponse:   models.Invite{ID: s.IDs["inviteOK"]},
+			expectedResponse:   models.Invite{ID: s.IDs["invite"]},
 		},
 	}
 
@@ -244,8 +186,8 @@ func (s *InvitesTestSuite) TestRespondGroupInvite() {
 	}{
 		{
 			desc:               "respondInviteInvalidUserID",
-			userID:             s.IDs["userOK"].String()[:2],
-			inviteID:           s.IDs["inviteOK"].String(),
+			userID:             s.IDs["user"].String()[:2],
+			inviteID:           s.IDs["invite"].String(),
 			data:               map[string]interface{}{"answer": true},
 			returnVal:          false,
 			expectedStatusCode: http.StatusBadRequest,
@@ -253,8 +195,8 @@ func (s *InvitesTestSuite) TestRespondGroupInvite() {
 		},
 		{
 			desc:               "respondInviteInvalidInviteID",
-			userID:             s.IDs["userOK"].String(),
-			inviteID:           s.IDs["inviteOK"].String()[:2],
+			userID:             s.IDs["user"].String(),
+			inviteID:           s.IDs["invite"].String()[:2],
 			data:               map[string]interface{}{"answer": true},
 			returnVal:          false,
 			expectedStatusCode: http.StatusBadRequest,
@@ -262,48 +204,30 @@ func (s *InvitesTestSuite) TestRespondGroupInvite() {
 		},
 		{
 			desc:               "respondInviteNoAnswer",
-			userID:             s.IDs["userOK"].String(),
-			inviteID:           s.IDs["inviteOK"].String(),
+			userID:             s.IDs["user"].String(),
+			inviteID:           s.IDs["invite"].String(),
 			data:               map[string]interface{}{},
 			returnVal:          false,
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "answer not specified"},
 		},
 		{
-			desc:               "respondInviteNotFound",
-			userID:             s.IDs["userOK"].String(),
-			inviteID:           s.IDs["inviteNotFound"].String(),
-			data:               map[string]interface{}{"answer": true},
-			returnVal:          false,
-			expectedStatusCode: http.StatusNotFound,
-			expectedResponse:   gin.H{"err": "Invite with id 2917d4d0-b3ed-49ff-93de-d5913d24a6c8 not found"},
-		},
-		{
-			desc:               "respondInviteAnswered",
-			userID:             s.IDs["userOK"].String(),
-			inviteID:           s.IDs["inviteAnswered"].String(),
-			data:               map[string]interface{}{"answer": true},
-			returnVal:          false,
-			expectedStatusCode: http.StatusForbidden,
-			expectedResponse:   gin.H{"err": "invite already answered"},
-		},
-		{
 			desc:               "respondInviteNo",
-			userID:             s.IDs["userOK"].String(),
-			inviteID:           s.IDs["inviteOK"].String(),
+			userID:             s.IDs["user"].String(),
+			inviteID:           s.IDs["invite"].String(),
 			data:               map[string]interface{}{"answer": false},
 			returnVal:          true,
 			expectedStatusCode: http.StatusOK,
-			expectedResponse:   gin.H{"invite": models.Invite{ID: s.IDs["inviteOK"]}},
+			expectedResponse:   gin.H{"invite": models.Invite{ID: s.IDs["invite"]}},
 		},
 		{
 			desc:               "respondInviteYes",
-			userID:             s.IDs["userOK"].String(),
-			inviteID:           s.IDs["inviteOK"].String(),
+			userID:             s.IDs["user"].String(),
+			inviteID:           s.IDs["invite"].String(),
 			data:               map[string]interface{}{"answer": true},
 			returnVal:          true,
 			expectedStatusCode: http.StatusOK,
-			expectedResponse:   gin.H{"invite": models.Invite{ID: s.IDs["inviteOK"]}, "group": models.Group{ID: s.IDs["group"]}},
+			expectedResponse:   gin.H{"invite": models.Invite{ID: s.IDs["invite"]}, "group": models.Group{ID: s.IDs["group"]}},
 		},
 	}
 

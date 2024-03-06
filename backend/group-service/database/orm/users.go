@@ -2,22 +2,24 @@ package orm
 
 import (
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 	"github.com/google/uuid"
 )
 
-func (db *Database) GetUser(userID uuid.UUID) (user models.User, err error) {
+func (db *Database) GetUserByID(userID uuid.UUID) (user *models.User, err error) {
 	return user, db.First(&user, userID).Error
 }
 
-func (db *Database) NewUser(event events.UserRegisteredEvent) error {
-	return db.Create(&models.User{
-		ID:       event.ID,
-		UserName: event.Username,
-		Picture:  event.PictureURL,
-	}).Error
+func (db *Database) CreateUser(user *models.User) (*models.User, error) {
+	return user, db.Create(&user).Error
 }
 
-func (db *Database) UpdateUserProfilePictureURL(event events.UserPictureModifiedEvent) error {
-	return db.Model(&models.User{ID: event.ID}).Update("picture", event.PictureURL).Error
+func (db *Database) UpdateUser(user *models.User) (*models.User, error) {
+	return user, db.Model(&user).Updates(*user).Error
+}
+
+func (db *Database) DeleteUser(userID uuid.UUID) (user *models.User, err error) {
+	if err := db.First(&user, userID).Error; err != nil {
+		return nil, err
+	}
+	return user, db.Delete(&user, userID).Error
 }

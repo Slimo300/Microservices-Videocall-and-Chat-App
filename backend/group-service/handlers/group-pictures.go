@@ -9,14 +9,13 @@ import (
 )
 
 func (s *Server) SetGroupProfilePicture(c *gin.Context) {
-	userID := c.GetString("userID")
-	userUID, err := uuid.Parse(userID)
+	userID, err := uuid.Parse(c.GetString("userID"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "Invalid ID"})
 		return
 	}
-	groupID := c.Param("groupID")
-	groupUID, err := uuid.Parse(groupID)
+
+	groupID, err := uuid.Parse(c.Param("groupID"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "Invalid group ID"})
 		return
@@ -40,14 +39,9 @@ func (s *Server) SetGroupProfilePicture(c *gin.Context) {
 		return
 	}
 
-	pictureURL, err := s.DB.GetGroupProfilePictureURL(userUID, groupUID)
+	pictureURL, err := s.Service.SetGroupPicture(userID, groupID, file)
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
-		return
-	}
-
-	if err = s.Storage.UploadFile(file, pictureURL); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
 	}
 
@@ -55,27 +49,20 @@ func (s *Server) SetGroupProfilePicture(c *gin.Context) {
 }
 
 func (s *Server) DeleteGroupProfilePicture(c *gin.Context) {
-	userID := c.GetString("userID")
-	userUID, err := uuid.Parse(userID)
+	userID, err := uuid.Parse(c.GetString("userID"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
 		return
 	}
-	groupID := c.Param("groupID")
-	groupUID, err := uuid.Parse(groupID)
+
+	groupID, err := uuid.Parse(c.Param("groupID"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid group ID"})
 		return
 	}
 
-	pictureURL, err := s.DB.DeleteGroupProfilePicture(userUID, groupUID)
-	if err != nil {
+	if err := s.Service.DeleteGroupPicture(userID, groupID); err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
-		return
-	}
-
-	if err = s.Storage.DeleteFile(pictureURL); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
 	}
 

@@ -38,9 +38,9 @@ export const ModalGroupOptions = ({ group, show, toggle }) => {
 
         if (response.status === 200) {
             setMessage("Image deleted successfully");
-            dispatch({type: actionTypes.DELETE_GROUP_PROFILE_PICTURE, payload: group.ID})
+            dispatch({type: actionTypes.SET_GROUP_PICTURE, payload: { groupID: group.ID, newUrl: ""}})
             let timestamp = new Date().getTime();
-            document.getElementById("profilePicture").src = window._env_.STORAGE_URL+"/"+group.ID+"?"+timestamp;
+            document.getElementById("profilePicture").src = window._env_.STORAGE_URL+"/"+group.pictureUrl+"?"+timestamp;
         } else {
             setMessage(response.data.err);
         }

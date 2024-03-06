@@ -30,8 +30,8 @@ func Setup(server *handlers.Server, origin string) *gin.Engine {
 	apiAuth.POST("/:groupID/image", server.SetGroupProfilePicture)
 	apiAuth.DELETE("/:groupID/image", server.DeleteGroupProfilePicture)
 
-	apiAuth.DELETE("/:groupID/member/:memberID", server.DeleteUserFromGroup)
-	apiAuth.PATCH("/:groupID/member/:memberID", server.GrantPriv)
+	apiAuth.DELETE("/members/:memberID", server.DeleteUserFromGroup)
+	apiAuth.PATCH("/members/:memberID", server.GrantRights)
 
 	apiAuth.GET("/invites", server.GetUserInvites)
 	apiAuth.POST("/invites", server.CreateInvite)

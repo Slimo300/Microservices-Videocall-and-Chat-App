@@ -3,8 +3,8 @@ module github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/webrtc-g
 go 1.22.0
 
 require (
-	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events v0.0.0-20240221110501-44d46458e2a7
-	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue v0.0.0-20240221110501-44d46458e2a7
+	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events v0.0.0-20240222113859-bdc3ac508a24
+	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue v0.0.0-20240222113859-bdc3ac508a24
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/gorilla/mux v1.8.0
 	github.com/spf13/viper v1.16.0

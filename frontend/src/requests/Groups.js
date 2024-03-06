@@ -31,12 +31,12 @@ export async function RespondGroupInvite(inviteID, answer) {
     })
 }
 
-export async function DeleteMember(groupID, memberID) {
-    return await axiosObject.delete(groupsService+"/"+groupID+"/member/"+memberID);
+export async function DeleteMember(memberID) {
+    return await axiosObject.delete(groupsService+"/members/"+memberID);
 }
 
-export async function SetRights(groupID, memberID, adding, deletingMessages, muting, deletingMembers, admin ) {
-    return await axiosObject.patch(groupsService+"/"+groupID+"/member/"+memberID, {
+export async function SetRights(memberID, adding, deletingMessages, muting, deletingMembers, admin ) {
+    return await axiosObject.patch(groupsService+"/members/"+memberID, {
         "adding": adding,
         "deletingMessages": deletingMessages,
         "deletingMembers": deletingMembers,

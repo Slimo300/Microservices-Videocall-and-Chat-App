@@ -5,31 +5,25 @@ import (
 	"log"
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
 	"github.com/gin-gonic/gin"
 
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/database"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/storage"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/service"
 )
 
 const MAX_BODY_BYTES = 4194304
 
 type Server struct {
 	logger       *log.Logger
-	DB           database.DBLayer
-	Storage      storage.StorageLayer
 	PublicKey    *rsa.PublicKey
 	MaxBodyBytes int64
-	Emitter      msgqueue.EventEmiter
+	Service      service.ServiceLayer
 }
 
-func NewServer(db database.DBLayer, storage storage.StorageLayer, pubKey *rsa.PublicKey, emiter msgqueue.EventEmiter) *Server {
+func NewServer(service service.ServiceLayer, pubKey *rsa.PublicKey) *Server {
 	return &Server{
-		DB:           db,
-		Storage:      storage,
+		Service:      service,
 		MaxBodyBytes: MAX_BODY_BYTES,
 		PublicKey:    pubKey,
-		Emitter:      emiter,
 	}
 }
 
