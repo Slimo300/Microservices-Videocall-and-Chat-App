@@ -17,7 +17,7 @@ spec:
       containers:
       - name: email-service
         imagePullPolicy: Always
-        image: slimo300/email-service
+        image: slimo300/email-service:1.0.0
         ports:
         - containerPort: 9000
           name: grpc

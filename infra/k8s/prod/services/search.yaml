@@ -27,7 +27,7 @@
 #       containers:
 #       - name: search-service
 #         imagePullPolicy: Always
-#         image: slimo300/search-service
+#         image: slimo300/search-service:1.0.0
 #         ports:
 #         - containerPort: 8080
 #           name: http

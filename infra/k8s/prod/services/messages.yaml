@@ -27,7 +27,7 @@ spec:
       containers:
       - name: message-service
         imagePullPolicy: Always
-        image: slimo300/message-service
+        image: slimo300/message-service:1.0.0
         ports:
         - containerPort: 8080
           name: http
