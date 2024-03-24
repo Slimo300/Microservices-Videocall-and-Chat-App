@@ -39,7 +39,7 @@ jobs:
 
       - name: Update the file in infra
         run: |
-          docker run -v $(pwd)/infra/k8s/prod/services/emails.yaml:/var/file.yaml slimo300/yamlak:1.0.0 set spec.template.spec.containers[0].image ${{ steps.obtain-new-image.outputs.new-image }} /var/file.yaml --condition="kind==Deployment"
+          docker run -v $(pwd)/infra/k8s/prod/services/emails.yaml:/var/file.yaml slimo300/yamlak:1.0.0 set spec.template.spec.containers[0].image ${{ steps.obtain-new-image.outputs.new-image }} /var/file.yaml --condition="kind==Deployment" >> $(pwd)/infra/k8s/prod/services/emails.yaml
           pwd
           ls
           
