@@ -31,7 +31,7 @@ spec:
       containers:
       - name: webrtc-service
         imagePullPolicy: Always
-        image: slimo300/webrtc-service
+        image: slimo300/webrtc-service:1.0.0
         ports:
         - containerPort: 8080
           name: http

@@ -33,7 +33,7 @@ spec:
       containers:
       - name: user-service
         imagePullPolicy: Always
-        image: slimo300/user-service
+        image: slimo300/user-service:1.0.0
         ports:
         - containerPort: 8080
           name: http
