@@ -39,8 +39,9 @@ jobs:
 
       - name: Update the file in infra
         run: |
-          echo $(pwd)
-          docker run -v infra/k8s/prod/services/emails.yaml:/var/file.yaml slimo300/yamlak:1.0.0 set spec.template.spec.containers[0].image ${{ steps.obtain-new-image.outputs.new-image }} /var/file.yaml --condition="kind==Deployment"
+          docker run -v $(pwd)/infra/k8s/prod/services/emails.yaml:/var/file.yaml slimo300/yamlak:1.0.0 set spec.template.spec.containers[0].image ${{ steps.obtain-new-image.outputs.new-image }} /var/file.yaml --condition="kind==Deployment"
+          pwd
+          ls
           
           git config --global user.name "GitHub Actions Automation"
           git config --global user.email "github@action.noreply.com"
