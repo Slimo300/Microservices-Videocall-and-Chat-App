@@ -45,7 +45,7 @@ func main() {
 
 	go func() { errChan <- grpcServer.Serve(lis) }()
 
-	log.Println("Starting email service...")
+	log.Println("Starting email service ...")
 	log.Printf("Listening on port %s", conf.GRPCPort)
 
 	select {
