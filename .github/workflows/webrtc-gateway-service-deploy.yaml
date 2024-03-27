@@ -13,20 +13,36 @@ jobs:
     steps:
       - name: Checkout repository code
         uses: actions/checkout@v3
+
+      - name: Get current tag of Docker Image
+        id: obtain-new-image
+        run: |
+          current_version=$(skopeo inspect docker://slimo300/webrtc-gateway-service | jq -r '.RepoTags | .[-2]')
+          current_version=${current_version##*:}
+          new_image="slimo300/webrtc-gateway-service:$(echo $current_version | awk -F '.' '{print $1"."$2"."($3 + 1)}')"
+          echo "::set-output name=new-image::$new_image"
+
       - name: Build Docker Image
-        run: cd backend/webrtc-gateway-service && docker build -t slimo300/webrtc-gateway-service .
+        run: cd backend/webrtc-gateway-service && docker build -t ${{ steps.obtain-new-image.outputs.new-image }} .
+
       - name: Log In to DockerHub
         run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Publish an Image
-        run: docker push slimo300/webrtc-gateway-service
-      - name: Installing Doctl
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-      - name: Saving our cluster config
-        run: doctl kubernetes cluster kubeconfig save relrel
-      - name: Update Deployment
-        run: kubectl rollout restart deployment webrtc-gateway-deployment
+        run: |
+          docker push ${{ steps.obtain-new-image.outputs.new-image }}
+          docker tag ${{ steps.obtain-new-image.outputs.new-image }} slimo300/webrtc-gateway-service:latest
+          docker push slimo300/webrtc-gateway-service:latest
+
+      - name: Update the file in infra
+        run: |
+          docker run -v $(pwd)/infra/k8s/prod/services/webrtc-gateway.yaml:/var/file.yaml slimo300/yamlak set spec.template.spec.containers[0].image ${{ steps.obtain-new-image.outputs.new-image }} /var/file.yaml --condition="kind==Deployment" -i
+          
+          git config --global user.name "GitHub Actions Automation"
+          git config --global user.email "github@action.noreply.com"
+          git add infra/k8s/prod/services/webrtc-gateway.yaml
+          git commit -m "GitHub Action changed image version in webrtc-gateway-service"
+          git push origin main
