@@ -24,7 +24,7 @@ spec:
                   envFrom:
                     - secretRef:
                         name: turn-credentials
-                  image: slimo300/frontend:1.0.2
+                  image: slimo300/frontend:1.0.3
                   imagePullPolicy: Always
                   name: frontend
                   ports:
