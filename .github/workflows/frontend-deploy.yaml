@@ -1,4 +1,4 @@
-name: frontend-service-deploy
+name: frontend-deploy
 
 on:
   push:
@@ -17,13 +17,13 @@ jobs:
       - name: Get current tag of Docker Image
         id: obtain-new-image
         run: |
-          current_version=$(skopeo inspect docker://slimo300/frontend-service | jq -r '.RepoTags | .[-2]')
+          current_version=$(skopeo inspect docker://slimo300/frontend | jq -r '.RepoTags | .[-2]')
           current_version=${current_version##*:}
-          new_image="slimo300/frontend-service:$(echo $current_version | awk -F '.' '{print $1"."$2"."($3 + 1)}')"
+          new_image="slimo300/frontend:$(echo $current_version | awk -F '.' '{print $1"."$2"."($3 + 1)}')"
           echo "::set-output name=new-image::$new_image"
 
       - name: Build Docker Image
-        run: cd backend/frontend-service && docker build -t ${{ steps.obtain-new-image.outputs.new-image }} .
+        run: cd backend/frontend && docker build -t ${{ steps.obtain-new-image.outputs.new-image }} .
 
       - name: Log In to DockerHub
         run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
@@ -34,8 +34,8 @@ jobs:
       - name: Publish an Image
         run: |
           docker push ${{ steps.obtain-new-image.outputs.new-image }}
-          docker tag ${{ steps.obtain-new-image.outputs.new-image }} slimo300/frontend-service:latest
-          docker push slimo300/frontend-service:latest
+          docker tag ${{ steps.obtain-new-image.outputs.new-image }} slimo300/frontend:latest
+          docker push slimo300/frontend:latest
 
       - name: Update the file in infra
         run: |
@@ -44,5 +44,5 @@ jobs:
           git config --global user.name "GitHub Actions Automation"
           git config --global user.email "github@action.noreply.com"
           git add infra/k8s/prod/services/frontend.yaml
-          git commit -m "GitHub Action changed image version in frontend-service"
+          git commit -m "GitHub Action changed image version in frontend"
           git push origin main
