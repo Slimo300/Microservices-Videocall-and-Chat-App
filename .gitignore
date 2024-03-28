@@ -11,15 +11,8 @@ infra/terraform/**/.terraform.*
 infra/terraform/**/terraform.*
 infra/terraform/**/secrets.tf
 
-# TURN config
-infra/turnserver.conf
-
 # Starting scripts
 start-dev.sh
-start-prod.sh
-
-go.work
-go.work.sum
 
 # TODO
 TODO
