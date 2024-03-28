@@ -1,44 +1,44 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend
+    name: frontend
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      chat/app: frontend
-  template:
-    metadata:
-      labels:
-        chat/app: frontend
-    spec:
-      containers:
-      - name: frontend
-        imagePullPolicy: Always
-        image: slimo300/frontend:1.0.1
-        ports:
-        - containerPort: 80
-          name: http
-        env:
-        - name: API_URL
-          value: api.relrel.org
-        - name: STORAGE_URL
-          valueFrom:
-            secretKeyRef:
-              name: storage-credentials
-              key: STORAGE_URL
-        envFrom:
-        - secretRef:
-            name: turn-credentials
+    replicas: 1
+    selector:
+        matchLabels:
+            chat/app: frontend
+    template:
+        metadata:
+            labels:
+                chat/app: frontend
+        spec:
+            containers:
+                - env:
+                    - name: API_URL
+                      value: api.relrel.org
+                    - name: STORAGE_URL
+                      valueFrom:
+                        secretKeyRef:
+                            key: STORAGE_URL
+                            name: storage-credentials
+                  envFrom:
+                    - secretRef:
+                        name: turn-credentials
+                  image: slimo300/frontend:1.0.2
+                  imagePullPolicy: Always
+                  name: frontend
+                  ports:
+                    - containerPort: 80
+                      name: http
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend
+    name: frontend
 spec:
-  selector:
-    chat/app: frontend
-  ports:
-  - port: 80
-    targetPort: 80
-    name: http
+    ports:
+        - name: http
+          port: 80
+          targetPort: 80
+    selector:
+        chat/app: frontend
