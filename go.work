@@ -1,0 +1,18 @@
+go 1.22.0
+
+use (
+	./backend/email-service
+	./backend/group-service
+	./backend/lib/apperrors
+	./backend/lib/auth
+	./backend/lib/email
+	./backend/lib/events
+	./backend/lib/msgqueue
+	./backend/message-service
+	./backend/search-service
+	./backend/token-service
+	./backend/user-service
+	./backend/webrtc-gateway-service
+	./backend/webrtc-service
+	./backend/ws-service
+)
