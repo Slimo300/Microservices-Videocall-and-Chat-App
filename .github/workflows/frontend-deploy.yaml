@@ -23,7 +23,7 @@ jobs:
           echo "::set-output name=new-image::$new_image"
 
       - name: Build Docker Image
-        run: cd backend/frontend && docker build -t ${{ steps.obtain-new-image.outputs.new-image }} .
+        run: cd frontend && docker build -t ${{ steps.obtain-new-image.outputs.new-image }} .
 
       - name: Log In to DockerHub
         run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
