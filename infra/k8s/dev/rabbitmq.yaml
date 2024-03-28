@@ -26,7 +26,6 @@ kind: Service
 metadata:
   name: rabbitmq-service
 spec:
-  type: NodePort
   selector:
     chat/app: amqp-broker
   ports:
