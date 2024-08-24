@@ -16,3 +16,6 @@ start-dev.sh
 
 # TODO
 TODO
+
+go.work
+go.work.sum

@@ -1,4 +1,4 @@
-# MicroservicesChatApp
+# Microservices-Videocall-and-Chat-App
 
 ## This is an example Golang microservice application build in educational purposes.
 
