@@ -1,24 +1,26 @@
 package service
 
 import (
+	"context"
+
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 	"github.com/google/uuid"
 )
 
-func (srv *GroupService) GrantRights(userID, memberID uuid.UUID, rights models.MemberRights) (*models.Member, error) {
-	member, err := srv.DB.GetMemberByID(memberID)
+func (srv *GroupService) GrantRights(ctx context.Context, userID, memberID uuid.UUID, rights models.MemberRights) (*models.Member, error) {
+	member, err := srv.DB.GetMemberByID(ctx, memberID)
 	if err != nil {
 		return nil, apperrors.NewNotFound("member not found")
 	}
 
-	group, err := srv.DB.GetGroupByID(member.GroupID)
+	group, err := srv.DB.GetGroupByID(ctx, member.GroupID)
 	if err != nil {
 		return nil, apperrors.NewNotFound("member not found")
 	}
 
-	issuerMember, err := srv.DB.GetMemberByUserGroupID(userID, group.ID)
+	issuerMember, err := srv.DB.GetMemberByUserGroupID(ctx, userID, group.ID)
 	if err != nil {
 		return nil, apperrors.NewNotFound("member not found")
 	}
@@ -27,11 +29,8 @@ func (srv *GroupService) GrantRights(userID, memberID uuid.UUID, rights models.M
 		return nil, apperrors.NewForbidden("user cannot set rights")
 	}
 
-	if err := member.ApplyRights(rights); err != nil {
-		return nil, apperrors.NewBadRequest(err.Error())
-	}
-
-	member, err = srv.DB.UpdateMember(member)
+	member.ApplyRights(rights)
+	member, err = srv.DB.UpdateMember(ctx, member)
 	if err != nil {
 		return nil, err
 	}
@@ -56,18 +55,18 @@ func (srv *GroupService) GrantRights(userID, memberID uuid.UUID, rights models.M
 	return member, nil
 }
 
-func (srv *GroupService) DeleteMember(userID, memberID uuid.UUID) (*models.Member, error) {
-	member, err := srv.DB.GetMemberByID(memberID)
+func (srv *GroupService) DeleteMember(ctx context.Context, userID, memberID uuid.UUID) (*models.Member, error) {
+	member, err := srv.DB.GetMemberByID(ctx, memberID)
 	if err != nil {
 		return nil, apperrors.NewNotFound("member not found")
 	}
 
-	group, err := srv.DB.GetGroupByID(member.GroupID)
+	group, err := srv.DB.GetGroupByID(ctx, member.GroupID)
 	if err != nil {
 		return nil, apperrors.NewNotFound("member not found")
 	}
 
-	issuerMember, err := srv.DB.GetMemberByUserGroupID(userID, group.ID)
+	issuerMember, err := srv.DB.GetMemberByUserGroupID(ctx, userID, group.ID)
 	if err != nil {
 		return nil, apperrors.NewNotFound("member not found")
 	}
@@ -76,7 +75,7 @@ func (srv *GroupService) DeleteMember(userID, memberID uuid.UUID) (*models.Membe
 		return nil, apperrors.NewForbidden("user can't delete from this group")
 	}
 
-	member, err = srv.DB.DeleteMember(member.ID)
+	member, err = srv.DB.DeleteMember(ctx, member.ID)
 	if err != nil {
 		return nil, err
 	}

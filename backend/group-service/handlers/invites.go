@@ -28,7 +28,7 @@ func (s *Server) GetUserInvites(c *gin.Context) {
 		return
 	}
 
-	invites, err := s.Service.GetUserInvites(userID, num, offset)
+	invites, err := s.Service.GetUserInvites(c.Request.Context(), userID, num, offset)
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
@@ -72,7 +72,7 @@ func (s *Server) CreateInvite(c *gin.Context) {
 		return
 	}
 
-	invite, err := s.Service.AddInvite(userID, targetID, groupID)
+	invite, err := s.Service.AddInvite(c.Request.Context(), userID, targetID, groupID)
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
@@ -102,7 +102,7 @@ func (s *Server) RespondGroupInvite(c *gin.Context) {
 		return
 	}
 
-	invite, group, err := s.Service.RespondInvite(userID, inviteID, *payload.Answer)
+	invite, group, err := s.Service.RespondInvite(c.Request.Context(), userID, inviteID, *payload.Answer)
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return

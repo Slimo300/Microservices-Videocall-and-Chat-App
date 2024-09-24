@@ -1,6 +1,7 @@
 package orm_test
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -10,24 +11,23 @@ import (
 )
 
 func TestHandleUser(t *testing.T) {
-
-	user, err := db.CreateUser(&models.User{ID: uuid.New(), UserName: "1"})
+	user, err := db.CreateUser(context.Background(), &models.User{ID: uuid.New(), UserName: "1"})
 	if err != nil {
 		t.Fatalf("Error creating a user: %v", err)
 	}
 
-	user, err = db.GetUserByID(user.ID)
+	user, err = db.GetUserByID(context.Background(), user.ID)
 	if err != nil {
 		t.Fatalf("Error getting user by ID: %v", err)
 	}
 
 	user.Picture = "picture"
-	user, err = db.UpdateUser(user)
+	user, err = db.UpdateUser(context.Background(), user)
 	if err != nil {
 		t.Fatalf("Error updating user: %v", err)
 	}
 
-	user, err = db.GetUserByID(user.ID)
+	user, err = db.GetUserByID(context.Background(), user.ID)
 	if err != nil {
 		t.Fatalf("Error getting user by ID: %v", err)
 	}
@@ -35,11 +35,11 @@ func TestHandleUser(t *testing.T) {
 		t.Fatalf("User's picture parameter is not of expected value")
 	}
 
-	if _, err := db.DeleteUser(user.ID); err != nil {
+	if _, err := db.DeleteUser(context.Background(), user.ID); err != nil {
 		t.Fatalf("Error deleting user: %v", err)
 	}
 
-	if _, err = db.GetUserByID(user.ID); !errors.Is(err, gorm.ErrRecordNotFound) {
+	if _, err = db.GetUserByID(context.Background(), user.ID); !errors.Is(err, gorm.ErrRecordNotFound) {
 		t.Fatalf("Getting user should return not found error, instead got: %v", err)
 	}
 }

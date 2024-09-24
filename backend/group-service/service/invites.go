@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -10,9 +11,9 @@ import (
 	"github.com/google/uuid"
 )
 
-func (srv *GroupService) AddInvite(userID, targetUserID, groupID uuid.UUID) (*models.Invite, error) {
+func (srv *GroupService) AddInvite(ctx context.Context, userID, targetUserID, groupID uuid.UUID) (*models.Invite, error) {
 
-	member, err := srv.DB.GetMemberByUserGroupID(userID, groupID)
+	member, err := srv.DB.GetMemberByUserGroupID(ctx, userID, groupID)
 	if err != nil {
 		return nil, apperrors.NewNotFound("group not found")
 	}
@@ -21,22 +22,22 @@ func (srv *GroupService) AddInvite(userID, targetUserID, groupID uuid.UUID) (*mo
 		return nil, apperrors.NewForbidden("user can't send invites to this group")
 	}
 
-	targetUser, err := srv.DB.GetUserByID(targetUserID)
+	targetUser, err := srv.DB.GetUserByID(ctx, targetUserID)
 	if err != nil {
 		return nil, apperrors.NewNotFound(fmt.Sprintf("user with ID %v not found", targetUserID))
 	}
 
-	_, err = srv.DB.GetMemberByUserGroupID(targetUserID, groupID)
+	_, err = srv.DB.GetMemberByUserGroupID(ctx, targetUserID, groupID)
 	if err == nil {
 		return nil, apperrors.NewForbidden("user is already a member of group")
 	}
 
-	isInvited, err := srv.DB.IsUserInvited(targetUserID, groupID)
+	isInvited, err := srv.DB.IsUserInvited(ctx, targetUserID, groupID)
 	if err != nil || isInvited {
 		return nil, apperrors.NewForbidden("user already invited")
 	}
 
-	invite, err := srv.DB.CreateInvite(&models.Invite{
+	invite, err := srv.DB.CreateInvite(ctx, &models.Invite{
 		ID:       uuid.New(),
 		IssId:    userID,
 		TargetID: targetUser.ID,
@@ -62,9 +63,9 @@ func (srv *GroupService) AddInvite(userID, targetUserID, groupID uuid.UUID) (*mo
 	return invite, nil
 }
 
-func (srv *GroupService) RespondInvite(userID, inviteID uuid.UUID, answer bool) (*models.Invite, *models.Group, error) {
+func (srv *GroupService) RespondInvite(ctx context.Context, userID, inviteID uuid.UUID, answer bool) (*models.Invite, *models.Group, error) {
 
-	invite, err := srv.DB.GetInviteByID(inviteID)
+	invite, err := srv.DB.GetInviteByID(ctx, inviteID)
 	if err != nil {
 		return nil, nil, apperrors.NewNotFound("invite not found")
 	}
@@ -81,7 +82,7 @@ func (srv *GroupService) RespondInvite(userID, inviteID uuid.UUID, answer bool) 
 
 	if !answer {
 		invite.Status = models.INVITE_DECLINE
-		invite, err = srv.DB.UpdateInvite(invite)
+		invite, err = srv.DB.UpdateInvite(ctx, invite)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -89,12 +90,12 @@ func (srv *GroupService) RespondInvite(userID, inviteID uuid.UUID, answer bool) 
 	}
 
 	invite.Status = models.INVITE_ACCEPT
-	invite, err = srv.DB.UpdateInvite(invite)
+	invite, err = srv.DB.UpdateInvite(ctx, invite)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	member, err := srv.DB.CreateMember(&models.Member{
+	member, err := srv.DB.CreateMember(ctx, &models.Member{
 		ID:      uuid.New(),
 		GroupID: invite.GroupID,
 		UserID:  userID,
@@ -103,7 +104,7 @@ func (srv *GroupService) RespondInvite(userID, inviteID uuid.UUID, answer bool) 
 		return nil, nil, err
 	}
 
-	group, err := srv.DB.GetGroupByID(invite.GroupID)
+	group, err := srv.DB.GetGroupByID(ctx, invite.GroupID)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -143,6 +144,6 @@ func (srv *GroupService) RespondInvite(userID, inviteID uuid.UUID, answer bool) 
 	return invite, group, nil
 }
 
-func (srv *GroupService) GetUserInvites(userID uuid.UUID, num, offset int) ([]*models.Invite, error) {
-	return srv.DB.GetUserInvites(userID, num, offset)
+func (srv *GroupService) GetUserInvites(ctx context.Context, userID uuid.UUID, num, offset int) ([]*models.Invite, error) {
+	return srv.DB.GetUserInvites(ctx, userID, num, offset)
 }

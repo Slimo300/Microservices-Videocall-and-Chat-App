@@ -1,6 +1,7 @@
 package service_test
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -18,7 +19,7 @@ import (
 type GroupsTestSuite struct {
 	suite.Suite
 	IDs     map[string]uuid.UUID
-	Service service.ServiceLayer
+	Service service.Service
 }
 
 func (s *GroupsTestSuite) SetupSuite() {
@@ -31,14 +32,14 @@ func (s *GroupsTestSuite) SetupSuite() {
 	s.IDs["userNotInGroup"] = uuid.New()
 	s.IDs["userWithoutRights"] = uuid.New()
 
-	db := new(mockdb.MockGroupsDB)
-	db.On("GetMemberByUserGroupID", s.IDs["userOK"], s.IDs["groupOK"]).Return(&models.Member{ID: uuid.New(), Creator: true}, nil)
-	db.On("GetMemberByUserGroupID", s.IDs["userNotInGroup"], s.IDs["groupOK"]).Return(nil, errors.New("group not found"))
-	db.On("GetMemberByUserGroupID", s.IDs["userWithoutRights"], s.IDs["groupOK"]).Return(&models.Member{ID: uuid.New(), Creator: false}, nil)
-	db.On("DeleteGroup", s.IDs["groupOK"]).Return(&models.Group{ID: s.IDs["groupOK"]}, nil)
+	db := new(mockdb.GroupsMockRepository)
+	db.On("GetMemberByUserGroupID", mock.Anything, s.IDs["userOK"], s.IDs["groupOK"]).Return(&models.Member{ID: uuid.New(), Creator: true}, nil)
+	db.On("GetMemberByUserGroupID", mock.Anything, s.IDs["userNotInGroup"], s.IDs["groupOK"]).Return(nil, errors.New("group not found"))
+	db.On("GetMemberByUserGroupID", mock.Anything, s.IDs["userWithoutRights"], s.IDs["groupOK"]).Return(&models.Member{ID: uuid.New(), Creator: false}, nil)
+	db.On("DeleteGroup", mock.Anything, s.IDs["groupOK"]).Return(&models.Group{ID: s.IDs["groupOK"]}, nil)
 
-	db.On("CreateGroup", mock.AnythingOfType("*models.Group")).Return(&models.Group{ID: s.IDs["groupOK"]}, nil)
-	db.On("CreateMember", mock.AnythingOfType("*models.Member")).Return(&models.Member{ID: s.IDs["memberOK"]}, nil)
+	db.On("CreateGroup", mock.Anything, mock.AnythingOfType("*models.Group")).Return(&models.Group{ID: s.IDs["groupOK"]}, nil)
+	db.On("CreateMember", mock.Anything, mock.AnythingOfType("*models.Member")).Return(&models.Member{ID: s.IDs["memberOK"]}, nil)
 
 	emitter := new(mockqueue.MockEmitter)
 	emitter.On("Emit", mock.Anything).Return(nil)
@@ -76,7 +77,7 @@ func (s *GroupsTestSuite) TestDeleteGroup() {
 
 	for _, tC := range testCases {
 		s.Run(tC.desc, func() {
-			group, err := s.Service.DeleteGroup(tC.userID, tC.groupID)
+			group, err := s.Service.DeleteGroup(context.Background(), tC.userID, tC.groupID)
 			s.Equal(tC.expectedError, err)
 			s.Equal(tC.expectedResult, group)
 		})
@@ -84,7 +85,7 @@ func (s *GroupsTestSuite) TestDeleteGroup() {
 }
 
 func (s *GroupsTestSuite) TestCreateGroup() {
-	group, err := s.Service.CreateGroup(s.IDs["userOK"], "New Group")
+	group, err := s.Service.CreateGroup(context.Background(), s.IDs["userOK"], "New Group")
 	s.Equal(nil, err)
 	s.Equal(s.IDs["groupOK"], group.ID)
 	s.Equal(s.IDs["memberOK"], group.Members[0].ID)

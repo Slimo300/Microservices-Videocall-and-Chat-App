@@ -30,7 +30,7 @@ func (s *MembersTestSuite) SetupSuite() {
 	s.IDs["group"] = uuid.New()
 	s.IDs["member"] = uuid.New()
 
-	service := new(mockservice.MockGroupService)
+	service := new(mockservice.GroupsMockService)
 	service.On("GrantRights", s.IDs["user"], s.IDs["member"], mock.Anything).Return(&models.Member{ID: s.IDs["member"]}, nil)
 	service.On("DeleteMember", s.IDs["user"], s.IDs["member"]).Return(&models.Member{ID: s.IDs["member"]}, nil)
 	service.On("DeleteGroup", s.IDs["user"], s.IDs["group"]).Return(&models.Group{ID: s.IDs["group"]}, nil)

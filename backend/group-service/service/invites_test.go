@@ -1,6 +1,7 @@
 package service_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"testing"
@@ -18,7 +19,7 @@ import (
 type InviteTestSuite struct {
 	suite.Suite
 	IDs     map[string]uuid.UUID
-	Service service.ServiceLayer
+	Service service.Service
 }
 
 func (s *InviteTestSuite) SetupSuite() {
@@ -40,34 +41,34 @@ func (s *InviteTestSuite) SetupSuite() {
 	s.IDs["inviteNotFound"] = uuid.New()
 	s.IDs["inviteAnswered"] = uuid.New()
 
-	db := new(mockdb.MockGroupsDB)
-	db.On("GetUserByID", s.IDs["targetNotFound"]).Return(nil, errors.New("not found"))
-	db.On("GetUserByID", s.IDs["targetInGroup"]).Return(&models.User{ID: s.IDs["targetInGroup"]}, nil)
-	db.On("GetUserByID", s.IDs["targetInvited"]).Return(&models.User{ID: s.IDs["targetInvited"]}, nil)
-	db.On("GetUserByID", s.IDs["targetOK"]).Return(&models.User{ID: s.IDs["targetOK"]}, nil)
+	db := new(mockdb.GroupsMockRepository)
+	db.On("GetUserByID", mock.Anything, s.IDs["targetNotFound"]).Return(nil, errors.New("not found"))
+	db.On("GetUserByID", mock.Anything, s.IDs["targetInGroup"]).Return(&models.User{ID: s.IDs["targetInGroup"]}, nil)
+	db.On("GetUserByID", mock.Anything, s.IDs["targetInvited"]).Return(&models.User{ID: s.IDs["targetInvited"]}, nil)
+	db.On("GetUserByID", mock.Anything, s.IDs["targetOK"]).Return(&models.User{ID: s.IDs["targetOK"]}, nil)
 
-	db.On("GetMemberByUserGroupID", s.IDs["issuerNotInGroup"], s.IDs["groupOK"]).Return(nil, errors.New("not found"))
-	db.On("GetMemberByUserGroupID", s.IDs["issuerWithoutRights"], s.IDs["groupOK"]).Return(&models.Member{}, nil)
-	db.On("GetMemberByUserGroupID", s.IDs["issuerOK"], s.IDs["groupOK"]).Return(&models.Member{Creator: true}, nil)
-	db.On("GetMemberByUserGroupID", s.IDs["targetInGroup"], s.IDs["groupOK"]).Return(&models.Member{}, nil)
-	db.On("GetMemberByUserGroupID", s.IDs["targetInvited"], s.IDs["groupOK"]).Return(nil, errors.New("not found"))
-	db.On("GetMemberByUserGroupID", s.IDs["targetOK"], s.IDs["groupOK"]).Return(nil, errors.New("not found"))
+	db.On("GetMemberByUserGroupID", mock.Anything, s.IDs["issuerNotInGroup"], s.IDs["groupOK"]).Return(nil, errors.New("not found"))
+	db.On("GetMemberByUserGroupID", mock.Anything, s.IDs["issuerWithoutRights"], s.IDs["groupOK"]).Return(&models.Member{}, nil)
+	db.On("GetMemberByUserGroupID", mock.Anything, s.IDs["issuerOK"], s.IDs["groupOK"]).Return(&models.Member{Creator: true}, nil)
+	db.On("GetMemberByUserGroupID", mock.Anything, s.IDs["targetInGroup"], s.IDs["groupOK"]).Return(&models.Member{}, nil)
+	db.On("GetMemberByUserGroupID", mock.Anything, s.IDs["targetInvited"], s.IDs["groupOK"]).Return(nil, errors.New("not found"))
+	db.On("GetMemberByUserGroupID", mock.Anything, s.IDs["targetOK"], s.IDs["groupOK"]).Return(nil, errors.New("not found"))
 
-	db.On("IsUserInvited", s.IDs["targetInvited"], s.IDs["groupOK"]).Return(true, nil)
-	db.On("IsUserInvited", s.IDs["targetOK"], s.IDs["groupOK"]).Return(false, nil)
+	db.On("IsUserInvited", mock.Anything, s.IDs["targetInvited"], s.IDs["groupOK"]).Return(true, nil)
+	db.On("IsUserInvited", mock.Anything, s.IDs["targetOK"], s.IDs["groupOK"]).Return(false, nil)
 
-	db.On("CreateInvite", mock.Anything).Return(&models.Invite{ID: s.IDs["inviteOK"]}, nil)
+	db.On("CreateInvite", mock.Anything, mock.Anything).Return(&models.Invite{ID: s.IDs["inviteOK"]}, nil)
 
-	db.On("GetInviteByID", s.IDs["inviteNotFound"]).Return(nil, errors.New("not found"))
-	db.On("GetInviteByID", s.IDs["inviteOK"]).Return(&models.Invite{TargetID: s.IDs["targetOK"], Status: models.INVITE_AWAITING}, nil)
-	db.On("GetInviteByID", s.IDs["inviteOK2"]).Return(&models.Invite{TargetID: s.IDs["targetOK"], Status: models.INVITE_AWAITING}, nil)
-	db.On("GetInviteByID", s.IDs["inviteAnswered"]).Return(&models.Invite{TargetID: s.IDs["targetOK"], Status: models.INVITE_DECLINE}, nil)
+	db.On("GetInviteByID", mock.Anything, s.IDs["inviteNotFound"]).Return(nil, errors.New("not found"))
+	db.On("GetInviteByID", mock.Anything, s.IDs["inviteOK"]).Return(&models.Invite{TargetID: s.IDs["targetOK"], Status: models.INVITE_AWAITING}, nil)
+	db.On("GetInviteByID", mock.Anything, s.IDs["inviteOK2"]).Return(&models.Invite{TargetID: s.IDs["targetOK"], Status: models.INVITE_AWAITING}, nil)
+	db.On("GetInviteByID", mock.Anything, s.IDs["inviteAnswered"]).Return(&models.Invite{TargetID: s.IDs["targetOK"], Status: models.INVITE_DECLINE}, nil)
 
-	db.On("UpdateInvite", mock.Anything).Return(&models.Invite{GroupID: s.IDs["groupOK"]}, nil)
+	db.On("UpdateInvite", mock.Anything, mock.Anything).Return(&models.Invite{GroupID: s.IDs["groupOK"]}, nil)
 
-	db.On("CreateMember", mock.Anything).Return(&models.Member{}, nil)
+	db.On("CreateMember", mock.Anything, mock.Anything).Return(&models.Member{}, nil)
 
-	db.On("GetGroupByID", s.IDs["groupOK"]).Return(&models.Group{}, nil)
+	db.On("GetGroupByID", mock.Anything, s.IDs["groupOK"]).Return(&models.Group{}, nil)
 
 	emitter := new(mockqueue.MockEmitter)
 	emitter.On("Emit", mock.Anything).Return(nil)
@@ -130,7 +131,7 @@ func (s *InviteTestSuite) TestAddInvite() {
 
 	for _, tC := range testCases {
 		s.Run(tC.desc, func() {
-			res, err := s.Service.AddInvite(tC.issuerID, tC.targetID, tC.groupID)
+			res, err := s.Service.AddInvite(context.Background(), tC.issuerID, tC.targetID, tC.groupID)
 			s.Equal(tC.expectedResult, res)
 			s.Equal(tC.expectedError, err)
 		})
@@ -186,7 +187,7 @@ func (s *InviteTestSuite) TestRespondInvite() {
 
 	for _, tC := range testCases {
 		s.Run(tC.desc, func() {
-			invite, group, err := s.Service.RespondInvite(tC.userID, tC.inviteID, tC.response)
+			invite, group, err := s.Service.RespondInvite(context.Background(), tC.userID, tC.inviteID, tC.response)
 			s.Equal(tC.expectedInvite, invite)
 			s.Equal(tC.expectedGroup, group)
 			s.Equal(tC.expectedError, err)

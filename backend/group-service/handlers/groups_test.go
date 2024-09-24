@@ -33,7 +33,7 @@ func (s *GroupTestSuite) SetupSuite() {
 
 	s.IDs["member"] = uuid.MustParse("6c564875-cd55-4e20-a035-44f1750d25b9")
 
-	service := new(mockservice.MockGroupService)
+	service := new(mockservice.GroupsMockService)
 	service.On("GetUserGroups", s.IDs["user1"]).Return([]*models.Group{
 		{ID: s.IDs["group1"]},
 		{ID: s.IDs["group2"]},

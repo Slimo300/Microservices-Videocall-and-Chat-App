@@ -39,7 +39,7 @@ func (s *Server) SetGroupProfilePicture(c *gin.Context) {
 		return
 	}
 
-	pictureURL, err := s.Service.SetGroupPicture(userID, groupID, file)
+	pictureURL, err := s.Service.SetGroupPicture(c.Request.Context(), userID, groupID, file)
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
@@ -61,7 +61,7 @@ func (s *Server) DeleteGroupProfilePicture(c *gin.Context) {
 		return
 	}
 
-	if err := s.Service.DeleteGroupPicture(userID, groupID); err != nil {
+	if err := s.Service.DeleteGroupPicture(c.Request.Context(), userID, groupID); err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}

@@ -32,7 +32,7 @@ func (s *InvitesTestSuite) SetupSuite() {
 	s.IDs["userWithoutInvites"] = uuid.MustParse("1414bb70-a865-4a88-8c5d-adbe7fa1ec53")
 	s.IDs["group"] = uuid.MustParse("b646e70f-3c8f-4782-84a3-0b34b0f9aecf")
 
-	service := new(mockservice.MockGroupService)
+	service := new(mockservice.GroupsMockService)
 	service.On("GetUserInvites", s.IDs["user"], 2, 0).Return([]*models.Invite{{ID: s.IDs["invite"]}, {ID: s.IDs["inviteAnswered"]}}, nil)
 	service.On("GetUserInvites", s.IDs["userWithoutInvites"], 2, 0).Return([]*models.Invite{}, nil)
 

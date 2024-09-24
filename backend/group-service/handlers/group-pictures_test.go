@@ -28,7 +28,7 @@ func (s *GroupPicturesTestSuite) SetupSuite() {
 	s.IDs["user"] = uuid.New()
 	s.IDs["group"] = uuid.New()
 
-	service := new(mockservice.MockGroupService)
+	service := new(mockservice.GroupsMockService)
 	service.On("SetGroupPicture", s.IDs["userOK"], s.IDs["groupOK"], mock.Anything).Return("picture_url", nil)
 	service.On("DeleteGroupPicture", s.IDs["userOK"], s.IDs["groupOK"], mock.Anything).Return(nil)
 

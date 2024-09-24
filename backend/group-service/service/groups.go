@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"time"
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
@@ -9,9 +10,9 @@ import (
 	"github.com/google/uuid"
 )
 
-func (srv GroupService) CreateGroup(userID uuid.UUID, name string) (*models.Group, error) {
+func (srv GroupService) CreateGroup(ctx context.Context, userID uuid.UUID, name string) (*models.Group, error) {
 
-	group, err := srv.DB.CreateGroup(&models.Group{
+	group, err := srv.DB.CreateGroup(ctx, &models.Group{
 		ID:      uuid.New(),
 		Name:    name,
 		Created: time.Now(),
@@ -20,7 +21,7 @@ func (srv GroupService) CreateGroup(userID uuid.UUID, name string) (*models.Grou
 		return nil, err
 	}
 
-	member, err := srv.DB.CreateMember(&models.Member{
+	member, err := srv.DB.CreateMember(ctx, &models.Member{
 		ID:      uuid.New(),
 		GroupID: group.ID,
 		UserID:  userID,
@@ -48,8 +49,8 @@ func (srv GroupService) CreateGroup(userID uuid.UUID, name string) (*models.Grou
 	return group, nil
 }
 
-func (srv GroupService) DeleteGroup(userID, groupID uuid.UUID) (*models.Group, error) {
-	member, err := srv.DB.GetMemberByUserGroupID(userID, groupID)
+func (srv GroupService) DeleteGroup(ctx context.Context, userID, groupID uuid.UUID) (*models.Group, error) {
+	member, err := srv.DB.GetMemberByUserGroupID(ctx, userID, groupID)
 	if err != nil {
 		return nil, apperrors.NewNotFound("group not found")
 	}
@@ -58,7 +59,7 @@ func (srv GroupService) DeleteGroup(userID, groupID uuid.UUID) (*models.Group, e
 		return nil, apperrors.NewForbidden("member can't delete this group")
 	}
 
-	group, err := srv.DB.DeleteGroup(groupID)
+	group, err := srv.DB.DeleteGroup(ctx, groupID)
 	if err != nil {
 		return nil, apperrors.NewNotFound("group not found")
 	}
@@ -66,9 +67,9 @@ func (srv GroupService) DeleteGroup(userID, groupID uuid.UUID) (*models.Group, e
 	return group, nil
 }
 
-func (srv GroupService) GetUserGroups(userID uuid.UUID) ([]*models.Group, error) {
+func (srv GroupService) GetUserGroups(ctx context.Context, userID uuid.UUID) ([]*models.Group, error) {
 
-	groups, err := srv.DB.GetUserGroups(userID)
+	groups, err := srv.DB.GetUserGroups(ctx, userID)
 	if err != nil {
 		return nil, err
 	}

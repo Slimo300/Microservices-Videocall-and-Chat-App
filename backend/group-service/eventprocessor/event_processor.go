@@ -1,6 +1,7 @@
 package eventprocessor
 
 import (
+	"context"
 	"log"
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/database"
@@ -11,12 +12,12 @@ import (
 
 // EventProcessor processes events from listener and updates state of application
 type EventProcessor struct {
-	DB       database.DBLayer
+	DB       database.GroupsRepository
 	Listener msgqueue.EventListener
 }
 
 // NewEventProcessor is a constructor for EventProcessor type
-func NewEventProcessor(db database.DBLayer, listener msgqueue.EventListener) *EventProcessor {
+func NewEventProcessor(db database.GroupsRepository, listener msgqueue.EventListener) *EventProcessor {
 	return &EventProcessor{
 		DB:       db,
 		Listener: listener,
@@ -35,11 +36,11 @@ func (p *EventProcessor) ProcessEvents(eventNames ...string) {
 		case evt := <-received:
 			switch e := evt.(type) {
 			case *events.UserRegisteredEvent:
-				if _, err := p.DB.CreateUser(&models.User{ID: e.ID, UserName: e.Username}); err != nil {
+				if _, err := p.DB.CreateUser(context.Background(), &models.User{ID: e.ID, UserName: e.Username}); err != nil {
 					log.Printf("Listener NewUser error: %s", err.Error())
 				}
 			case *events.UserPictureModifiedEvent:
-				if _, err := p.DB.UpdateUser(&models.User{ID: e.ID, Picture: e.PictureURL}); err != nil {
+				if _, err := p.DB.UpdateUser(context.Background(), &models.User{ID: e.ID, Picture: e.PictureURL}); err != nil {
 					log.Printf("Listener UpdatePicture error: %s", err.Error())
 				}
 			default:
