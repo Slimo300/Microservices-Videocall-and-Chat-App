@@ -62,7 +62,6 @@ func LoadConfigFromEnvironment() (conf Config, err error) {
 	if len(conf.BrokerType) == 0 {
 		return Config{}, errors.New("environment variable BROKER_TYPE not set")
 	}
-
 	conf.BrokerAddress = os.Getenv("BROKER_ADDRESS")
 	if len(conf.BrokerAddress) == 0 {
 		return Config{}, errors.New("environment variable BROKER_ADDRESS not set")

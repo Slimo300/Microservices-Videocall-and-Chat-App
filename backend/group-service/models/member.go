@@ -1,9 +1,6 @@
 package models
 
 import (
-	"fmt"
-	"reflect"
-
 	"github.com/google/uuid"
 )
 
@@ -64,47 +61,18 @@ func (m Member) role(noDeleter bool) role {
 	return BASIC
 }
 
-// Here are methods and constants responsible for changing rights of a member
-
-type operation int
-
-const (
-	REVOKE operation = iota - 1
-	IGNORE
-	GRANT
-)
-
 type MemberRights struct {
-	Adding           operation `json:"adding,omitempty"`
-	DeletingMessages operation `json:"deletingMessages,omitempty"`
-	DeletingMembers  operation `json:"deletingMembers,omitempty"`
-	Admin            operation `json:"admin,omitempty"`
-	Muting           operation `json:"muting,omitempty"`
+	Adding           bool `json:"adding"`
+	DeletingMessages bool `json:"deletingMessages"`
+	DeletingMembers  bool `json:"deletingMembers"`
+	Admin            bool `json:"admin"`
+	Muting           bool `json:"muting"`
 }
 
-func (m *Member) ApplyRights(rights MemberRights) error {
-	val := reflect.ValueOf(rights)
-	typ := val.Type()
-
-	for i := 0; i < val.NumField(); i++ {
-		switch val.Field(i).Interface() {
-		case IGNORE:
-			continue
-		case GRANT:
-			m.grant(typ.Field(i).Name)
-		case REVOKE:
-			m.revoke(typ.Field(i).Name)
-		default:
-			return fmt.Errorf("Unsupported action code: %v", val.Field(i).Interface())
-		}
-	}
-	return nil
-}
-
-func (m *Member) grant(field string) {
-	reflect.ValueOf(m).Elem().FieldByName(field).SetBool(true)
-}
-
-func (m *Member) revoke(field string) {
-	reflect.ValueOf(m).Elem().FieldByName(field).SetBool(false)
+func (m *Member) ApplyRights(rights MemberRights) {
+	m.Adding = rights.Adding
+	m.DeletingMembers = rights.DeletingMembers
+	m.DeletingMessages = rights.DeletingMessages
+	m.Admin = rights.Admin
+	m.Muting = rights.Muting
 }

@@ -14,7 +14,7 @@ func (s *Server) GetUserGroups(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
 	}
 
-	groups, err := s.Service.GetUserGroups(userID)
+	groups, err := s.Service.GetUserGroups(c.Request.Context(), userID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
@@ -48,7 +48,7 @@ func (s *Server) CreateGroup(c *gin.Context) {
 		return
 	}
 
-	group, err := s.Service.CreateGroup(userID, payload.Name)
+	group, err := s.Service.CreateGroup(c.Request.Context(), userID, payload.Name)
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
@@ -70,7 +70,7 @@ func (s *Server) DeleteGroup(c *gin.Context) {
 		return
 	}
 
-	_, err = s.Service.DeleteGroup(userID, groupID)
+	_, err = s.Service.DeleteGroup(c.Request.Context(), userID, groupID)
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return

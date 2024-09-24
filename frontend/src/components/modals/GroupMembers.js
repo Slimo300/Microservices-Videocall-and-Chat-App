@@ -119,11 +119,16 @@ const Rights = ({ member, user, setMsg }) => {
         }
         let response = await SetRights(
             member.ID, 
-            DetermineAction(member.adding, adding), 
-            DetermineAction(member.deletingMessages, deletingMessages),
-            DetermineAction(member.muting, muting),
-            DetermineAction(member.deletingMembers, deletingMembers),
-            DetermineAction(member.admin, admin)
+            adding,
+            deletingMessages,
+            muting,
+            deletingMembers,
+            admin
+            // DetermineAction(member.adding, adding), 
+            // DetermineAction(member.deletingMessages, deletingMessages),
+            // DetermineAction(member.muting, muting),
+            // DetermineAction(member.deletingMembers, deletingMembers),
+            // DetermineAction(member.admin, admin)
         );
         if (response.status === 200) {
             setMsg("Rights changed");

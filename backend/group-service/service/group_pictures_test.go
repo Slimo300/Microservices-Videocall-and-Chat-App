@@ -1,6 +1,7 @@
 package service_test
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -19,7 +20,7 @@ import (
 type GroupPicturesTestSuite struct {
 	suite.Suite
 	IDs     map[string]uuid.UUID
-	Service service.ServiceLayer
+	Service service.Service
 }
 
 func (s *GroupPicturesTestSuite) SetupSuite() {
@@ -31,17 +32,17 @@ func (s *GroupPicturesTestSuite) SetupSuite() {
 	s.IDs["userWithoutRights"] = uuid.New()
 	s.IDs["groupWithoutPicture"] = uuid.New()
 
-	db := new(mockdb.MockGroupsDB)
-	db.On("GetMemberByUserGroupID", s.IDs["userOK"], s.IDs["groupOK"]).Return(&models.Member{ID: uuid.New(), Creator: true}, nil)
-	db.On("GetMemberByUserGroupID", s.IDs["userOK"], s.IDs["groupWithoutPicture"]).Return(&models.Member{ID: uuid.New(), Creator: true}, nil)
-	db.On("GetMemberByUserGroupID", s.IDs["userWithoutRights"], s.IDs["groupOK"]).Return(&models.Member{ID: uuid.New(), Creator: false}, nil)
-	db.On("GetMemberByUserGroupID", s.IDs["userOK"], mock.Anything).Return(nil, errors.New("member not found"))
+	db := new(mockdb.GroupsMockRepository)
+	db.On("GetMemberByUserGroupID", mock.Anything, s.IDs["userOK"], s.IDs["groupOK"]).Return(&models.Member{ID: uuid.New(), Creator: true}, nil)
+	db.On("GetMemberByUserGroupID", mock.Anything, s.IDs["userOK"], s.IDs["groupWithoutPicture"]).Return(&models.Member{ID: uuid.New(), Creator: true}, nil)
+	db.On("GetMemberByUserGroupID", mock.Anything, s.IDs["userWithoutRights"], s.IDs["groupOK"]).Return(&models.Member{ID: uuid.New(), Creator: false}, nil)
+	db.On("GetMemberByUserGroupID", mock.Anything, s.IDs["userOK"], mock.Anything).Return(nil, errors.New("member not found"))
 
-	db.On("GetGroupByID", s.IDs["groupOK"]).Return(&models.Group{ID: s.IDs["groupOK"], Picture: "picture"}, nil)
-	db.On("GetGroupByID", s.IDs["groupWithoutPicture"]).Return(&models.Group{ID: s.IDs["groupWithoutPicture"]}, nil)
-	db.On("GetGroupByID", mock.Anything).Return(nil, errors.New("group not found"))
+	db.On("GetGroupByID", mock.Anything, s.IDs["groupOK"]).Return(&models.Group{ID: s.IDs["groupOK"], Picture: "picture"}, nil)
+	db.On("GetGroupByID", mock.Anything, s.IDs["groupWithoutPicture"]).Return(&models.Group{ID: s.IDs["groupWithoutPicture"]}, nil)
+	db.On("GetGroupByID", mock.Anything, mock.Anything).Return(nil, errors.New("group not found"))
 
-	db.On("UpdateGroup", mock.Anything).Return(&models.Group{ID: s.IDs["groupOK"], Picture: "picture"}, nil)
+	db.On("UpdateGroup", mock.Anything, mock.Anything).Return(&models.Group{ID: s.IDs["groupOK"], Picture: "picture"}, nil)
 
 	storage := new(storage.MockStorage)
 
@@ -94,7 +95,7 @@ func (s *GroupPicturesTestSuite) TestDeleteGroupPicture() {
 
 	for _, tC := range testCases {
 		s.Run(tC.desc, func() {
-			err := s.Service.DeleteGroupPicture(tC.userID, tC.groupID)
+			err := s.Service.DeleteGroupPicture(context.Background(), tC.userID, tC.groupID)
 			s.Equal(tC.expectedError, err)
 		})
 	}
@@ -138,7 +139,7 @@ func (s *GroupPicturesTestSuite) TestSetGroupPicture() {
 
 	for _, tC := range testCases {
 		s.Run(tC.desc, func() {
-			pictureID, err := s.Service.SetGroupPicture(tC.userID, tC.groupID, nil)
+			pictureID, err := s.Service.SetGroupPicture(context.Background(), tC.userID, tC.groupID, nil)
 			s.Equal(tC.expectedResult, pictureID)
 			s.Equal(tC.expectedError, err)
 		})

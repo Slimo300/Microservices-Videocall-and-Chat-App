@@ -1,6 +1,7 @@
 package orm_test
 
 import (
+	"context"
 	"errors"
 	"testing"
 	"time"
@@ -11,7 +12,7 @@ import (
 )
 
 func TestHandleGroup(t *testing.T) {
-	group, err := db.CreateGroup(&models.Group{
+	group, err := db.CreateGroup(context.Background(), &models.Group{
 		ID:      uuid.New(),
 		Name:    "New Group",
 		Created: time.Now(),
@@ -20,7 +21,7 @@ func TestHandleGroup(t *testing.T) {
 		t.Fatalf("Creating group failed with error: %v", err)
 	}
 
-	group, err = db.GetGroupByID(group.ID)
+	group, err = db.GetGroupByID(context.Background(), group.ID)
 	if err != nil {
 		t.Fatalf("Error getting newly created group: %v", err)
 	}
@@ -28,10 +29,10 @@ func TestHandleGroup(t *testing.T) {
 		t.Fatal("group name not correct")
 	}
 
-	user, _ := db.CreateUser(&models.User{ID: uuid.New(), UserName: "SLimo"})
-	_, _ = db.CreateMember(&models.Member{ID: uuid.New(), GroupID: group.ID, UserID: user.ID})
+	user, _ := db.CreateUser(context.Background(), &models.User{ID: uuid.New(), UserName: "SLimo"})
+	_, _ = db.CreateMember(context.Background(), &models.Member{ID: uuid.New(), GroupID: group.ID, UserID: user.ID})
 
-	group, err = db.UpdateGroup(&models.Group{
+	group, err = db.UpdateGroup(context.Background(), &models.Group{
 		ID:      group.ID,
 		Picture: "Picture",
 	})
@@ -42,7 +43,7 @@ func TestHandleGroup(t *testing.T) {
 		t.Fatal("group has 0 members after update")
 	}
 
-	group, err = db.GetGroupByID(group.ID)
+	group, err = db.GetGroupByID(context.Background(), group.ID)
 	if err != nil {
 		t.Fatalf("Error getting newly created group: %v", err)
 	}
@@ -50,11 +51,11 @@ func TestHandleGroup(t *testing.T) {
 		t.Fatal("group picture not correct")
 	}
 
-	_, err = db.DeleteGroup(group.ID)
+	_, err = db.DeleteGroup(context.Background(), group.ID)
 	if err != nil {
 		t.Fatalf("Error deleting group: %v", err)
 	}
-	_, err = db.GetGroupByID(group.ID)
+	_, err = db.GetGroupByID(context.Background(), group.ID)
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		t.Fatalf("Error received from getting deleted group: %v", err)
 	}
@@ -62,18 +63,18 @@ func TestHandleGroup(t *testing.T) {
 
 func TestGetUserGroups(t *testing.T) {
 
-	user, _ := db.CreateUser(&models.User{ID: uuid.New(), UserName: "Slimo300"})
-	group1, _ := db.CreateGroup(&models.Group{ID: uuid.New(), Name: "New Group", Created: time.Now()})
-	group2, _ := db.CreateGroup(&models.Group{ID: uuid.New(), Name: "New Group2", Created: time.Now()})
-	member1, _ := db.CreateMember(&models.Member{ID: uuid.New(), UserID: user.ID, GroupID: group1.ID})
-	member2, _ := db.CreateMember(&models.Member{ID: uuid.New(), UserID: user.ID, GroupID: group2.ID})
+	user, _ := db.CreateUser(context.Background(), &models.User{ID: uuid.New(), UserName: "Slimo300"})
+	group1, _ := db.CreateGroup(context.Background(), &models.Group{ID: uuid.New(), Name: "New Group", Created: time.Now()})
+	group2, _ := db.CreateGroup(context.Background(), &models.Group{ID: uuid.New(), Name: "New Group2", Created: time.Now()})
+	member1, _ := db.CreateMember(context.Background(), &models.Member{ID: uuid.New(), UserID: user.ID, GroupID: group1.ID})
+	member2, _ := db.CreateMember(context.Background(), &models.Member{ID: uuid.New(), UserID: user.ID, GroupID: group2.ID})
 
 	t.Cleanup(func() {
-		_, _ = db.DeleteMember(member1.ID)
-		_, _ = db.DeleteMember(member2.ID)
-		_, _ = db.DeleteGroup(group1.ID)
-		_, _ = db.DeleteGroup(group2.ID)
-		_, _ = db.DeleteUser(user.ID)
+		_, _ = db.DeleteMember(context.Background(), member1.ID)
+		_, _ = db.DeleteMember(context.Background(), member2.ID)
+		_, _ = db.DeleteGroup(context.Background(), group1.ID)
+		_, _ = db.DeleteGroup(context.Background(), group2.ID)
+		_, _ = db.DeleteUser(context.Background(), user.ID)
 	})
 
 	expectedGroups := map[uuid.UUID]bool{
@@ -81,7 +82,7 @@ func TestGetUserGroups(t *testing.T) {
 		group2.ID: true,
 	}
 
-	groups, err := db.GetUserGroups(user.ID)
+	groups, err := db.GetUserGroups(context.Background(), user.ID)
 	if err != nil {
 		t.Fatalf("Error getting user groups: %v", err)
 	}

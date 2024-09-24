@@ -88,42 +88,23 @@ func (s *MemberTestSuite) TestCanAlter() {
 func (s *MemberTestSuite) TestApplyRights() {
 	s.False(s.basic3.Adding)
 
-	if err := s.basic3.ApplyRights(models.MemberRights{
-		Adding: 1,
-	}); err != nil {
-		s.Fail(err.Error())
-	}
+	s.basic3.ApplyRights(models.MemberRights{Adding: true})
 	s.True(s.basic3.Adding)
 
-	if err := s.basic3.ApplyRights(models.MemberRights{
-		Adding: -1,
-	}); err != nil {
-		s.Fail(err.Error())
-	}
+	s.basic3.ApplyRights(models.MemberRights{Adding: false})
 	s.False(s.basic3.Adding)
 
-	if err := s.basic3.ApplyRights(models.MemberRights{
-		Adding: 0,
-	}); err != nil {
-		s.Fail(err.Error())
-	}
-	s.False(s.basic3.Adding)
+	s.admin3.ApplyRights(models.MemberRights{
+		Adding:           true,
+		DeletingMessages: false,
+		DeletingMembers:  false,
+		Admin:            false,
+	})
 
-	if err := s.admin3.ApplyRights(models.MemberRights{
-		Adding:           1,
-		DeletingMessages: 0,
-		DeletingMembers:  -1,
-		Admin:            -1,
-	}); err != nil {
-		s.Fail(err.Error())
-	}
 	s.True(s.admin3.Adding)
 	s.False(s.admin3.DeletingMessages)
 	s.False(s.admin3.DeletingMembers)
 	s.False(s.admin3.Admin)
-
-	s.Error(s.admin3.ApplyRights(models.MemberRights{Adding: 2}))
-
 }
 
 func TestMembers(t *testing.T) {

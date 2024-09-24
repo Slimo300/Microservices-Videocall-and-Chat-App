@@ -25,13 +25,12 @@ func readPrivateKey() (*rsa.PrivateKey, error) {
 		return nil, err
 	}
 	block, _ := pem.Decode(bytePrivKey)
-	key, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	key, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 	if err != nil {
 		return nil, err
 	}
 
-	return key, nil
-
+	return key.(*rsa.PrivateKey), nil
 }
 
 func main() {

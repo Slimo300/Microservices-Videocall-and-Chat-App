@@ -65,9 +65,6 @@ func NewS3Storage(accessKey, secretKey, bucket string, options ...S3Option) (*S3
 		Region:      aws.String(storage.DEFAULT_REGION),
 	}
 
-	if os.Getenv("STORAGE_USE_DO") == "true" {
-		config.Endpoint = aws.String("https://fra1.digitaloceanspaces.com")
-	}
 	if len(os.Getenv("STORAGE_REGION")) != 0 {
 		config.Region = aws.String(os.Getenv("STORAGE_REGION"))
 	}
@@ -126,7 +123,7 @@ func (s *S3Storage) GetPresignedPutRequests(prefix string, files ...storage.PutF
 		return nil, err
 	}
 	if !ok {
-		return nil, fmt.Errorf("Storage Limit Exceeded")
+		return nil, fmt.Errorf("storage limit exceeded")
 	}
 
 	var out []storage.PutFileOutput

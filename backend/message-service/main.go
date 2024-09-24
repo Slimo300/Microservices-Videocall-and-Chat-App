@@ -82,8 +82,7 @@ func main() {
 		log.Fatalf("Error when building listener: %v", err)
 	}
 
-	log.Println(conf.StorageKeyID, conf.StorageKeySecret)
-	storage, err := s3.NewS3Storage(conf.StorageKeyID, conf.StorageKeySecret, conf.Bucket, s3.WithCORS(conf.Origin), s3.WithACL("private"))
+	storage, err := s3.NewS3Storage(conf.StorageKeyID, conf.StorageKeySecret, conf.Bucket, s3.WithCORS(conf.Origin))
 	if err != nil {
 		log.Fatalf("Couldn't establish s3 session: %v", err)
 	}

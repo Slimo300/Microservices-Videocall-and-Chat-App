@@ -27,12 +27,12 @@ func (s *Server) GrantRights(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
 	}
-	if rights.Adding == 0 && rights.DeletingMessages == 0 && rights.DeletingMembers == 0 && rights.Admin == 0 && rights.Muting == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "no action specified"})
-		return
-	}
+	// if rights.Adding == 0 && rights.DeletingMessages == 0 && rights.DeletingMembers == 0 && rights.Admin == 0 && rights.Muting == 0 {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"err": "no action specified"})
+	// 	return
+	// }
 
-	_, err = s.Service.GrantRights(userID, memberID, rights)
+	_, err = s.Service.GrantRights(c.Request.Context(), userID, memberID, rights)
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
@@ -54,7 +54,7 @@ func (s *Server) DeleteUserFromGroup(c *gin.Context) {
 		return
 	}
 
-	_, err = s.Service.DeleteMember(userID, memberID)
+	_, err = s.Service.DeleteMember(c.Request.Context(), userID, memberID)
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return

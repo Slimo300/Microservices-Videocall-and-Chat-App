@@ -16,10 +16,10 @@ type Server struct {
 	logger       *log.Logger
 	PublicKey    *rsa.PublicKey
 	MaxBodyBytes int64
-	Service      service.ServiceLayer
+	Service      service.Service
 }
 
-func NewServer(service service.ServiceLayer, pubKey *rsa.PublicKey) *Server {
+func NewServer(service service.Service, pubKey *rsa.PublicKey) *Server {
 	return &Server{
 		Service:      service,
 		MaxBodyBytes: MAX_BODY_BYTES,

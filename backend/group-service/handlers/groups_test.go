@@ -33,16 +33,16 @@ func (s *GroupTestSuite) SetupSuite() {
 
 	s.IDs["member"] = uuid.MustParse("6c564875-cd55-4e20-a035-44f1750d25b9")
 
-	service := new(mockservice.MockGroupService)
-	service.On("GetUserGroups", s.IDs["user1"]).Return([]*models.Group{
+	service := new(mockservice.GroupsMockService)
+	service.On("GetUserGroups", mock.Anything, s.IDs["user1"]).Return([]*models.Group{
 		{ID: s.IDs["group1"]},
 		{ID: s.IDs["group2"]},
 	}, nil)
-	service.On("GetUserGroups", s.IDs["user2"]).Return([]*models.Group{}, nil)
+	service.On("GetUserGroups", mock.Anything, s.IDs["user2"]).Return([]*models.Group{}, nil)
 
-	service.On("CreateGroup", mock.Anything, mock.Anything).Return(&models.Group{}, nil)
+	service.On("CreateGroup", mock.Anything, mock.Anything, mock.Anything).Return(&models.Group{}, nil)
 
-	service.On("DeleteGroup", mock.Anything).Return(&models.Group{}, nil)
+	service.On("DeleteGroup", mock.Anything, mock.Anything).Return(&models.Group{}, nil)
 
 	s.server = handlers.NewServer(service, nil)
 }

@@ -11,7 +11,7 @@ import (
 	"github.com/ory/dockertest"
 )
 
-var db database.DBLayer
+var db database.GroupsRepository
 
 func TestMain(m *testing.M) {
 	// uses a sensible default on windows (tcp/http) and linux/osx (socket)

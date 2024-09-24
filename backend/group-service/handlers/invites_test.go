@@ -13,6 +13,7 @@ import (
 	mockservice "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/service/mock"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -32,14 +33,14 @@ func (s *InvitesTestSuite) SetupSuite() {
 	s.IDs["userWithoutInvites"] = uuid.MustParse("1414bb70-a865-4a88-8c5d-adbe7fa1ec53")
 	s.IDs["group"] = uuid.MustParse("b646e70f-3c8f-4782-84a3-0b34b0f9aecf")
 
-	service := new(mockservice.MockGroupService)
-	service.On("GetUserInvites", s.IDs["user"], 2, 0).Return([]*models.Invite{{ID: s.IDs["invite"]}, {ID: s.IDs["inviteAnswered"]}}, nil)
-	service.On("GetUserInvites", s.IDs["userWithoutInvites"], 2, 0).Return([]*models.Invite{}, nil)
+	service := new(mockservice.GroupsMockService)
+	service.On("GetUserInvites", mock.Anything, s.IDs["user"], 2, 0).Return([]*models.Invite{{ID: s.IDs["invite"]}, {ID: s.IDs["inviteAnswered"]}}, nil)
+	service.On("GetUserInvites", mock.Anything, s.IDs["userWithoutInvites"], 2, 0).Return([]*models.Invite{}, nil)
 
-	service.On("AddInvite", s.IDs["user"], s.IDs["target"], s.IDs["group"]).Return(&models.Invite{ID: s.IDs["invite"]}, nil)
+	service.On("AddInvite", mock.Anything, s.IDs["user"], s.IDs["target"], s.IDs["group"]).Return(&models.Invite{ID: s.IDs["invite"]}, nil)
 
-	service.On("RespondInvite", s.IDs["user"], s.IDs["invite"], false).Return(&models.Invite{ID: s.IDs["invite"]}, nil, nil)
-	service.On("RespondInvite", s.IDs["user"], s.IDs["invite"], true).Return(&models.Invite{ID: s.IDs["invite"]}, &models.Group{ID: s.IDs["group"]}, nil)
+	service.On("RespondInvite", mock.Anything, s.IDs["user"], s.IDs["invite"], false).Return(&models.Invite{ID: s.IDs["invite"]}, nil, nil)
+	service.On("RespondInvite", mock.Anything, s.IDs["user"], s.IDs["invite"], true).Return(&models.Invite{ID: s.IDs["invite"]}, &models.Group{ID: s.IDs["group"]}, nil)
 
 	s.server = handlers.NewServer(service, nil)
 }

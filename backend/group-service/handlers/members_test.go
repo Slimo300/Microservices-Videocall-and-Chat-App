@@ -30,10 +30,10 @@ func (s *MembersTestSuite) SetupSuite() {
 	s.IDs["group"] = uuid.New()
 	s.IDs["member"] = uuid.New()
 
-	service := new(mockservice.MockGroupService)
-	service.On("GrantRights", s.IDs["user"], s.IDs["member"], mock.Anything).Return(&models.Member{ID: s.IDs["member"]}, nil)
-	service.On("DeleteMember", s.IDs["user"], s.IDs["member"]).Return(&models.Member{ID: s.IDs["member"]}, nil)
-	service.On("DeleteGroup", s.IDs["user"], s.IDs["group"]).Return(&models.Group{ID: s.IDs["group"]}, nil)
+	service := new(mockservice.GroupsMockService)
+	service.On("GrantRights", mock.Anything, s.IDs["user"], s.IDs["member"], mock.Anything).Return(&models.Member{ID: s.IDs["member"]}, nil)
+	service.On("DeleteMember", mock.Anything, s.IDs["user"], s.IDs["member"]).Return(&models.Member{ID: s.IDs["member"]}, nil)
+	service.On("DeleteGroup", mock.Anything, s.IDs["user"], s.IDs["group"]).Return(&models.Group{ID: s.IDs["group"]}, nil)
 
 	s.server = handlers.NewServer(service, nil)
 }
@@ -53,7 +53,7 @@ func (s *MembersTestSuite) TestGrantRights() {
 			desc:               "UpdateRightsBadUserID",
 			userID:             s.IDs["user"].String()[:2],
 			memberID:           s.IDs["member"].String(),
-			data:               map[string]interface{}{"adding": -1},
+			data:               map[string]interface{}{"adding": false},
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "invalid ID"},
 		},
@@ -61,23 +61,15 @@ func (s *MembersTestSuite) TestGrantRights() {
 			desc:               "UpdateRightsBadMemberID",
 			userID:             s.IDs["user"].String(),
 			memberID:           s.IDs["member"].String()[:2],
-			data:               map[string]interface{}{"adding": -1},
+			data:               map[string]interface{}{"adding": false},
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse:   gin.H{"err": "invalid member ID"},
-		},
-		{
-			desc:               "UpdateRightsNoAction",
-			userID:             s.IDs["user"].String(),
-			memberID:           s.IDs["member"].String(),
-			data:               map[string]interface{}{},
-			expectedStatusCode: http.StatusBadRequest,
-			expectedResponse:   gin.H{"err": "no action specified"},
 		},
 		{
 			desc:               "UpdateRightsSuccess",
 			userID:             s.IDs["user"].String(),
 			memberID:           s.IDs["member"].String(),
-			data:               map[string]interface{}{"adding": -1},
+			data:               map[string]interface{}{"adding": false},
 			expectedStatusCode: http.StatusOK,
 			expectedResponse:   gin.H{"message": "member updated"},
 		},
