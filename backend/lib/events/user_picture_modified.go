@@ -7,7 +7,7 @@ import (
 // UserPictureModifiedEvent holds information about user changing his profile picture
 type UserPictureModifiedEvent struct {
 	ID         uuid.UUID `json:"userID" mapstructure:"userID"`
-	HasPicture string    `json:"hasPicture" mapstructure:"hasPicture"`
+	HasPicture bool      `json:"hasPicture" mapstructure:"hasPicture"`
 }
 
 // EventName method from Event interface

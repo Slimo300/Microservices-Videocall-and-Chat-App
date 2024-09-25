@@ -23,11 +23,11 @@ func (InviteSentEvent) EventName() string {
 // Group holds group information to be sent with invite
 type Group struct {
 	Name       string `json:"name" mapstructure:"name"`
-	HasPicture string `json:"hasPicture" mapstructure:"hasPicture"`
+	HasPicture bool   `json:"hasPicture" mapstructure:"hasPicture"`
 }
 
 // User holds user information to be sent with invite
 type User struct {
 	UserName   string `json:"username" mapstructure:"username"`
-	HasPicture string `json:"hasPicture" mapstructure:"hasPicture"`
+	HasPicture bool   `json:"hasPicture" mapstructure:"hasPicture"`
 }
