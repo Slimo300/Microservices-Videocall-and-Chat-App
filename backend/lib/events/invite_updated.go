@@ -1,8 +1,6 @@
 package events
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 )
 
@@ -15,7 +13,6 @@ type InviteRespondedEvent struct {
 	GroupID  uuid.UUID `json:"groupID" mapstructure:"groupID"`
 	Group    Group     `json:"group" mapstructure:"group"`
 	Status   int       `json:"status" mapstructure:"status"`
-	Modified time.Time `json:"modified" mapstructure:"modified"`
 }
 
 // EventName method from Event interface
