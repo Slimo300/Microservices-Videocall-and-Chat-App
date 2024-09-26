@@ -53,6 +53,8 @@ func NewS3Storage(ctx context.Context, accessKeyID, secretKey, bucket string, op
 		s3:                s3.NewFromConfig(cfg),
 		config:            cfg,
 		bucket:            bucket,
+		maxFileSize:       5000000000,
+		maxBucketSize:     5000000000000,
 		presignExpiration: 30,
 	}
 

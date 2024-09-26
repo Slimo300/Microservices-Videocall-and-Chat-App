@@ -21,7 +21,7 @@ func TestHandleUser(t *testing.T) {
 		t.Fatalf("Error getting user by ID: %v", err)
 	}
 
-	user.Picture = "picture"
+	user.HasPicture = true
 	user, err = db.UpdateUser(context.Background(), user)
 	if err != nil {
 		t.Fatalf("Error updating user: %v", err)
@@ -31,7 +31,7 @@ func TestHandleUser(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error getting user by ID: %v", err)
 	}
-	if user.Picture != "picture" {
+	if !user.HasPicture {
 		t.Fatalf("User's picture parameter is not of expected value")
 	}
 

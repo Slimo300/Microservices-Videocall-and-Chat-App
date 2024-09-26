@@ -225,24 +225,17 @@ func (_m *GroupsMockService) RespondInvite(ctx context.Context, userID uuid.UUID
 }
 
 // SetGroupPicture provides a mock function with given fields: ctx, userID, groupID, file
-func (_m *GroupsMockService) SetGroupPicture(ctx context.Context, userID uuid.UUID, groupID uuid.UUID, file multipart.File) (string, error) {
+func (_m *GroupsMockService) SetGroupPicture(ctx context.Context, userID uuid.UUID, groupID uuid.UUID, file multipart.File) error {
 	ret := _m.Called(ctx, userID, groupID, file)
 
-	var r0 string
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, multipart.File) string); ok {
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, multipart.File) error); ok {
 		r0 = rf(ctx, userID, groupID, file)
 	} else {
-		r0 = ret.Get(0).(string)
+		r0 = ret.Error(0)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, uuid.UUID, multipart.File) error); ok {
-		r1 = rf(ctx, userID, groupID, file)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
 type mockConstructorTestingTNewGroupsMockService interface {

@@ -8,7 +8,7 @@ import (
 	mockdb "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/database/mock"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/service"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/storage"
+	mockstorage "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/storage/mock"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 
@@ -38,17 +38,17 @@ func (s *GroupPicturesTestSuite) SetupSuite() {
 	db.On("GetMemberByUserGroupID", mock.Anything, s.IDs["userWithoutRights"], s.IDs["groupOK"]).Return(&models.Member{ID: uuid.New(), Creator: false}, nil)
 	db.On("GetMemberByUserGroupID", mock.Anything, s.IDs["userOK"], mock.Anything).Return(nil, errors.New("member not found"))
 
-	db.On("GetGroupByID", mock.Anything, s.IDs["groupOK"]).Return(&models.Group{ID: s.IDs["groupOK"], Picture: "picture"}, nil)
+	db.On("GetGroupByID", mock.Anything, s.IDs["groupOK"]).Return(&models.Group{ID: s.IDs["groupOK"], HasPicture: true}, nil)
 	db.On("GetGroupByID", mock.Anything, s.IDs["groupWithoutPicture"]).Return(&models.Group{ID: s.IDs["groupWithoutPicture"]}, nil)
 	db.On("GetGroupByID", mock.Anything, mock.Anything).Return(nil, errors.New("group not found"))
 
-	db.On("UpdateGroup", mock.Anything, mock.Anything).Return(&models.Group{ID: s.IDs["groupOK"], Picture: "picture"}, nil)
+	db.On("UpdateGroup", mock.Anything, mock.Anything).Return(&models.Group{ID: s.IDs["groupOK"], HasPicture: true}, nil)
 
-	storage := new(storage.MockStorage)
+	storage := new(mockstorage.MockStorage)
 
-	storage.On("DeleteFile", "force_error").Return(errors.New("storage error"))
-	storage.On("DeleteFile", mock.Anything).Return(nil)
-	storage.On("UploadFile", mock.Anything, mock.Anything).Return(nil)
+	storage.On("DeleteFile", mock.Anything, "force_error").Return(errors.New("storage error"))
+	storage.On("DeleteFile", mock.Anything, mock.Anything).Return(nil)
+	storage.On("UploadFile", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 	s.Service = service.NewService(db, storage, nil)
 }
@@ -72,12 +72,6 @@ func (s *GroupPicturesTestSuite) TestDeleteGroupPicture() {
 			userID:        s.IDs["userWithoutRights"],
 			groupID:       s.IDs["groupOK"],
 			expectedError: apperrors.NewForbidden("user has no rights to delete group picture"),
-		},
-		{
-			desc:          "group has no picture",
-			userID:        s.IDs["userOK"],
-			groupID:       s.IDs["groupWithoutPicture"],
-			expectedError: apperrors.NewBadRequest("group has no picture"),
 		},
 		{
 			desc:          "group has no picture",
@@ -122,13 +116,6 @@ func (s *GroupPicturesTestSuite) TestSetGroupPicture() {
 			expectedError: apperrors.NewForbidden("user has no rights to set group picture"),
 		},
 		{
-			desc:           "generate picture ID",
-			userID:         s.IDs["userOK"],
-			groupID:        s.IDs["groupWithoutPicture"],
-			expectedResult: "picture",
-			expectedError:  nil,
-		},
-		{
 			desc:           "success",
 			userID:         s.IDs["userOK"],
 			groupID:        s.IDs["groupOK"],
@@ -139,8 +126,7 @@ func (s *GroupPicturesTestSuite) TestSetGroupPicture() {
 
 	for _, tC := range testCases {
 		s.Run(tC.desc, func() {
-			pictureID, err := s.Service.SetGroupPicture(context.Background(), tC.userID, tC.groupID, nil)
-			s.Equal(tC.expectedResult, pictureID)
+			err := s.Service.SetGroupPicture(context.Background(), tC.userID, tC.groupID, nil)
 			s.Equal(tC.expectedError, err)
 		})
 	}

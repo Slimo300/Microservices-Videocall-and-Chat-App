@@ -33,8 +33,8 @@ func TestHandleGroup(t *testing.T) {
 	_, _ = db.CreateMember(context.Background(), &models.Member{ID: uuid.New(), GroupID: group.ID, UserID: user.ID})
 
 	group, err = db.UpdateGroup(context.Background(), &models.Group{
-		ID:      group.ID,
-		Picture: "Picture",
+		ID:         group.ID,
+		HasPicture: true,
 	})
 	if err != nil {
 		t.Fatalf("Error updating group: %v", err)
@@ -47,7 +47,7 @@ func TestHandleGroup(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error getting newly created group: %v", err)
 	}
-	if group.Picture != "Picture" {
+	if !group.HasPicture {
 		t.Fatal("group picture not correct")
 	}
 

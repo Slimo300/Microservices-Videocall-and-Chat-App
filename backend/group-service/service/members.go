@@ -40,8 +40,8 @@ func (srv *GroupService) GrantRights(ctx context.Context, userID, memberID uuid.
 		GroupID: member.GroupID,
 		UserID:  member.UserID,
 		User: events.User{
-			UserName: member.User.UserName,
-			Picture:  member.User.Picture,
+			UserName:   member.User.UserName,
+			HasPicture: member.User.HasPicture,
 		},
 		DeletingMessages: member.DeletingMessages,
 		Muting:           member.Muting,

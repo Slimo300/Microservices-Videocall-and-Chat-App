@@ -39,8 +39,8 @@ func (srv GroupService) CreateGroup(ctx context.Context, userID uuid.UUID, name 
 		UserID:  member.UserID,
 		Creator: member.Creator,
 		User: events.User{
-			UserName: member.User.UserName,
-			Picture:  member.User.Picture,
+			UserName:   member.User.UserName,
+			HasPicture: member.User.HasPicture,
 		},
 	}); err != nil {
 		return nil, err

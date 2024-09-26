@@ -6,8 +6,8 @@ import (
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/database"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/storage"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/storage"
 	"github.com/google/uuid"
 )
 
@@ -20,7 +20,7 @@ type Service interface {
 	DeleteMember(ctx context.Context, userID, memberID uuid.UUID) (*models.Member, error)
 	GrantRights(ctx context.Context, userID, memberID uuid.UUID, rights models.MemberRights) (*models.Member, error)
 
-	SetGroupPicture(ctx context.Context, userID, groupID uuid.UUID, file multipart.File) (string, error)
+	SetGroupPicture(ctx context.Context, userID, groupID uuid.UUID, file multipart.File) error
 	DeleteGroupPicture(ctx context.Context, userID, groupID uuid.UUID) error
 
 	GetUserInvites(ctx context.Context, userID uuid.UUID, num, offset int) ([]*models.Invite, error)
@@ -30,11 +30,11 @@ type Service interface {
 
 type GroupService struct {
 	DB      database.GroupsRepository
-	Storage storage.StorageLayer
+	Storage storage.Storage
 	Emitter msgqueue.EventEmiter
 }
 
-func NewService(DB database.GroupsRepository, storage storage.StorageLayer, emiter msgqueue.EventEmiter) Service {
+func NewService(DB database.GroupsRepository, storage storage.Storage, emiter msgqueue.EventEmiter) Service {
 	return &GroupService{
 		DB:      DB,
 		Storage: storage,

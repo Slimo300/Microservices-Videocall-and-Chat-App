@@ -14,7 +14,6 @@ func (s *Server) SetGroupProfilePicture(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "Invalid ID"})
 		return
 	}
-
 	groupID, err := uuid.Parse(c.Param("groupID"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "Invalid group ID"})
@@ -26,26 +25,22 @@ func (s *Server) SetGroupProfilePicture(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
 	}
-
 	mimeType := imageFileHeader.Header.Get("Content-Type")
 	if !isAllowedImageType(mimeType) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "image extension not allowed"})
 		return
 	}
-
 	file, err := imageFileHeader.Open()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "bad image"})
 		return
 	}
 
-	pictureURL, err := s.Service.SetGroupPicture(c.Request.Context(), userID, groupID, file)
-	if err != nil {
+	if err := s.Service.SetGroupPicture(c.Request.Context(), userID, groupID, file); err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{"newUrl": pictureURL})
+	c.JSON(http.StatusOK, gin.H{"message": "success"})
 }
 
 func (s *Server) DeleteGroupProfilePicture(c *gin.Context) {

@@ -55,7 +55,6 @@ func (srv *GroupService) AddInvite(ctx context.Context, userID, targetUserID, gr
 		IssuerID: invite.IssId,
 		TargetID: invite.TargetID,
 		GroupID:  invite.GroupID,
-		Modified: invite.Modified,
 	}); err != nil {
 		return nil, err
 	}
@@ -114,8 +113,8 @@ func (srv *GroupService) RespondInvite(ctx context.Context, userID, inviteID uui
 		GroupID: member.GroupID,
 		UserID:  member.UserID,
 		User: events.User{
-			UserName: member.User.UserName,
-			Picture:  member.User.Picture,
+			UserName:   member.User.UserName,
+			HasPicture: member.User.HasPicture,
 		},
 		Creator: member.Creator,
 	}); err != nil {
@@ -127,16 +126,15 @@ func (srv *GroupService) RespondInvite(ctx context.Context, userID, inviteID uui
 		IssuerID: invite.IssId,
 		TargetID: invite.TargetID,
 		Target: events.User{
-			UserName: invite.Target.UserName,
-			Picture:  invite.Target.Picture,
+			UserName:   invite.Target.UserName,
+			HasPicture: invite.Target.HasPicture,
 		},
 		GroupID: invite.GroupID,
 		Group: events.Group{
-			Name:    invite.Group.Name,
-			Picture: invite.Group.Picture,
+			Name:       invite.Group.Name,
+			HasPicture: invite.Group.HasPicture,
 		},
-		Status:   int(invite.Status),
-		Modified: invite.Modified,
+		Status: int(invite.Status),
 	}); err != nil {
 		return nil, nil, err
 	}

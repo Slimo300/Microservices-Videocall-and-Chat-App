@@ -19,10 +19,10 @@ import (
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/handlers"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/routes"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/service"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/storage"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/builder"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/storage/s3"
 )
 
 func getPublicKey() (*rsa.PublicKey, error) {
@@ -57,7 +57,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	storage, err := storage.NewS3Storage(conf.StorageKeyID, conf.StorageKeySecret, conf.Bucket)
+	storage, err := s3.NewS3Storage(context.Background(), conf.StorageKeyID, conf.StorageKeySecret, conf.Bucket)
 	if err != nil {
 		log.Fatalf("Error connecting to AWS S3: %v", err)
 	}

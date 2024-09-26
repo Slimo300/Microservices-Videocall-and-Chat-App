@@ -40,7 +40,7 @@ func (p *EventProcessor) ProcessEvents(eventNames ...string) {
 					log.Printf("Listener NewUser error: %s", err.Error())
 				}
 			case *events.UserPictureModifiedEvent:
-				if _, err := p.DB.UpdateUser(context.Background(), &models.User{ID: e.ID, Picture: e.PictureURL}); err != nil {
+				if _, err := p.DB.UpdateUser(context.Background(), &models.User{ID: e.ID, HasPicture: e.HasPicture}); err != nil {
 					log.Printf("Listener UpdatePicture error: %s", err.Error())
 				}
 			default:
