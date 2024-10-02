@@ -57,9 +57,9 @@ func LoadConfigFromEnvironment() (conf Config, err error) {
 	if len(conf.TURNPort) == 0 {
 		return Config{}, errors.New("environment variable TURN_PORT not set")
 	}
-	conf.TURNSPort = os.Getenv("TURN_TLS_PORT")
+	conf.TURNSPort = os.Getenv("TURNS_PORT")
 	if len(conf.TURNSPort) == 0 {
-		return Config{}, errors.New("environment variable TURN_TLS_PORT not set")
+		return Config{}, errors.New("environment variable TURNS_PORT not set")
 	}
 	conf.TURNUser = os.Getenv("TURN_USER")
 	if len(conf.TURNUser) == 0 {

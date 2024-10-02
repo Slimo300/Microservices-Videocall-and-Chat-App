@@ -62,14 +62,12 @@ func (db *Database) DeleteMessageForEveryone(userID, messageID uuid.UUID) (*mode
 func (db *Database) DeleteMessageForYourself(userID, messageID uuid.UUID) (*models.Message, error) {
 	var message models.Message
 	if err := db.Preload("Member").Preload("Deleters").First(&message, messageID).Error; err != nil {
-		log.Println(err)
 		return nil, apperrors.NewNotFound(fmt.Sprintf("message with id %s not found", messageID.String()))
 	}
 
 	var membership models.Membership
 	if err := db.Where(models.Membership{UserID: userID, GroupID: message.Member.GroupID}).First(&membership).Error; err != nil {
 		// Here we return not found not to give information about existance of message with given ID
-		log.Println(err)
 		return nil, apperrors.NewNotFound(fmt.Sprintf("message with id %s not found", messageID.String()))
 	}
 	// checking if user haven't already deleted this message
