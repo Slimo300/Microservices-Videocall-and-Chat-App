@@ -94,7 +94,7 @@ const Member = ({ member, group, user, setMsg, toggle }) => {
         <tr className='d-flex flex-column'>
             <td className="chat-avatar d-flex flex-row justify-content-center">
                 <div className='pr-3 members-image-holder'>
-                    <UserPicture pictureUrl={member.User.pictureUrl} />
+                    <UserPicture userID={member.User.ID} hasPicture={member.User.hasPicture}/>
                 </div>
                 <div className="chat-name pr-3 w-50 d-flex align-items-center">{member.User.username}</div>
                 {isSetter(user)?<div className='pr-3 align-right'><button className='btn-primary btn' type="button" onClick={toggleCollapse} disabled={!CanSet(user, member)}>Set rights</button></div>:null}
@@ -124,11 +124,6 @@ const Rights = ({ member, user, setMsg }) => {
             muting,
             deletingMembers,
             admin
-            // DetermineAction(member.adding, adding), 
-            // DetermineAction(member.deletingMessages, deletingMessages),
-            // DetermineAction(member.muting, muting),
-            // DetermineAction(member.deletingMembers, deletingMembers),
-            // DetermineAction(member.admin, admin)
         );
         if (response.status === 200) {
             setMsg("Rights changed");
@@ -170,11 +165,4 @@ const Rights = ({ member, user, setMsg }) => {
             </div>
         </td>
     )
-}
-
-const DetermineAction = (originalState, submitState) => {
-    if (originalState === submitState) return 0;
-    if (originalState === false && submitState === true) return 1;
-    if (originalState === true && submitState === false) return -1;
-    throw new Error("State are not booleans");
 }

@@ -13,7 +13,7 @@ export const GroupLabel = ({ group, setCurrent }) => {
     return (
         <li className="person" onClick={change}>
             <div className="user">
-                <GroupPicture pictureUrl={group.pictureUrl}/>
+                <GroupPicture groupID={group.ID} hasPicture={group.hasPicture}/>
             </div>
             <p className="name-time">
                 <span className="name">{group.name}</span>

@@ -3,10 +3,10 @@ import React from "react";
 import group from "../statics/images/group.jpg";
 import user from "../statics/images/user.png";
 
-export const UserPicture = ({ pictureUrl, imageID }) => {
+export const UserPicture = ({ userID, hasPicture, imageID }) => {
     return (
-        <img className="rounded-circle img-thumbnail" alt="user" id={imageID}
-            src={(pictureUrl === "")?user:window._env_.STORAGE_URL+"/"+pictureUrl}
+        <img className="rounded-circle img-thumbnail" alt="user" id={userID}
+            src={!hasPicture?user:window._env_.STORAGE_URL+"/"+userID}
             onError={({ currentTarget }) => {
                 currentTarget.onerror = null; 
                 currentTarget.src=user;
@@ -14,10 +14,10 @@ export const UserPicture = ({ pictureUrl, imageID }) => {
         />
     );
 } 
-export const GroupPicture = ({ pictureUrl, imageID }) => {
+export const GroupPicture = ({ groupID, hasPicture, imageID }) => {
     return (
         <img className="rounded-circle img-thumbnail" alt="group" id={imageID}
-            src={(pictureUrl === "")?group:window._env_.STORAGE_URL+"/"+pictureUrl}
+            src={!hasPicture?group:window._env_.STORAGE_URL+"/"+groupID}
             onError={({ currentTarget }) => {
                 currentTarget.onerror = null; 
                 currentTarget.src=group;

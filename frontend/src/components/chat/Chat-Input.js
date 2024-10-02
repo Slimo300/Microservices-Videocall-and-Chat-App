@@ -83,11 +83,11 @@ const ChatInput = ({ group, ws, user, member }) => {
 
                 let promises = [];
                 for (let i = 0; i < response.data.length; i++) {
-                    filesData.push({"key": response.data[i].key, "ext": files[i].type})
+                    filesData.push({"key": response.data[i].key, "ext": files[i].type});
                     promises.push(fetch(response.data[i].url, {
                         method: 'PUT',
                         body: files[i],
-                    }))
+                    }));
                 }
     
                 fileInput.current.setAttribute("hidden", true);

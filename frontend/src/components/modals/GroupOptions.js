@@ -23,7 +23,7 @@ export const ModalGroupOptions = ({ group, show, toggle }) => {
             setMessage("Image uploaded successfully");
             dispatch({type: actionTypes.SET_GROUP_PICTURE, payload: {newUrl: response.data.newUrl, groupID: group.ID}});
             let timestamp = new Date().getTime();
-            document.getElementById("profilePicture").src = window._env_.STORAGE_URL+"/"+group.pictureUrl+"?"+timestamp;
+            document.getElementById("profilePicture").src = window._env_.STORAGE_URL+"/"+group.ID+"?"+timestamp;
             document.getElementById("customFile").value= null;
         } else {
             setMessage(response.data.err);
@@ -40,7 +40,7 @@ export const ModalGroupOptions = ({ group, show, toggle }) => {
             setMessage("Image deleted successfully");
             dispatch({type: actionTypes.SET_GROUP_PICTURE, payload: { groupID: group.ID, newUrl: ""}})
             let timestamp = new Date().getTime();
-            document.getElementById("profilePicture").src = window._env_.STORAGE_URL+"/"+group.pictureUrl+"?"+timestamp;
+            document.getElementById("profilePicture").src = window._env_.STORAGE_URL+"/"+group.ID+"?"+timestamp;
         } else {
             setMessage(response.data.err);
         }
@@ -62,7 +62,7 @@ export const ModalGroupOptions = ({ group, show, toggle }) => {
                                 <div className="member-card">
                                     {message}
                                     <div className="mx-auto profile-image-holder">
-                                        <GroupPicture pictureUrl={group.pictureUrl} imageID="profilePicture"/>
+                                        <GroupPicture groupID={group.ID} hasPicture={group.hasPicture} imageID="profilePicture"/>
                                     </div>
                                     <div>
                                         <h4>{group.name}</h4>

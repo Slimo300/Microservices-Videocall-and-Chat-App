@@ -92,7 +92,7 @@ const User = ({ user, groupID, setMsg, toggle, isMember }) => {
     return (
         <div className="d-flex column justify-content-between align-items-center px-3">
             <div className="d-flex column align-items-center">
-                <div className="chat-avatar image-holder-invite"><UserPicture pictureUrl={user.picture}/></div>
+                <div className="chat-avatar image-holder-invite"><UserPicture userID={user.ID} hasPicture={user.hasPicture}/></div>
                 <div className="user-name pl-3">{user.username}</div>
             </div>
             <button className="btn btn-primary pl-3" disabled={isMember} onClick={AddUser}>Add User</button>
