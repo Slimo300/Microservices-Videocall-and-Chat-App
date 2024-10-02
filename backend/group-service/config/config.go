@@ -22,6 +22,7 @@ type Config struct {
 
 	StorageKeyID     string `mapstructure:"storageKeyID"`
 	StorageKeySecret string `mapstructure:"storageKeySecret"`
+	StorageRegion    string `mapstructure:"storageRegion"`
 	Bucket           string `mapstructure:"bucketname"`
 }
 
@@ -78,6 +79,10 @@ func LoadConfigFromEnvironment() (conf Config, err error) {
 	conf.Bucket = os.Getenv("STORAGE_BUCKET")
 	if len(conf.Bucket) == 0 {
 		return Config{}, errors.New("environment variable STORAGE_BUCKET not set")
+	}
+	conf.StorageRegion = os.Getenv("STORAGE_REGION")
+	if len(conf.StorageRegion) == 0 {
+		return Config{}, errors.New("environment variable STORAGE_REGION not set")
 	}
 
 	return

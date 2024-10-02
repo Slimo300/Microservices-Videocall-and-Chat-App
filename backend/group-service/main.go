@@ -57,7 +57,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	storage, err := s3.NewS3Storage(context.Background(), conf.StorageKeyID, conf.StorageKeySecret, conf.Bucket)
+	storage, err := s3.NewS3Storage(context.Background(), conf.StorageKeyID, conf.StorageKeySecret, conf.Bucket, s3.WithRegion(conf.StorageRegion))
 	if err != nil {
 		log.Fatalf("Error connecting to AWS S3: %v", err)
 	}

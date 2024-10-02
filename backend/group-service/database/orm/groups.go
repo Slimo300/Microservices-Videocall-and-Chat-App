@@ -31,7 +31,7 @@ func (r *GroupsGormRepository) CreateGroup(ctx context.Context, group *models.Gr
 	if err := r.db.WithContext(ctx).Create(&group).Error; err != nil {
 		return nil, err
 	}
-	return group, r.db.Preload("Members").Preload("Members.User").First(&group, group.ID).Error
+	return group, r.db.First(&group, group.ID).Error
 }
 
 func (r *GroupsGormRepository) UpdateGroup(ctx context.Context, group *models.Group) (*models.Group, error) {

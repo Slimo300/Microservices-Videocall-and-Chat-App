@@ -14,8 +14,8 @@ github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events v0.0
 github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events v0.0.0-20240925170950-ffeea4a48aad/go.mod h1:cl12QmHlOkSnZ0kMyUHRzp6cOfXpj8aFuDnkOrp8C1w=
 github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue v0.0.0-20240222113859-bdc3ac508a24 h1:Og5+uk9w3V+D6Lo+NA3aEheHTUK260EaxyTOB/O4m+0=
 github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue v0.0.0-20240222113859-bdc3ac508a24/go.mod h1:DWRbT8KsDluovP4Gykyb32Tad3bhPkCYWt0onviHCwo=
-github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/storage v0.0.0-20240925170950-ffeea4a48aad h1:hWcRchhSIjSTUzZXf4+7KhH72W1Cd4fF73dalTxWpfo=
-github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/storage v0.0.0-20240925170950-ffeea4a48aad/go.mod h1:FTF8Azim/aZFkUuJS+rWKJ058OQPYWEfyHR171+JkMM=
+github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/storage v0.0.0-20240926182906-99c978a4986e h1:ZWrnxn602GArnYW4dHG4zVuDRcx5QboGTL8CE69N9YM=
+github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/storage v0.0.0-20240926182906-99c978a4986e/go.mod h1:FTF8Azim/aZFkUuJS+rWKJ058OQPYWEfyHR171+JkMM=
 github.com/aws/aws-sdk-go v1.50.20 h1:xfAnSDVf/azIWTVQXQODp89bubvCS85r70O3nuQ4dnE=
 github.com/aws/aws-sdk-go v1.50.20/go.mod h1:LF8svs817+Nz+DmiMQKTO3ubZ/6IaTpq3TjupRn3Eqk=
 github.com/aws/aws-sdk-go-v2 v1.31.0 h1:3V05LbxTSItI5kUqNwhJrrrY1BAXxXt0sN0l72QmG5U=
