@@ -40,7 +40,10 @@ type S3Storage struct {
 	presignExpiration time.Duration
 }
 
-// NewS3Storage creates a new S3 storage handler
+// NewS3Storage creates a new S3 storage handler, default values:
+// - Max File Size - 5MB
+// - Max Bucket Size - 5GB
+// - Presign Expiration - 30s
 func NewS3Storage(ctx context.Context, accessKeyID, secretKey, bucket string, options ...S3Option) (*S3Storage, error) {
 	cfg, err := config.LoadDefaultConfig(ctx,
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKeyID, secretKey, "")),
@@ -92,5 +95,11 @@ func WithEndpoint(endpoint string) S3Option {
 		s.s3 = s3.NewFromConfig(s.config, func(o *s3.Options) {
 			o.BaseEndpoint = &endpoint
 		})
+	}
+}
+
+func WithPresignExpiration(exp time.Duration) S3Option {
+	return func(s *S3Storage) {
+		s.presignExpiration = exp
 	}
 }
