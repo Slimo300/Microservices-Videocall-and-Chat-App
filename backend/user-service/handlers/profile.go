@@ -2,160 +2,131 @@ package handlers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/app/command"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/app/query"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
-// /////////////////////////////////////////////////////////////////////////////////////////////
-// GetUser method
-func (s *Server) GetUser(c *gin.Context) {
-	userID := c.GetString("userID")
-	uid, err := uuid.Parse(userID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
-		return
-	}
-
-	user, err := s.DB.GetUserById(uid)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"err": "no such user"})
-		return
-	}
-	user.Pass = ""
-
-	c.JSON(http.StatusOK, user)
+type getUserResponse struct {
+	UserID     string `json:"ID"`
+	Username   string `json:"username"`
+	Email      string `json:"email"`
+	HasPicture bool   `json:"hapPicture"`
 }
 
-// /////////////////////////////////////////////////////////////////////////////////////////////////
-// ChangePassword
-func (s *Server) ChangePassword(c *gin.Context) {
-	userID := c.GetString("userID")
-	userUID, err := uuid.Parse(userID)
+func (s *Server) GetUser(c *gin.Context) {
+	userID, err := uuid.Parse(c.GetString("userID"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
 		return
 	}
-
-	payload := struct {
-		NewPassword       string `json:"newPassword"`
-		RepeatNewPassword string `json:"repeatPassword"`
-		OldPassword       string `json:"oldPassword"`
-	}{}
-
-	if err := c.ShouldBindJSON(&payload); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
-		return
-	}
-
-	if !isPasswordValid(payload.NewPassword) {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "Password must be at least 6 characters long"})
-		return
-	}
-	if payload.NewPassword != payload.RepeatNewPassword {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "Passwords don't match"})
-		return
-	}
-
-	if err := s.DB.ChangePassword(userUID, payload.OldPassword, payload.NewPassword); err != nil {
+	user, err := s.app.Queries.GetUser.Handle(c.Request.Context(), query.GetUser{UserID: userID})
+	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "password changed"})
+	response := appUserToResponse(user)
+	c.JSON(http.StatusOK, response)
 }
 
-///////////////////////////////////////////////////////////////////////////
-// UpdateProfilePicture
+type changePasswordRequest struct {
+	OldPassword       string `json:"oldPassword"`
+	NewPassword       string `json:"newPassword"`
+	RepeatNewPassword string `json:"repeatPassword"`
+}
 
-func (s *Server) UpdateProfilePicture(c *gin.Context) {
-	userID := c.GetString("userID")
-	userUID, err := uuid.Parse(userID)
+func (s *Server) ChangePassword(c *gin.Context) {
+	userID, err := uuid.Parse(c.GetString("userID"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
 		return
 	}
+	var reqBody changePasswordRequest
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+		return
+	}
+	if reqBody.NewPassword != reqBody.RepeatNewPassword {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "passwords don't match"})
+		return
+	}
+	if err := s.app.Commands.ChangePassword.Handle(c.Request.Context(), command.ChangePassword{OldPassword: reqBody.OldPassword, NewPassword: reqBody.NewPassword, UserID: userID}); err != nil {
+		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "success"})
+}
 
+func (s *Server) UpdateProfilePicture(c *gin.Context) {
+	userID, err := uuid.Parse(c.GetString("userID"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
+		return
+	}
 	imageFileHeader, err := c.FormFile("avatarFile")
 	if err != nil {
 		if err.Error() == "http: request body too large" {
 			c.JSON(http.StatusRequestEntityTooLarge, gin.H{
-				"err": fmt.Sprintf("Max request body size is %v bytes\n", s.MaxBodyBytes),
+				"err": fmt.Sprintf("Max request body size is %v bytes\n", s.maxBodyBytes),
 			})
 			return
 		}
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
 	}
-
 	if imageFileHeader == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "no file provided"})
 		return
 	}
-
 	mimeType := imageFileHeader.Header.Get("Content-Type")
 	if !isAllowedImageType(mimeType) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "image extention not allowed"})
 		return
 	}
-
 	file, err := imageFileHeader.Open()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "bad image"})
 		return
 	}
-
-	pictureURL, newUrl, err := s.DB.GetProfilePictureURL(userUID)
-	if err != nil {
+	if err := s.app.Commands.SetProfilePicture.Handle(c.Request.Context(), command.SetProfilePicture{UserID: userID, File: file}); err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
-
-	if newUrl {
-		if err := s.Emitter.Emit(events.UserPictureModifiedEvent{
-			ID:         userUID,
-			PictureURL: pictureURL,
-		}); err != nil {
-			log.Printf("Failed to emit event: %v\n", err)
-		}
-	}
-
-	if err = s.ImageStorage.UploadFile(file, pictureURL); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"newUrl": pictureURL})
+	c.JSON(http.StatusOK, gin.H{"message": "success"})
 }
 
-///////////////////////////////////////////////////////////////////////////
-// UpdateProfilePicture
-
 func (s *Server) DeleteProfilePicture(c *gin.Context) {
-	userID := c.GetString("userID")
-	userUID, err := uuid.Parse(userID)
+	userID, err := uuid.Parse(c.GetString("userID"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
 		return
 	}
-	url, err := s.DB.DeleteProfilePicture(userUID)
-	if err != nil {
+	if err := s.app.Commands.DeleteProfilePicture.Handle(c.Request.Context(), command.DeleteProfilePicture{UserID: userID}); err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
-	if err = s.ImageStorage.DeleteFile(url); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
-		return
-	}
-	if err := s.Emitter.Emit(events.UserPictureModifiedEvent{
-		ID:         userUID,
-		PictureURL: "",
-	}); err != nil {
-		log.Printf("Failed to emit event: %v\n", err)
-	}
 	c.JSON(http.StatusOK, gin.H{"message": "success"})
+}
+
+func appUserToResponse(user models.User) getUserResponse {
+	return getUserResponse{
+		UserID:     user.ID().String(),
+		Username:   user.Username(),
+		Email:      user.Email(),
+		HasPicture: user.HasPicture(),
+	}
+}
+
+func isAllowedImageType(mimeType string) bool {
+	var validImageTypes = map[string]bool{
+		"image/jpeg": true,
+		"image/png":  true,
+	}
+	_, exists := validImageTypes[mimeType]
+	return exists
 }

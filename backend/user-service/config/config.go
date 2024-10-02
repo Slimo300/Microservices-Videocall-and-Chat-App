@@ -4,13 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
-
-	"github.com/spf13/viper"
 )
 
-// Config holds user service configuration
 type Config struct {
 	DBAddress string `mapstructure:"dbAddress"`
 	HTTPPort  string `mapstructure:"httpPort"`
@@ -27,6 +22,7 @@ type Config struct {
 	StorageKeyID     string `mapstructure:"storageKeyID"`
 	StorageKeySecret string `mapstructure:"storageKeySecret"`
 	Bucket           string `mapstructure:"bucketname"`
+	StorageRegion    string `mapstructure:"storageRegion"`
 }
 
 // LoadConfigFromEnvironment loads user service configuration from environment variables and returns an error
@@ -99,24 +95,10 @@ func LoadConfigFromEnvironment() (conf Config, err error) {
 	if len(conf.Bucket) == 0 {
 		return Config{}, errors.New("environment variable STORAGE_BUCKET not set")
 	}
-
-	return
-}
-
-// LoadConfigFromFile loads config from specified path
-func LoadConfigFromFile(path string) (config Config, err error) {
-	vp := viper.New()
-
-	vp.AddConfigPath(filepath.Dir(path))
-
-	filename := strings.Split(filepath.Base(path), ".")
-	vp.SetConfigName(filename[0])
-	vp.SetConfigType(filename[1])
-
-	if err = vp.ReadInConfig(); err != nil {
-		return
+	conf.StorageRegion = os.Getenv("STORAGE_REGION")
+	if len(conf.StorageRegion) == 0 {
+		return Config{}, errors.New("environment variable STORAGE_REGION not set")
 	}
 
-	err = vp.Unmarshal(&config)
 	return
 }

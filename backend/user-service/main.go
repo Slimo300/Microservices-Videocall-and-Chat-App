@@ -13,18 +13,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/auth"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/email"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/builder"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/app"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/config"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/database/orm"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/handlers"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/routes"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/storage"
 )
 
 func readPublicKey() (*rsa.PublicKey, error) {
@@ -52,57 +43,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error when loading configuration: %v", err)
 	}
-	// Setting up MySQL connection
-	db, err := orm.Setup(conf.DBAddress, orm.WithConfig(orm.DBConfig{
-		VerificationCodeDuration: 24 * time.Hour,
-		ResetCodeDuration:        10 * time.Minute,
-	}))
-	if err != nil {
-		log.Fatalf("Error when connecting to database: %v", err)
-	}
 
-	// connecting to authentication server
-	tokenConn, err := grpc.Dial(conf.TokenServiceAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		log.Fatalf("Error connecting to token service")
-	}
-	tokenClient := auth.NewTokenServiceClient(tokenConn)
-
-	emailConn, err := grpc.Dial(conf.EmailServiceAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		log.Fatal("Error connecting to token service")
-	}
-	emailClient := email.NewEmailServiceClient(emailConn)
-
-	brokerBuilder, err := builder.NewBrokerBuilder(msgqueue.ParseBrokerType(conf.BrokerType), conf.BrokerAddress)
-	if err != nil {
-		log.Fatalf("Error creating broker builder: %v", err)
-	}
-
-	emitter, err := brokerBuilder.GetEmiter(msgqueue.EmiterConfig{
-		ExchangeName: "user",
-	})
-	if err != nil {
-		log.Fatalf("Error getting emitter: %v", err)
-	}
-
-	// Setup for handling image uploads to s3 and email sending
-	storage, err := storage.NewS3Storage(conf.StorageKeyID, conf.StorageKeySecret, conf.Bucket)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	server := &handlers.Server{
-		DB:           db,
-		TokenClient:  tokenClient,
-		EmailClient:  emailClient,
-		Emitter:      emitter,
-		TokenKey:     pubkey,
-		ImageStorage: storage,
-		MaxBodyBytes: 4194304, //4MB
-		Domain:       conf.Domain,
-	}
-	handler := routes.Setup(server, conf.Origin)
+	app := app.NewApplication(conf)
+	handler := handlers.NewServer(app, pubkey, conf.Domain, 4000000)
 
 	httpServer := &http.Server{
 		Handler: handler,
@@ -110,7 +53,6 @@ func main() {
 	}
 
 	errChan := make(chan error)
-
 	go func() { errChan <- httpServer.ListenAndServe() }()
 
 	quit := make(chan os.Signal, 1)

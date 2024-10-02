@@ -2,23 +2,30 @@ package handlers
 
 import (
 	"crypto/rsa"
+	"net/http"
 
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/database"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/storage"
-
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/auth"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
-
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/email"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-service/app"
 )
 
 type Server struct {
-	DB           database.DBLayer
-	Emitter      msgqueue.EventEmiter
-	ImageStorage storage.StorageLayer
-	TokenKey     *rsa.PublicKey
-	TokenClient  auth.TokenServiceClient
-	EmailClient  email.EmailServiceClient
-	MaxBodyBytes int64
-	Domain       string
+	app          app.App
+	publicKey    *rsa.PublicKey
+	maxBodyBytes int64
+	domain       string
+}
+
+func NewServer(app app.App, publicKey *rsa.PublicKey, domain string, maxBodyBytes int64) http.Handler {
+	server := Server{
+		app:          app,
+		publicKey:    publicKey,
+		domain:       domain,
+		maxBodyBytes: maxBodyBytes,
+	}
+	return server.setup(domain)
+}
+
+func NewTestServer(app app.App) Server {
+	return Server{
+		app: app,
+	}
 }
