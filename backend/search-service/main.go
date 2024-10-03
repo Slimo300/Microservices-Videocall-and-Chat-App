@@ -20,7 +20,6 @@ import (
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/search-service/database/elastic"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/search-service/eventprocessor"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/search-service/handlers"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/search-service/routes"
 )
 
 func getPublicKey() (*rsa.PublicKey, error) {
@@ -57,7 +56,7 @@ func main() {
 	listener, err := builder.GetListener(msgqueue.ListenerConfig{
 		ClientName: "search-service",
 		Events: []msgqueue.Event{
-			events.UserRegisteredEvent{},
+			events.UserVerifiedEvent{},
 			events.UserPictureModifiedEvent{},
 		},
 	})
@@ -70,21 +69,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Println("Initializng new event processor")
-
 	eventProcessor := eventprocessor.NewEventProcessor(es, listener)
 	go eventProcessor.ProcessEvents("user")
 
-	server := handlers.Server{
-		PublicKey: pubKey,
-		DB:        es,
-		Listener:  listener,
-	}
-
-	handler := routes.Setup(&server, conf.Origin)
-
 	httpServer := &http.Server{
-		Handler: handler,
+		Handler: handlers.NewServer(es, pubKey, conf.Origin),
 		Addr:    fmt.Sprintf(":%s", conf.HTTPPort),
 	}
 	errChan := make(chan error)

@@ -33,12 +33,12 @@ func (p *EventProcessor) ProcessEvents(eventNames ...string) {
 		select {
 		case evt := <-received:
 			switch e := evt.(type) {
-			case *events.UserRegisteredEvent:
-				if err := p.DB.AddUser(*e); err != nil {
+			case *events.UserVerifiedEvent:
+				if err := p.DB.AddUser(e.ID, e.Username); err != nil {
 					log.Printf("Adding user returned error: %v", err)
 				}
 			case *events.UserPictureModifiedEvent:
-				if err := p.DB.UpdateProfilePicture(*e); err != nil {
+				if err := p.DB.UpdateProfilePicture(e.ID, e.HasPicture); err != nil {
 					log.Printf("Updating profile picture url returned error: %v", err)
 				}
 			default:

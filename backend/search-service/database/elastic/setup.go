@@ -36,13 +36,13 @@ func (es *elasticSearchDB) setupIndex() error {
 	// checking if index 'INDEX_NAME' exists
 	exists, err := es.client.Indices.Exists([]string{INDEX_NAME})
 	if err != nil {
-		return fmt.Errorf("Error when checking if index exists: %v", err)
+		return fmt.Errorf("error when checking if index exists: %v", err)
 	}
 	defer exists.Body.Close()
 
 	if exists.IsError() {
 		if exists.StatusCode != 404 {
-			return fmt.Errorf("Unexpected status code: %d", exists.StatusCode)
+			return fmt.Errorf("unexpected status code: %d", exists.StatusCode)
 		}
 	} else {
 		return nil
@@ -54,11 +54,11 @@ func (es *elasticSearchDB) setupIndex() error {
 		es.client.Indices.Create.WithBody(strings.NewReader(MAPPING)),
 	)
 	if err != nil {
-		return fmt.Errorf("Error creating index: %v", err)
+		return fmt.Errorf("error creating index: %v", err)
 	}
 
 	if res.IsError() {
-		return fmt.Errorf("Server returned unexpected status code: %d", res.StatusCode)
+		return fmt.Errorf("server returned unexpected status code: %d", res.StatusCode)
 	}
 
 	return nil

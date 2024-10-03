@@ -35,8 +35,8 @@ const MAPPING = `
 			"ID": {
 				"type": "keyword"
 			},
-			"picture": {
-				"type": "keyword"
+			"has_picture": {
+				"type": "boolean"
 			}
 		}
 	}
