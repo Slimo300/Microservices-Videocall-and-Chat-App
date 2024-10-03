@@ -16,7 +16,7 @@ type getUserResponse struct {
 	UserID     string `json:"ID"`
 	Username   string `json:"username"`
 	Email      string `json:"email"`
-	HasPicture bool   `json:"hapPicture"`
+	HasPicture bool   `json:"hasPicture"`
 }
 
 func (s *Server) GetUser(c *gin.Context) {
