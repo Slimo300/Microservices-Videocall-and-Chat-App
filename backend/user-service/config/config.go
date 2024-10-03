@@ -11,7 +11,6 @@ type Config struct {
 	HTTPPort  string `mapstructure:"httpPort"`
 
 	TokenServiceAddress string `mapstructure:"tokenAddress"`
-	EmailServiceAddress string `mapstructure:"emailAddress"`
 
 	Origin string `mapstructure:"origin"`
 	Domain string `mapstructure:"domain"`
@@ -56,11 +55,6 @@ func LoadConfigFromEnvironment() (conf Config, err error) {
 	conf.TokenServiceAddress = os.Getenv("TOKEN_SERVICE_ADDRESS")
 	if len(conf.TokenServiceAddress) == 0 {
 		return Config{}, errors.New("environment variable TOKEN_ADDRESS not set")
-	}
-
-	conf.EmailServiceAddress = os.Getenv("EMAIL_SERVICE_ADDRESS")
-	if len(conf.EmailServiceAddress) == 0 {
-		return Config{}, errors.New("environment variable EMAIL_ADDRESS not set")
 	}
 
 	conf.Origin = os.Getenv("ORIGIN")

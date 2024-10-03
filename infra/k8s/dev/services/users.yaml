@@ -21,9 +21,6 @@ spec:
         - name: token-service-test
           image: busybox:1.31
           command: ['sh', '-c', 'echo -e "Checking for the availability of Token service deployment"; while ! nc -z token-service 9000; do sleep 1; printf "-"; done; echo -e "  >> Token Service has started";']
-        - name: email-service-test
-          image: busybox:1.31
-          command: ['sh', '-c', 'echo -e "Checking for the availability of Email service deployment"; while ! nc -z email-service 9000; do sleep 1; printf "-"; done; echo -e "  >> Email Service has started";']
         - name: rabbitmq-test
           image: busybox:1.31
           command: ['sh', '-c', 'echo -e "Checking for the availability of RabbitMQ broker"; while ! nc -z rabbitmq-service 5672; do sleep 1; printf "-"; done; echo -e "  >> RabbitMQ has started";']
@@ -57,8 +54,6 @@ spec:
           value: user-mysql:3306
         - name: TOKEN_SERVICE_ADDRESS
           value: token-service:9000
-        - name: EMAIL_SERVICE_ADDRESS
-          value: email-service:9000
         - name: ORIGIN
           value: https://www.relrel.com
         - name: DOMAIN
