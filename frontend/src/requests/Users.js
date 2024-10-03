@@ -1,4 +1,4 @@
-import axiosObject, { userService } from "./Setup";
+import axiosObject, { searchService, userService } from "./Setup";
 
 export async function Register(email, username, password, rpassword) {
     return await axiosObject.post(userService+"/register", {
@@ -46,7 +46,6 @@ export async function ChangePassword(oldPassword, newPassword, repeatPassword) {
     if (repeatPassword !== newPassword) {
         throw new Error("Passwords don't match");
     }
-
     return await axiosObject.put(userService+"/change-password", {
         "oldPassword": oldPassword,
         "newPassword": newPassword,
@@ -78,16 +77,15 @@ export async function ResetForgottenPassword(resetCode, newPassword, repeatPassw
         throw new Error("password must be at least 6 characters long");
     }
     if (repeatPassword !== newPassword) {
-        throw new Error("Passwords don't match");
+        throw new Error("passwords don't match");
     }
-
     return await axiosObject.patch(userService+"/reset-password/"+resetCode, {
         "newPassword": newPassword,
         "repeatPassword": repeatPassword,
     });
-
 }
 
 export async function SearchUsers(username, num) {
-    return await axiosObject.get(userService+"/search/"+username+"?num="+num);
+    console.log(searchService);
+    return await axiosObject.get(searchService+"/"+username+"?num="+num);
  }

@@ -5,8 +5,8 @@ import user from "../statics/images/user.png";
 
 export const UserPicture = ({ userID, hasPicture, imageID }) => {
     return (
-        <img className="rounded-circle img-thumbnail" alt="user" id={userID}
-            src={!hasPicture?user:window._env_.STORAGE_URL+"/"+userID}
+        <img className="rounded-circle img-thumbnail" alt="user" id={imageID}
+            src={hasPicture?window._env_.STORAGE_URL+"/"+userID:user}
             onError={({ currentTarget }) => {
                 currentTarget.onerror = null; 
                 currentTarget.src=user;
@@ -17,7 +17,7 @@ export const UserPicture = ({ userID, hasPicture, imageID }) => {
 export const GroupPicture = ({ groupID, hasPicture, imageID }) => {
     return (
         <img className="rounded-circle img-thumbnail" alt="group" id={imageID}
-            src={!hasPicture?group:window._env_.STORAGE_URL+"/"+groupID}
+            src={hasPicture?window._env_.STORAGE_URL+"/"+groupID:group}
             onError={({ currentTarget }) => {
                 currentTarget.onerror = null; 
                 currentTarget.src=group;

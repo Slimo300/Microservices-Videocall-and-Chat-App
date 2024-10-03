@@ -23,7 +23,7 @@ export const ModalAddUser = ({ group, toggle, show }) => {
             }
             try {
                 let response = await SearchUsers(username, 5);
-                setUsers([response.data]);
+                setUsers(response.data);
                 dropdown.classList.add("show");
             }
             catch(err) {
@@ -68,7 +68,6 @@ export const ModalAddUser = ({ group, toggle, show }) => {
 
 
 const User = ({ user, groupID, setMsg, toggle, isMember }) => {
-
     const [, dispatch] = useContext(StorageContext);
 
     const AddUser = async(e) => {
@@ -88,6 +87,7 @@ const User = ({ user, groupID, setMsg, toggle, isMember }) => {
             setMsg(err.response);
         }
     }
+    console.log(user);
 
     return (
         <div className="d-flex column justify-content-between align-items-center px-3">

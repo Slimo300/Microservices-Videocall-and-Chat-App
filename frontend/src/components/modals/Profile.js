@@ -73,7 +73,6 @@ export const ModalUserProfile = ({ toggle, show, user }) => {
     };
 
     const deletePicture = async() => {
-
         let response = await DeleteProfilePicture();
         if (response.status === 200) {
             setMessage("Image deleted successfully");
@@ -87,7 +86,7 @@ export const ModalUserProfile = ({ toggle, show, user }) => {
             setMessage("");
         }, 3000);
     };
-
+    
     return (
         <Modal id="buy" tabIndex="-1" role="dialog" isOpen={show} toggle={toggle}>
             <div role="document">

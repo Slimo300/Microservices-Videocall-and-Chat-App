@@ -24,7 +24,6 @@ const SignInForm = () => {
 
   const submit = async (e) => {
     e.preventDefault();
-
     try {
       if (email.trim() === "") {
           setMessage("Email cannot be blank");
@@ -39,7 +38,6 @@ const SignInForm = () => {
         window.localStorage.setItem("token", result.data.accessToken);
         setRedirect(true);
       }
-
     } catch(err) {
       if (err.response !== undefined) setMessage(err.response.data.err);
       else setMessage(err.message);
