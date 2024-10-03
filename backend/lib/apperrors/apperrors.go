@@ -2,24 +2,19 @@ package apperrors
 
 import (
 	"errors"
+	"log"
 	"net/http"
 )
 
-// Error is a wrapper around error message that holds
-// error type (its http status)
 type Error struct {
 	statusCode int
 	message    string
 }
 
-// Error fulfills error interface
 func (e *Error) Error() string { return e.message }
 
-// Status returns http status code associated with error
 func (e *Error) StatusCode() int { return e.statusCode }
 
-// Status returns corresponding http status if err is of type Error
-// if not it returns status 500
 func Status(err error) int {
 	var e *Error
 	if errors.As(err, &e) {
@@ -28,7 +23,14 @@ func Status(err error) int {
 	return http.StatusInternalServerError
 }
 
-// NewAuthorization creates Authorization Error with given message
+func NewInternal(err error) *Error {
+	log.Println(err.Error())
+	return &Error{
+		statusCode: http.StatusInternalServerError,
+		message:    "internal server error",
+	}
+}
+
 func NewAuthorization(message string) *Error {
 	return &Error{
 		statusCode: http.StatusUnauthorized,
@@ -36,7 +38,6 @@ func NewAuthorization(message string) *Error {
 	}
 }
 
-// NewBadRequest creates BadRequest Error with given message
 func NewBadRequest(message string) *Error {
 	return &Error{
 		statusCode: http.StatusBadRequest,
@@ -44,7 +45,6 @@ func NewBadRequest(message string) *Error {
 	}
 }
 
-// NewForbidden creates Forbidden Error with given message
 func NewForbidden(message string) *Error {
 	return &Error{
 		statusCode: http.StatusForbidden,
@@ -52,7 +52,6 @@ func NewForbidden(message string) *Error {
 	}
 }
 
-// NewConflict constructs Conflict Error with given parameters
 func NewConflict(message string) *Error {
 	return &Error{
 		statusCode: http.StatusConflict,
@@ -60,7 +59,6 @@ func NewConflict(message string) *Error {
 	}
 }
 
-// NewNotFound constructs new NotFound Error with given parameters
 func NewNotFound(message string) *Error {
 	return &Error{
 		statusCode: http.StatusNotFound,
@@ -68,7 +66,6 @@ func NewNotFound(message string) *Error {
 	}
 }
 
-// NewPayloadTooLarge constructs new PayloadTooLarge error with given parameters
 func NewPayloadTooLarge(message string) *Error {
 	return &Error{
 		statusCode: http.StatusRequestEntityTooLarge,
@@ -76,7 +73,6 @@ func NewPayloadTooLarge(message string) *Error {
 	}
 }
 
-// NewUnsupportedMediaType creates new UnsupportedMediaType Error with given message
 func NewUnsupportedMediaType(message string) *Error {
 	return &Error{
 		statusCode: http.StatusUnsupportedMediaType,
