@@ -21,7 +21,7 @@ type VerifyEmailHandler struct {
 
 func NewVerifyEmailHandler(repo database.UsersRepository, emiter msgqueue.EventEmiter) VerifyEmailHandler {
 	if repo == nil {
-		panic("tokenService is nil")
+		panic("repo is nil")
 	}
 	if emiter == nil {
 		panic("emiter is nil")
@@ -38,7 +38,7 @@ func (h VerifyEmailHandler) Handle(ctx context.Context, cmd VerifyEmail) error {
 	}); err != nil {
 		return err
 	}
-	if err := h.emiter.Emit(events.UserRegisteredEvent{
+	if err := h.emiter.Emit(events.UserVerifiedEvent{
 		ID:       user.ID(),
 		Username: user.Username(),
 	}); err != nil {

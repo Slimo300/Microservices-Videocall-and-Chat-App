@@ -3,10 +3,9 @@ module github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/user-ser
 go 1.23.1
 
 require (
-	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors v0.0.0-20240219201317-b58ad163dd14
+	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors v0.0.0-20241003055724-3172ba2bfc15
 	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/auth v0.0.0-20240221110501-44d46458e2a7
-	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/email v0.0.0-20240217201258-4eb5321322a5
-	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events v0.0.0-20240926182906-99c978a4986e
+	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events v0.0.0-20241003180555-dee066c27fac
 	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue v0.0.0-20240222113859-bdc3ac508a24
 	github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/storage v0.0.0-20240926182906-99c978a4986e
 	github.com/gin-contrib/size v0.0.0-20220829131622-0fc0bc875336
@@ -16,8 +15,8 @@ require (
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/crypto v0.22.0
 	google.golang.org/grpc v1.61.1
-	gorm.io/driver/mysql v1.3.6
-	gorm.io/gorm v1.24.2
+	gorm.io/driver/mysql v1.5.7
+	gorm.io/gorm v1.25.12
 )
 
 require (
@@ -54,7 +53,7 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.14.0 // indirect
-	github.com/go-sql-driver/mysql v1.6.0 // indirect
+	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/protobuf v1.5.3 // indirect

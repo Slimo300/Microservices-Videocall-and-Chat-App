@@ -78,7 +78,7 @@ func main() {
 		ClientName: "group-service",
 
 		Events: []msgqueue.Event{
-			events.UserRegisteredEvent{},
+			events.UserVerifiedEvent{},
 			events.UserPictureModifiedEvent{},
 		},
 	})

@@ -18,13 +18,12 @@ spec:
       - name: email-service
         imagePullPolicy: Never
         image: slimo300/email-service
-        ports:
-        - containerPort: 9000
-          name: grpc
         env:
         - name: ORIGIN
           value: http://www.relrel.com
         envFrom:
+        - configMapRef:
+            name: broker-config
         - secretRef:
             name: mailtrap-creds
 ---

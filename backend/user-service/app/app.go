@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/auth"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/email"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/amqp"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/storage/s3"
@@ -49,7 +48,6 @@ func NewTestApplication() App {
 	repo := new(mockdb.UsersMockRepository)
 	emitter := new(mockqueue.MockEmitter)
 	storage := new(mockstorage.MockStorage)
-	emailClient := new(email.MockEmailClient)
 	tokenClient := new(auth.MockTokenClient)
 
 	return App{
@@ -60,9 +58,9 @@ func NewTestApplication() App {
 			ChangePassword:         command.NewChangePasswordHandler(repo),
 			SetProfilePicture:      command.NewSetProfilePictureHandler(repo, storage, emitter),
 			DeleteProfilePicture:   command.NewDeleteProfilePictureHandler(repo, storage, emitter),
-			ForgotPassword:         command.NewForgotPasswordHandler(repo, emailClient),
+			ForgotPassword:         command.NewForgotPasswordHandler(repo, emitter),
 			ResetForgottenPassword: command.NewResetForgottenPasswordHandler(repo),
-			RegisterUser:           command.NewRegisterUserHandler(repo, emailClient),
+			RegisterUser:           command.NewRegisterUserHandler(repo, emitter),
 			SignIn:                 command.NewSignInHandler(repo, tokenClient),
 			SignOut:                command.NewSignOutHandler(tokenClient),
 			RefreshToken:           command.NewRefreshTokenHandler(tokenClient),
@@ -80,12 +78,6 @@ func NewApplication(conf config.Config) App {
 		panic(err)
 	}
 	tokenClient := auth.NewTokenServiceClient(tokenConn)
-
-	emailConn, err := grpc.Dial(conf.EmailServiceAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		panic(err)
-	}
-	emailClient := email.NewEmailServiceClient(emailConn)
 
 	storage, err := s3.NewS3Storage(context.Background(), conf.StorageKeyID, conf.StorageKeySecret, conf.Bucket, s3.WithRegion(conf.StorageRegion))
 	if err != nil {
@@ -111,9 +103,10 @@ func NewApplication(conf config.Config) App {
 			ChangePassword:         command.NewChangePasswordHandler(repo),
 			SetProfilePicture:      command.NewSetProfilePictureHandler(repo, storage, emitter),
 			DeleteProfilePicture:   command.NewDeleteProfilePictureHandler(repo, storage, emitter),
-			ForgotPassword:         command.NewForgotPasswordHandler(repo, emailClient),
+			ForgotPassword:         command.NewForgotPasswordHandler(repo, emitter),
 			ResetForgottenPassword: command.NewResetForgottenPasswordHandler(repo),
-			RegisterUser:           command.NewRegisterUserHandler(repo, emailClient),
+			RegisterUser:           command.NewRegisterUserHandler(repo, emitter),
+			VerifyEmail:            command.NewVerifyEmailHandler(repo, emitter),
 			SignIn:                 command.NewSignInHandler(repo, tokenClient),
 			SignOut:                command.NewSignOutHandler(tokenClient),
 			RefreshToken:           command.NewRefreshTokenHandler(tokenClient),

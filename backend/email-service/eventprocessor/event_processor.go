@@ -1,26 +1,25 @@
 package eventprocessor
 
 import (
-	"context"
 	"log"
 
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/database"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
+
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/email-service/service"
 )
 
 // EventProcessor processes events from listener and updates state of application
 type EventProcessor struct {
-	DB       database.GroupsRepository
-	Listener msgqueue.EventListener
+	Listener     msgqueue.EventListener
+	EmailService service.EmailService
 }
 
 // NewEventProcessor is a constructor for EventProcessor type
-func NewEventProcessor(db database.GroupsRepository, listener msgqueue.EventListener) *EventProcessor {
+func NewEventProcessor(listener msgqueue.EventListener, emailService service.EmailService) *EventProcessor {
 	return &EventProcessor{
-		DB:       db,
-		Listener: listener,
+		EmailService: emailService,
+		Listener:     listener,
 	}
 }
 
@@ -35,13 +34,13 @@ func (p *EventProcessor) ProcessEvents(eventNames ...string) {
 		select {
 		case evt := <-received:
 			switch e := evt.(type) {
-			case *events.UserVerifiedEvent:
-				if _, err := p.DB.CreateUser(context.Background(), &models.User{ID: e.ID, UserName: e.Username}); err != nil {
-					log.Printf("Listener NewUser error: %s", err.Error())
+			case *events.UserRegisteredEvent:
+				if err := p.EmailService.SendVerificationEmail(e.Email, e.Username, e.Code); err != nil {
+					log.Printf("Couldn't send verification error: %v", err)
 				}
-			case *events.UserPictureModifiedEvent:
-				if _, err := p.DB.UpdateUser(context.Background(), &models.User{ID: e.ID, HasPicture: e.HasPicture}); err != nil {
-					log.Printf("Listener UpdatePicture error: %s", err.Error())
+			case *events.UserForgotPasswordEvent:
+				if err := p.EmailService.SendResetPasswordEmail(e.Email, e.Username, e.Code); err != nil {
+					log.Printf("Couldn't send verification error: %v", err)
 				}
 			default:
 				log.Println("Unsupported event type")
