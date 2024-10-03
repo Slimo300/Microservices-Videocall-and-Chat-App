@@ -45,7 +45,7 @@ func main() {
 	}
 
 	app := app.NewApplication(conf)
-	handler := handlers.NewServer(app, pubkey, conf.Domain, 4000000)
+	handler := handlers.NewServer(app, pubkey, conf.Domain, conf.Origin, 4000000)
 
 	httpServer := &http.Server{
 		Handler: handler,

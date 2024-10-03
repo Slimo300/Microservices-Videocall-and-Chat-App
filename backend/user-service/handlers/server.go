@@ -14,14 +14,14 @@ type Server struct {
 	domain       string
 }
 
-func NewServer(app app.App, publicKey *rsa.PublicKey, domain string, maxBodyBytes int64) http.Handler {
+func NewServer(app app.App, publicKey *rsa.PublicKey, domain, origin string, maxBodyBytes int64) http.Handler {
 	server := Server{
 		app:          app,
 		publicKey:    publicKey,
 		domain:       domain,
 		maxBodyBytes: maxBodyBytes,
 	}
-	return server.setup(domain)
+	return server.setup(origin)
 }
 
 func NewTestServer(app app.App) Server {
