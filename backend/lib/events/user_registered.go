@@ -4,13 +4,25 @@ import (
 	"github.com/google/uuid"
 )
 
-// UserRegisteredEvent holds information about new users
 type UserRegisteredEvent struct {
+	Email    string `json:"email" mapstructure:"email"`
+	Username string `json:"username" mapstructure:"username"`
+	Code     string `json:"code" mapstructure:"code"`
+}
+
+func (UserRegisteredEvent) EventName() string { return "user.created" }
+
+type UserVerifiedEvent struct {
 	ID       uuid.UUID `json:"userID" mapstructure:"userID"`
 	Username string    `json:"username" mapstructure:"username"`
 }
 
-// EventName method from Event interface
-func (UserRegisteredEvent) EventName() string {
-	return "user.created"
+func (UserVerifiedEvent) EventName() string { return "user.verified" }
+
+type UserForgotPasswordEvent struct {
+	Email    string `json:"email" mapstructure:"email"`
+	Username string `json:"username" mapstructure:"username"`
+	Code     string `json:"code" mapstructure:"code"`
 }
+
+func (UserForgotPasswordEvent) EventName() string { return "user.forgottenpassword" }
