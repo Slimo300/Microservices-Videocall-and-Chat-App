@@ -21,7 +21,7 @@ spec:
                   envFrom:
                     - secretRef:
                         name: brevo-creds
-                  image: slimo300/email-service:1.0.7
+                  image: slimo300/email-service:1.0.9
                   imagePullPolicy: Always
                   name: email-service
                   ports:
