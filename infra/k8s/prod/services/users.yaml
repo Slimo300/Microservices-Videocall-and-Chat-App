@@ -46,7 +46,7 @@ spec:
                         name: broker-config
                     - secretRef:
                         name: storage-credentials
-                  image: slimo300/user-service:1.0.3
+                  image: slimo300/user-service:1.0.5
                   imagePullPolicy: Always
                   name: user-service
                   ports:
