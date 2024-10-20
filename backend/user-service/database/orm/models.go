@@ -9,11 +9,11 @@ import (
 
 type User struct {
 	ID         uuid.UUID `gorm:"primaryKey"`
-	UserName   string    `gorm:"column:username;unique"`
-	Email      string    `gorm:"column:email;unique"`
-	Password   string    `gorm:"column:password"`
-	HasPicture *bool     `gorm:"column:has_picture"`
-	Verified   *bool     `gorm:"column:verified"`
+	UserName   string    `gorm:"unique"`
+	Email      string    `gorm:"uniqueIndex,type:VARCHAR(255)"`
+	Password   string
+	HasPicture *bool
+	Verified   *bool
 }
 
 func (User) TableName() string {
@@ -35,10 +35,11 @@ func marshalUser(user models.User) User {
 }
 
 type AuthorizationCode struct {
-	Code     uuid.UUID `gorm:"primaryKey"`
-	UserID   uuid.UUID `gorm:"column:user_id;size:191"`
-	Created  time.Time `gorm:"column:created"`
-	CodeType string    `gorm:"column:code_type"`
+	Code     uuid.UUID `gorm:"primaryKey,priority=2"`
+	CodeType string    `gorm:"primaryKey,priority=1"`
+	UserID   uuid.UUID `gorm:"size:191"`
+	User     User      `gorm:"constraint:OnDelete:CASCADE"`
+	Created  time.Time
 }
 
 func (AuthorizationCode) TableName() string {
