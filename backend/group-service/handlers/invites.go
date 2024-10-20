@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/app/command"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/app/query"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -15,30 +17,21 @@ func (s *Server) GetUserInvites(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "Invalid ID"})
 		return
 	}
-
 	num, err := strconv.Atoi(c.Query("num"))
 	if err != nil || num <= 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "number of messages is not a valid number"})
 		return
 	}
-
 	offset, err := strconv.Atoi(c.Query("offset"))
 	if err != nil || offset < 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "offset is not a valid number"})
 		return
 	}
-
-	invites, err := s.Service.GetUserInvites(c.Request.Context(), userID, num, offset)
+	invites, err := s.App.Queries.GetUserInvites.Handle(c.Request.Context(), query.GetUserInvites{UserID: userID, Num: num, Offset: offset})
 	if err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
-
-	if len(invites) == 0 {
-		c.Status(http.StatusNoContent)
-		return
-	}
-
 	c.JSON(http.StatusOK, invites)
 }
 
@@ -72,13 +65,16 @@ func (s *Server) CreateInvite(c *gin.Context) {
 		return
 	}
 
-	invite, err := s.Service.AddInvite(c.Request.Context(), userID, targetID, groupID)
-	if err != nil {
+	if err := s.App.Commands.SendInvite.Handle(c.Request.Context(), command.SendInviteCommand{UserID: userID, TargetID: targetID, GroupID: groupID}); err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, invite)
+	c.JSON(http.StatusCreated, gin.H{"message": "success"})
+}
+
+type respondInviteRequest struct {
+	Answer bool
 }
 
 func (s *Server) RespondGroupInvite(c *gin.Context) {
@@ -87,31 +83,19 @@ func (s *Server) RespondGroupInvite(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
 		return
 	}
-
 	inviteID, err := uuid.Parse(c.Param("inviteID"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid invite id"})
 		return
 	}
-
-	payload := struct {
-		Answer *bool `json:"answer" binding:"required"`
-	}{}
-	if err := c.ShouldBindJSON(&payload); err != nil {
+	var reqBody respondInviteRequest
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "answer not specified"})
 		return
 	}
-
-	invite, group, err := s.Service.RespondInvite(c.Request.Context(), userID, inviteID, *payload.Answer)
-	if err != nil {
+	if err := s.App.Commands.RespondInvite.Handle(c.Request.Context(), command.RespondInvite{UserID: userID, InviteID: inviteID, Answer: reqBody.Answer}); err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
-
-	if !*payload.Answer {
-		c.JSON(http.StatusOK, gin.H{"invite": invite})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"invite": invite, "group": group})
+	c.JSON(http.StatusOK, gin.H{"message": "success"})
 }

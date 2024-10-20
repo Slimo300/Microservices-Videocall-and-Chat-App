@@ -4,10 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
-
-	"github.com/spf13/viper"
 )
 
 // Config holds user service configuration
@@ -85,23 +81,5 @@ func LoadConfigFromEnvironment() (conf Config, err error) {
 		return Config{}, errors.New("environment variable STORAGE_REGION not set")
 	}
 
-	return
-}
-
-// LoadConfigFromFile loads config from specified path
-func LoadConfigFromFile(path string) (config Config, err error) {
-	vp := viper.New()
-
-	vp.AddConfigPath(filepath.Dir(path))
-
-	filename := strings.Split(filepath.Base(path), ".")
-	vp.SetConfigName(filename[0])
-	vp.SetConfigType(filename[1])
-
-	if err = vp.ReadInConfig(); err != nil {
-		return
-	}
-
-	err = vp.Unmarshal(&config)
 	return
 }

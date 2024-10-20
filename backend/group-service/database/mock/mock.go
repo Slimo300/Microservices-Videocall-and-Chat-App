@@ -5,7 +5,6 @@ package mock
 import (
 	context "context"
 
-	database "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/database"
 	mock "github.com/stretchr/testify/mock"
 
 	models "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
@@ -18,58 +17,19 @@ type GroupsMockRepository struct {
 	mock.Mock
 }
 
-// BeginTransaction provides a mock function with given fields:
-func (_m *GroupsMockRepository) BeginTransaction() (database.GroupsRepository, error) {
-	ret := _m.Called()
-
-	var r0 database.GroupsRepository
-	if rf, ok := ret.Get(0).(func() database.GroupsRepository); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(database.GroupsRepository)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// CommitTransaction provides a mock function with given fields:
-func (_m *GroupsMockRepository) CommitTransaction() error {
-	ret := _m.Called()
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func() error); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
 // CreateGroup provides a mock function with given fields: ctx, group
-func (_m *GroupsMockRepository) CreateGroup(ctx context.Context, group *models.Group) (*models.Group, error) {
+func (_m *GroupsMockRepository) CreateGroup(ctx context.Context, group models.Group) (models.Group, error) {
 	ret := _m.Called(ctx, group)
 
-	var r0 *models.Group
-	if rf, ok := ret.Get(0).(func(context.Context, *models.Group) *models.Group); ok {
+	var r0 models.Group
+	if rf, ok := ret.Get(0).(func(context.Context, models.Group) models.Group); ok {
 		r0 = rf(ctx, group)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Group)
-		}
+		r0 = ret.Get(0).(models.Group)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *models.Group) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, models.Group) error); ok {
 		r1 = rf(ctx, group)
 	} else {
 		r1 = ret.Error(1)
@@ -79,20 +39,18 @@ func (_m *GroupsMockRepository) CreateGroup(ctx context.Context, group *models.G
 }
 
 // CreateInvite provides a mock function with given fields: ctx, invite
-func (_m *GroupsMockRepository) CreateInvite(ctx context.Context, invite *models.Invite) (*models.Invite, error) {
+func (_m *GroupsMockRepository) CreateInvite(ctx context.Context, invite models.Invite) (models.Invite, error) {
 	ret := _m.Called(ctx, invite)
 
-	var r0 *models.Invite
-	if rf, ok := ret.Get(0).(func(context.Context, *models.Invite) *models.Invite); ok {
+	var r0 models.Invite
+	if rf, ok := ret.Get(0).(func(context.Context, models.Invite) models.Invite); ok {
 		r0 = rf(ctx, invite)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Invite)
-		}
+		r0 = ret.Get(0).(models.Invite)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *models.Invite) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, models.Invite) error); ok {
 		r1 = rf(ctx, invite)
 	} else {
 		r1 = ret.Error(1)
@@ -101,224 +59,57 @@ func (_m *GroupsMockRepository) CreateInvite(ctx context.Context, invite *models
 	return r0, r1
 }
 
-// CreateMember provides a mock function with given fields: ctx, member
-func (_m *GroupsMockRepository) CreateMember(ctx context.Context, member *models.Member) (*models.Member, error) {
-	ret := _m.Called(ctx, member)
-
-	var r0 *models.Member
-	if rf, ok := ret.Get(0).(func(context.Context, *models.Member) *models.Member); ok {
-		r0 = rf(ctx, member)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Member)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *models.Member) error); ok {
-		r1 = rf(ctx, member)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // CreateUser provides a mock function with given fields: ctx, user
-func (_m *GroupsMockRepository) CreateUser(ctx context.Context, user *models.User) (*models.User, error) {
+func (_m *GroupsMockRepository) CreateUser(ctx context.Context, user models.User) error {
 	ret := _m.Called(ctx, user)
 
-	var r0 *models.User
-	if rf, ok := ret.Get(0).(func(context.Context, *models.User) *models.User); ok {
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, models.User) error); ok {
 		r0 = rf(ctx, user)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.User)
-		}
+		r0 = ret.Error(0)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *models.User) error); ok {
-		r1 = rf(ctx, user)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
-// DeleteGroup provides a mock function with given fields: ctx, groupID
-func (_m *GroupsMockRepository) DeleteGroup(ctx context.Context, groupID uuid.UUID) (*models.Group, error) {
-	ret := _m.Called(ctx, groupID)
-
-	var r0 *models.Group
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *models.Group); ok {
-		r0 = rf(ctx, groupID)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Group)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
-		r1 = rf(ctx, groupID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// DeleteInvite provides a mock function with given fields: ctx, inviteID
-func (_m *GroupsMockRepository) DeleteInvite(ctx context.Context, inviteID uuid.UUID) (*models.Invite, error) {
-	ret := _m.Called(ctx, inviteID)
-
-	var r0 *models.Invite
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *models.Invite); ok {
-		r0 = rf(ctx, inviteID)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Invite)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
-		r1 = rf(ctx, inviteID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// DeleteMember provides a mock function with given fields: ctx, memberID
-func (_m *GroupsMockRepository) DeleteMember(ctx context.Context, memberID uuid.UUID) (*models.Member, error) {
-	ret := _m.Called(ctx, memberID)
-
-	var r0 *models.Member
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *models.Member); ok {
-		r0 = rf(ctx, memberID)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Member)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
-		r1 = rf(ctx, memberID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// DeleteUser provides a mock function with given fields: ctx, userID
-func (_m *GroupsMockRepository) DeleteUser(ctx context.Context, userID uuid.UUID) (*models.User, error) {
-	ret := _m.Called(ctx, userID)
-
-	var r0 *models.User
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *models.User); ok {
-		r0 = rf(ctx, userID)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.User)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
-		r1 = rf(ctx, userID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// GetGroupByID provides a mock function with given fields: ctx, groupID
-func (_m *GroupsMockRepository) GetGroupByID(ctx context.Context, groupID uuid.UUID) (*models.Group, error) {
-	ret := _m.Called(ctx, groupID)
-
-	var r0 *models.Group
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *models.Group); ok {
-		r0 = rf(ctx, groupID)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Group)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
-		r1 = rf(ctx, groupID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// GetInviteByID provides a mock function with given fields: ctx, inviteID
-func (_m *GroupsMockRepository) GetInviteByID(ctx context.Context, inviteID uuid.UUID) (*models.Invite, error) {
-	ret := _m.Called(ctx, inviteID)
-
-	var r0 *models.Invite
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *models.Invite); ok {
-		r0 = rf(ctx, inviteID)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Invite)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
-		r1 = rf(ctx, inviteID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// GetMemberByID provides a mock function with given fields: ctx, memberID
-func (_m *GroupsMockRepository) GetMemberByID(ctx context.Context, memberID uuid.UUID) (*models.Member, error) {
-	ret := _m.Called(ctx, memberID)
-
-	var r0 *models.Member
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *models.Member); ok {
-		r0 = rf(ctx, memberID)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Member)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
-		r1 = rf(ctx, memberID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// GetMemberByUserGroupID provides a mock function with given fields: ctx, userID, groupID
-func (_m *GroupsMockRepository) GetMemberByUserGroupID(ctx context.Context, userID uuid.UUID, groupID uuid.UUID) (*models.Member, error) {
+// DeleteGroup provides a mock function with given fields: ctx, userID, groupID
+func (_m *GroupsMockRepository) DeleteGroup(ctx context.Context, userID uuid.UUID, groupID uuid.UUID) error {
 	ret := _m.Called(ctx, userID, groupID)
 
-	var r0 *models.Member
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) *models.Member); ok {
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) error); ok {
 		r0 = rf(ctx, userID, groupID)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Member)
-		}
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// DeleteMember provides a mock function with given fields: ctx, userID, memberID
+func (_m *GroupsMockRepository) DeleteMember(ctx context.Context, userID uuid.UUID, memberID uuid.UUID) error {
+	ret := _m.Called(ctx, userID, memberID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) error); ok {
+		r0 = rf(ctx, userID, memberID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// GetGroupByID provides a mock function with given fields: ctx, userID, groupID
+func (_m *GroupsMockRepository) GetGroupByID(ctx context.Context, userID uuid.UUID, groupID uuid.UUID) (models.Group, error) {
+	ret := _m.Called(ctx, userID, groupID)
+
+	var r0 models.Group
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) models.Group); ok {
+		r0 = rf(ctx, userID, groupID)
+	} else {
+		r0 = ret.Get(0).(models.Group)
 	}
 
 	var r1 error
@@ -331,17 +122,57 @@ func (_m *GroupsMockRepository) GetMemberByUserGroupID(ctx context.Context, user
 	return r0, r1
 }
 
+// GetInviteByID provides a mock function with given fields: ctx, userID, inviteID
+func (_m *GroupsMockRepository) GetInviteByID(ctx context.Context, userID uuid.UUID, inviteID uuid.UUID) (models.Invite, error) {
+	ret := _m.Called(ctx, userID, inviteID)
+
+	var r0 models.Invite
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) models.Invite); ok {
+		r0 = rf(ctx, userID, inviteID)
+	} else {
+		r0 = ret.Get(0).(models.Invite)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, uuid.UUID) error); ok {
+		r1 = rf(ctx, userID, inviteID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetMemberByID provides a mock function with given fields: ctx, userID, memberID
+func (_m *GroupsMockRepository) GetMemberByID(ctx context.Context, userID uuid.UUID, memberID uuid.UUID) (models.Member, error) {
+	ret := _m.Called(ctx, userID, memberID)
+
+	var r0 models.Member
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) models.Member); ok {
+		r0 = rf(ctx, userID, memberID)
+	} else {
+		r0 = ret.Get(0).(models.Member)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, uuid.UUID) error); ok {
+		r1 = rf(ctx, userID, memberID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetUserByID provides a mock function with given fields: ctx, userID
-func (_m *GroupsMockRepository) GetUserByID(ctx context.Context, userID uuid.UUID) (*models.User, error) {
+func (_m *GroupsMockRepository) GetUserByID(ctx context.Context, userID uuid.UUID) (models.User, error) {
 	ret := _m.Called(ctx, userID)
 
-	var r0 *models.User
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *models.User); ok {
+	var r0 models.User
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) models.User); ok {
 		r0 = rf(ctx, userID)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.User)
-		}
+		r0 = ret.Get(0).(models.User)
 	}
 
 	var r1 error
@@ -355,15 +186,15 @@ func (_m *GroupsMockRepository) GetUserByID(ctx context.Context, userID uuid.UUI
 }
 
 // GetUserGroups provides a mock function with given fields: ctx, userID
-func (_m *GroupsMockRepository) GetUserGroups(ctx context.Context, userID uuid.UUID) ([]*models.Group, error) {
+func (_m *GroupsMockRepository) GetUserGroups(ctx context.Context, userID uuid.UUID) ([]models.Group, error) {
 	ret := _m.Called(ctx, userID)
 
-	var r0 []*models.Group
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) []*models.Group); ok {
+	var r0 []models.Group
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) []models.Group); ok {
 		r0 = rf(ctx, userID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*models.Group)
+			r0 = ret.Get(0).([]models.Group)
 		}
 	}
 
@@ -378,15 +209,15 @@ func (_m *GroupsMockRepository) GetUserGroups(ctx context.Context, userID uuid.U
 }
 
 // GetUserInvites provides a mock function with given fields: ctx, userID, num, offset
-func (_m *GroupsMockRepository) GetUserInvites(ctx context.Context, userID uuid.UUID, num int, offset int) ([]*models.Invite, error) {
+func (_m *GroupsMockRepository) GetUserInvites(ctx context.Context, userID uuid.UUID, num int, offset int) ([]models.Invite, error) {
 	ret := _m.Called(ctx, userID, num, offset)
 
-	var r0 []*models.Invite
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, int, int) []*models.Invite); ok {
+	var r0 []models.Invite
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, int, int) []models.Invite); ok {
 		r0 = rf(ctx, userID, num, offset)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*models.Invite)
+			r0 = ret.Get(0).([]models.Invite)
 		}
 	}
 
@@ -400,34 +231,13 @@ func (_m *GroupsMockRepository) GetUserInvites(ctx context.Context, userID uuid.
 	return r0, r1
 }
 
-// IsUserInvited provides a mock function with given fields: ctx, userID, groupID
-func (_m *GroupsMockRepository) IsUserInvited(ctx context.Context, userID uuid.UUID, groupID uuid.UUID) (bool, error) {
-	ret := _m.Called(ctx, userID, groupID)
-
-	var r0 bool
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) bool); ok {
-		r0 = rf(ctx, userID, groupID)
-	} else {
-		r0 = ret.Get(0).(bool)
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, uuid.UUID) error); ok {
-		r1 = rf(ctx, userID, groupID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// RollbackTransaction provides a mock function with given fields:
-func (_m *GroupsMockRepository) RollbackTransaction() error {
-	ret := _m.Called()
+// UpdateGroup provides a mock function with given fields: ctx, groupID, updateFn
+func (_m *GroupsMockRepository) UpdateGroup(ctx context.Context, groupID uuid.UUID, updateFn func(*models.Group) error) error {
+	ret := _m.Called(ctx, groupID, updateFn)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func() error); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, func(*models.Group) error) error); ok {
+		r0 = rf(ctx, groupID, updateFn)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -435,96 +245,46 @@ func (_m *GroupsMockRepository) RollbackTransaction() error {
 	return r0
 }
 
-// UpdateGroup provides a mock function with given fields: ctx, group
-func (_m *GroupsMockRepository) UpdateGroup(ctx context.Context, group *models.Group) (*models.Group, error) {
-	ret := _m.Called(ctx, group)
+// UpdateInvite provides a mock function with given fields: ctx, inviteID, updateFn
+func (_m *GroupsMockRepository) UpdateInvite(ctx context.Context, inviteID uuid.UUID, updateFn func(*models.Invite) (*models.Member, error)) error {
+	ret := _m.Called(ctx, inviteID, updateFn)
 
-	var r0 *models.Group
-	if rf, ok := ret.Get(0).(func(context.Context, *models.Group) *models.Group); ok {
-		r0 = rf(ctx, group)
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, func(*models.Invite) (*models.Member, error)) error); ok {
+		r0 = rf(ctx, inviteID, updateFn)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Group)
-		}
+		r0 = ret.Error(0)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *models.Group) error); ok {
-		r1 = rf(ctx, group)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
-// UpdateInvite provides a mock function with given fields: ctx, invite
-func (_m *GroupsMockRepository) UpdateInvite(ctx context.Context, invite *models.Invite) (*models.Invite, error) {
-	ret := _m.Called(ctx, invite)
+// UpdateMember provides a mock function with given fields: ctx, userID, memberID, updateFn
+func (_m *GroupsMockRepository) UpdateMember(ctx context.Context, userID uuid.UUID, memberID uuid.UUID, updateFn func(*models.Member, *models.Member) error) error {
+	ret := _m.Called(ctx, userID, memberID, updateFn)
 
-	var r0 *models.Invite
-	if rf, ok := ret.Get(0).(func(context.Context, *models.Invite) *models.Invite); ok {
-		r0 = rf(ctx, invite)
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, func(*models.Member, *models.Member) error) error); ok {
+		r0 = rf(ctx, userID, memberID, updateFn)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Invite)
-		}
+		r0 = ret.Error(0)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *models.Invite) error); ok {
-		r1 = rf(ctx, invite)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
-// UpdateMember provides a mock function with given fields: ctx, member
-func (_m *GroupsMockRepository) UpdateMember(ctx context.Context, member *models.Member) (*models.Member, error) {
-	ret := _m.Called(ctx, member)
+// UpdateUser provides a mock function with given fields: ctx, userID, updateFn
+func (_m *GroupsMockRepository) UpdateUser(ctx context.Context, userID uuid.UUID, updateFn func(*models.User) error) error {
+	ret := _m.Called(ctx, userID, updateFn)
 
-	var r0 *models.Member
-	if rf, ok := ret.Get(0).(func(context.Context, *models.Member) *models.Member); ok {
-		r0 = rf(ctx, member)
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, func(*models.User) error) error); ok {
+		r0 = rf(ctx, userID, updateFn)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Member)
-		}
+		r0 = ret.Error(0)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *models.Member) error); ok {
-		r1 = rf(ctx, member)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// UpdateUser provides a mock function with given fields: ctx, user
-func (_m *GroupsMockRepository) UpdateUser(ctx context.Context, user *models.User) (*models.User, error) {
-	ret := _m.Called(ctx, user)
-
-	var r0 *models.User
-	if rf, ok := ret.Get(0).(func(context.Context, *models.User) *models.User); ok {
-		r0 = rf(ctx, user)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.User)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *models.User) error); ok {
-		r1 = rf(ctx, user)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
 type mockConstructorTestingTNewGroupsMockRepository interface {

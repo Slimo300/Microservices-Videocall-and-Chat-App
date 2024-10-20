@@ -4,31 +4,57 @@ import (
 	"context"
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
+	merrors "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models/errors"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
-func (r *GroupsGormRepository) GetMemberByID(ctx context.Context, memberID uuid.UUID) (member *models.Member, err error) {
-	return member, r.db.WithContext(ctx).Preload("User").First(&member, memberID).Error
-}
-
-func (r *GroupsGormRepository) GetMemberByUserGroupID(ctx context.Context, userID, groupID uuid.UUID) (member *models.Member, err error) {
-	return member, r.db.WithContext(ctx).Preload("User").Where(&models.Member{UserID: userID, GroupID: groupID}).First(&member).Error
-}
-
-func (r *GroupsGormRepository) CreateMember(ctx context.Context, member *models.Member) (*models.Member, error) {
-	if err := r.db.WithContext(ctx).Create(&member).Error; err != nil {
-		return nil, err
+func (r *GroupsGormRepository) GetMemberByID(ctx context.Context, userID, memberID uuid.UUID) (models.Member, error) {
+	var m Member
+	if err := r.db.WithContext(ctx).First(&m, memberID).Error; err != nil {
+		return models.Member{}, merrors.NewMemberNotFoundError(memberID.String())
 	}
-	return member, r.db.WithContext(ctx).Preload("User").First(&member, member.ID).Error
-}
-
-func (r *GroupsGormRepository) UpdateMember(ctx context.Context, member *models.Member) (*models.Member, error) {
-	return member, r.db.WithContext(ctx).Preload("User").Save(&member).Error
-}
-
-func (r *GroupsGormRepository) DeleteMember(ctx context.Context, memberID uuid.UUID) (member *models.Member, err error) {
-	if err := r.db.WithContext(ctx).Preload("User").First(&member, memberID).Error; err != nil {
-		return nil, err
+	var issuer Member
+	if err := r.db.WithContext(ctx).Where(Member{UserID: userID, GroupID: m.GroupID}).First(&issuer).Error; err != nil {
+		return models.Member{}, merrors.NewUserNotInGroupError(userID.String(), m.GroupID.String())
 	}
-	return member, r.db.WithContext(ctx).Delete(&models.Member{}, memberID).Error
+	member := unmarshalMember(m)
+	return member, nil
+}
+
+func (r *GroupsGormRepository) DeleteMember(ctx context.Context, userID, memberID uuid.UUID) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var i, t Member
+		if err := tx.First(&t, memberID); err != nil {
+			return merrors.NewMemberNotFoundError(memberID.String())
+		}
+		if err := tx.Where(Member{UserID: userID, GroupID: t.GroupID}).First(&i).Error; err != nil {
+			return merrors.NewUserNotInGroupError(userID.String(), t.GroupID.String())
+		}
+		issuer := unmarshalMember(i)
+		target := unmarshalMember(t)
+		if !issuer.CanDelete(target) {
+			return merrors.NewMemberUnauthorizedError(target.GroupID().String(), merrors.DeleteMemberAction())
+		}
+		return tx.Delete(&target).Error
+	})
+}
+
+func (r *GroupsGormRepository) UpdateMember(ctx context.Context, userID, memberID uuid.UUID, updateFn func(i, t *models.Member) error) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var i, t Member
+		if err := tx.First(&t, memberID); err != nil {
+			return merrors.NewMemberNotFoundError(memberID.String())
+		}
+		if err := tx.Where(Member{UserID: userID, GroupID: t.GroupID}).First(&i).Error; err != nil {
+			return merrors.NewUserNotInGroupError(userID.String(), t.GroupID.String())
+		}
+		issuer := unmarshalMember(i)
+		target := unmarshalMember(t)
+		if err := updateFn(&issuer, &target); err != nil {
+			return err
+		}
+		t = marshalMember(target)
+		return tx.Save(&target).Error
+	})
 }

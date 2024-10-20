@@ -13,15 +13,14 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/app"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/config"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/database/orm"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/eventprocessor"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/handlers"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/routes"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/service"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/builder"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/amqp"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/storage/s3"
 )
 
@@ -41,7 +40,6 @@ func getPublicKey() (*rsa.PublicKey, error) {
 }
 
 func main() {
-
 	conf, err := config.LoadConfigFromEnvironment()
 	if err != nil {
 		log.Fatalf("Couldn't read config: %v", err)
@@ -52,7 +50,7 @@ func main() {
 		log.Fatalf("Error reading public key: %v", err)
 	}
 
-	db, err := orm.Setup(conf.DBAddress)
+	db, err := orm.NewGroupsGormRepository(conf.DBAddress)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -62,19 +60,19 @@ func main() {
 		log.Fatalf("Error connecting to AWS S3: %v", err)
 	}
 
-	brokerBuilder, err := builder.NewBrokerBuilder(msgqueue.ParseBrokerType(conf.BrokerType), conf.BrokerAddress)
+	amqpBuilder, err := amqp.NewAMQPBuilder(conf.BrokerAddress)
 	if err != nil {
 		log.Fatalf("Error creating broker builder: %v", err)
 	}
 
-	emiter, err := brokerBuilder.GetEmiter(msgqueue.EmiterConfig{
+	emiter, err := amqpBuilder.GetEmiter(msgqueue.EmiterConfig{
 		ExchangeName: "group",
 	})
 	if err != nil {
 		log.Fatalf("Error when building emitter: %v", err)
 	}
 
-	listener, err := brokerBuilder.GetListener(msgqueue.ListenerConfig{
+	listener, err := amqpBuilder.GetListener(msgqueue.ListenerConfig{
 		ClientName: "group-service",
 
 		Events: []msgqueue.Event{
@@ -86,13 +84,12 @@ func main() {
 		log.Fatalf("Error when building listener: %v", err)
 	}
 
-	go eventprocessor.NewEventProcessor(db, listener).ProcessEvents("user")
+	app := app.NewApplication(db, storage, emiter)
 
-	server := handlers.NewServer(service.NewService(db, storage, emiter), pubKey)
-	handler := routes.Setup(server, conf.Origin)
+	go eventprocessor.NewEventProcessor(app, listener).ProcessEvents("user")
 
 	httpServer := &http.Server{
-		Handler: handler,
+		Handler: handlers.NewServer(app, pubKey, conf.Origin),
 		Addr:    fmt.Sprintf(":%s", conf.HTTPPort),
 	}
 

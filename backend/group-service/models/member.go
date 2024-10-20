@@ -5,25 +5,55 @@ import (
 )
 
 type Member struct {
-	ID               uuid.UUID `gorm:"primaryKey" json:"ID"`
-	GroupID          uuid.UUID `gorm:"column:group_id;uniqueIndex:idx_first;size:191" json:"groupID"`
-	UserID           uuid.UUID `gorm:"column:user_id;uniqueIndex:idx_first;size:191" json:"userID"`
-	User             User      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	Group            Group     `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
-	Adding           bool      `gorm:"column:adding" json:"adding"`
-	DeletingMembers  bool      `gorm:"column:deleting_members" json:"deletingMembers"`
-	DeletingMessages bool      `gorm:"column:deleting_messages" json:"deletingMessages"`
-	Muting           bool      `gorm:"column:muting" json:"muting"`
-	Admin            bool      `gorm:"column:setting" json:"admin"`
-	Creator          bool      `gorm:"column:creator" json:"creator"`
+	id      uuid.UUID
+	groupID uuid.UUID
+	userID  uuid.UUID
+	user    User
+	// group            Group
+	adding           bool
+	deletingMembers  bool
+	deletingMessages bool
+	muting           bool
+	admin            bool
+	creator          bool
 }
 
-func (Member) TableName() string {
-	return "members"
+func (m Member) ID() uuid.UUID          { return m.id }
+func (m Member) GroupID() uuid.UUID     { return m.groupID }
+func (m Member) UserID() uuid.UUID      { return m.userID }
+func (m Member) User() User             { return m.user }
+func (m Member) Adding() bool           { return m.adding }
+func (m Member) DeletingMessages() bool { return m.deletingMessages }
+func (m Member) DeletingMembers() bool  { return m.deletingMembers }
+func (m Member) Admin() bool            { return m.admin }
+func (m Member) Muting() bool           { return m.muting }
+func (m Member) Creator() bool          { return m.creator }
+
+func (m Member) CanDeleteGroup() bool {
+	return m.creator
 }
 
-// Here are methods and constants responsible for resolving users rights in a group when they try to alter
-// other members of a group
+func (m Member) CanUpdateGroup() bool {
+	return m.creator || m.admin
+}
+
+func (m Member) CanSendInvite() bool {
+	return m.adding || m.admin || m.creator
+}
+
+func (m Member) CanDelete(target Member) bool {
+	if m.role(false) < target.role(false) {
+		return true
+	}
+	if m.id == target.id && !m.creator { // user can delete himself
+		return true
+	}
+	return false
+}
+
+func (m Member) CanAlter(target Member) bool {
+	return m.role(true) < target.role(true)
+}
 
 type role int
 
@@ -34,28 +64,14 @@ const (
 	BASIC
 )
 
-func (m Member) CanDelete(target Member) bool {
-	if m.role(false) < target.role(false) {
-		return true
-	}
-	if m.ID == target.ID && !m.Creator { // user can delete himself
-		return true
-	}
-	return false
-}
-
-func (m Member) CanAlter(target Member) bool {
-	return m.role(true) < target.role(true)
-}
-
 func (m Member) role(noDeleter bool) role {
-	if m.Creator {
+	if m.creator {
 		return CREATOR
 	}
-	if m.Admin {
+	if m.admin {
 		return ADMIN
 	}
-	if m.DeletingMembers && !noDeleter {
+	if m.deletingMembers && !noDeleter {
 		return DELETER
 	}
 	return BASIC
@@ -70,9 +86,46 @@ type MemberRights struct {
 }
 
 func (m *Member) ApplyRights(rights MemberRights) {
-	m.Adding = rights.Adding
-	m.DeletingMembers = rights.DeletingMembers
-	m.DeletingMessages = rights.DeletingMessages
-	m.Admin = rights.Admin
-	m.Muting = rights.Muting
+	m.adding = rights.Adding
+	m.deletingMembers = rights.DeletingMembers
+	m.deletingMessages = rights.DeletingMessages
+	m.admin = rights.Admin
+	m.muting = rights.Muting
+}
+
+func newCreatorMember(userID, groupID uuid.UUID) Member {
+	return Member{
+		id:               uuid.New(),
+		userID:           userID,
+		groupID:          groupID,
+		adding:           true,
+		deletingMembers:  true,
+		deletingMessages: true,
+		muting:           true,
+		admin:            true,
+		creator:          true,
+	}
+}
+
+func NewMember(userID, groupID uuid.UUID) Member {
+	return Member{
+		id:      uuid.New(),
+		userID:  userID,
+		groupID: groupID,
+	}
+}
+
+func UnmarshalMemberFromDatabase(memberID, userID, groupID uuid.UUID, user User, adding, delMembers, delMessages, muting, admin, creator bool) Member {
+	return Member{
+		id:               memberID,
+		groupID:          groupID,
+		userID:           userID,
+		user:             user,
+		adding:           adding,
+		deletingMembers:  delMembers,
+		deletingMessages: delMessages,
+		muting:           muting,
+		admin:            admin,
+		creator:          creator,
+	}
 }
