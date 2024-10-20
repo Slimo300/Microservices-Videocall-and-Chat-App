@@ -9,14 +9,14 @@ export const ChatBox = ({ group, user }) => {
     const [allMessagesFlag, setAllMessagesFlag] = useState(false);
     const [, dispatch] = useContext(StorageContext);
 
-    // const GetMemberPicture = (group, userID) => {
-    //     for (let i = 0; i < group.Members.length; i++) {
-    //         if (group.Members[i].User.ID === userID) {
-    //             return group.Members[i].User.pictureUrl;
-    //         }
-    //     }
-    //     return "";
-    // };
+    const MemberHasPicture = (group, userID) => {
+        for (let i = 0; i < group.Members.length; i++) {
+            if (group.Members[i].User.ID === userID) {
+                return group.Members[i].User.hasPicture;
+            }
+        }
+        return "";
+    };
     const loadMessages = async() => {
         let messages = await LoadMessages(group.ID.toString(), group.messages.length);
         if (messages.status === 204) {
@@ -50,7 +50,7 @@ export const ChatBox = ({ group, user }) => {
                 {group.messages===undefined?null:group.messages.map((item) => {
                 return <div key={item.messageID} className="d-flex flex-column justify-content-end">
                         {/* <Message message={item} user={user.ID} picture={GetMemberPicture(group, item.Member.userID)} /> */}
-                        <Message message={item} user={user.ID} />
+                        <Message message={item} userID={user.ID} hasPicture={MemberHasPicture(group, item.Member.userID)} />
                         {shouldDisplayDate(new Date(item.created), lastMessageDate)?<NewDate time={dateToDisplay} />:null}
                     </div>})}
                 {group.messages[group.messages.length-1]?<div className="d-flex flex-column justify-content-end">

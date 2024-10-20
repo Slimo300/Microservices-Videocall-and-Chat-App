@@ -5,7 +5,7 @@ import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
 import { DeleteMessageForEveryone, DeleteMessageForYourself, GetPresignedGetRequests } from "../../requests/Messages";
 import { actionTypes, StorageContext } from '../../ChatStorage';
 
-const Message = ({ message, userID }) => {
+const Message = ({ message, userID, hasPicture }) => {
 // const Message = ({ message, picture, user }) => {
 
     let time = new Date(message.created);
@@ -17,7 +17,7 @@ const Message = ({ message, userID }) => {
             <div className="chat-hour">{displayedTime} <span className="fa fa-check-circle"></span></div>
             <MessageContent message={message} side="right" />
             <div className="chat-avatar">
-                <UserPicture pictureUrl={message.Member.userID} />
+                <UserPicture userID={message.Member.userID} hasPicture={hasPicture} />
                 <div className="chat-name">{message.Member.username}</div>
             </div>
             <MessageOptions side="right" messageID={message.messageID} groupID={message.Member.groupID} isDeleted={isDeleted}/>
@@ -28,7 +28,7 @@ const Message = ({ message, userID }) => {
         <li className="chat-left">
             <MessageOptions side="left" messageID={message.messageID} groupID={message.Member.groupID} isDeleted={isDeleted}/>
             <div className="chat-avatar">
-                <UserPicture pictureUrl={message.Member.userID} />
+                <UserPicture userID={message.Member.userID} hasPicture={hasPicture} />
                 <div className="chat-name">{message.Member.username}</div>
             </div>
             <MessageContent message={message} side="left" />
