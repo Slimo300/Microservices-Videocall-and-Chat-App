@@ -1,78 +1,81 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: groups-deployment
+    name: groups-deployment
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      chat/app: groups
-      chat/tier: api
-  template:
-    metadata:
-      labels:
-        chat/app: groups
-        chat/tier: api
-    spec:
-      initContainers:
-        - name: db-test
-          image: busybox:1.31
-          command: ['sh', '-c', 'echo -e "Checking for the availability of MySQL Server deployment"; while ! nc -z group-mysql 3306; do sleep 1; printf "-"; done; echo -e "  >> MySQL DB Server has started";']
-        - name: rabbitmq-test
-          image: busybox:1.31
-          command: ['sh', '-c', 'echo -e "Checking for the availability of RabbitMQ broker"; while ! nc -z rabbitmq-service 5672; do sleep 1; printf "-"; done; echo -e "  >> RabbitMQ has started";']
-        # - name: kafka-test
-        #   image: busybox:1.31
-        #   command: ['sh', '-c', 'echo -e "Checking for the availability of Kafka broker"; while ! nc -z kafka 9092; do sleep 1; printf "-"; done; echo -e "  >> Kafka has started";']
-      containers:
-      - name: group-service
-        imagePullPolicy: Always
-        image: slimo300/group-service:1.0.0
-        ports:
-        - containerPort: 8080
-          name: http
-        env:
-        - name: MYSQL_DATABASE
-          valueFrom:
-            secretKeyRef:
-              name: mysql-creds
-              key: MYSQL_DATABASE
-        - name: MYSQL_USER
-          valueFrom:
-            secretKeyRef:
-              name: mysql-creds
-              key: MYSQL_USER
-        - name: MYSQL_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mysql-creds
-              key: MYSQL_PASSWORD
-        - name: MYSQL_ADDRESS
-          value: group-mysql:3306
-        - name: ORIGIN
-          value: https://www.relrel.org
-        envFrom:
-        - configMapRef:
-            name: broker-config
-        - secretRef:
-            name: storage-credentials
-        volumeMounts:
-          - name: public-key
-            mountPath: /rsa
-      volumes:
-        - name: public-key
-          configMap:
-            name: public-key
+    replicas: 1
+    selector:
+        matchLabels:
+            chat/app: groups
+            chat/tier: api
+    template:
+        metadata:
+            labels:
+                chat/app: groups
+                chat/tier: api
+        spec:
+            containers:
+                - env:
+                    - name: MYSQL_DATABASE
+                      valueFrom:
+                        secretKeyRef:
+                            key: MYSQL_DATABASE
+                            name: mysql-creds
+                    - name: MYSQL_USER
+                      valueFrom:
+                        secretKeyRef:
+                            key: MYSQL_USER
+                            name: mysql-creds
+                    - name: MYSQL_PASSWORD
+                      valueFrom:
+                        secretKeyRef:
+                            key: MYSQL_PASSWORD
+                            name: mysql-creds
+                    - name: MYSQL_ADDRESS
+                      value: group-mysql:3306
+                    - name: ORIGIN
+                      value: https://www.relrel.org
+                  envFrom:
+                    - configMapRef:
+                        name: broker-config
+                    - secretRef:
+                        name: storage-credentials
+                  image: slimo300/group-service:1.0.6
+                  imagePullPolicy: Always
+                  name: group-service
+                  ports:
+                    - containerPort: 8080
+                      name: http
+                  volumeMounts:
+                    - mountPath: /rsa
+                      name: public-key
+            initContainers:
+                - command:
+                    - sh
+                    - -c
+                    - echo -e "Checking for the availability of MySQL Server deployment"; while ! nc -z group-mysql 3306; do sleep 1; printf "-"; done; echo -e "  >> MySQL DB Server has started";
+                  image: busybox:1.31
+                  name: db-test
+                - command:
+                    - sh
+                    - -c
+                    - echo -e "Checking for the availability of RabbitMQ broker"; while ! nc -z rabbitmq-service 5672; do sleep 1; printf "-"; done; echo -e "  >> RabbitMQ has started";
+                  image: busybox:1.31
+                  name: rabbitmq-test
+            volumes:
+                - configMap:
+                    name: public-key
+                  name: public-key
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: group-service
+    name: group-service
 spec:
-  selector:
-    chat/app: groups
-    chat/tier: api
-  ports:
-  - port: 8080
-    targetPort: 8080
-    name: http
+    ports:
+        - name: http
+          port: 8080
+          targetPort: 8080
+    selector:
+        chat/app: groups
+        chat/tier: api
