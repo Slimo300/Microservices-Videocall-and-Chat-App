@@ -36,7 +36,6 @@ func (s *Server) GrantRights(c *gin.Context) {
 		DeletingMembers:  rights.DeletingMembers,
 		DeletingMessages: rights.DeletingMessages,
 		Muting:           rights.Muting,
-		Admin:            rights.Admin,
 	}); err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return

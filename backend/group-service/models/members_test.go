@@ -1,111 +1,111 @@
 package models_test
 
-// import (
-// 	"testing"
+import (
+	"testing"
 
-// 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
-// 	"github.com/stretchr/testify/suite"
-// )
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
+	"github.com/google/uuid"
+	"gotest.tools/assert"
+)
 
-// type MemberTestSuite struct {
-// 	suite.Suite
-// 	basic    models.Member
-// 	basic2   models.Member
-// 	basic3   models.Member
-// 	deleter  models.Member
-// 	deleter2 models.Member
-// 	deleter3 models.Member
-// 	admin    models.Member
-// 	admin2   models.Member
-// 	admin3   models.Member
-// 	creator  models.Member
-// 	creator2 models.Member
-// }
+func TestMemberRights(t *testing.T) {
+	group := models.CreateGroup(uuid.New(), "new group")
+	creatorUser := group.Members()[0]
+	deletingUser := group.AddMember(uuid.New(), models.WithDeletingMembers)
+	deletingUserTest := group.AddMember(uuid.New(), models.WithDeletingMembers)
+	basicUser := group.AddMember(uuid.New())
+	basicUserTest := group.AddMember(uuid.New())
 
-// func (s *MemberTestSuite) SetupSuite() {
-// 	// s.basic = models.Member{ID: uuid.New()}
-// 	// s.basic2 = models.Member{ID: uuid.New()}
-// 	// s.basic3 = models.Member{ID: uuid.New()}
-// 	// s.deleter = models.Member{ID: uuid.New(), DeletingMembers: true}
-// 	// s.deleter3 = models.Member{ID: uuid.New(), DeletingMembers: true}
-// 	// s.admin = models.Member{ID: uuid.New(), Admin: true}
-// 	// s.admin2 = models.Member{ID: uuid.New(), Admin: true}
-// 	// s.admin3 = models.Member{ID: uuid.New(), Admin: true}
-// 	// s.creator = models.Member{ID: uuid.New(), Creator: true}
-// 	// s.creator2 = models.Member{ID: uuid.New(), Creator: true}
-// }
+	testCases := []struct {
+		desc      string
+		issuer    models.Member
+		target    models.Member
+		canDelete bool
+		canAlter  bool
+	}{
+		{
+			desc:      "creator_on_himself",
+			issuer:    creatorUser,
+			target:    creatorUser,
+			canDelete: false,
+			canAlter:  false,
+		},
+		{
+			desc:      "creator_on_deleter",
+			issuer:    creatorUser,
+			target:    deletingUserTest,
+			canDelete: true,
+			canAlter:  true,
+		},
+		{
+			desc:      "creator_on_basic",
+			issuer:    creatorUser,
+			target:    basicUserTest,
+			canDelete: true,
+			canAlter:  true,
+		},
+		{
+			desc:      "deleter_on_creator",
+			issuer:    deletingUser,
+			target:    creatorUser,
+			canDelete: false,
+			canAlter:  false,
+		},
+		{
+			desc:      "deleter_on_deleter",
+			issuer:    deletingUser,
+			target:    deletingUserTest,
+			canDelete: false,
+			canAlter:  false,
+		},
+		{
+			desc:      "deleter_on_basic",
+			issuer:    deletingUser,
+			target:    basicUserTest,
+			canDelete: true,
+			canAlter:  false,
+		},
+		{
+			desc:      "deleter_on_himself",
+			issuer:    deletingUser,
+			target:    deletingUser,
+			canDelete: true,
+			canAlter:  false,
+		},
+		{
+			desc:      "basic_on_creator",
+			issuer:    basicUser,
+			target:    creatorUser,
+			canDelete: false,
+			canAlter:  false,
+		},
+		{
+			desc:      "basic_on_deleter",
+			issuer:    basicUser,
+			target:    deletingUserTest,
+			canDelete: false,
+			canAlter:  false,
+		},
+		{
+			desc:      "basic_on_basic",
+			issuer:    basicUser,
+			target:    basicUserTest,
+			canDelete: false,
+			canAlter:  false,
+		},
+		{
+			desc:      "basic_on_himself",
+			issuer:    basicUser,
+			target:    basicUser,
+			canDelete: true,
+			canAlter:  false,
+		},
+	}
 
-// func (s *MemberTestSuite) TestCanDelete() {
-// 	s.True(s.creator.CanDelete(s.basic))
-// 	s.True(s.creator.CanDelete(s.deleter))
-// 	s.True(s.creator.CanDelete(s.admin))
-// 	s.False(s.creator.CanDelete(s.creator2))
-
-// 	s.True(s.admin.CanDelete(s.basic))
-// 	s.True(s.admin.CanDelete(s.deleter))
-// 	s.False(s.admin.CanDelete(s.admin2))
-// 	s.False(s.admin.CanDelete(s.creator))
-
-// 	s.True(s.deleter.CanDelete(s.basic))
-// 	s.True(s.deleter.CanDelete(s.deleter2))
-// 	s.False(s.deleter.CanDelete(s.admin))
-// 	s.False(s.deleter.CanDelete(s.creator))
-
-// 	s.False(s.basic.CanDelete(s.basic2))
-// 	s.False(s.basic.CanDelete(s.deleter))
-// 	s.False(s.basic.CanDelete(s.admin))
-// 	s.False(s.basic.CanDelete(s.creator))
-
-// 	s.True(s.basic.CanDelete(s.basic))
-// 	s.True(s.deleter.CanDelete(s.deleter))
-// 	s.True(s.admin.CanDelete(s.admin))
-// 	s.False(s.creator.CanDelete(s.creator))
-// }
-
-// func (s *MemberTestSuite) TestCanAlter() {
-// 	s.True(s.creator.CanAlter(s.basic))
-// 	s.True(s.creator.CanAlter(s.deleter))
-// 	s.True(s.creator.CanAlter(s.admin))
-// 	s.False(s.creator.CanAlter(s.creator))
-
-// 	s.True(s.admin.CanAlter(s.basic))
-// 	s.True(s.admin.CanAlter(s.deleter))
-// 	s.False(s.admin.CanAlter(s.admin))
-// 	s.False(s.admin.CanAlter(s.creator))
-
-// 	s.False(s.deleter.CanAlter(s.basic))
-// 	s.False(s.deleter.CanAlter(s.deleter))
-// 	s.False(s.deleter.CanAlter(s.admin))
-// 	s.False(s.deleter.CanAlter(s.creator))
-
-// 	s.False(s.basic.CanAlter(s.basic))
-// 	s.False(s.basic.CanAlter(s.deleter))
-// 	s.False(s.basic.CanAlter(s.admin))
-// 	s.False(s.basic.CanAlter(s.creator))
-// }
-
-// func (s *MemberTestSuite) TestApplyRights() {
-// 	s.False(s.basic3.Adding())
-
-// 	s.basic3.ApplyRights(models.MemberRights{Adding: true})
-// 	s.True(s.basic3.Adding())
-
-// 	s.basic3.ApplyRights(models.MemberRights{Adding: false})
-// 	s.False(s.basic3.Adding())
-
-// 	s.admin3.ApplyRights(models.MemberRights{
-// 		Adding:           true,
-// 		DeletingMessages: false,
-// 		DeletingMembers:  false,
-// 		Admin:            false,
-// 	})
-
-// 	s.True(s.admin3.Adding())
-// 	s.False(s.admin3.DeletingMessages())
-// 	s.False(s.admin3.DeletingMembers())
-// 	s.False(s.admin3.Admin())
-// }
-
-// func TestMembers(t *testing.T) {
-// 	suite.Run(t, &MemberTestSuite{})
-// }
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			assert.Equal(t, tC.issuer.CanDelete(tC.target), tC.canDelete)
+			assert.Equal(t, tC.issuer.CanAlter(tC.target), tC.canAlter)
+		})
+	}
+}

@@ -5,11 +5,10 @@ import (
 )
 
 type Member struct {
-	id      uuid.UUID
-	groupID uuid.UUID
-	userID  uuid.UUID
-	user    User
-	// group            Group
+	id               uuid.UUID
+	groupID          uuid.UUID
+	userID           uuid.UUID
+	user             User
 	adding           bool
 	deletingMembers  bool
 	deletingMessages bool
@@ -34,54 +33,43 @@ func (m Member) CanDeleteGroup() bool {
 }
 
 func (m Member) CanUpdateGroup() bool {
-	return m.creator || m.admin
+	return m.creator
 }
 
 func (m Member) CanSendInvite() bool {
-	return m.adding || m.admin || m.creator
+	return m.adding || m.creator
 }
 
 func (m Member) CanDelete(target Member) bool {
-	if m.role(false) < target.role(false) {
+	if target.creator {
+		return false
+	}
+	if m.id == target.id { // user can delete himself if he's not a creator
 		return true
 	}
-	if m.id == target.id && !m.creator { // user can delete himself
+	if m.creator { // creator can delete everyone (except himself)
+		return true
+	}
+	if m.deletingMembers && !target.deletingMembers { // user with rights to delete can delete everyone except creator and other user with such rights
 		return true
 	}
 	return false
 }
 
 func (m Member) CanAlter(target Member) bool {
-	return m.role(true) < target.role(true)
-}
-
-type role int
-
-const (
-	CREATOR role = iota + 1
-	ADMIN
-	DELETER
-	BASIC
-)
-
-func (m Member) role(noDeleter bool) role {
+	if target.creator {
+		return false
+	}
 	if m.creator {
-		return CREATOR
+		return true
 	}
-	if m.admin {
-		return ADMIN
-	}
-	if m.deletingMembers && !noDeleter {
-		return DELETER
-	}
-	return BASIC
+	return false
 }
 
 type MemberRights struct {
 	Adding           bool `json:"adding"`
 	DeletingMessages bool `json:"deletingMessages"`
 	DeletingMembers  bool `json:"deletingMembers"`
-	Admin            bool `json:"admin"`
 	Muting           bool `json:"muting"`
 }
 
@@ -89,7 +77,6 @@ func (m *Member) ApplyRights(rights MemberRights) {
 	m.adding = rights.Adding
 	m.deletingMembers = rights.DeletingMembers
 	m.deletingMessages = rights.DeletingMessages
-	m.admin = rights.Admin
 	m.muting = rights.Muting
 }
 
@@ -102,7 +89,6 @@ func newCreatorMember(userID, groupID uuid.UUID) Member {
 		deletingMembers:  true,
 		deletingMessages: true,
 		muting:           true,
-		admin:            true,
 		creator:          true,
 	}
 }
@@ -115,7 +101,7 @@ func NewMember(userID, groupID uuid.UUID) Member {
 	}
 }
 
-func UnmarshalMemberFromDatabase(memberID, userID, groupID uuid.UUID, user User, adding, delMembers, delMessages, muting, admin, creator bool) Member {
+func UnmarshalMemberFromDatabase(memberID, userID, groupID uuid.UUID, user User, adding, delMembers, delMessages, muting, creator bool) Member {
 	return Member{
 		id:               memberID,
 		groupID:          groupID,
@@ -125,7 +111,6 @@ func UnmarshalMemberFromDatabase(memberID, userID, groupID uuid.UUID, user User,
 		deletingMembers:  delMembers,
 		deletingMessages: delMessages,
 		muting:           muting,
-		admin:            admin,
 		creator:          creator,
 	}
 }

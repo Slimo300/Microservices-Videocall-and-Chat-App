@@ -63,7 +63,6 @@ type Member struct {
 	DeletingMembers  *bool
 	DeletingMessages *bool
 	Muting           *bool
-	Admin            *bool
 	Creator          *bool
 }
 
@@ -74,7 +73,6 @@ func marshalMember(member models.Member) Member {
 	deletingMembers := member.DeletingMembers()
 	deletingMessages := member.DeletingMessages()
 	muting := member.Muting()
-	admin := member.Admin()
 	creator := member.Creator()
 
 	return Member{
@@ -85,7 +83,6 @@ func marshalMember(member models.Member) Member {
 		DeletingMembers:  &deletingMembers,
 		DeletingMessages: &deletingMessages,
 		Muting:           &muting,
-		Admin:            &admin,
 		Creator:          &creator,
 	}
 }
@@ -99,7 +96,6 @@ func unmarshalMember(m Member) models.Member {
 		*m.DeletingMembers,
 		*m.DeletingMessages,
 		*m.Muting,
-		*m.Admin,
 		*m.Creator,
 	)
 }

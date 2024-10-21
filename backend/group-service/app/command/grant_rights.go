@@ -47,7 +47,6 @@ func (h GrantRightsHandler) Handle(ctx context.Context, cmd GrantRights) error {
 			DeletingMessages: cmd.DeletingMessages,
 			DeletingMembers:  cmd.DeletingMembers,
 			Muting:           cmd.Muting,
-			Admin:            cmd.Admin,
 		})
 		member = t
 		return nil

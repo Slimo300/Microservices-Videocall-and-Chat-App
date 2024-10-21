@@ -24,6 +24,20 @@ func (g *Group) ChangePictureStateIfIncorrect(state bool) bool {
 	return true
 }
 
+func (g *Group) AddMember(userID uuid.UUID, opts ...MemberOpt) Member {
+	m := NewMember(userID, g.id)
+	for _, o := range opts {
+		o(&m)
+	}
+	g.members = append(g.members, m)
+	return m
+}
+
+type MemberOpt func(m *Member)
+
+func WithAdding(m *Member)          { m.adding = true }
+func WithDeletingMembers(m *Member) { m.deletingMembers = true }
+
 func (g Group) GetMemberByUserID(userID uuid.UUID) (Member, bool) {
 	for _, m := range g.members {
 		if m.userID == userID {
