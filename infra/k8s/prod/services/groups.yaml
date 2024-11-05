@@ -40,7 +40,7 @@ spec:
                         name: broker-config
                     - secretRef:
                         name: storage-credentials
-                  image: slimo300/group-service:1.0.6
+                  image: slimo300/group-service:1.0.7
                   imagePullPolicy: Always
                   name: group-service
                   ports:
