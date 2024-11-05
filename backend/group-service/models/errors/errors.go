@@ -14,6 +14,18 @@ func NewInviteNotFoundError(inviteID string) error {
 	return errInviteNotFound{inviteID: inviteID}
 }
 
+type errGroupNotFound struct {
+	groupID string
+}
+
+func (e errGroupNotFound) Error() string {
+	return fmt.Sprintf("group with id %s not found", e.groupID)
+}
+
+func NewGroupNotFoundError(groupID string) error {
+	return errGroupNotFound{groupID: groupID}
+}
+
 type errUserNotFound struct {
 	userID string
 }

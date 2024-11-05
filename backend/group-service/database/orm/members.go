@@ -25,7 +25,7 @@ func (r *GroupsGormRepository) GetMemberByID(ctx context.Context, userID, member
 func (r *GroupsGormRepository) DeleteMember(ctx context.Context, userID, memberID uuid.UUID) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var i, t Member
-		if err := tx.First(&t, memberID); err != nil {
+		if err := tx.First(&t, memberID).Error; err != nil {
 			return merrors.NewMemberNotFoundError(memberID.String())
 		}
 		if err := tx.Where(Member{UserID: userID, GroupID: t.GroupID}).First(&i).Error; err != nil {
@@ -36,14 +36,14 @@ func (r *GroupsGormRepository) DeleteMember(ctx context.Context, userID, memberI
 		if !issuer.CanDelete(target) {
 			return merrors.NewMemberUnauthorizedError(target.GroupID().String(), merrors.DeleteMemberAction())
 		}
-		return tx.Delete(&target).Error
+		return tx.Delete(&t).Error
 	})
 }
 
-func (r *GroupsGormRepository) UpdateMember(ctx context.Context, userID, memberID uuid.UUID, updateFn func(i, t *models.Member) error) error {
+func (r *GroupsGormRepository) UpdateMember(ctx context.Context, userID, memberID uuid.UUID, updateFn func(m *models.Member) error) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var i, t Member
-		if err := tx.First(&t, memberID); err != nil {
+		if err := tx.First(&t, memberID).Error; err != nil {
 			return merrors.NewMemberNotFoundError(memberID.String())
 		}
 		if err := tx.Where(Member{UserID: userID, GroupID: t.GroupID}).First(&i).Error; err != nil {
@@ -51,10 +51,13 @@ func (r *GroupsGormRepository) UpdateMember(ctx context.Context, userID, memberI
 		}
 		issuer := unmarshalMember(i)
 		target := unmarshalMember(t)
-		if err := updateFn(&issuer, &target); err != nil {
+		if !issuer.CanAlter(target) {
+			return merrors.NewMemberUnauthorizedError(t.GroupID.String(), merrors.UpdateMemberAction())
+		}
+		if err := updateFn(&target); err != nil {
 			return err
 		}
 		t = marshalMember(target)
-		return tx.Save(&target).Error
+		return tx.Save(&t).Error
 	})
 }

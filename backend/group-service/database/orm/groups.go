@@ -53,11 +53,19 @@ func (r *GroupsGormRepository) CreateGroup(ctx context.Context, group models.Gro
 	})
 }
 
-func (r *GroupsGormRepository) UpdateGroup(ctx context.Context, groupID uuid.UUID, updateFn func(g *models.Group) error) error {
+func (r *GroupsGormRepository) UpdateGroup(ctx context.Context, userID, groupID uuid.UUID, updateFn func(g *models.Group) error) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var g Group
-		if err := tx.Preload("Members").First(&g, groupID).Error; err != nil {
-			return err
+		if err := tx.First(&g, groupID).Error; err != nil {
+			return merrors.NewGroupNotFoundError(groupID.String())
+		}
+		var m Member
+		if err := tx.Where(Member{UserID: userID, GroupID: groupID}).First(&m).Error; err != nil {
+			return merrors.NewUserNotInGroupError(userID.String(), groupID.String())
+		}
+		member := unmarshalMember(m)
+		if !member.CanUpdateGroup() {
+			return merrors.NewMemberUnauthorizedError(groupID.String(), merrors.UpdateGroupAction())
 		}
 		group := unmarshalGroup(g)
 		if err := updateFn(&group); err != nil {

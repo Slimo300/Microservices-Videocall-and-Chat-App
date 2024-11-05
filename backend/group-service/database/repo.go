@@ -20,10 +20,10 @@ type GroupsRepository interface {
 	GetUserInvites(ctx context.Context, userID uuid.UUID, num, offset int) ([]models.Invite, error)
 
 	CreateGroup(ctx context.Context, group models.Group) (models.Group, error)
-	UpdateGroup(ctx context.Context, groupID uuid.UUID, updateFn func(g *models.Group) error) error
+	UpdateGroup(ctx context.Context, userID, groupID uuid.UUID, updateFn func(g *models.Group) error) error
 	DeleteGroup(ctx context.Context, userID, groupID uuid.UUID) error
 
-	UpdateMember(ctx context.Context, userID, memberID uuid.UUID, updateFn func(i, t *models.Member) error) error
+	UpdateMember(ctx context.Context, userID, memberID uuid.UUID, updateFn func(m *models.Member) error) error
 	DeleteMember(ctx context.Context, userID, memberID uuid.UUID) error
 
 	CreateInvite(ctx context.Context, invite models.Invite) (models.Invite, error)

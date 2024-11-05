@@ -2,6 +2,7 @@ package orm
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
@@ -87,6 +88,8 @@ func (r *GroupsGormRepository) UpdateInvite(ctx context.Context, inviteID uuid.U
 		}
 		m := marshalMember(*member)
 		return tx.Create(m).Error
+	}, &sql.TxOptions{
+		Isolation: sql.LevelSerializable,
 	}); err != nil {
 		return err
 	}

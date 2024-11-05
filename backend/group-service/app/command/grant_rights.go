@@ -5,7 +5,6 @@ import (
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/database"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models"
-	merrors "github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/group-service/models/errors"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
 	"github.com/google/uuid"
@@ -38,17 +37,14 @@ func NewGrantRightsHandler(repo database.GroupsRepository, emitter msgqueue.Even
 
 func (h GrantRightsHandler) Handle(ctx context.Context, cmd GrantRights) error {
 	var member *models.Member
-	if err := h.repo.UpdateMember(ctx, cmd.UserID, cmd.MemberID, func(i, t *models.Member) error {
-		if !i.CanAlter(*t) {
-			return merrors.NewMemberUnauthorizedError(i.GroupID().String(), merrors.UpdateMemberAction())
-		}
-		t.ApplyRights(models.MemberRights{
+	if err := h.repo.UpdateMember(ctx, cmd.UserID, cmd.MemberID, func(m *models.Member) error {
+		m.ApplyRights(models.MemberRights{
 			Adding:           cmd.Adding,
 			DeletingMessages: cmd.DeletingMessages,
 			DeletingMembers:  cmd.DeletingMembers,
 			Muting:           cmd.Muting,
 		})
-		member = t
+		member = m
 		return nil
 	}); err != nil {
 		return err
