@@ -40,7 +40,7 @@ spec:
                         name: broker-config
                     - secretRef:
                         name: storage-credentials
-                  image: slimo300/message-service:1.0.1
+                  image: slimo300/message-service:1.0.3
                   imagePullPolicy: Always
                   name: message-service
                   ports:
