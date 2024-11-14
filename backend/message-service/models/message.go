@@ -7,26 +7,80 @@ import (
 )
 
 type Message struct {
-	ID       uuid.UUID `gorm:"primaryKey" json:"messageID"`
-	GroupID  uuid.UUID `json:"grouopID"`
-	Posted   time.Time `json:"created"`
-	Text     string    `json:"text"`
-	MemberID uuid.UUID `gorm:"column:member_id;size:191" json:"memberID"`
-	Member   Membership
-	Deleters []Membership  `gorm:"many2many:users_who_deleted;constraint:OnDelete:CASCADE;"`
-	Files    []MessageFile `gorm:"foreignKey:MessageID" json:"files"`
+	id       uuid.UUID
+	groupID  uuid.UUID
+	posted   time.Time
+	text     string
+	memberID uuid.UUID
+	member   Member
+	deleters []Member
+	files    []MessageFile
 }
 
-func (Message) TableName() string {
-	return "messages"
+func (m Message) ID() uuid.UUID        { return m.id }
+func (m Message) GroupID() uuid.UUID   { return m.groupID }
+func (m Message) MemberID() uuid.UUID  { return m.memberID }
+func (m Message) Member() Member       { return m.member }
+func (m Message) Text() string         { return m.text }
+func (m Message) Posted() time.Time    { return m.posted }
+func (m Message) Files() []MessageFile { return m.files }
+func (m Message) Deleters() []Member   { return m.deleters }
+
+func (m Message) IsUserDeleter(userID uuid.UUID) bool {
+	for _, d := range m.deleters {
+		if d.userID == userID {
+			return true
+		}
+	}
+	return false
+}
+
+func (m *Message) AddFiles(files ...MessageFile) {
+	m.files = append(m.files, files...)
+}
+
+func (m *Message) AddDeleters(deleters ...Member) {
+	m.deleters = append(m.deleters, deleters...)
+}
+
+func NewMessage(msgID, groupID, memberID uuid.UUID, text string, posted time.Time, files []MessageFile) Message {
+	return Message{
+		id:       msgID,
+		groupID:  groupID,
+		memberID: memberID,
+		text:     text,
+		posted:   posted,
+		files:    files,
+	}
+}
+
+func UnmarshalMessageFromDatabase(msgID, groupID, memberID uuid.UUID, text string, posted time.Time, member Member, deleters []Member, files []MessageFile) Message {
+	return Message{
+		id:       msgID,
+		memberID: memberID,
+		groupID:  groupID,
+		text:     text,
+		posted:   posted,
+		member:   member,
+		deleters: deleters,
+		files:    files,
+	}
 }
 
 type MessageFile struct {
-	MessageID string `gorm:"size:191"`
-	Key       string `gorm:"primaryKey" json:"key"`
-	Extention string `json:"ext"`
+	messageID uuid.UUID
+	key       string
+	extension string
 }
 
-func (MessageFile) TableName() string {
-	return "messagefiles"
+func (m MessageFile) Key() string          { return m.key }
+func (m MessageFile) MessageID() uuid.UUID { return m.messageID }
+func (m MessageFile) Extension() string    { return m.extension }
+
+func NewMessageFile(messageID uuid.UUID, key, ext string) MessageFile {
+	return MessageFile{
+		messageID: messageID,
+		key:       key,
+		extension: ext,
+	}
 }

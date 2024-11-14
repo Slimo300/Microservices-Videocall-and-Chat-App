@@ -1,33 +1,32 @@
 package eventprocessor
 
 import (
+	"context"
 	"log"
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/database"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/storage"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/app"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/app/command"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/models"
 )
 
 // EventProcessor listens to events coming from broker and updates state of application
 type EventProcessor struct {
-	DB       database.DBLayer
-	Listener msgqueue.EventListener
-	Storage  storage.StorageLayer
+	listener msgqueue.EventListener
+	app      app.App
 }
 
 // NewEventProcessor is a constructor for EventProcessor type
-func NewEventProcessor(listener msgqueue.EventListener, db database.DBLayer, storage storage.StorageLayer) *EventProcessor {
+func NewEventProcessor(listener msgqueue.EventListener, app app.App) *EventProcessor {
 	return &EventProcessor{
-		DB:       db,
-		Listener: listener,
-		Storage:  storage,
+		app:      app,
+		listener: listener,
 	}
 }
 
 func (p *EventProcessor) ProcessEvents(eventNames ...string) {
-
-	received, errors, err := p.Listener.Listen(eventNames...)
+	received, errors, err := p.listener.Listen(eventNames...)
 	if err != nil {
 		log.Fatalf("Error when starting listening to kafka: %v", err)
 	}
@@ -37,35 +36,52 @@ func (p *EventProcessor) ProcessEvents(eventNames ...string) {
 		case evt := <-received:
 			switch e := evt.(type) {
 			case *events.MessageSentEvent:
-				if err := p.DB.AddMessage(*e); err != nil {
+				var files []models.MessageFile
+				for _, file := range e.Files {
+					files = append(files, models.NewMessageFile(e.ID, file.Key, file.Extension))
+				}
+				if err := p.app.Commands.CreateMessage.Handle(context.Background(), command.CreateMessageCommand{
+					MessageID: e.ID,
+					MemberID:  e.MemberID,
+					GroupID:   e.GroupID,
+					Text:      e.Text,
+					Nick:      e.Nick,
+					Posted:    e.Posted,
+					Files:     files,
+				}); err != nil {
 					log.Printf("Error when adding message: %s\n", err.Error())
 				}
 			case *events.GroupDeletedEvent:
-				if err := p.DB.DeleteGroup(*e); err != nil {
+				if err := p.app.Commands.DeleteGroup.Handle(context.Background(), command.DeleteGroupCommand{GroupID: e.ID}); err != nil {
 					log.Printf("Error when deleting group members: %s\n", err.Error())
 				}
-				go func() {
-					if err := p.Storage.DeleteFolder(e.ID.String()); err != nil {
-						log.Printf("Error when deleting group files from storage: %s\n", err.Error())
-					}
-				}()
 			case *events.MemberCreatedEvent:
-				if err := p.DB.NewMember(*e); err != nil {
-					log.Printf("Error when creating member from message: %s\n", err.Error())
+				if err := p.app.Commands.CreateMember.Handle(context.Background(), command.CreateMemberCommand{
+					MemberID: e.ID,
+					GroupID:  e.GroupID,
+					UserID:   e.UserID,
+					Username: e.User.UserName,
+					Creator:  e.Creator,
+				}); err != nil {
+					log.Printf("Error when creating member from event: %s\n", err.Error())
 				}
 			case *events.MemberUpdatedEvent:
-				if err := p.DB.ModifyMember(*e); err != nil {
-					log.Printf("Error when updating member from message: %s\n", err.Error())
+				if err := p.app.Commands.UpdateMember.Handle(context.Background(), command.UpdateMemberCommand{
+					MemberID:         e.ID,
+					Admin:            e.Admin,
+					DeletingMessages: e.DeletingMessages,
+				}); err != nil {
+					log.Printf("Error when updating member from event: %s\n", err.Error())
 				}
 			case *events.MemberDeletedEvent:
-				if err := p.DB.DeleteMember(*e); err != nil {
-					log.Printf("Error when deleting member from message: %s\n", err.Error())
+				if err := p.app.Commands.DeleteMember.Handle(context.Background(), command.DeleteMemberCommand{MemberID: e.ID}); err != nil {
+					log.Printf("Error when deleting member from event: %s\n", err.Error())
 				}
 			default:
-				log.Println("Event type not known")
+				log.Printf("Unknown event type: %s\n", e.EventName())
 			}
 		case err = <-errors:
-			log.Printf("Error when receiving message: %s", err.Error())
+			log.Printf("Error when receiving message: %s\n", err.Error())
 		}
 	}
 

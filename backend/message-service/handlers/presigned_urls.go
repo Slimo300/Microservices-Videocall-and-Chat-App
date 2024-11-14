@@ -6,11 +6,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/storage"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/storage"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/app/query"
 )
 
 type presignedGetRequestBody struct {
-	Files []storage.GetFileInput `json:"files"`
+	Files []storage.PresignGetFileInput `json:"files"`
 }
 
 func (s *Server) GetPresignedGetRequests(c *gin.Context) {
@@ -24,7 +26,6 @@ func (s *Server) GetPresignedGetRequests(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid group ID"})
 		return
 	}
-
 	var files presignedGetRequestBody
 	if err := c.ShouldBindJSON(&files); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
@@ -34,23 +35,20 @@ func (s *Server) GetPresignedGetRequests(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid request body"})
 		return
 	}
-
-	if _, err := s.DB.GetGroupMembership(userID, groupID); err != nil {
-		c.JSON(http.StatusForbidden, gin.H{"err": "user cannot send messages to this group"})
-		return
-	}
-
-	presignedRequests, err := s.Storage.GetPresignedGetRequests(groupID.String(), files.Files...)
+	presignedRequests, err := s.App.Queries.GetPresignedGetRequestsHandler.Handle(c.Request.Context(), query.GetPresignedGetRequestsQuery{
+		UserID:   userID,
+		GroupID:  groupID,
+		FileKeys: files.Files,
+	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
+		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
-
 	c.JSON(http.StatusOK, presignedRequests)
 }
 
 type presignedPutRequestBody struct {
-	Files []storage.PutFileInput `json:"files"`
+	Files []storage.PresignPutFileInput `json:"files"`
 }
 
 func (s *Server) GetPresignedPutRequests(c *gin.Context) {
@@ -74,18 +72,14 @@ func (s *Server) GetPresignedPutRequests(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid request body"})
 		return
 	}
-
-	if _, err := s.DB.GetGroupMembership(userID, groupID); err != nil {
-		c.JSON(http.StatusForbidden, gin.H{"err": "user cannot send messages to this group"})
-		return
-	}
-
-	requestsData, err := s.Storage.GetPresignedPutRequests(groupID.String(), files.Files...)
+	presignedRequests, err := s.App.Queries.GetPresignedPutRequestsHandler.Handle(c.Request.Context(), query.GetPresignedPutRequestsQuery{
+		UserID:   userID,
+		GroupID:  groupID,
+		FileKeys: files.Files,
+	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
+		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
-
-	c.JSON(http.StatusOK, requestsData)
-
+	c.JSON(http.StatusOK, presignedRequests)
 }

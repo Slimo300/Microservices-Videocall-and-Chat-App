@@ -15,13 +15,14 @@ import (
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/builder"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/kafka"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/storage/s3"
+
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/app"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/config"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/database/orm"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/eventprocessor"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/handlers"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/routes"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/storage/s3"
 )
 
 func getPublicKey() (*rsa.PublicKey, error) {
@@ -51,12 +52,12 @@ func main() {
 		log.Fatalf("Error reading public key: %v", err)
 	}
 
-	db, err := orm.Setup(conf.DBAddress)
+	db, err := orm.NewMessagesGormRepository(conf.DBAddress)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	builder, err := builder.NewBrokerBuilder(msgqueue.ParseBrokerType(conf.BrokerType), conf.BrokerAddress)
+	builder, err := kafka.NewKafkaBuilder([]string{conf.BrokerAddress})
 	if err != nil {
 		log.Fatalf("Error when creating broker builder: %v", err)
 	}
@@ -82,18 +83,17 @@ func main() {
 		log.Fatalf("Error when building listener: %v", err)
 	}
 
-	storage, err := s3.NewS3Storage(conf.StorageKeyID, conf.StorageKeySecret, conf.Bucket, s3.WithCORS(conf.Origin))
+	storage, err := s3.NewS3Storage(context.Background(), conf.StorageKeyID, conf.StorageKeySecret, conf.Bucket, s3.WithRegion(conf.StorageRegion))
 	if err != nil {
 		log.Fatalf("Couldn't establish s3 session: %v", err)
 	}
 
-	go eventprocessor.NewEventProcessor(listener, db, storage).ProcessEvents("wsmessage", "group")
+	app := app.NewApplication(db, storage, emiter)
 
-	server := handlers.NewServer(db, pubKey, emiter, storage)
-	handler := routes.Setup(server, conf.Origin)
+	go eventprocessor.NewEventProcessor(listener, app).ProcessEvents("wsmessage", "group")
 
 	httpServer := &http.Server{
-		Handler: handler,
+		Handler: handlers.NewServer(app, pubKey, conf.Origin),
 		Addr:    fmt.Sprintf(":%s", conf.HTTPPort),
 	}
 

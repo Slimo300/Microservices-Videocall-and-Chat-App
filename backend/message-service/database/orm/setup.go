@@ -3,26 +3,26 @@ package orm
 import (
 	"fmt"
 
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/models"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/database"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
-type Database struct {
+type MessagesGormRepository struct {
 	*gorm.DB
 }
 
-// Setup creates Database object and initializes connection between MySQL database
-func Setup(address string) (*Database, error) {
-
+func NewMessagesGormRepository(address string) (database.MessagesRepository, error) {
 	db, err := gorm.Open(mysql.Open(fmt.Sprintf("%s?parseTime=true", address)), &gorm.Config{
 		SkipDefaultTransaction: true,
+		Logger:                 logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	_ = db.AutoMigrate(&models.Message{}, &models.Membership{}, &models.MessageFile{})
+	_ = db.AutoMigrate(&Message{}, &Member{}, &MessageFile{})
 
-	return &Database{DB: db}, nil
+	return &MessagesGormRepository{DB: db}, nil
 }
