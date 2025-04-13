@@ -51,6 +51,8 @@ spec:
           value: group-mysql:3306
         - name: ORIGIN
           value: https://www.relrel.com
+        - name: SERVICE_ADDRESS
+          value: https://api.relrel.com
         envFrom:
         - configMapRef:
             name: broker-config

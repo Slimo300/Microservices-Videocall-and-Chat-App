@@ -47,7 +47,6 @@ type CodeType struct {
 }
 
 func (c CodeType) String() string { return c.s }
-func (c CodeType) IsZero() bool   { return c == CodeType{} }
 
 var (
 	EmailVerificationCode = CodeType{"email_verification"}

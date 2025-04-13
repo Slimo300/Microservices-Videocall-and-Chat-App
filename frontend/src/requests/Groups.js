@@ -1,7 +1,15 @@
 import axiosObject, {groupsService} from "./Setup";
 
+export async function GetInviteByID(inviteID) {
+    return await axiosObject.get(groupsService+"/invites/"+inviteID)
+}
+
 export async function GetInvites(offset) {
     return await axiosObject.get(groupsService+"/invites?num=8&offset="+offset);
+}
+
+export async function GetGroupByID(groupID) {
+    return await axiosObject.get(groupsService+"/"+groupID);
 }
 
 export async function GetGroups() {

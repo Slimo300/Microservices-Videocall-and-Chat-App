@@ -11,7 +11,7 @@ import (
 )
 
 func TestChangePictureIfStateIncorrect(t *testing.T) {
-	group := models.CreateGroup(uuid.New(), "new group")
+	group := models.CreateGroup(uuid.New(), uuid.New(), "new group")
 
 	require.False(t, group.HasPicture())
 
@@ -29,7 +29,7 @@ func TestChangePictureIfStateIncorrect(t *testing.T) {
 }
 
 func TestGetMemberByID(t *testing.T) {
-	group := models.CreateGroup(uuid.New(), "new group")
+	group := models.CreateGroup(uuid.New(), uuid.New(), "new group")
 
 	userID := uuid.New()
 

@@ -139,7 +139,7 @@ function AddMemberToGroup(state, payload) {
     let newState = {...state};
     for (let i = 0; i < newState.groups.length; i++) {
         if (newState.groups[i].ID === payload.groupID) {
-            newState.groups[i].Members.push(payload);
+            newState.groups[i].members.push(payload);
             return newState;
         }
     }
@@ -150,9 +150,9 @@ function UpdateMember(state, payload) {
     let newState = {...state};
     for (let i = 0; i < newState.groups.length; i++) {
         if (newState.groups[i].ID === payload.groupID) {
-            for (let j = 0; j < newState.groups[i].Members.length; j++) {
-                if (newState.groups[i].Members[j].ID === payload.ID) {
-                    newState.groups[i].Members[j] = payload;
+            for (let j = 0; j < newState.groups[i].members.length; j++) {
+                if (newState.groups[i].members[j].ID === payload.ID) {
+                    newState.groups[i].members[j] = payload;
                     return newState;
                 }
             }
@@ -165,7 +165,7 @@ function DeleteMemberFromGroup(state, payload) {
     let newState = {...state};
     for (let i = 0; i < newState.groups.length; i++) {
         if (newState.groups[i].ID === payload.groupID) {
-            newState.groups[i].Members = newState.groups[i].Members.filter((item)=>{return item.ID !== payload.ID});
+            newState.groups[i].members = newState.groups[i].members.filter((item)=>{return item.ID !== payload.ID});
             return newState;
         }
     }
@@ -177,7 +177,7 @@ function DeleteMemberFromGroup(state, payload) {
 function AddMessage(state, payload) {
     let newState = {...state};
     for (let i = 0; i < newState.groups.length; i++) {
-        if (newState.groups[i].ID === payload.message.Member.groupID) {
+        if (newState.groups[i].ID === payload.message.member.groupID) {
             newState.groups[i].messages.unshift(payload.message)
             if (!payload.current) {
                 newState.groups[i].unreadMessages += 1;
@@ -201,15 +201,9 @@ function AddMessages(state, payload) {
 
 function DeleteMessage(state, payload) {
     let newState = {...state};
-    console.log(payload);
     for (let i = 0; i < newState.groups.length; i++) {
         if (newState.groups[i].ID === payload.groupID) {
-            for (let j = 0; j < newState.groups[i].messages.length; j++) {
-                if (newState.groups[i].messages[j].messageID === payload.messageID) {
-                    newState.groups[i].messages[j].text = ""; 
-                    newState.groups[i].messages[j].files = [];
-                }
-            }
+            newState.groups[i].messages = newState.groups[i].messages.filter(item => { return item.ID != payload.messageID});
             return newState;
         }
     }

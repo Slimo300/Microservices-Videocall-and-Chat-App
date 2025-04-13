@@ -47,8 +47,7 @@ func (g Group) GetMemberByUserID(userID uuid.UUID) (Member, bool) {
 	return Member{}, false
 }
 
-func CreateGroup(userID uuid.UUID, name string) Group {
-	groupID := uuid.New()
+func CreateGroup(userID, groupID uuid.UUID, name string) Group {
 	creator := newCreatorMember(userID, groupID)
 	return Group{
 		id:         groupID,

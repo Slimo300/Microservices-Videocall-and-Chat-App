@@ -89,7 +89,7 @@ func main() {
 	go eventprocessor.NewEventProcessor(app, listener).ProcessEvents("user")
 
 	httpServer := &http.Server{
-		Handler: handlers.NewServer(app, pubKey, conf.Origin),
+		Handler: handlers.NewServer(app, pubKey, conf.Origin, conf.ServiceAddress),
 		Addr:    fmt.Sprintf(":%s", conf.HTTPPort),
 	}
 

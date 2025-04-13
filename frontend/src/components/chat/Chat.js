@@ -46,9 +46,9 @@ const Chat = ({group, user, ws, setCurrent}) => {
                 if (group.ID === undefined) {
                     return
                 }
-                for (let i = 0; i < group.Members.length; i++) {
-                    if (group.Members[i].userID === user.ID ) {
-                        setMember(group.Members[i]);
+                for (let i = 0; i < group.members.length; i++) {
+                    if (group.members[i].userID === user.ID ) {
+                        setMember(group.members[i]);
                         return;
                     }
                 }

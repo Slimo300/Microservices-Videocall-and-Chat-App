@@ -10,9 +10,9 @@ export const ChatBox = ({ group, user }) => {
     const [, dispatch] = useContext(StorageContext);
 
     const MemberHasPicture = (group, userID) => {
-        for (let i = 0; i < group.Members.length; i++) {
-            if (group.Members[i].User.ID === userID) {
-                return group.Members[i].User.hasPicture;
+        for (let i = 0; i < group.members.length; i++) {
+            if (group.members[i].user.ID === userID) {
+                return group.members[i].user.hasPicture;
             }
         }
         return "";
@@ -49,8 +49,7 @@ export const ChatBox = ({ group, user }) => {
             <ul className="d-flex flex-column-reverse col p-0 overflower">
                 {group.messages===undefined?null:group.messages.map((item) => {
                 return <div key={item.messageID} className="d-flex flex-column justify-content-end">
-                        {/* <Message message={item} user={user.ID} picture={GetMemberPicture(group, item.Member.userID)} /> */}
-                        <Message message={item} userID={user.ID} hasPicture={MemberHasPicture(group, item.Member.userID)} />
+                        <Message message={item} userID={user.ID} hasPicture={MemberHasPicture(group, item.member.userID)} />
                         {shouldDisplayDate(new Date(item.created), lastMessageDate)?<NewDate time={dateToDisplay} />:null}
                     </div>})}
                 {group.messages[group.messages.length-1]?<div className="d-flex flex-column justify-content-end">

@@ -9,7 +9,7 @@ import (
 )
 
 func TestMemberRights(t *testing.T) {
-	group := models.CreateGroup(uuid.New(), "new group")
+	group := models.CreateGroup(uuid.New(), uuid.New(), "new group")
 	creatorUser := group.Members()[0]
 	deletingUser := group.AddMember(uuid.New(), models.WithDeletingMembers)
 	deletingUserTest := group.AddMember(uuid.New(), models.WithDeletingMembers)

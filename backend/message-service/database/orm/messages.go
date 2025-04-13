@@ -7,6 +7,7 @@ import (
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/apperrors"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/models"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 func (r *MessagesGormRepository) CreateMessage(ctx context.Context, message models.Message) error {
@@ -32,9 +33,18 @@ func (r *MessagesGormRepository) GetGroupMessages(ctx context.Context, userID, g
 		return nil, err
 	}
 	var messages []Message
-	if err := r.DB.WithContext(ctx).Order("posted desc").Offset(offset).Limit(num).Preload("Member").Preload("Files").Preload("Deleters").Where(Message{GroupID: groupID}).Find(&messages).Error; err != nil {
+	if err := r.DB.WithContext(ctx).Model(&Message{}).
+		Preload("Member").
+		Joins("LEFT JOIN users_who_deleted uwd ON messages.id = uwd.message_id AND uwd.member_id = ?", mem.ID).
+		Where("messages.group_id = ?", groupID).
+		Where("uwd.message_id IS NULL").
+		Order("messages.posted DESC").
+		Offset(offset).
+		Limit(num).
+		Find(&messages).Error; err != nil {
 		return nil, err
 	}
+
 	var res []models.Message
 	for _, m := range messages {
 		res = append(res, m.marshalMessage())
@@ -59,22 +69,24 @@ func (r *MessagesGormRepository) DeleteMessageForYourself(ctx context.Context, u
 }
 
 func (r *MessagesGormRepository) DeleteMessageForEveryone(ctx context.Context, userID, messageID uuid.UUID) error {
-	var message Message
-	if err := r.DB.WithContext(ctx).Preload("Member").Preload("Files").First(&message, messageID).Error; err != nil {
-		return apperrors.NewNotFound(fmt.Sprintf("message with id %s not found", messageID.String()))
-	}
-	msg := message.marshalMessage()
-	var member Member
-	if err := r.DB.WithContext(ctx).Where(Member{UserID: userID, GroupID: message.Member.GroupID}).First(&member).Error; err != nil {
-		// Here we return not found not to give information about existance of message with given ID
-		return apperrors.NewNotFound(fmt.Sprintf("message with id %s not found", messageID.String()))
-	}
-	m := models.UnmarshalMemberFromDatabase(member.ID, member.UserID, member.GroupID, member.Username, member.Creator, member.Admin, member.DeletingMessages)
-	if !m.CanDeleteMessage(&msg) {
-		return apperrors.NewForbidden("user has no right to delete message")
-	}
-	if err := r.DB.WithContext(ctx).Model(&message).Update("text", "").Error; err != nil {
-		return err
-	}
-	return r.DB.WithContext(ctx).Where(MessageFile{MessageID: message.ID}).Delete(&MessageFile{}).Error
+	return r.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var message Message
+		if err := tx.Preload("Member").Preload("Files").First(&message, messageID).Error; err != nil {
+			return apperrors.NewNotFound(fmt.Sprintf("message with id %s not found", messageID.String()))
+		}
+		msg := message.marshalMessage()
+		var member Member
+		if err := tx.Where(Member{UserID: userID, GroupID: message.Member.GroupID}).First(&member).Error; err != nil {
+			// Here we return not found not to give information about existance of message with given ID
+			return apperrors.NewNotFound(fmt.Sprintf("message with id %s not found", messageID.String()))
+		}
+		m := models.UnmarshalMemberFromDatabase(member.ID, member.UserID, member.GroupID, member.Username, member.Creator, member.Admin, member.DeletingMessages)
+		if !m.CanDeleteMessage(&msg) {
+			return apperrors.NewForbidden("user has no right to delete message")
+		}
+		if err := tx.Where(MessageFile{MessageID: message.ID}).Delete(&MessageFile{}).Error; err != nil {
+			return err
+		}
+		return tx.Delete(&Message{ID: messageID}).Error
+	})
 }

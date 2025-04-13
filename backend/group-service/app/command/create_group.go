@@ -11,8 +11,9 @@ import (
 )
 
 type CreateGroupCommand struct {
-	UserID uuid.UUID
-	Name   string
+	UserID  uuid.UUID
+	GroupID uuid.UUID
+	Name    string
 }
 
 type CreateGroupHandler struct {
@@ -31,7 +32,7 @@ func NewCreateGroupHandler(repo database.GroupsRepository, emitter msgqueue.Even
 }
 
 func (h CreateGroupHandler) Handle(ctx context.Context, cmd CreateGroupCommand) error {
-	group := models.CreateGroup(cmd.UserID, cmd.Name)
+	group := models.CreateGroup(cmd.UserID, cmd.GroupID, cmd.Name)
 	group, err := h.repo.CreateGroup(ctx, group)
 	if err != nil {
 		return err

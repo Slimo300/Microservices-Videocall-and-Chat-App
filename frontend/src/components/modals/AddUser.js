@@ -102,8 +102,8 @@ const User = ({ user, groupID, setMsg, toggle, isMember }) => {
 
 
 function isMember(group, userID) {
-    for (let i = 0; i < group.Members.length; i++) {
-        if (group.Members[i].userID === userID) return true;
+    for (let i = 0; i < group.members.length; i++) {
+        if (group.members[i].userID === userID) return true;
     }
     return false;
 }

@@ -28,6 +28,9 @@ type Commands struct {
 type Queries struct {
 	GetUserInvites query.GetUserInvitesHandler
 	GetUserGroups  query.GetUserGroupsHandler
+
+	GetGroup  query.GetGroupHandler
+	GetInvite query.GetInviteHandler
 }
 
 type App struct {
@@ -63,6 +66,8 @@ func NewApplication(repo database.GroupsRepository, storage storage.Storage, emi
 		Queries: Queries{
 			GetUserInvites: query.NewGetUserInvitesHandler(repo),
 			GetUserGroups:  query.NewGetUserGroupsHandler(repo),
+			GetGroup:       query.NewGetGroupHandler(repo),
+			GetInvite:      query.NewGetInviteHandler(repo),
 		},
 		Commands: Commands{
 			CreateGroup:        command.NewCreateGroupHandler(repo, emitter),

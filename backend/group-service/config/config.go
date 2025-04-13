@@ -6,24 +6,22 @@ import (
 	"os"
 )
 
-// Config holds user service configuration
 type Config struct {
-	DBAddress string `mapstructure:"dbAddress"`
-	HTTPPort  string `mapstructure:"httpPort"`
+	DBAddress      string
+	HTTPPort       string
+	ServiceAddress string
 
-	Origin string `mapstructure:"origin"`
+	Origin string
 
-	BrokerType    string `mapstructure:"brokerType"`
-	BrokerAddress string `mapstructure:"brokerAddress"`
+	BrokerType    string
+	BrokerAddress string
 
-	StorageKeyID     string `mapstructure:"storageKeyID"`
-	StorageKeySecret string `mapstructure:"storageKeySecret"`
-	StorageRegion    string `mapstructure:"storageRegion"`
-	Bucket           string `mapstructure:"bucketname"`
+	StorageKeyID     string
+	StorageKeySecret string
+	StorageRegion    string
+	Bucket           string
 }
 
-// LoadConfigFromEnvironment loads user service configuration from environment variables and returns an error
-// if any of them is missing
 func LoadConfigFromEnvironment() (conf Config, err error) {
 
 	mySQLAddress := os.Getenv("MYSQL_ADDRESS")
@@ -45,6 +43,10 @@ func LoadConfigFromEnvironment() (conf Config, err error) {
 
 	conf.DBAddress = fmt.Sprintf("%s:%s@tcp(%s)/%s", mySQLUser, mySQLPassword, mySQLAddress, mySQLDatabase)
 
+	conf.ServiceAddress = os.Getenv("SERVICE_ADDRESS")
+	if len(conf.ServiceAddress) == 0 {
+		return Config{}, errors.New("environment variable SERVICE_ADDRESS not set")
+	}
 	conf.HTTPPort = os.Getenv("HTTP_PORT")
 	if len(conf.HTTPPort) == 0 {
 		return Config{}, errors.New("environment variable HTTP_PORT not set")

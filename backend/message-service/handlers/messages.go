@@ -42,7 +42,7 @@ func (s *Server) GetGroupMessages(c *gin.Context) {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, messages)
+	c.JSON(http.StatusOK, modelMessagesToResponse(messages))
 }
 
 func (s *Server) DeleteMessageForEveryone(c *gin.Context) {

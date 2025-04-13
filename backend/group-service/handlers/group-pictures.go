@@ -20,7 +20,6 @@ func (s *Server) SetGroupProfilePicture(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "Invalid group ID"})
 		return
 	}
-
 	imageFileHeader, err := c.FormFile("avatarFile")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
@@ -49,17 +48,14 @@ func (s *Server) DeleteGroupProfilePicture(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
 		return
 	}
-
 	groupID, err := uuid.Parse(c.Param("groupID"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid group ID"})
 		return
 	}
-
 	if err := s.App.Commands.DeleteGroupPicture.Handle(c.Request.Context(), command.DeleteGroupPictureCommand{UserID: userID, GroupID: groupID}); err != nil {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{"message": "success"})
 }

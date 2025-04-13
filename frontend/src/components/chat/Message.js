@@ -6,8 +6,6 @@ import { DeleteMessageForEveryone, DeleteMessageForYourself, GetPresignedGetRequ
 import { actionTypes, StorageContext } from '../../ChatStorage';
 
 const Message = ({ message, userID, hasPicture }) => {
-// const Message = ({ message, picture, user }) => {
-
     let time = new Date(message.created);
     let displayedTime = time.getHours() + ":" + (time.getMinutes()<10?'0':'') + time.getMinutes();
     let isDeleted = message.text === "" && message.files.length === 0;
@@ -17,19 +15,19 @@ const Message = ({ message, userID, hasPicture }) => {
             <div className="chat-hour">{displayedTime} <span className="fa fa-check-circle"></span></div>
             <MessageContent message={message} side="right" />
             <div className="chat-avatar">
-                <UserPicture userID={message.Member.userID} hasPicture={hasPicture} />
-                <div className="chat-name">{message.Member.username}</div>
+                <UserPicture userID={message.member.userID} hasPicture={hasPicture} />
+                <div className="chat-name">{message.member.username}</div>
             </div>
-            <MessageOptions side="right" messageID={message.messageID} groupID={message.Member.groupID} isDeleted={isDeleted}/>
+            <MessageOptions side="right" messageID={message.ID} groupID={message.member.groupID} isDeleted={isDeleted}/>
         </li>
     );
 
     const left = (
         <li className="chat-left">
-            <MessageOptions side="left" messageID={message.messageID} groupID={message.Member.groupID} isDeleted={isDeleted}/>
+            <MessageOptions side="left" messageID={message.ID} groupID={message.member.groupID} isDeleted={isDeleted}/>
             <div className="chat-avatar">
-                <UserPicture userID={message.Member.userID} hasPicture={hasPicture} />
-                <div className="chat-name">{message.Member.username}</div>
+                <UserPicture userID={message.member.userID} hasPicture={hasPicture} />
+                <div className="chat-name">{message.member.username}</div>
             </div>
             <MessageContent message={message} side="left" />
             <div className="chat-hour">{displayedTime} <span className="fa fa-check-circle"></span></div>
@@ -38,28 +36,25 @@ const Message = ({ message, userID, hasPicture }) => {
 
     return (
         <div>
-            {message.Member.userID===userID?right:left}
+            {message.member.userID===userID?right:left}
         </div>
     )
 }
 
 const MessageContent = ({message, side}) => {
-
     const [fileUrls, setFileUrls] = useState(null);
 
     useEffect(() => {
         const fetchUrls = async () => {
             try {
-                let result = await GetPresignedGetRequests(message.Member.groupID, message.files.map(file => {
+                let result = await GetPresignedGetRequests(message.member.groupID, message.files.map(file => {
                     return file.key;
                 }))
-    
                 setFileUrls(result.data);
             } catch(err) {
                 console.log(err.response.data);
             }
         }
-
         if (message.files && message.files.length > 0) fetchUrls();
     }, []);
 
@@ -88,15 +83,14 @@ const MessageFile = ({ url }) => {
     )
 }
 
-const MessageOptions = ({messageID, isDeleted, side}) => {
-
+const MessageOptions = ({messageID, groupID, isDeleted, side}) => {
     const [, dispatch] = useContext(StorageContext);
 
     const DeleteForYourself = async () => {
         try {
             if (!isDeleted) {
-               let response = await DeleteMessageForYourself(messageID);
-               dispatch({type: actionTypes.DELETE_MESSAGE, payload: { messageID: response.data.messageID, groupID: response.data.Member.groupID }});
+               await DeleteMessageForYourself(messageID);
+               dispatch({type: actionTypes.DELETE_MESSAGE, payload: { messageID, groupID }});
             }
         } catch(err) {
             alert(err.response.data.err);
@@ -105,12 +99,12 @@ const MessageOptions = ({messageID, isDeleted, side}) => {
     }
 
     const DeleteForEveryone = async () => {
-    try {
-        if (!isDeleted) await DeleteMessageForEveryone(messageID)
-      } catch(err) {
-        alert(err.response.data.err);
-        return;
-      }
+        try {
+            if (!isDeleted) await DeleteMessageForEveryone(messageID);
+        } catch(err) {
+            alert(err.response.data.err);
+            return;
+        }
     }
 
     return (

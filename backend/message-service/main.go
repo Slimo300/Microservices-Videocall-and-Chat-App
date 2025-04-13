@@ -15,7 +15,7 @@ import (
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/events"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue"
-	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/kafka"
+	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/msgqueue/amqp"
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/lib/storage/s3"
 
 	"github.com/Slimo300/Microservices-Videocall-and-Chat-App/backend/message-service/app"
@@ -57,7 +57,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	builder, err := kafka.NewKafkaBuilder([]string{conf.BrokerAddress})
+	builder, err := amqp.NewAMQPBuilder(conf.BrokerAddress)
 	if err != nil {
 		log.Fatalf("Error when creating broker builder: %v", err)
 	}

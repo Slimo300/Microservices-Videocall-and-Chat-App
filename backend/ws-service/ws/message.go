@@ -16,9 +16,9 @@ type Sender interface {
 
 // Message is a plain message in chat app
 type Message struct {
-	ID       uuid.UUID     `json:"messageID"`
+	ID       uuid.UUID     `json:"ID"`
 	MemberID uuid.UUID     `json:"memberID"`
-	Member   Member        `json:"Member"`
+	Member   Member        `json:"member"`
 	Message  string        `json:"text"`
 	When     time.Time     `json:"created"`
 	Files    []MessageFile `json:"files"`

@@ -17,8 +17,6 @@ WORKDIR /
 
 COPY --from=build app/emailservice /emailservice
 
-# GRPC port for communication with other services
-ENV GRPC_PORT=9000
 # API address for email links
 ENV ORIGIN=http://localhost:3000
 # What email address will be shown as sender
@@ -31,6 +29,8 @@ ENV SMTP_PORT=
 ENV SMTP_USER=
 # SMTP Password
 ENV SMTP_PASS=
+# Kafka Address
+ENV BROKER_ADDRESS=
 
 EXPOSE 9000
 

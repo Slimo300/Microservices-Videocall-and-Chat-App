@@ -47,15 +47,12 @@ const AuthMain = ({ ws, setWs, profileShow, toggleProfile}) => {
                     setWs({});
                 }
             }
-
             const groupsResult = await GetGroups();
-            if (groupsResult.status === 200) {
-                dispatch({type: actionTypes.ADD_GROUPS, payload: groupsResult.data});
-            }
+            if (groupsResult.status === 200) dispatch({type: actionTypes.ADD_GROUPS, payload: groupsResult.data});
+
             const invitesResult = await GetInvites(0);
-            if (invitesResult.status === 200) {
-                dispatch({type: actionTypes.ADD_INVITES, payload: invitesResult.data});
-            }
+            if (invitesResult.status === 200) dispatch({type: actionTypes.ADD_INVITES, payload: invitesResult.data});
+
             let websocket = await GetWebsocket();
             setWs(websocket);
         };
@@ -103,8 +100,7 @@ const AuthMain = ({ ws, setWs, profileShow, toggleProfile}) => {
             }
             return;
         }
-
-        dispatch({type: actionTypes.ADD_MESSAGE, payload: {message: msgJSON, current: msgJSON.Member.groupID === current.ID}});
+        dispatch({type: actionTypes.ADD_MESSAGE, payload: {message: msgJSON, current: msgJSON.member.groupID === current.ID}});
     }
 
     // getting messages from specific group

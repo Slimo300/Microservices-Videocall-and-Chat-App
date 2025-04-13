@@ -144,7 +144,7 @@ func (s *GroupsSuite) TestGroups() {
 	err := s.repo.CreateUser(ctx, user)
 	s.Require().NoError(err)
 
-	group := models.CreateGroup(user.ID(), uuid.NewString())
+	group := models.CreateGroup(user.ID(), uuid.New(), uuid.NewString())
 	group, err = s.repo.CreateGroup(ctx, group)
 	s.Require().NoError(err)
 	s.Equal(user.Username(), group.Members()[0].User().Username())
@@ -182,7 +182,7 @@ func (s *GroupsSuite) TestRespondInvite() {
 	creator := models.NewUser(uuid.New(), uuid.NewString())
 	target1 := models.NewUser(uuid.New(), uuid.NewString())
 	target2 := models.NewUser(uuid.New(), uuid.NewString())
-	group := models.CreateGroup(creator.ID(), uuid.NewString())
+	group := models.CreateGroup(creator.ID(), uuid.New(), uuid.NewString())
 	invite1 := models.CreateInvite(creator.ID(), target1.ID(), group.ID())
 	invite2 := models.CreateInvite(creator.ID(), target2.ID(), group.ID())
 
@@ -275,7 +275,7 @@ func (s *GroupsSuite) TestCreateInvite() {
 	userNotInGroup := models.NewUser(uuid.New(), uuid.NewString())
 	userInGroup := models.NewUser(uuid.New(), uuid.NewString())
 	userInvited := models.NewUser(uuid.New(), uuid.NewString())
-	group := models.CreateGroup(creator.ID(), uuid.NewString())
+	group := models.CreateGroup(creator.ID(), uuid.New(), uuid.NewString())
 	_ = group.AddMember(userInGroup.ID())
 	inviteAwaiting := models.CreateInvite(creator.ID(), userInvited.ID(), group.ID())
 
@@ -363,7 +363,7 @@ func (s *GroupsSuite) TestDeleteMember() {
 	userNoRights := models.NewUser(uuid.New(), uuid.NewString())
 	userToDelete := models.NewUser(uuid.New(), uuid.NewString())
 	userToFailDelete := models.NewUser(uuid.New(), uuid.NewString())
-	group := models.CreateGroup(creator.ID(), uuid.NewString())
+	group := models.CreateGroup(creator.ID(), uuid.New(), uuid.NewString())
 	_ = group.AddMember(userNoRights.ID())
 	memberToFailDelete := group.AddMember(userToFailDelete.ID())
 	memberToDelete := group.AddMember(userToDelete.ID())
@@ -426,7 +426,7 @@ func (s *GroupsSuite) TestUpdateMember() {
 	userToUpdate := models.NewUser(uuid.New(), uuid.NewString())
 	userNoRights := models.NewUser(uuid.New(), uuid.NewString())
 
-	group := models.CreateGroup(creator.ID(), uuid.NewString())
+	group := models.CreateGroup(creator.ID(), uuid.New(), uuid.NewString())
 	memberToUpdate := group.AddMember(userToUpdate.ID())
 	_ = group.AddMember(userNoRights.ID())
 
@@ -498,8 +498,8 @@ func (s *GroupsSuite) TestGetUserInvites() {
 	user2 := models.NewUser(uuid.New(), uuid.NewString())
 	user3 := models.NewUser(uuid.New(), uuid.NewString())
 
-	group1 := models.CreateGroup(user1.ID(), uuid.NewString())
-	group2 := models.CreateGroup(user2.ID(), uuid.NewString())
+	group1 := models.CreateGroup(user1.ID(), uuid.New(), uuid.NewString())
+	group2 := models.CreateGroup(user2.ID(), uuid.New(), uuid.NewString())
 
 	invite1 := models.CreateInvite(user1.ID(), user2.ID(), group1.ID())
 	invite2 := models.CreateInvite(user2.ID(), user1.ID(), group2.ID())
@@ -546,10 +546,10 @@ func (s *GroupsSuite) TestGetUserGroups() {
 	user1 := models.NewUser(uuid.New(), uuid.NewString())
 	user2 := models.NewUser(uuid.New(), uuid.NewString())
 
-	group1 := models.CreateGroup(user1.ID(), uuid.NewString())
-	group2 := models.CreateGroup(user2.ID(), uuid.NewString())
+	group1 := models.CreateGroup(user1.ID(), uuid.New(), uuid.NewString())
+	group2 := models.CreateGroup(user2.ID(), uuid.New(), uuid.NewString())
 	group2.AddMember(user1.ID())
-	group3 := models.CreateGroup(user2.ID(), uuid.NewString())
+	group3 := models.CreateGroup(user2.ID(), uuid.New(), uuid.NewString())
 
 	ctx := context.Background()
 	s.Require().NoError(s.repo.CreateUser(ctx, user1))

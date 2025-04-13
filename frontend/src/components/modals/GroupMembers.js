@@ -15,7 +15,7 @@ export const ModalMembers = ({ group, member, show, toggle }) => {
     }
 
     let nogroup = false;
-    if (group.Members === null) {
+    if (group.members === null) {
         nogroup = true
     }
     return (
@@ -30,7 +30,7 @@ export const ModalMembers = ({ group, member, show, toggle }) => {
                         <div className='form-group'>
                             <table className="table">
                                 <tbody>
-                                    {nogroup?null:group.Members.map((item) => {return <Member key={uuidv4()} group={group.ID} member={item} setMsg={setMsg} toggle={toggle} user={member}/>})}
+                                    {nogroup?null:group.members.map((item) => {return <Member key={uuidv4()} group={group.ID} member={item} setMsg={setMsg} toggle={toggle} user={member}/>})}
                                 </tbody>
                             </table>
                         </div>

@@ -1,30 +1,30 @@
-import React, {useContext, useState} from 'react';
+import React, { useContext, useState } from 'react';
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
 import { actionTypes, StorageContext } from '../../ChatStorage';
-import {CreateGroup} from '../../requests/Groups';
+import { CreateGroup } from '../../requests/Groups';
+import axiosObject from '../../requests/Setup';
 
 export const ModalCreateGroup = ({ toggle, show }) => {
-
     const [, dispatch] = useContext(StorageContext);
 
-    const [grName, setGrName] = useState("");
+    const [groupName, setGroupName] = useState("");
     const [msg, setMsg] = useState("");
 
     const submit = async(e) => {
         e.preventDefault();
-        let response;
         try {
-            response = await CreateGroup(grName);
-            
+            const createGroupResponse = await CreateGroup(groupName);
+            const response = await axiosObject.get(createGroupResponse.headers["content-location"]);
             dispatch({type: actionTypes.ADD_GROUP, payload: response.data});
             setMsg("Group created");
 
-            setTimeout(function () {    
+            setTimeout(function () {
                 toggle();
                 setMsg("");
             }, 1000);
         }
         catch(err) {
+            console.log(err)
             if (err.response.data.err !== undefined) setMsg(err.response.data.err);
             else setMsg(err.message);
         }
@@ -42,7 +42,7 @@ export const ModalCreateGroup = ({ toggle, show }) => {
                         <form onSubmit={submit}>
                             <div className="form-group">
                                 <label htmlFor="email">Group name:</label>
-                                <input name="name" type="text" className="form-control" id="gr_name" onChange={(e)=>{setGrName(e.target.value)}}/>
+                                <input name="name" type="text" className="form-control" onChange={(e)=>{setGroupName(e.target.value)}}/>
                             </div>
                             <div className="form-row text-center">
                                 <div className="col-12 mt-2">

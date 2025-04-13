@@ -49,7 +49,7 @@ axiosObject.interceptors.request.use(
     return response;
   }, async error => {
     const originalRequest = error.config;
-
+    console.log(error);
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       

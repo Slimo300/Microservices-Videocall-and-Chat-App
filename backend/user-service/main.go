@@ -19,7 +19,6 @@ import (
 )
 
 func readPublicKey() (*rsa.PublicKey, error) {
-
 	bytePubKey, err := os.ReadFile("/rsa/public.key")
 	if err != nil {
 		return nil, err
@@ -29,7 +28,6 @@ func readPublicKey() (*rsa.PublicKey, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return key.(*rsa.PublicKey), nil
 }
 

@@ -11,6 +11,25 @@ import (
 	"github.com/google/uuid"
 )
 
+func (s *Server) GetInviteByID(c *gin.Context) {
+	userID, err := uuid.Parse(c.GetString("userID"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid ID"})
+		return
+	}
+	inviteID, err := uuid.Parse(c.Param("inviteID"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "invalid group ID"})
+		return
+	}
+	invite, err := s.App.Queries.GetInvite.Handle(c.Request.Context(), query.GetInvite{UserID: userID, InviteID: inviteID})
+	if err != nil {
+		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, invite)
+}
+
 func (s *Server) GetUserInvites(c *gin.Context) {
 	userID, err := uuid.Parse(c.GetString("userID"))
 	if err != nil {
@@ -32,7 +51,7 @@ func (s *Server) GetUserInvites(c *gin.Context) {
 		c.JSON(apperrors.Status(err), gin.H{"err": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, invites)
+	c.JSON(http.StatusOK, modelInvitesToResponse(invites))
 }
 
 func (s *Server) CreateInvite(c *gin.Context) {
